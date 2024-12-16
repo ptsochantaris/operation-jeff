@@ -1,0 +1,23 @@
+{
+    "C_Cpp.default.compilerPath": "/Users/ptsochantaris/Desktop/ZX/z88dk/bin/zcc",
+    "C_Cpp.default.includePath": [
+        "/Users/ptsochantaris/Desktop/ZX/z88dk/include",
+        "/Users/ptsochantaris/Desktop/ZX/z88dk/include/_DEVELOPMENT/sdcc",
+        "/Users/ptsochantaris/Desktop/ZX/z88dk/libsrc/_DEVELOPMENT/target/zxn",
+    ],
+    "C_Cpp.default.defines": [
+        "__SDCC"
+    ],
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
+    "files.associations": {
+        "zxn.h": "c",
+        "string.h": "c",
+        "leds.h": "c",
+        "stdlib.h": "c",
+        "resources.h": "c",
+        "screen.h": "c",
+        "intrinsic.h": "c",
+        "bonus.h": "c",
+        "copper.h": "c"
+    }
+}
