@@ -21,6 +21,7 @@ ASFLAGS=$(TARGET) $(VERBOSITY) -c -float=ieee16
 EXEC=OperationJeff
 EXEC_OUTPUT=$(EXEC).nex
 OBJDIR=build
+SRC=src
 
 OBJECTS = $(addprefix $(OBJDIR)/, \
 	base.o \
@@ -47,10 +48,10 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	main.o \
 )
 
-$(OBJDIR)/%.o: %.c $(PRAGMA_FILE)
+$(OBJDIR)/%.o: $(SRC)/%.c $(PRAGMA_FILE)
 	$(CC) $(CFLAGS) -o $@ $<
 
-$(OBJDIR)/%.o: %.asm
+$(OBJDIR)/%.o: $(SRC)/%.asm
 	$(AS) $(ASFLAGS) -o $@ $<
 
 all: $(EXEC)
