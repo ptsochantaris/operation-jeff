@@ -16,6 +16,21 @@ void verticalLine(word x, word lowY, word highY, byte color) {
   }
 }
 
+void horizontalLine(word x, word y, word width, byte color) {
+  selectLayer2Page(x >> 6);
+  word xInPage = (x % 64);
+  byte *pos = (byte *)(xInPage * 256 + y);
+
+  for(word ex = x+width; x<=ex; ++x, pos += 256) {
+    xInPage = (x % 64);
+    if(xInPage==0) {
+      selectLayer2Page(x >> 6);
+      pos = (byte *)y;
+    }
+    *pos = color;
+  }
+}
+
 void layer2fill(word x, word y, word width, word height, byte color) {
   word ex = x + width;
   word ey = y + height;
@@ -51,24 +66,24 @@ void layer2DmaFill(word x, word y, word width, word height, byte color) {
 }
 
 void layer2box(word x, word y, word width, word height, byte color) {
-  word ex = x + width;
   word ey = y + height;
-  for(word X = x+1; X != ex; ++X) {
-    layer2Plot(X, y, color);
-    layer2Plot(X, ey, color);
-  }
-  ++ey;
+  horizontalLine(x, y, width, color);
+  horizontalLine(x, ey, width, color);
+  ++y;
   verticalLine(x, y, ey, color);
-  verticalLine(ex, y, ey, color);
+  verticalLine(x + width, y, ey, color);
 }
 
-byte currentPage = 6;
+void layer2roundedBox(word x, word y, word width, word height, byte color) {
+  word ey = y + height;
+  verticalLine(x, y+1, ey, color);
+  verticalLine(x+width, y+1, ey, color);
+  horizontalLine(x+1, y, width-2, color);
+  horizontalLine(x+1, ey, width-2, color);
+}
 
 void selectLayer2Page(byte page) __z88dk_fastcall {
-  if(currentPage != page) {
-    z80_outp(__IO_LAYER_2_CONFIG, 0x10 | page);
-    currentPage = page;
-  }
+  z80_outp(__IO_LAYER_2_CONFIG, 0x10 | page);
 }
 
 void layer2Clear(byte index) __z88dk_fastcall {
@@ -112,7 +127,7 @@ void loadScreen(byte page, const byte *restrict palette) {
   byte previousPage1 = ZXN_READ_MMU1();
 
   for(byte bank=0; bank!=5; ++bank) {
-    z80_outp(__IO_LAYER_2_CONFIG, 0x10 | bank); // L2 bank select
+    selectLayer2Page(bank);
     ZXN_WRITE_MMU0(page++);
     ZXN_WRITE_MMU1(page++);
     if(bank==0) {
@@ -128,27 +143,7 @@ void loadScreen(byte page, const byte *restrict palette) {
 
 extern const byte level_a_palette;
 
-static const byte jeffBright[] = {
-  COLOR9(7, 1, 1),
-  COLOR9(3, 3, 5),
-  COLOR9(5, 7, 2),
-  COLOR9(6, 6, 6),
-  COLOR9(4, 5, 7),
-  COLOR9(2, 2, 2),
-  COLOR9(7, 7, 7),
-  COLOR9(0, 0, 0)
-};
-
-static const byte jeffDark[] = {
-  COLOR9(3, 1, 1),
-  COLOR9(1, 1, 2),
-  COLOR9(1, 6, 1),
-  COLOR9(2, 1, 1),
-  COLOR9(0, 0, 3),
-  COLOR9(1, 1, 1),
-  COLOR9(1, 2, 3),
-  COLOR9(1, 1, 1)
-};
+extern const byte default_palette;
 
 void writeColourToIndex(const byte *colour, byte index) {
   ZXN_NEXTREGA(0x40, index);
@@ -156,21 +151,17 @@ void writeColourToIndex(const byte *colour, byte index) {
   ZXN_NEXTREGA(0x44, *colour+1);
 }
 
-extern const byte default_palette;
-
 void loadLevelScreen(byte level) __z88dk_fastcall {
   const byte *palette = &level_a_palette + level * 512;
   loadScreen(49 + (level * 10), palette);
 
-  setHudPalette();
-
   uploadPalette((const byte *)&default_palette, 512, 2, 150); // sprite first palette
-  writeColourToIndex(jeffDark + level * 2, 128);  
-  writeColourToIndex(jeffBright + level * 2, 224);
+  writeColourToIndex(darkJeffColor(level), 128);
+  writeColourToIndex(brightJeffColor(level), 224);
 
-  initHud();
+  initHud(level);
 
-  sprintf(textBuf, "LEVEL %02d", level + 1);
+  sprintf(textBuf, "ZONE %03d", level + 1);
   status(textBuf);
 }
 

@@ -19,11 +19,16 @@ void setupGameStats(void) __z88dk_fastcall {
 }
 
 void statsProgressLevel(void) __z88dk_fastcall {
-    currentStats.killsInLevel = 0;
-    currentStats.maxKillsInLevel = 100;
     if(++currentStats.level == LEVEL_COUNT) {
         currentStats.level = 0;
     }
+
+    currentStats.killsInLevel = 0;
+    currentStats.maxKillsInLevel = 100;
+    currentStats.generationPeriod = 100;
+    currentStats.generationCountdown = currentStats.generationPeriod;
+    currentStats.difficultyCountdown = 0;
+    currentStats.difficultyStepInLevel = 200;
 }
 
 static byte energyLoop = 0;
@@ -124,4 +129,5 @@ void processJeffKill(byte score) __z88dk_fastcall {
     }
     hudScoreUpdated();
     ++currentStats.killsInLevel;
+    hudKillsUpdated();
 }

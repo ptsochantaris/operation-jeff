@@ -17,9 +17,11 @@ void loadInfoScreen(void) __z88dk_fastcall;
 void selectPalette(byte paletteMask) __z88dk_fastcall;
 void selectLayer2Page(byte page) __z88dk_fastcall;
 void layer2box(word x, word y, word width, word height, byte color);
+void layer2roundedBox(word x, word y, word width, word height, byte color);
 void layer2fill(word x, word y, word width, word height, byte color);
 void layer2DmaFill(word x, word y, word width, word height, byte color);
 void setFallbackColour(byte index);
+void writeColourToIndex(const byte *colour, byte index);
 
 void writeNextReg(byte reg, const char *bytes, byte len);
 

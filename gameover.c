@@ -31,23 +31,23 @@ void gameOverLoop(void) __z88dk_fastcall {
   word center = 160;
   word top = 110;
   word x = center - ((4*9) >> 1);
-  print("GAME OVER", x, top, HUD_ORANGE, HUD_BLACK);
+  printNoBackground("GAME OVER", x, top, HUD_ORANGE);
 
   top += 20;
 
   if(currentStats.hiScore == currentStats.score, currentStats.score) {
     x = center - ((4*15) >> 1);
-    print("NEW HIGH SCORE!", x, top, HUD_ORANGE, HUD_BLACK);
+    printNoBackground("NEW HIGH SCORE!", x, top, HUD_ORANGE);
   } else {
     x = center - ((4*5) >> 1);
-    print("SCORE", x, top, HUD_ORANGE, HUD_BLACK);
+    printNoBackground("SCORE", x, top, HUD_ORANGE);
   }
 
   top += 10;
 
   x = center - ((4*7) >> 1);
   sprintf(textBuf, "%07lu", currentStats.score);
-  print(textBuf, x, top, HUD_ORANGE, HUD_BLACK);
+  printNoBackground(textBuf, x, top, HUD_ORANGE);
 
   while(1) {
     intrinsic_halt();

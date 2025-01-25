@@ -16,8 +16,13 @@ typedef struct {
     long hiScore;
 
     byte level;
+    byte generationPeriod;
+    byte generationCountdown;
+    word difficultyCountdown;
+
     word killsInLevel;
     word maxKillsInLevel;
+    word difficultyStepInLevel;
 } stats;
 
 extern stats currentStats;

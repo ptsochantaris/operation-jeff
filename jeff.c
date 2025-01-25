@@ -36,6 +36,28 @@
 #define BOMB_RANGE 24
 #define BOMB_CLOSE 6
 
+static const byte jeffBright[] = {
+  COLOR9(7, 1, 1),
+  COLOR9(3, 3, 5),
+  COLOR9(5, 7, 2),
+  COLOR9(6, 6, 6),
+  COLOR9(4, 5, 7),
+  COLOR9(2, 2, 2),
+  COLOR9(7, 7, 7),
+  COLOR9(0, 0, 0)
+};
+
+static const byte jeffDark[] = {
+  COLOR9(3, 1, 1),
+  COLOR9(1, 1, 2),
+  COLOR9(1, 5, 1),
+  COLOR9(2, 1, 1),
+  COLOR9(0, 0, 3),
+  COLOR9(1, 1, 1),
+  COLOR9(1, 2, 3),
+  COLOR9(1, 1, 1)
+};
+
 typedef struct {
   sprite_info sprite;
   byte state;
@@ -54,14 +76,8 @@ static lander landing;
 static jeff jeffs[jeffCount];
 static word logicLoop = 1;
 
-static byte generationPeriod;
-static byte generationCountdown;
-
 #define DAMAGE_FLASH_DURATION 12
 static byte damageFlash;
-
-#define DIFFICULTY_STEP 300
-static word difficultyCountdown;
 
 // 0000 0100 0000 0100
 #define JEFF_SPEED_MASK_1 0x0404
@@ -85,6 +101,14 @@ static const word jeffMoveMasks[] = {
     JEFF_SPEED_MASK_5,
     JEFF_SPEED_MASK_6
 };
+
+const byte *brightJeffColor(byte level) __z88dk_fastcall {
+    return jeffBright + level * 2;
+}
+
+const byte *darkJeffColor(byte level) __z88dk_fastcall {
+    return jeffDark + level * 2;
+}
 
 void growJeff(jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_LANDING;
@@ -127,10 +151,7 @@ void growJeff(jeff *restrict j) __z88dk_fastcall {
 }
 
 void initJeffs(void) __z88dk_fastcall {
-    generationPeriod = 100;
-    generationCountdown = 100;
     damageFlash = 0;
-    difficultyCountdown = 0;
     landing.active = 0;
     landing.sprite.index = 126;
     jeff *j = jeffs;
@@ -321,10 +342,10 @@ void updateJeffs(void) __z88dk_fastcall {
             setHudBackground(0);
         }
 
-    } else if(++difficultyCountdown == DIFFICULTY_STEP) {
-        difficultyCountdown = 0;
-        if(generationPeriod > 10) {
-            --generationPeriod;
+    } else if(++currentStats.difficultyCountdown == currentStats.difficultyStepInLevel) {
+        currentStats.difficultyCountdown = 0;
+        if(currentStats.generationPeriod > 10) {
+            --currentStats.generationPeriod;
         }
     }
 
@@ -345,13 +366,13 @@ void updateJeffs(void) __z88dk_fastcall {
         }
     }
 
-    if(generationCountdown==0) {
+    if(currentStats.generationCountdown==0) {
         if(!landing.active) {
-            generationCountdown = generationPeriod;
+            currentStats.generationCountdown = currentStats.generationPeriod;
             launchRandomJeff();
         }
     } else {
-        --generationCountdown;
+        --currentStats.generationCountdown;
     }
 
     logicLoop = (logicLoop << 1) | (logicLoop >> 15);
