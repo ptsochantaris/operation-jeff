@@ -1,8 +1,8 @@
 #ifndef __STATS_H__
 #define __STATS_H__
 
-#define FIRE_RATE_MAX 7
-#define FIRE_RATE_MIN 1
+#define FIRE_RATE_MAX 14
+#define FIRE_RATE_MIN 2
 #define LEVEL_COUNT 8
 
 #include "types.h"

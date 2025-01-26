@@ -60,10 +60,10 @@ byte processGameStats(void) __z88dk_fastcall {
 
     if(mouseState.wheel != 0) {
         if(mouseState.wheel > 0 && currentStats.fireRate < FIRE_RATE_MAX) {
-            ++(currentStats.fireRate);
+            ++currentStats.fireRate;
             hudRateUpdated();
         } else if(mouseState.wheel < 0 && currentStats.fireRate > FIRE_RATE_MIN) {
-            --(currentStats.fireRate);
+            --currentStats.fireRate;
             hudRateUpdated();
         }
         mouseState.wheel = 0;
