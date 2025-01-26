@@ -2,7 +2,7 @@
 
 #define MOUSE_PATTERN 9
 
-mouseClick mouseClicked = { {0, 0}, 1 ,0 };
+MouseState mouseState = { {0, 0}, 1 ,0 };
 
 static coord previousPos = { 0, 0 };
 static sprite_info mouseSprite;
@@ -11,9 +11,9 @@ static coord mouseTopLeft = { 0, 0 };
 
 void mouseInit(void) __z88dk_fastcall {
     mouseReset();
-    mouseClicked.pos.x = 159;
+    mouseState.pos.x = 159;
     mouseSprite.pos.x = 159;
-    mouseClicked.pos.y = 127;
+    mouseState.pos.y = 127;
     mouseSprite.pos.y = 127;
     updateSprite(&mouseSprite);
 }
@@ -26,8 +26,8 @@ void mouseReset(void) __z88dk_fastcall {
     mouseSprite.pattern = MOUSE_PATTERN;
     mouseSprite.index = 127;
     mouseSprite.attrs = 0;
-    mouseClicked.handled = 1;
-    mouseClicked.wheel = 0;
+    mouseState.handled = 1;
+    mouseState.wheel = 0;
 }
 
 void setGameMouse(void) __z88dk_fastcall {
@@ -65,23 +65,23 @@ void updateMouse(void) __z88dk_fastcall {
 
     updateSprite(&mouseSprite);
 
-    mouseClicked.pos = mouseSprite.pos;
+    mouseState.pos = mouseSprite.pos;
 
     byte buttons = z80_inp(0xfadf);
     int wheel = buttons >> 4; // wheel WWWW0000
     int wheelDiff = wheel - currentWheel;
     currentWheel = wheel;
     if(wheelDiff < 10 && wheelDiff > -10) {
-        mouseClicked.wheel += wheelDiff;
+        mouseState.wheel += wheelDiff;
     }
     
     byte click = buttons & 2; // left click 000000LR
-    if(mouseClicked.ongoing) {
+    if(mouseState.ongoing) {
         if(click != 0) {
-            mouseClicked.ongoing = 0;
+            mouseState.ongoing = 0;
         }
     } else if(click == 0) { 
-        mouseClicked.handled = 0;
-        mouseClicked.ongoing = 1;
+        mouseState.handled = 0;
+        mouseState.ongoing = 1;
     }
 }

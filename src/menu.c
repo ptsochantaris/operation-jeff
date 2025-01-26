@@ -55,8 +55,8 @@ void menuLoop(void) __z88dk_fastcall {
   while(1) {
     intrinsic_halt();
     
-    if(!mouseClicked.handled) {
-      mouseClicked.handled = 1;
+    if(!mouseState.handled) {
+      mouseState.handled = 1;
 
       if(menuInfoMode) {
         setupTitle();

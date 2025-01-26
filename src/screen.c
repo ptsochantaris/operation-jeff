@@ -6,7 +6,7 @@ const byte clipBytes[] = {0,159,0,255};
 // https://zx.remysharp.com/sprites/#sprite-editor
 
 // https://github.com/benbaker76/Gfx2Next
-// build/gfx2next ~/Desktop/spacer.png -pal-std -pal-none -bitmap-y -bank-16k spacerTitle.nxi
+// build/gfx2next ~/spacer.png -pal-std -pal-none -bitmap-y -bank-16k spacerTitle.nxi
 
 void verticalLine(word x, word lowY, word highY, byte color) {
   selectLayer2Page(x >> 6);

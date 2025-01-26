@@ -38,14 +38,13 @@ static dmaPayload dmaMemoryPrep = {
   0x87cf // cf, 87 in reverse order (R6 load, R6 enable DMA)
 };
 
-#define DMA_WORKAROUND
+// #define DMA_WORKAROUND
 
 void dmaRepeat(void) __z88dk_fastcall {
 #ifdef DMA_WORKAROUND
   z80_otir(&dmaMemoryPrep, __IO_DMA, 16); // full program, needed on Zesarux
 #else
-  z80_outp(__IO_DMA, 0xCF); // 207
-  z80_outp(__IO_DMA, 0x87); // 135
+  z80_otir(&dmaMemoryPrep.r6b, __IO_DMA, 2); // just the load and enable
 #endif
 }
 

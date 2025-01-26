@@ -6,9 +6,9 @@ typedef struct {
     byte handled;
     byte ongoing;
     int wheel;
-} mouseClick;
+} MouseState;
 
-extern mouseClick mouseClicked;
+extern MouseState mouseState;
 
 void mouseInit(void) __z88dk_fastcall;
 void updateMouse(void) __z88dk_fastcall;

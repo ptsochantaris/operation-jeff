@@ -1,9 +1,9 @@
 {
-    "C_Cpp.default.compilerPath": "/Users/ptsochantaris/Desktop/ZX/z88dk/bin/zcc",
+    "C_Cpp.default.compilerPath": "../z88dk/bin/zcc",
     "C_Cpp.default.includePath": [
-        "/Users/ptsochantaris/Desktop/ZX/z88dk/include",
-        "/Users/ptsochantaris/Desktop/ZX/z88dk/include/_DEVELOPMENT/sdcc",
-        "/Users/ptsochantaris/Desktop/ZX/z88dk/libsrc/_DEVELOPMENT/target/zxn",
+        "${env:ZCCCFG}/../../include",
+        "${env:ZCCCFG}/../../include/_DEVELOPMENT/sdcc",
+        "${env:ZCCCFG}/../../libsrc/_DEVELOPMENT/target/zxn",
     ],
     "C_Cpp.default.defines": [
         "__SDCC"

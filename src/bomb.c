@@ -31,8 +31,8 @@ void fireIfPossible(void) __z88dk_fastcall {
         for(byte f=0; f!=bombCount; ++f, ++b) {
             if(b->state == BOMB_STATE_NONE) {
                 b->countdown = 22;
-                b->target = mouseClicked.pos;
-                b->sprite.pos.x = mouseClicked.pos.x;
+                b->target = mouseState.pos;
+                b->sprite.pos.x = mouseState.pos.x;
                 b->sprite.pos.y = 255;
                 b->state = BOMB_STATE_TICKING;
                 b->sprite.pattern = BOMB_FIRST;
@@ -83,11 +83,11 @@ void updateBombs(void) __z88dk_fastcall {
 
     bombLoop++;
 
-    if(mouseClicked.handled == 0) {
-        mouseClicked.handled = 1;
+    if(mouseState.handled == 0) {
+        mouseState.handled = 1;
         fireIfPossible();
 
-    } else if(mouseClicked.ongoing) {
+    } else if(mouseState.ongoing) {
         fireIfPossible();
 
     } else if(cooldown) {

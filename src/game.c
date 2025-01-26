@@ -85,10 +85,10 @@ byte gameLoop(void) __z88dk_fastcall {
         byte pressed;
         pressed = z80_inp(0xfefe);
         if((pressed & 2) == 0) { // z
-          mouseClicked.wheel = 1;
+          mouseState.wheel = 1;
         }
         if((pressed & 4) == 0) { // x
-          mouseClicked.wheel = -1;
+          mouseState.wheel = -1;
         }
       }
 

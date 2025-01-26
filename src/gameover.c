@@ -52,7 +52,7 @@ void gameOverLoop(void) __z88dk_fastcall {
   while(1) {
     intrinsic_halt();
     updateMouse();
-    if(!mouseClicked.handled) {
+    if(!mouseState.handled) {
       return;
     }
   }

@@ -58,15 +58,15 @@ byte processGameStats(void) __z88dk_fastcall {
         return 1;
     }
 
-    if(mouseClicked.wheel != 0) {
-        if(mouseClicked.wheel > 0 && currentStats.fireRate < FIRE_RATE_MAX) {
+    if(mouseState.wheel != 0) {
+        if(mouseState.wheel > 0 && currentStats.fireRate < FIRE_RATE_MAX) {
             ++(currentStats.fireRate);
             hudRateUpdated();
-        } else if(mouseClicked.wheel < 0 && currentStats.fireRate > FIRE_RATE_MIN) {
+        } else if(mouseState.wheel < 0 && currentStats.fireRate > FIRE_RATE_MIN) {
             --(currentStats.fireRate);
             hudRateUpdated();
         }
-        mouseClicked.wheel = 0;
+        mouseState.wheel = 0;
     }
 
     if(currentStats.killsInLevel > currentStats.maxKillsInLevel) {
