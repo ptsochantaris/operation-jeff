@@ -18,6 +18,7 @@
         "screen.h": "c",
         "intrinsic.h": "c",
         "bonus.h": "c",
-        "copper.h": "c"
+        "copper.h": "c",
+        "cstddef": "c"
     }
 }

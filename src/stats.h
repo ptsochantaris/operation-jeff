@@ -3,7 +3,6 @@
 
 #define FIRE_RATE_MAX 14
 #define FIRE_RATE_MIN 2
-#define LEVEL_COUNT 8
 
 #include "types.h"
 

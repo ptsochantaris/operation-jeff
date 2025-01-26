@@ -153,11 +153,13 @@ void writeColourToIndex(const byte *colour, byte index) {
 
 void loadLevelScreen(byte level) __z88dk_fastcall {
   const byte *palette = &level_a_palette + level * 512;
-  loadScreen(49 + (level * 10), palette);
+  loadScreen(LEVEL_BASE_PAGE + (level * 10), palette);
 
   uploadPalette((const byte *)&default_palette, 512, 2, 150); // sprite first palette
-  writeColourToIndex(darkJeffColor(level), 128);
-  writeColourToIndex(brightJeffColor(level), 224);
+
+  const LevelInfo *info = *(levelInfo+level);
+  writeColourToIndex(info->jeffDark, 128);
+  writeColourToIndex(info->jeffBright, 224);
 
   initHud(level);
 

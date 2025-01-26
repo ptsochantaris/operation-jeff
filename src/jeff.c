@@ -36,28 +36,6 @@
 #define BOMB_RANGE 24
 #define BOMB_CLOSE 6
 
-static const byte jeffBright[] = {
-  COLOR9(7, 1, 1),
-  COLOR9(3, 3, 5),
-  COLOR9(5, 7, 2),
-  COLOR9(6, 6, 6),
-  COLOR9(4, 5, 7),
-  COLOR9(2, 2, 2),
-  COLOR9(7, 7, 7),
-  COLOR9(0, 0, 0)
-};
-
-static const byte jeffDark[] = {
-  COLOR9(3, 1, 1),
-  COLOR9(1, 1, 2),
-  COLOR9(1, 5, 1),
-  COLOR9(2, 1, 1),
-  COLOR9(0, 0, 3),
-  COLOR9(1, 1, 1),
-  COLOR9(1, 2, 3),
-  COLOR9(1, 1, 1)
-};
-
 typedef struct {
   sprite_info sprite;
   byte state;
@@ -80,35 +58,36 @@ static word logicLoop = 1;
 static byte damageFlash;
 
 // 0000 0100 0000 0100
+#define JEFF_SPEED_MASK_0 0x0404
+// 0000 0100 0000 0100
 #define JEFF_SPEED_MASK_1 0x0404
 // 0010 0001 0000 1000
 #define JEFF_SPEED_MASK_2 0x2108
 // 0010 0001 0001 0001
-#define JEFF_SPEED_MASK_3 0x2111
+#define JEFF_SPEED_MASK_3 0x2108
+// 0010 0001 0001 0001
+#define JEFF_SPEED_MASK_4 0x2111
 // 0100 1010 0010 0010
-#define JEFF_SPEED_MASK_4 0x4A22
+#define JEFF_SPEED_MASK_5 0x2111
+// 0100 1010 0010 0010
+#define JEFF_SPEED_MASK_6 0x4A22
 // 0101 0100 0101 0101
-#define JEFF_SPEED_MASK_5 0x5455
+#define JEFF_SPEED_MASK_7 0x5455
 // 0101 0101 0101 0101
-#define JEFF_SPEED_MASK_6 0x5555
+#define JEFF_SPEED_MASK_8 0x5555
 
-#define JEFF_SPEED_MASK_COUNT 6
+#define JEFF_SPEED_MASK_COUNT 9
 static const word jeffMoveMasks[] = { 
+    JEFF_SPEED_MASK_0,
     JEFF_SPEED_MASK_1,
     JEFF_SPEED_MASK_2,
     JEFF_SPEED_MASK_3,
     JEFF_SPEED_MASK_4,
     JEFF_SPEED_MASK_5,
-    JEFF_SPEED_MASK_6
+    JEFF_SPEED_MASK_6,
+    JEFF_SPEED_MASK_7,
+    JEFF_SPEED_MASK_8
 };
-
-const byte *brightJeffColor(byte level) __z88dk_fastcall {
-    return jeffBright + level * 2;
-}
-
-const byte *darkJeffColor(byte level) __z88dk_fastcall {
-    return jeffDark + level * 2;
-}
 
 void growJeff(jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_LANDING;

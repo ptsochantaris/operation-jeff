@@ -2,6 +2,8 @@
 #define _SCREEN_H_
 
 #define CLIPBYTES_LEN 4
+#define LEVEL_BASE_PAGE 49
+
 extern const byte clipBytes[];
 
 void layer2Clear(byte index) __z88dk_fastcall;

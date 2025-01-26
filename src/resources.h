@@ -19,6 +19,7 @@
 #include "sound.h"
 #include "tilemap.h"
 #include "copper.h"
+#include "levelinfo.h"
 
 #include "sprites.h"
 #include "hud.h"

@@ -93,19 +93,21 @@ void hudScoreUpdated(void) __z88dk_fastcall {
   print(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
 }
 
+#define LEVEL_PROGRESS_WIDTH 15
+
 void hudKillsUpdated(void) __z88dk_fastcall {
-  word level = (currentStats.killsInLevel * 15) / currentStats.maxKillsInLevel;
-  if(level > 12) {
+  word level = (currentStats.killsInLevel * LEVEL_PROGRESS_WIDTH) / currentStats.maxKillsInLevel;
+  if(level > LEVEL_PROGRESS_WIDTH) {
     return;
   }
   
-  layer2roundedBox(0, 4, 16, 12, HUD_WHITE);
+  layer2roundedBox(0, 4, LEVEL_PROGRESS_WIDTH+1, 12, HUD_WHITE);
 
   if(level > 0) {
     layer2fill(1, 5, level, 11, HUD_FILL_LIGHT);
   }
   
-  layer2fill(1 + level, 5, 15 - level, 11, HUD_FILL_DARK);
+  layer2fill(1 + level, 5, LEVEL_PROGRESS_WIDTH - level, 11, HUD_FILL_DARK);
   
   int res = currentStats.maxKillsInLevel - currentStats.killsInLevel;
   if(res >= 0) {
@@ -139,8 +141,9 @@ void initHud(byte level) __z88dk_fastcall {
     ZXN_NEXTREGA(0x44, *p);
   }
 
-  writeColourToIndex(darkJeffColor(level), HUD_FILL_DARK);
-  writeColourToIndex(brightJeffColor(level), HUD_FILL_LIGHT);
+  const LevelInfo *info = *(levelInfo+level);
+  writeColourToIndex(info->jeffDark, HUD_FILL_DARK);
+  writeColourToIndex(info->jeffBright, HUD_FILL_LIGHT);
 
   layer2DmaFill(0, 0, 16, 256, HUD_BLACK);
   layer2DmaFill(16, 0, 320, 15, HUD_BLACK);

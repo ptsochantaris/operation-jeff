@@ -20,23 +20,21 @@ byte debugKeys(void) {
   for(byte l=0;l<5;++l) { // 1...5
     if((pressed & (1 << l)) == 0) {
       inputDelay = SMALL_INPUT_DELAY;
-      currentStats.level = l;
+      if(l==0) {
+        currentStats.level = 255;
+      } else {
+        currentStats.level = l-1;
+      }
       nextLevel();
       return 0;
     }
   }
 
   pressed = z80_inp(0xeffe);
-  if((pressed & 1) == 0) { // 0
-    inputDelay = SMALL_INPUT_DELAY;
-    currentStats.level = 255;
-    nextLevel();
-    return 0;
-  }
   for(byte l=1;l<5;++l) { // 9...6
     if((pressed & (1 << l)) == 0) {
       inputDelay = SMALL_INPUT_DELAY;
-      currentStats.level = 9-l;
+      currentStats.level = LEVEL_COUNT-l;
       nextLevel();
       return 0;
     }

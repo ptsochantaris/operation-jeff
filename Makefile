@@ -19,6 +19,7 @@ OBJDIR=build
 SRC=src
 
 OBJECTS = $(addprefix $(OBJDIR)/, \
+	levelinfo.o \
 	base.o \
 	dma.o \
 	screen.o \

@@ -23,12 +23,14 @@ void statsProgressLevel(void) __z88dk_fastcall {
         currentStats.level = 0;
     }
 
+    const LevelInfo *info = *(levelInfo+currentStats.level);
+
     currentStats.killsInLevel = 0;
-    currentStats.maxKillsInLevel = 100;
-    currentStats.generationPeriod = 100;
-    currentStats.generationCountdown = currentStats.generationPeriod;
     currentStats.difficultyCountdown = 0;
-    currentStats.difficultyStepInLevel = 200;
+    currentStats.generationPeriod = info->initialGenerationPeriod;
+    currentStats.generationCountdown = currentStats.generationPeriod;
+    currentStats.difficultyStepInLevel = info->difficultyStep;
+    currentStats.maxKillsInLevel = info->killsRequired;
 }
 
 static byte energyLoop = 0;
