@@ -67,9 +67,13 @@ void cycleGrayPalette(void) __z88dk_fastcall {
 
 static byte statusCount = 0;
 
+extern const byte audio_zzzap;
+extern const word audio_zzzap_len;
+
 void status(const byte *text) __z88dk_fastcall {
     bzero((byte *)attributes + (10 * 32), (5 * 32));
     if(text) {
+        playWithDma((word)&audio_zzzap, audio_zzzap_len);
         int x = 16 - (strlen(text) << 1);
         if(x<0) x=0;
         printAttributes(text, x, 10);

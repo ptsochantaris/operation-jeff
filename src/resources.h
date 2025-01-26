@@ -21,6 +21,7 @@
 #include "copper.h"
 #include "levelinfo.h"
 
+#include "effects.h"
 #include "sprites.h"
 #include "hud.h"
 #include "leds.h"

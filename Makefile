@@ -20,6 +20,7 @@ SRC=src
 
 OBJECTS = $(addprefix $(OBJDIR)/, \
 	levelinfo.o \
+	effects.o \
 	base.o \
 	dma.o \
 	screen.o \

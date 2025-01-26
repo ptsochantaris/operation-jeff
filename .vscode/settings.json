@@ -19,6 +19,7 @@
         "intrinsic.h": "c",
         "bonus.h": "c",
         "copper.h": "c",
-        "cstddef": "c"
+        "cstddef": "c",
+        "tilemap.h": "c"
     }
 }

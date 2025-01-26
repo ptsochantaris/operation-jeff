@@ -37,6 +37,7 @@ void fireIfPossible(void) __z88dk_fastcall {
                 b->state = BOMB_STATE_TICKING;
                 b->sprite.pattern = BOMB_FIRST;
                 cooldown = currentStats.fireRate >> 1;
+                effectFire();
                 return;
             }
         }

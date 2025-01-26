@@ -94,7 +94,7 @@ static const byte dmaAudioBuf[] = {
 
   0x68, // 0110 1000 ; R2 do not increment, to port
   0x22, // 0010 0010 ; want prescalar, use 2t cycle
-  0x37, // ~16 Khz prescalar
+  0x80, // 0x37 is supped to be ~16 Khz prescalar, but isn't
 
   0xcd, // 1100 1101 ; R4 burst mode, dest value follows
   0xdf, 0xff, // Dest covox port L, H

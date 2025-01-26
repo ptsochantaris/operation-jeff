@@ -34,8 +34,6 @@ void aySetEnvelope(word type, word duration) { // 0 - 15, 0 - 65535
 
     8       \|\|\|\|\|\     repeated decay
 
-    9       \__________     single decay then off
-
     10      \/\/\/\/\/\     repeated decay-attack
               _________
     11      \|              single decay then hold
@@ -45,8 +43,6 @@ void aySetEnvelope(word type, word duration) { // 0 - 15, 0 - 65535
     13      /               single attack then hold
 
     14      /\/\/\/\/\/     repeated attack-decay
-
-    15      /|_________     single attack then off
     */
 
     z80_outp(0xFFFD, 11);

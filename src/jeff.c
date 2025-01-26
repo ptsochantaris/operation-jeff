@@ -127,6 +127,8 @@ void growJeff(jeff *restrict j) __z88dk_fastcall {
     landing.sprite.pattern = LANDING_AIR;
     landing.passenger = j;
     landing.active = 1;
+
+    effectLand();
 }
 
 void initJeffs(void) __z88dk_fastcall {
@@ -157,6 +159,8 @@ void killJeff(jeff *restrict j) __z88dk_fastcall {
     j->sprite.pattern = JEFF_DISAPPEAR_FIRST;
     j->state = JEFF_STATE_DISAPPEAR;
     j->moveMask = JEFF_SPEED_MASK_4;
+
+    effectExplosion();
 }
 
 void jeffHit(jeff *restrict j) __z88dk_fastcall {
@@ -165,6 +169,7 @@ void jeffHit(jeff *restrict j) __z88dk_fastcall {
 
     damageFlash = DAMAGE_FLASH_DURATION;
     setHudBackground(0x40); // redish
+    effectDamage();
 }
 
 void jeffCheckBombs(jeff *restrict j) __z88dk_fastcall {

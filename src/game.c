@@ -1,8 +1,5 @@
 #include "resources.h"
 
-extern const byte audio_zzzap;
-extern const word audio_zzzap_len;
-
 void wait(byte time) __z88dk_fastcall {
   for(byte f=0;f<time;f++) {
     intrinsic_halt();
@@ -65,8 +62,6 @@ byte gameLoop(void) __z88dk_fastcall {
   resetBonuses();
 
   nextLevel();
-
-  playWithDma((word)&audio_zzzap, audio_zzzap_len);
 
   byte loopCount = 0;
   byte pause = 0;
