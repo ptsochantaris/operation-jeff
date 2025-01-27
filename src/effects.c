@@ -1,5 +1,6 @@
 #include "effects.h"
 #include "resources.h"
+#include "dma.h"
 
 void effectMenuDroneStart(void) __z88dk_fastcall {
   for(byte ayChip=0;ayChip<2;++ayChip) {
@@ -19,10 +20,19 @@ void effectMenuDroneStart(void) __z88dk_fastcall {
   pitch += 160;
   aySetPitch(2, pitch);
 
-  aySetEnvelope(14, 0x1FFF);
+  aySetEnvelope(14, 0x4FFF);
+
+  ZXN_WRITE_MMU2(148);
+  ZXN_WRITE_MMU3(149);
+  playWithDma(0x4000, 16000, 0x80, 1);
 }
 
 void effectMenuDroneEnd(void) __z88dk_fastcall {
+  stopDma();
+  
+  ZXN_WRITE_MMU2(10);
+  ZXN_WRITE_MMU3(11);
+
   for(byte ayChip=0; ayChip<3; ++ayChip) {
     ayChipSelect(ayChip);
     for(byte channel=0; channel<3; ++channel) {

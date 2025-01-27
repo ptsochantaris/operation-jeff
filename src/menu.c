@@ -8,6 +8,7 @@ void setupTitle(void) __z88dk_fastcall {
   loadTitleScreen();
   setupTitleLeds();
   menuInfoMode = 0;
+  effectMenuDroneStart();
 }
 
 void menuLoop(void) __z88dk_fastcall {
@@ -16,7 +17,6 @@ void menuLoop(void) __z88dk_fastcall {
   setupLayers(0); // SLU
   setupTitle();
   mouseReset();
-  effectMenuDroneStart();
 
   byte loopCount = 0;
 
@@ -50,6 +50,7 @@ void menuLoop(void) __z88dk_fastcall {
       if(menuInfoMode) {
         setupTitle();
       } else {
+        effectMenuDroneEnd();
         ulaAttributeClear();
         loadInfoScreen();
         menuInfoMode = 1;

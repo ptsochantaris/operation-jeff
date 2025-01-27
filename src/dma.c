@@ -88,13 +88,13 @@ void fillWithDmaRepeat(word destination, word length, byte value, byte times, wo
   }
 }
 
-static const byte dmaAudioBuf[] = {
+static byte dmaAudioBuf[] = {
   0x54, // 0101 0100 ; R1 increment, from memory
   0x02, // 0000 0010 ; no prescalar, 2t cycle
 
   0x68, // 0110 1000 ; R2 do not increment, to port
   0x22, // 0010 0010 ; want prescalar, use 2t cycle
-  0x80, // 0x37 is supped to be ~16 Khz prescalar, but isn't
+  0x37, // 0x37 is supposed to be ~16 Khz prescalar, but isn't
 
   0xcd, // 1100 1101 ; R4 burst mode, dest value follows
   0xdf, 0xff, // Dest covox port L, H
@@ -102,9 +102,15 @@ static const byte dmaAudioBuf[] = {
   0xcf, 0x87 // R6 load, R6 enable DMA
 };
 
-void playWithDma(word source, word length) {
+void playWithDma(word source, word length, byte prescalar, byte loop) {
   dmaMemoryPrep.source = source;
   dmaMemoryPrep.length = length;
+  dmaMemoryPrep.r5 = loop ? 0xA2 : 0x82;
   z80_otir(&dmaMemoryPrep, __IO_DMA, 7); // just the header
+  dmaAudioBuf[4] = prescalar;
   z80_otir(&dmaAudioBuf, __IO_DMA, 10);
+}
+
+void stopDma(void) __z88dk_fastcall {
+  playWithDma(0, 1, 0x80, 0);
 }

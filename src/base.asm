@@ -83,6 +83,8 @@ SECTION PAGE_125
     BINARY "resources/levelH_3.nxi" ; 125
     BINARY "resources/levelH_4.nxi" ; 127
 
+SECTION PAGE_148
+    BINARY "resources/menu.pcm"
 
 SECTION PAGE_150
 ORG 0
