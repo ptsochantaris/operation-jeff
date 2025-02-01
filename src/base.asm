@@ -88,6 +88,9 @@ SECTION PAGE_141
     BINARY "resources/levelH_3.nxi" ; 145
     BINARY "resources/levelH_4.nxi" ; 147
 
+SECTION PAGE_191 ; also 192
+    BINARY "resources/sprites.spr"
+
 SECTION PAGE_205
     BINARY "resources/zzzap.pcm"
 
@@ -124,6 +127,3 @@ _level_palettes:
     BINARY "resources/levelC.nxp"
     BINARY "resources/levelF.nxp"
     BINARY "resources/levelH.nxp"
-
-SECTION PAGE_151 ; also 152
-    BINARY "resources/sprites.spr"
