@@ -12,13 +12,6 @@ _isr:
     ei
     ret
 
-PUBLIC _audio_zzzap
-PUBLIC _audio_zzzap_len
-_audio_zzzap:
-    BINARY "resources/zzzap.pcm"
-_audio_zzzap_len:
-    defw $-_audio_zzzap
-
 SECTION PAGE_29
     BINARY "resources/title_0.nxi" ; 29
     BINARY "resources/title_1.nxi" ; 31
@@ -95,11 +88,17 @@ SECTION PAGE_141
     BINARY "resources/levelH_3.nxi" ; 145
     BINARY "resources/levelH_4.nxi" ; 147
 
+SECTION PAGE_205
+    BINARY "resources/zzzap.pcm"
+
+SECTION PAGE_206
+    BINARY "resources/siren.pcm"
+
 SECTION PAGE_208
     BINARY "resources/menu.pcm"
 
 SECTION PAGE_210
-ORG 0
+ORG 0x2000
 
 PUBLIC _title_palette
 _title_palette:

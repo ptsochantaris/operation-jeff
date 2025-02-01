@@ -216,7 +216,7 @@ void jeffCheckBombs(jeff *restrict j) __z88dk_fastcall {
             if(jy >= C) {
                 return;
             }
-            status("+10 PTS");
+            status("+10 PTS", 1);
             currentStats.score += 10;
             return;
         }

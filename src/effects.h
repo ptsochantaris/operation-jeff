@@ -11,5 +11,7 @@ void effectLand(void) __z88dk_fastcall;
 void effectExplosion(void) __z88dk_fastcall;
 void effectDamage(void) __z88dk_fastcall;
 void effectBonus(void) __z88dk_fastcall;
+void effectZap(void) __z88dk_fastcall;
+void effectSiren(void) __z88dk_fastcall;
 
 #endif

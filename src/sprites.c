@@ -30,11 +30,7 @@ void setSpriteMenuClipping(void) __z88dk_fastcall {
 void loadSprites(void) __z88dk_fastcall {  
   ZXN_NEXTREG(0x4b, 0); // sprite palette index 0 is transparent
 
-  byte previousPage0 = ZXN_READ_MMU0();
-  byte previousPage1 = ZXN_READ_MMU1();
-  ZXN_WRITE_MMU0(151);
-  ZXN_WRITE_MMU1(152);
-  dmaMemoryToPort((const byte *)0, __IO_SPRITE_PATTERN, 0x4000);
-  ZXN_WRITE_MMU0(previousPage0);
-  ZXN_WRITE_MMU1(previousPage1);
+  ZXN_WRITE_MMU1(151);
+  ZXN_WRITE_MMU2(152);
+  dmaMemoryToPort((const byte *)0x2000, __IO_SPRITE_PATTERN, 0x4000);
 }

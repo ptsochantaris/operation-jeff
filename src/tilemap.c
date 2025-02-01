@@ -24,5 +24,7 @@ void initTilemap(void) __z88dk_fastcall {
 }
 
 void clearTilemap(void) __z88dk_fastcall {
+  ZXN_WRITE_MMU3(11);
   fillWithDma(tilemapAddress, tilemapLength, 0); // zero out tilemap
+  ZXN_WRITE_MMU3(10);
 }

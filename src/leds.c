@@ -1,9 +1,5 @@
 #include "resources.h"
 
-#define ula 0x4000
-#define attributes ula + 0x1800
-#define ulaEnd attributes + 0x300
-
 extern const byte *bFont;
 
 static const byte ulaPalette[] = {
@@ -21,7 +17,7 @@ static const byte ulaPalette[] = {
 static byte gray_offset = 2;
 
 void ulaAttributeClear(void) __z88dk_fastcall {
-    fillWithDma(attributes, 0x300, 0);
+    fillWithDma(ulaAttributes, 0x300, 0);
 }
 
 void setupTitleLeds(void) __z88dk_fastcall {
@@ -32,7 +28,7 @@ void setupTitleLeds(void) __z88dk_fastcall {
 
     // grayscale ULA attributes
     for(byte f=1;f!=9;++f) {
-        word offset = attributes + (f-1) * 32;
+        word offset = ulaAttributes + (f-1) * 32;
         fillWithDma(offset, 32, 9 - f);
         fillWithDmaRepeat(offset + 256, 32, f, 2, 256);
     }
@@ -65,31 +61,6 @@ void cycleGrayPalette(void) __z88dk_fastcall {
     ZXN_NEXTREGA(0x41, 0xFC); // yellow for leds
 }
 
-static byte statusCount = 0;
-
-extern const byte audio_zzzap;
-extern const word audio_zzzap_len;
-
-void status(const byte *text) __z88dk_fastcall {
-    bzero((byte *)attributes + (10 * 32), (5 * 32));
-    if(text) {
-        playWithDma((word)&audio_zzzap, audio_zzzap_len, 0x90, 0);
-        int x = 16 - (strlen(text) << 1);
-        if(x<0) x=0;
-        printAttributes(text, x, 10);
-        statusCount = 16;
-    }
-}
-
-void updateStatus(void) __z88dk_fastcall {
-    if(statusCount == 0) return;
-    if(--statusCount == 0) {
-        status(NULL);
-    } else {
-        cycleGrayPalette();
-    }
-}
-
 void printAttributes(const byte *restrict text, byte x, byte y) {
   byte C = *text;
   do {
@@ -97,12 +68,42 @@ void printAttributes(const byte *restrict text, byte x, byte y) {
     for(byte v=1; v!=6; ++v, ++base, ++y) {
       byte slice = *base;
       for(byte h=5; h != 8; ++h) {
-        byte color = (slice & (1 << h)) ? v : 0;
-        *(byte *)((0x5800 + x + 8 - h) + (y * 32)) = color;
+        if(slice & (1 << h)) {
+            *(byte *)((ulaAttributes + x + 8 - h) + (y * 32)) = v;
+        }
       }
     }
     C = *(++text);
     x += 4;
     y -= 5;
   } while(C != 0);
+}
+
+static byte statusCount = 0;
+
+void status(const byte *text, byte effect) {
+    fillWithDma(ulaAttributes + 320, 160, 0);
+    if(text) {
+        int x = 16 - (strlen(text) << 1);
+        if(x<0) x=0;
+        printAttributes(text, x, 10);
+        statusCount = 16;
+    }
+    switch(effect) {
+        case 1:
+            effectZap();
+            break;
+        case 2:
+            effectSiren();
+            break;
+    }
+}
+
+void updateStatus(void) __z88dk_fastcall {
+    if(statusCount == 0) return;
+    if(--statusCount == 0) {
+        status(NULL, 0);
+    } else {
+        cycleGrayPalette();
+    }
 }

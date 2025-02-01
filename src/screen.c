@@ -101,13 +101,10 @@ void selectPalette(byte paletteMask) __z88dk_fastcall {
 void uploadPalette(const byte *restrict colors, word numBytes, byte palette, byte page) {
   selectPalette(palette);
 
-  byte previousPage = ZXN_READ_MMU0();
-  ZXN_WRITE_MMU0(page);
+  ZXN_WRITE_MMU1(page);
   
   z80_outp(0x243b, 0x44);
   dmaMemoryToPort(colors, 0x253b, numBytes);
-  
-  ZXN_WRITE_MMU0(previousPage);
 }
 
 void layer2Plot(word x, byte y, byte color) {
@@ -123,22 +120,16 @@ void setupLayers(byte mode) __z88dk_fastcall {
 void loadScreen(byte page, const byte *restrict palette) {
   uploadPalette(palette, 512, 1, 210); // L2 first palette
 
-  byte previousPage0 = ZXN_READ_MMU0();
-  byte previousPage1 = ZXN_READ_MMU1();
-
   for(byte bank=0; bank!=5; ++bank) {
     selectLayer2Page(bank);
-    ZXN_WRITE_MMU0(page++);
     ZXN_WRITE_MMU1(page++);
+    ZXN_WRITE_MMU2(page++);
     if(bank==0) {
-      dmaMemoryToMemory((const byte *)0, (byte *)0, 0x4000);
+      dmaMemoryToMemory((const byte *)0x2000, (byte *)0, 0x4000);
     } else {
       dmaRepeat();
     }
   }
-
-  ZXN_WRITE_MMU0(previousPage0);
-  ZXN_WRITE_MMU1(previousPage1);
 }
 
 extern const byte level_palettes;
@@ -165,7 +156,7 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
   initHud(level);
 
   sprintf(textBuf, "ZONE %03d", level + 1);
-  status(textBuf);
+  status(textBuf, 2);
 }
 
 extern const byte title_palette;
@@ -200,8 +191,10 @@ void setupScreen(void) __z88dk_fastcall {
 
   setFallbackColour(0);
 
-  // map ULA to $4000
+  // map ULA to page 10
   ZXN_NEXTREG(0x52, 10); 
+  // map page 10 to 0x6000 instead of 0x4000
+  ZXN_WRITE_MMU3(10);
 }
 
 void writeNextReg(byte reg, const char *bytes, byte len) {

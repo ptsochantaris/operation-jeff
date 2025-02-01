@@ -92,7 +92,7 @@ byte gameLoop(void) __z88dk_fastcall {
         if((pressed & 1) == 0) { // p
           inputDelay = SMALL_INPUT_DELAY;
           pause = !pause;
-          status(pause ? "PAUSED" : NULL);
+          status(pause ? "PAUSED" : NULL, 0);
         }
 
         if(debugKeys()) {

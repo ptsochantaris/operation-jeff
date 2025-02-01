@@ -18,6 +18,12 @@ void resetBonuses(void) __z88dk_fastcall {
     clearTilemap();
 }
 
+void setBase(byte *base, byte value) {
+    ZXN_WRITE_MMU3(11);
+    *base = value;
+    ZXN_WRITE_MMU3(10);
+}
+
 void updateBonuses(void) __z88dk_fastcall {
     if(++bonusLoop == bonusTime) {
         if(targetType==BONUS_NONE) {
@@ -48,7 +54,7 @@ void updateBonuses(void) __z88dk_fastcall {
         byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
         if(transition==12) {
             presentedType = targetType;
-            *base = targetType;
+            setBase(base, targetType);
         } else {
             byte transitionOffset = 2 * (transition >> 2);
             ++transition;
@@ -58,20 +64,21 @@ void updateBonuses(void) __z88dk_fastcall {
                         case BONUS_HEALTH:
                         case BONUS_SCORE:
                         case BONUS_CHARGE:
-                            *base = 5 + transitionOffset;
+                            setBase(base, 5 + transitionOffset);
+
                             break;
                         case BONUS_SMARTBOMB:
-                            *base = 6 + transitionOffset;
+                            setBase(base, 6 + transitionOffset);
                             break;
                     }
                     break;
                 case BONUS_HEALTH:
                 case BONUS_SCORE:
                 case BONUS_CHARGE:
-                    *base = 9 - transitionOffset;
+                    setBase(base, 9 - transitionOffset);
                     break;
                 case BONUS_SMARTBOMB:
-                    *base = 10 - transitionOffset;
+                    setBase(base, 10 - transitionOffset);
                     break;
             }
         }

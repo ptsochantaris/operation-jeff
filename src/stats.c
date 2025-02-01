@@ -95,27 +95,27 @@ void processBonusHit(byte type) __z88dk_fastcall {
         case BONUS_CHARGE: 
             currentStats.energy = 255;
             hudEnergyUpdated();
-            status("+CHARGE");
+            status("+CHARGE", 1);
             effectBonus();
             break;
 
         case BONUS_HEALTH: 
             currentStats.health = 255;
             hudHealthUpdated();
-            status("+HEALTH");
+            status("+HEALTH", 1);
             effectBonus();
             break;
 
         case BONUS_SCORE: 
             currentStats.score += 100;
             hudScoreUpdated();
-            status("+100 PTS");
+            status("+100 PTS", 1);
             effectBonus();
             break;
 
         case BONUS_SMARTBOMB: 
             jeffKillAll();
-            status("BOOM!");
+            status("BOOM!", 1);
             effectBonus();
             break;
     }

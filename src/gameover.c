@@ -22,7 +22,7 @@ void gameOverLoop(void) __z88dk_fastcall {
   layer2Clear(HUD_ORANGE);
   setHudBackground(0);
   mouseReset();
-  status(NULL);
+  status(NULL, 0);
 
   gameOverEffect();
 
