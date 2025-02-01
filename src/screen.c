@@ -121,7 +121,7 @@ void setupLayers(byte mode) __z88dk_fastcall {
 }
 
 void loadScreen(byte page, const byte *restrict palette) {
-  uploadPalette(palette, 512, 1, 150); // L2 first palette
+  uploadPalette(palette, 512, 1, 210); // L2 first palette
 
   byte previousPage0 = ZXN_READ_MMU0();
   byte previousPage1 = ZXN_READ_MMU1();
@@ -141,7 +141,7 @@ void loadScreen(byte page, const byte *restrict palette) {
   ZXN_WRITE_MMU1(previousPage1);
 }
 
-extern const byte level_a_palette;
+extern const byte level_palettes;
 
 extern const byte default_palette;
 
@@ -152,12 +152,13 @@ void writeColourToIndex(const byte *colour, byte index) {
 }
 
 void loadLevelScreen(byte level) __z88dk_fastcall {
-  const byte *palette = &level_a_palette + level * 512;
-  loadScreen(LEVEL_BASE_PAGE + (level * 10), palette);
-
-  uploadPalette((const byte *)&default_palette, 512, 2, 150); // sprite first palette
-
   const LevelInfo *info = *(levelInfo+level);
+
+  const byte *palette = &level_palettes + info->paletteOffset * 512;
+  loadScreen(info->memoryPage, palette);
+
+  uploadPalette((const byte *)&default_palette, 512, 2, 210); // sprite first palette
+
   writeColourToIndex(info->jeffDark, 128);
   writeColourToIndex(info->jeffBright, 224);
 
@@ -197,7 +198,7 @@ void setupScreen(void) __z88dk_fastcall {
   // ULAnext all ink
   ZXN_NEXTREG(0x42, 0xFF);
 
-    setFallbackColour(0);
+  setFallbackColour(0);
 
   // map ULA to $4000
   ZXN_NEXTREG(0x52, 10); 

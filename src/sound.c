@@ -1,8 +1,6 @@
 #include <z80.h>
 #include "sound.h"
 
-extern const word notePitches[];
-
 void ayChipSelect(byte chip) __z88dk_fastcall { // 0 - 2
     z80_outp(0xFFFD, 0xFC | (3 - chip)); // first AY on both channels
 }

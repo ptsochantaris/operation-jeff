@@ -14,24 +14,24 @@ byte debugKeys(void) {
   }
   
   pressed = z80_inp(0xf7fe);
-  for(byte l=0;l<5;++l) { // 1...5
+  for(byte l=0;l<6;++l) { // 0...5
     if((pressed & (1 << l)) == 0) {
       inputDelay = SMALL_INPUT_DELAY;
-      if(l==0) {
-        currentStats.level = 255;
-      } else {
-        currentStats.level = l-1;
-      }
+      currentStats.level = l;
       nextLevel();
       return 0;
     }
   }
 
   pressed = z80_inp(0xeffe);
-  for(byte l=1;l<5;++l) { // 9...6
+  for(byte l=0;l<5;++l) { // 10...6
     if((pressed & (1 << l)) == 0) {
       inputDelay = SMALL_INPUT_DELAY;
-      currentStats.level = LEVEL_COUNT-l;
+      if(l==0) {
+        currentStats.level = 255;
+      } else {
+        currentStats.level = LEVEL_COUNT-l-1;
+      }
       nextLevel();
       return 0;
     }

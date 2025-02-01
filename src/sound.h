@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+extern const word notePitches[];
+
 typedef enum {
     C0 = 0,
     CSharp0_DFlat0,

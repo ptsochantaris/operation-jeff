@@ -45,48 +45,60 @@ SECTION PAGE_61
     BINARY "resources/levelB_3.nxi" ; 65
     BINARY "resources/levelB_4.nxi" ; 67
 SECTION PAGE_69
-    BINARY "resources/levelC_0.nxi" ; 69
-    BINARY "resources/levelC_1.nxi" ; 71
-    BINARY "resources/levelC_2.nxi" ; 73
-    BINARY "resources/levelC_3.nxi" ; 75
+    BINARY "resources/levelG_0.nxi" ; 69
+    BINARY "resources/levelG_1.nxi" ; 71
+    BINARY "resources/levelG_2.nxi" ; 73
+    BINARY "resources/levelG_3.nxi" ; 75
 SECTION PAGE_77
-    BINARY "resources/levelC_4.nxi" ; 77
+    BINARY "resources/levelG_4.nxi" ; 77
     BINARY "resources/levelD_0.nxi" ; 79
     BINARY "resources/levelD_1.nxi" ; 81
     BINARY "resources/levelD_2.nxi" ; 83
 SECTION PAGE_85
     BINARY "resources/levelD_3.nxi" ; 85
     BINARY "resources/levelD_4.nxi" ; 87
-    BINARY "resources/levelE_0.nxi" ; 89
-    BINARY "resources/levelE_1.nxi" ; 91
+    BINARY "resources/levelI_0.nxi" ; 89
+    BINARY "resources/levelI_1.nxi" ; 91
 SECTION PAGE_93
-    BINARY "resources/levelE_2.nxi" ; 93
-    BINARY "resources/levelE_3.nxi" ; 95
-    BINARY "resources/levelE_4.nxi" ; 97
-    BINARY "resources/levelF_0.nxi" ; 99
+    BINARY "resources/levelI_2.nxi" ; 93
+    BINARY "resources/levelI_3.nxi" ; 95
+    BINARY "resources/levelI_4.nxi" ; 97
+    BINARY "resources/levelE_0.nxi" ; 99
 SECTION PAGE_101
-    BINARY "resources/levelF_1.nxi" ; 101
-    BINARY "resources/levelF_2.nxi" ; 103
-    BINARY "resources/levelF_3.nxi" ; 105
-    BINARY "resources/levelF_4.nxi" ; 107
+    BINARY "resources/levelE_1.nxi" ; 101
+    BINARY "resources/levelE_2.nxi" ; 103
+    BINARY "resources/levelE_3.nxi" ; 105
+    BINARY "resources/levelE_4.nxi" ; 107
 SECTION PAGE_109
-    BINARY "resources/levelG_0.nxi" ; 109
-    BINARY "resources/levelG_1.nxi" ; 111
-    BINARY "resources/levelG_2.nxi" ; 113
-    BINARY "resources/levelG_3.nxi" ; 115
+    BINARY "resources/levelJ_0.nxi" ; 109
+    BINARY "resources/levelJ_1.nxi" ; 111
+    BINARY "resources/levelJ_2.nxi" ; 113
+    BINARY "resources/levelJ_3.nxi" ; 115
 SECTION PAGE_117
-    BINARY "resources/levelG_4.nxi" ; 117
-    BINARY "resources/levelH_0.nxi" ; 119
-    BINARY "resources/levelH_1.nxi" ; 121
-    BINARY "resources/levelH_2.nxi" ; 123
+    BINARY "resources/levelJ_4.nxi" ; 117
+    BINARY "resources/levelC_0.nxi" ; 119
+    BINARY "resources/levelC_1.nxi" ; 121
+    BINARY "resources/levelC_2.nxi" ; 123
 SECTION PAGE_125
-    BINARY "resources/levelH_3.nxi" ; 125
-    BINARY "resources/levelH_4.nxi" ; 127
+    BINARY "resources/levelC_3.nxi" ; 125
+    BINARY "resources/levelC_4.nxi" ; 127
+    BINARY "resources/levelF_0.nxi" ; 129
+    BINARY "resources/levelF_1.nxi" ; 131
+SECTION PAGE_133
+    BINARY "resources/levelF_2.nxi" ; 133
+    BINARY "resources/levelF_3.nxi" ; 135
+    BINARY "resources/levelF_4.nxi" ; 137
+    BINARY "resources/levelH_0.nxi" ; 139
+SECTION PAGE_141
+    BINARY "resources/levelH_1.nxi" ; 141
+    BINARY "resources/levelH_2.nxi" ; 143
+    BINARY "resources/levelH_3.nxi" ; 145
+    BINARY "resources/levelH_4.nxi" ; 147
 
-SECTION PAGE_148
+SECTION PAGE_208
     BINARY "resources/menu.pcm"
 
-SECTION PAGE_150
+SECTION PAGE_210
 ORG 0
 
 PUBLIC _title_palette
@@ -101,38 +113,18 @@ PUBLIC _default_palette
 _default_palette:
     BINARY "resources/default.pal"
 
-PUBLIC _level_a_palette
-_level_a_palette:
+PUBLIC _level_palettes
+_level_palettes:
     BINARY "resources/levelA.nxp"
-
-PUBLIC _level_b_palette
-_level_b_palette:
     BINARY "resources/levelB.nxp"
-
-PUBLIC _level_c_palette
-_level_c_palette:
-    BINARY "resources/levelC.nxp"
-
-PUBLIC _level_d_palette
-_level_d_palette:
-    BINARY "resources/levelD.nxp"
-
-PUBLIC _level_e_palette
-_level_e_palette:
-    BINARY "resources/levelE.nxp"
-
-PUBLIC _level_f_palette
-_level_f_palette:
-    BINARY "resources/levelF.nxp"
-
-PUBLIC _level_g_palette
-_level_g_palette:
     BINARY "resources/levelG.nxp"
-
-PUBLIC _level_h_palette
-_level_h_palette:
+    BINARY "resources/levelD.nxp"
+    BINARY "resources/levelI.nxp"
+    BINARY "resources/levelE.nxp"
+    BINARY "resources/levelJ.nxp"
+    BINARY "resources/levelC.nxp"
+    BINARY "resources/levelF.nxp"
     BINARY "resources/levelH.nxp"
-
 
 SECTION PAGE_151 ; also 152
     BINARY "resources/sprites.spr"

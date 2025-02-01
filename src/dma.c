@@ -38,7 +38,7 @@ static dmaPayload dmaMemoryPrep = {
   0x87cf // cf, 87 in reverse order (R6 load, R6 enable DMA)
 };
 
-// #define DMA_WORKAROUND
+#define DMA_WORKAROUND
 
 void dmaRepeat(void) __z88dk_fastcall {
 #ifdef DMA_WORKAROUND

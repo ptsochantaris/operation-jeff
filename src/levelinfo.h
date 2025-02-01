@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-#define LEVEL_COUNT 8
+#define LEVEL_COUNT 10
 
 typedef struct {
     byte jeffBright[2];
@@ -11,6 +11,8 @@ typedef struct {
     word killsRequired;
     word difficultyStep;
     byte initialGenerationPeriod;
+    byte memoryPage;
+    byte paletteOffset;
 } LevelInfo;
 
 extern LevelInfo *levelInfo[];
