@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-#define LEVEL_COUNT 10
+#define LEVEL_COUNT 12
 
 typedef struct {
     byte jeffBright[2];

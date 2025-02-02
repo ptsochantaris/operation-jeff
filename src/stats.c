@@ -19,7 +19,9 @@ void setupGameStats(void) __z88dk_fastcall {
 }
 
 void statsProgressLevel(void) __z88dk_fastcall {
-    if(++currentStats.level == LEVEL_COUNT) {
+    ++currentStats.level;
+    
+    if(currentStats.level == LEVEL_COUNT) {
         currentStats.level = 0;
     }
 
