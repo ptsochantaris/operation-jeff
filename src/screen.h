@@ -25,5 +25,6 @@ void setFallbackColour(byte index);
 void writeColourToIndex(const byte *colour, byte index);
 
 void writeNextReg(byte reg, const char *bytes, byte len);
+void fillNextReg(byte reg, byte value, byte len);
 
 #endif

@@ -47,18 +47,11 @@ void cycleGrayPalette(void) __z88dk_fastcall {
 
     selectPalette(0);
 
-    ZXN_NEXTREGA(0x44, 0);
-    ZXN_NEXTREGA(0x44, 0);
+    ZXN_NEXTREG(0x44, 0);
+    ZXN_NEXTREG(0x44, 0);
 
-    for(byte f=gray_offset;f!=16;++f) {
-        ZXN_NEXTREGA(0x44, *(ulaPalette+f));
-    }
-
-    for(byte f=0;f!=gray_offset;++f) { // leaving zero untouched
-        ZXN_NEXTREGA(0x44, *(ulaPalette+f));
-    }
-
-    ZXN_NEXTREGA(0x41, 0xFC); // yellow for leds
+    writeNextReg(0x44, ulaPalette+gray_offset, 16-gray_offset);
+    writeNextReg(0x44, ulaPalette, gray_offset);
 }
 
 void printAttributes(const byte *restrict text, byte x, byte y) {

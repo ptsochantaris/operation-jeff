@@ -98,9 +98,59 @@ void selectPalette(byte paletteMask) __z88dk_fastcall {
   ZXN_NEXTREG(0x40, 0); // start palette index
 }
 
+void fadePalette(const byte *restrict colors, word numBytes, byte shift) {
+  ZXN_NEXTREG(0x40, 0); // start palette index
+
+  for(word c=0; c<numBytes; c += 2) {
+    byte msb = colors[c];
+    byte lsb = colors[c+1];
+
+    byte tr = msb >> 5;
+    byte tg = (msb >> 2) & 7;
+    byte tb = ((msb & 3) << 1) | (lsb & 1);
+
+    byte r = shift<tr ? shift : tr;
+    byte g = shift<tg ? shift : tg;
+    byte b = shift<tb ? shift : tb;
+
+    msb = r << 5 | g << 2 | b >> 1;
+    ZXN_WRITE_REG(0x44, msb);
+
+    lsb = b & 1;
+    ZXN_WRITE_REG(0x44, lsb);
+  }
+
+  intrinsic_halt();
+}
+
+void fadePaletteDown(byte paletteMask, word numBytes) {
+  selectPalette(paletteMask);
+
+  byte existing[512];
+  for(word f=0;f<256;f++) {
+    ZXN_NEXTREGA(0x40, f); // start palette index
+
+    word i = f*2;
+    existing[i] = ZXN_READ_REG(0x41);
+    existing[i+1] = ZXN_READ_REG(0x44) & 1;
+  }
+
+  for(byte shift=8; shift > 0; --shift) {
+    fadePalette(existing, numBytes, shift-1);
+  }
+}
+
+void fadePaletteUp(const byte *restrict colors, word numBytes, byte paletteMask, byte page) {
+  selectPalette(paletteMask);
+  ZXN_WRITE_MMU1(page);
+
+  for(byte shift=0; shift < 8; ++shift) {
+    fadePalette(colors, numBytes, shift);
+  }
+}
+
 void uploadPalette(const byte *restrict colors, word numBytes, byte palette, byte page) {
   selectPalette(palette);
-
   ZXN_WRITE_MMU1(page);
   
   z80_outp(0x243b, 0x44);
@@ -117,8 +167,10 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void loadScreen(byte page, const byte *restrict palette) {
-  uploadPalette(palette, 512, 1, 210); // L2 first palette
+void loadScreen(byte page, const byte *restrict palette, byte fade, signed char addHud, word byteCount) {
+  if(fade) {
+    fadePaletteDown(1, byteCount);
+  }
 
   for(byte bank=0; bank!=5; ++bank) {
     selectLayer2Page(bank);
@@ -129,6 +181,16 @@ void loadScreen(byte page, const byte *restrict palette) {
     } else {
       dmaRepeat();
     }
+  }
+
+  if(addHud >= 0) {
+    initHud(addHud);
+  }
+
+  if(fade) {
+    fadePaletteUp(palette, byteCount, 1, 210);
+  } else {
+    uploadPalette(palette, byteCount, 1, 210); // L2 first palette
   }
 }
 
@@ -145,28 +207,34 @@ void writeColourToIndex(const byte *colour, byte index) {
 void loadLevelScreen(byte level) __z88dk_fastcall {
   const LevelInfo *info = *(levelInfo+level);
 
+  // flash jeffs white
+  selectPalette(2);
+  word white = 0x01FF;
+  writeColourToIndex(&white, 128);
+  writeColourToIndex(&white, 224);
+
   const byte *palette = &level_palettes + info->paletteOffset * 512;
-  loadScreen(info->memoryPage, palette);
+  const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
+  loadScreen(info->memoryPage, palette, 1, level, nonHudPaletteByteCount);
 
   uploadPalette((const byte *)&default_palette, 512, 2, 210); // sprite first palette
-
   writeColourToIndex(info->jeffDark, 128);
   writeColourToIndex(info->jeffBright, 224);
-
-  initHud(level);
 
   sprintf(textBuf, "ZONE %03d", level + 1);
   status(textBuf, 2);
 }
 
 extern const byte title_palette;
+static byte shouldFadeTitle = 0;
 void loadTitleScreen(void) __z88dk_fastcall {
-  loadScreen(29, &title_palette);
+  loadScreen(29, &title_palette, shouldFadeTitle, -1, 512);
+  if(!shouldFadeTitle) shouldFadeTitle = 1;
 }
 
 extern const byte info_palette;
 void loadInfoScreen(void) __z88dk_fastcall {
-  loadScreen(39, &info_palette);
+  loadScreen(39, &info_palette, 1, -1, 512);
 }
 
 void setFallbackColour(byte index) {
@@ -198,7 +266,13 @@ void setupScreen(void) __z88dk_fastcall {
 }
 
 void writeNextReg(byte reg, const char *bytes, byte len) {
-  for(byte f=0; f<len; ++f, ++bytes) {
+  for(byte f=0; f!=len; ++f, ++bytes) {
     ZXN_WRITE_REG(reg, *bytes);
+  }
+}
+
+void fillNextReg(byte reg, byte value, byte len) {
+  for(byte i=0; i<len; ++i) {
+    ZXN_WRITE_REG(reg, value);
   }
 }
