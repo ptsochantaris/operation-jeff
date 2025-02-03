@@ -142,19 +142,25 @@ void fadePaletteDown(byte paletteMask, word numBytes) {
 
 void fadePaletteUp(const byte *restrict colors, word numBytes, byte paletteMask, byte page) {
   selectPalette(paletteMask);
-  ZXN_WRITE_MMU1(page);
+
+  byte previousMmu3 = ZXN_READ_MMU3();
+  ZXN_WRITE_MMU3(page);
 
   for(byte shift=0; shift < 8; ++shift) {
     fadePalette(colors, numBytes, shift);
   }
+  ZXN_WRITE_MMU3(previousMmu3);
 }
 
 void uploadPalette(const byte *restrict colors, word numBytes, byte palette, byte page) {
   selectPalette(palette);
-  ZXN_WRITE_MMU1(page);
+
+  byte previousMmu3 = ZXN_READ_MMU3();
+  ZXN_WRITE_MMU3(page);
   
   z80_outp(0x243b, 0x44);
   dmaMemoryToPort(colors, 0x253b, numBytes);
+  ZXN_WRITE_MMU3(previousMmu3);
 }
 
 void layer2Plot(word x, byte y, byte color) {
@@ -167,11 +173,7 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void loadScreen(byte page, const byte *restrict palette, byte fade, signed char addHud, word byteCount) {
-  if(fade) {
-    fadePaletteDown(1, byteCount);
-  }
-
+void loadScreen(byte page) {
   for(byte bank=0; bank!=5; ++bank) {
     selectLayer2Page(bank);
     ZXN_WRITE_MMU1(page++);
@@ -182,21 +184,9 @@ void loadScreen(byte page, const byte *restrict palette, byte fade, signed char 
       dmaRepeat();
     }
   }
-
-  if(addHud >= 0) {
-    initHud(addHud);
-  }
-
-  if(fade) {
-    fadePaletteUp(palette, byteCount, 1, 210);
-  } else {
-    uploadPalette(palette, byteCount, 1, 210); // L2 first palette
-  }
 }
 
 extern const byte level_palettes;
-
-extern const byte default_palette;
 
 void writeColourToIndex(const byte *colour, byte index) {
   ZXN_NEXTREGA(0x40, index);
@@ -215,31 +205,51 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
 
   const byte *palette = &level_palettes + info->paletteOffset * 512;
   const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
-  loadScreen(info->memoryPage, palette, 1, level, nonHudPaletteByteCount);
+  fadePaletteDown(1, nonHudPaletteByteCount);
 
-  uploadPalette((const byte *)&default_palette, 512, 2, 210); // sprite first palette
+  loadScreen(info->memoryPage);
+
+  initHud(level);
+
+  effectSiren();
+
+  fadePaletteUp(palette, nonHudPaletteByteCount, 1, 210);
+
+  selectPalette(2);
   writeColourToIndex(info->jeffDark, 128);
   writeColourToIndex(info->jeffBright, 224);
 
   sprintf(textBuf, "ZONE %03d", level + 1);
-  status(textBuf, 2);
+  status(textBuf);
 }
 
 extern const byte title_palette;
 static byte shouldFadeTitle = 0;
 void loadTitleScreen(void) __z88dk_fastcall {
-  loadScreen(29, &title_palette, shouldFadeTitle, -1, 512);
-  if(!shouldFadeTitle) shouldFadeTitle = 1;
+  if(shouldFadeTitle) {
+    fadePaletteDown(1, 512);
+  }
+  loadScreen(29);
+  if(shouldFadeTitle) {
+    fadePaletteUp(&title_palette, 512, 1, 210);
+  } else {
+    uploadPalette(&title_palette, 512, 1, 210);
+    shouldFadeTitle = 1;
+  }
 }
 
 extern const byte info_palette;
 void loadInfoScreen(void) __z88dk_fastcall {
-  loadScreen(39, &info_palette, 1, -1, 512);
+  fadePaletteDown(1, 512);
+  loadScreen(39);
+  fadePaletteUp(&info_palette, 512, 1, 210);
 }
 
 extern const byte gameOverPalette;
 void loadGameOverScreen(void) __z88dk_fastcall {
-  loadScreen(169, &gameOverPalette, 1, -1, 512);
+  fadePaletteDown(1, 512);
+  loadScreen(169);
+  fadePaletteUp(&gameOverPalette, 512, 1, 210);
 }
 
 void setFallbackColour(byte index) {

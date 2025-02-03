@@ -74,28 +74,23 @@ void printAttributes(const byte *restrict text, byte x, byte y) {
 
 static byte statusCount = 0;
 
-void status(const byte *text, byte effect) {
-    fillWithDma(ulaAttributes + 320, 160, 0);
+void status(const byte *text) {
+    bzero((byte *)(ulaAttributes + 320), 160);
     if(text) {
         int x = 16 - (strlen(text) << 1);
         if(x<0) x=0;
         printAttributes(text, x, 10);
         statusCount = 16;
     }
-    switch(effect) {
-        case 1:
-            effectZap();
-            break;
-        case 2:
-            effectSiren();
-            break;
-    }
 }
 
 void updateStatus(void) __z88dk_fastcall {
-    if(statusCount == 0) return;
+    if(statusCount == 0) {
+        return;
+    }
+    
     if(--statusCount == 0) {
-        status(NULL, 0);
+        status(NULL);
     } else {
         cycleGrayPalette();
     }

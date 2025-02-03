@@ -5,7 +5,7 @@ void setupTitleLeds(void) __z88dk_fastcall;
 void cycleGrayPalette(void) __z88dk_fastcall;
 void ulaAttributeClear(void) __z88dk_fastcall;
 void ulaAttributeClear(void) __z88dk_fastcall;
-void status(const byte *text, byte effect);
+void status(const byte *text);
 void updateStatus(void) __z88dk_fastcall;
 
 #endif

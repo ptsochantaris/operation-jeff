@@ -136,10 +136,7 @@ static const byte hudPalette[] = {
 void applyHudPalette(void) __z88dk_fastcall {
   selectPalette(1); // L2 first palette
   ZXN_NEXTREG(0x40, HUD_BLACK); // start palette index
-  const byte *p = hudPalette;
-  for(byte f=0; f!=14; ++f, ++p) {
-    ZXN_NEXTREGA(0x44, *p);
-  }
+  writeNextReg(0x44, hudPalette, 14);
 }
 
 void initHud(byte level) __z88dk_fastcall {

@@ -21,7 +21,7 @@ void gameOverLoop(void) __z88dk_fastcall {
   setupLayers(0); // SLU
   setHudBackground(0);
   mouseReset();
-  status(NULL, 0);
+  status(NULL);
 
   loadGameOverScreen();
   applyHudPalette();

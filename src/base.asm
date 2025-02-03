@@ -120,7 +120,7 @@ SECTION PAGE_208
     BINARY "resources/menu.pcm"
 
 SECTION PAGE_210
-ORG 0x2000
+ORG 0x6000
 
 PUBLIC _title_palette
 _title_palette:
