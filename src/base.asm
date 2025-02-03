@@ -97,9 +97,9 @@ SECTION PAGE_157
     BINARY "resources/levelL_0.nxi" ; 159
     BINARY "resources/levelL_1.nxi" ; 161
     BINARY "resources/levelL_2.nxi" ; 163
-SECTION PAGE_167
-    BINARY "resources/levelL_3.nxi" ; 167
-    BINARY "resources/levelL_4.nxi" ; 169
+SECTION PAGE_165
+    BINARY "resources/levelL_3.nxi" ; 165
+    BINARY "resources/levelL_4.nxi" ; 167
 
 SECTION PAGE_191 ; also 192
     BINARY "resources/sprites.spr"
