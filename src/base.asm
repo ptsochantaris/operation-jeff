@@ -100,6 +100,12 @@ SECTION PAGE_157
 SECTION PAGE_165
     BINARY "resources/levelL_3.nxi" ; 165
     BINARY "resources/levelL_4.nxi" ; 167
+    BINARY "resources/gameOverScreen_0.nxi" ; 169
+    BINARY "resources/gameOverScreen_1.nxi" ; 171
+SECTION PAGE_173
+    BINARY "resources/gameOverScreen_2.nxi" ; 173
+    BINARY "resources/gameOverScreen_3.nxi" ; 175
+    BINARY "resources/gameOverScreen_4.nxi" ; 177
 
 SECTION PAGE_191 ; also 192
     BINARY "resources/sprites.spr"
@@ -142,3 +148,7 @@ _level_palettes:
     BINARY "resources/levelJ.nxp"
     BINARY "resources/levelK.nxp"
     BINARY "resources/levelL.nxp"
+
+PUBLIC _gameOverPalette
+_gameOverPalette:
+    BINARY "resources/gameOverScreen.nxp"

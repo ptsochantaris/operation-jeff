@@ -237,6 +237,11 @@ void loadInfoScreen(void) __z88dk_fastcall {
   loadScreen(39, &info_palette, 1, -1, 512);
 }
 
+extern const byte gameOverPalette;
+void loadGameOverScreen(void) __z88dk_fastcall {
+  loadScreen(169, &gameOverPalette, 1, -1, 512);
+}
+
 void setFallbackColour(byte index) {
   ZXN_NEXTREGA(0x4A, index);
 }

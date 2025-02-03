@@ -24,5 +24,6 @@ void hudKillsUpdated(void) __z88dk_fastcall;
 void print(const byte *restrict text, word x, word y, byte textColor, byte bgColor);
 void printNoBackground(const byte *restrict text, word x, word y, byte textColor);
 void setHudBackground(int color) __z88dk_fastcall;
+void applyHudPalette(void) __z88dk_fastcall;
 
 #endif

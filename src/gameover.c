@@ -19,14 +19,14 @@ void gameOverLoop(void) __z88dk_fastcall {
   setSpriteMenuClipping();
   setMenuMouse();
   setupLayers(0); // SLU
-  layer2Clear(HUD_ORANGE);
   setHudBackground(0);
   mouseReset();
   status(NULL, 0);
 
-  gameOverEffect();
+  loadGameOverScreen();
+  applyHudPalette();
 
-  layer2DmaFill(60, 60, 200, 136, HUD_BLACK);
+  gameOverEffect();
 
   word center = 160;
   word top = 110;

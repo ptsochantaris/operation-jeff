@@ -7,3 +7,4 @@ for LETTER in "${LETTERS[@]}"; do
 done
 
 "${CONV}" "${SRC}OperationJeffLoading.png" -pal-min -pal-embed -bitmap "loadingScreen.nxi"
+"${CONV}" "${SRC}OperationJeffGameOver.png" -pal-min -bitmap-y -bank-16k "gameOverScreen.nxi"

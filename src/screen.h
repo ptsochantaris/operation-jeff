@@ -14,6 +14,7 @@ void setupLayers(byte mode) __z88dk_fastcall;
 void loadTitleScreen(void) __z88dk_fastcall;
 void loadLevelScreen(byte level) __z88dk_fastcall;
 void loadInfoScreen(void) __z88dk_fastcall;
+void loadGameOverScreen(void) __z88dk_fastcall;
 
 void selectPalette(byte paletteMask) __z88dk_fastcall;
 void selectLayer2Page(byte page) __z88dk_fastcall;

@@ -133,13 +133,17 @@ static const byte hudPalette[] = {
   COLOR9(7, 7, 7)
 };
 
-void initHud(byte level) __z88dk_fastcall {
+void applyHudPalette(void) __z88dk_fastcall {
   selectPalette(1); // L2 first palette
   ZXN_NEXTREG(0x40, HUD_BLACK); // start palette index
   const byte *p = hudPalette;
   for(byte f=0; f!=14; ++f, ++p) {
     ZXN_NEXTREGA(0x44, *p);
   }
+}
+
+void initHud(byte level) __z88dk_fastcall {
+  applyHudPalette();
 
   const LevelInfo *info = *(levelInfo+level);
   writeColourToIndex(info->jeffDark, HUD_FILL_DARK);
