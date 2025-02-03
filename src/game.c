@@ -21,7 +21,7 @@ byte debugKeys(void) {
   for(byte l=0;l<6;++l) { // 0...5
     if((pressed & (1 << l)) == 0) {
       inputDelay = SMALL_INPUT_DELAY;
-      currentStats.level = isShifted() ? (l + 8) : (l - 1);
+      currentStats.level = isShifted() ? (l + 9) : (l - 1);
       nextLevel();
       return 0;
     }
