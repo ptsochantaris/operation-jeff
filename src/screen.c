@@ -173,20 +173,19 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void loadScreen(byte page) {
+void loadScreen(ResourceInfo *screen) {
+  word page = screen->page;
   for(byte bank=0; bank!=5; ++bank) {
     selectLayer2Page(bank);
     ZXN_WRITE_MMU1(page++);
     ZXN_WRITE_MMU2(page++);
     if(bank==0) {
-      dmaMemoryToMemory((const byte *)0x2000, (byte *)0, 0x4000);
+      dmaMemoryToMemory(screen->resource, (byte *)0, 0x4000);
     } else {
       dmaRepeat();
     }
   }
 }
-
-extern const byte level_palettes;
 
 void writeColourToIndex(const byte *colour, byte index) {
   ZXN_NEXTREGA(0x40, index);
@@ -203,17 +202,16 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
   writeColourToIndex(&white, 128);
   writeColourToIndex(&white, 224);
 
-  const byte *palette = &level_palettes + info->paletteOffset * 512;
   const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
   fadePaletteDown(1, nonHudPaletteByteCount);
 
-  loadScreen(info->memoryPage);
+  loadScreen(info->screenAsset);
 
   initHud(level);
 
   effectSiren();
 
-  fadePaletteUp(palette, nonHudPaletteByteCount, 1, 210);
+  fadePaletteUp(info->paletteAsset->resource, nonHudPaletteByteCount, 1, info->paletteAsset->page);
 
   selectPalette(2);
   writeColourToIndex(info->jeffDark, 128);
@@ -223,33 +221,30 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
   status(textBuf);
 }
 
-extern const byte title_palette;
 static byte shouldFadeTitle = 0;
 void loadTitleScreen(void) __z88dk_fastcall {
   if(shouldFadeTitle) {
     fadePaletteDown(1, 512);
   }
-  loadScreen(29);
+  loadScreen(&R_title_0_nxi);
   if(shouldFadeTitle) {
-    fadePaletteUp(&title_palette, 512, 1, 210);
+    fadePaletteUp(R_title_nxp.resource, R_title_nxp.length, 1, R_title_nxp.page);
   } else {
-    uploadPalette(&title_palette, 512, 1, 210);
+    uploadPalette(R_title_nxp.resource, R_title_nxp.length, 1, R_title_nxp.page);
     shouldFadeTitle = 1;
   }
 }
 
-extern const byte info_palette;
 void loadInfoScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
-  loadScreen(39);
-  fadePaletteUp(&info_palette, 512, 1, 210);
+  loadScreen(&R_info_0_nxi);
+  fadePaletteUp(R_info_nxp.resource, R_info_nxp.length, 1, R_info_nxp.page);
 }
 
-extern const byte gameOverPalette;
 void loadGameOverScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
-  loadScreen(169);
-  fadePaletteUp(&gameOverPalette, 512, 1, 210);
+  loadScreen(&R_gameOverScreen_0_nxi);
+  fadePaletteUp(R_gameOverScreen_nxp.resource, R_gameOverScreen_nxp.length, 1, R_gameOverScreen_nxp.page);
 }
 
 void setFallbackColour(byte index) {

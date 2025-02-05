@@ -1,21 +1,21 @@
 #include "resources.h"
 
-void playSample(byte page, word count, byte speed, byte loop) {
-  ZXN_WRITE_MMU1(page);
-  ZXN_WRITE_MMU2(page+1);
-  playWithDma(0x2000, count, speed, loop);
+void playSample(ResourceInfo *info, byte speed, byte loop) {
+  ZXN_WRITE_MMU1(info->page);
+  ZXN_WRITE_MMU2((info->page)+1);
+  playWithDma((word)info->resource, info->length, speed, loop);
 }
 
 void effectZap(void) __z88dk_fastcall {
-  playSample(205, 2529, 0x74, 0);
+  playSample(&R_zzzap_pcm, 0x74, 0);
 }
 
 void effectSiren(void) __z88dk_fastcall {
-  playSample(206, 16000, 0x74, 0);
+  playSample(&R_siren_pcm, 0x74, 0);
 }
 
 void effectMenuDroneStart(void) __z88dk_fastcall {
-  playSample(208, 16000, 0x74, 1);
+  playSample(&R_menu_pcm, 0x74, 1);
 
   for(byte ayChip=0;ayChip<2;++ayChip) {
     ayChipSelect(ayChip);

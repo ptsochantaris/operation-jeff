@@ -34,6 +34,7 @@
 #include "menu.h"
 #include "gameover.h"
 #include "stars.h"
+#include "assets.h"
 
 #endif
 

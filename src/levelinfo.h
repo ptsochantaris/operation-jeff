@@ -2,6 +2,7 @@
 #define __LEVEL_INFO__
 
 #include "types.h"
+#include "assets.h"
 
 #define LEVEL_COUNT 12
 
@@ -11,8 +12,8 @@ typedef struct {
     word killsRequired;
     word difficultyStep;
     byte initialGenerationPeriod;
-    byte memoryPage;
-    byte paletteOffset;
+    ResourceInfo *screenAsset;
+    ResourceInfo *paletteAsset;
 } LevelInfo;
 
 extern LevelInfo *levelInfo[];

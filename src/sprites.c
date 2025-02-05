@@ -27,14 +27,12 @@ void setSpriteMenuClipping(void) __z88dk_fastcall {
   }
 }
 
-extern const byte default_palette;
-
 void loadSprites(void) __z88dk_fastcall {  
   ZXN_NEXTREG(0x4b, 0); // sprite palette index 0 is transparent
 
-  ZXN_WRITE_MMU1(191);
-  ZXN_WRITE_MMU2(192);
-  dmaMemoryToPort((const byte *)0x2000, __IO_SPRITE_PATTERN, 0x4000);
+  ZXN_WRITE_MMU1(R_sprites_spr.page);
+  ZXN_WRITE_MMU2(R_sprites_spr.page+1);
+  dmaMemoryToPort(R_sprites_spr.resource, __IO_SPRITE_PATTERN, R_sprites_spr.length);
 
-  uploadPalette(&default_palette, 512, 2, 210);
+  uploadPalette(R_default_nxp.resource, R_default_nxp.length, 2, R_default_nxp.page);
 }
