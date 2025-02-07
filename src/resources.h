@@ -12,6 +12,7 @@
 #include <arch/zxn.h>
 #include <arch/zxn/copper.h>
 #include <config_zxn.h>
+#include <compress/zx0.h>
 
 #include "types.h"
 #include "dma.h"

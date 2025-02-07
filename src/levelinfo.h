@@ -12,7 +12,7 @@ typedef struct {
     word killsRequired;
     word difficultyStep;
     byte initialGenerationPeriod;
-    ResourceInfo *screenAsset;
+    ResourceInfo *screenArray[10];
     ResourceInfo *paletteAsset;
 } LevelInfo;
 

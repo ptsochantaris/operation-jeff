@@ -1,6 +1,6 @@
 import Foundation
 
-// swift make-resources-asm.swift resources/*.nxp resources/*.spr resources/*.pcm resources/*.nxi
+// swift makeResources.swift resources/*.nxp resources/*.spr resources/*.pcm resources/*.nxi
 
 func main() {
     // Check if there are any file paths provided as command-line arguments
@@ -36,12 +36,12 @@ func main() {
     }
 
     // Dictionary to store groups of files
-    var groups: [[FileInfo]] = []
-    var currentGroup: [FileInfo] = []
-    var currentSize: Int = 0
-    let maxSize = 8 * 1024 // 8 KB
-    var page = 29
+    var currentGroup = [FileInfo]()
+    var groups = [[FileInfo]]()
     var allFiles = [FileInfo]()
+    let maxSize = 8 * 1024 // 8 KB
+    var currentSize = 0
+    var page = 29
 
     // Process each file
     for filePath in filePaths where !filePath.contains("loadingScreen.") {

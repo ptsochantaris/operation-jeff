@@ -20,6 +20,7 @@
         "bonus.h": "c",
         "copper.h": "c",
         "cstddef": "c",
-        "tilemap.h": "c"
+        "tilemap.h": "c",
+        "zx0.h": "c"
     }
 }
