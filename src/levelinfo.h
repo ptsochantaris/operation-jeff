@@ -4,7 +4,7 @@
 #include "types.h"
 #include "assets.h"
 
-#define LEVEL_COUNT 12
+#define LEVEL_COUNT 13
 
 typedef struct {
     byte jeffBright[2];
