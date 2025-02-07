@@ -34,5 +34,5 @@ void loadSprites(void) __z88dk_fastcall {
   ZXN_WRITE_MMU2(R_sprites_spr.page+1);
   dmaMemoryToPort(R_sprites_spr.resource, __IO_SPRITE_PATTERN, R_sprites_spr.length);
 
-  uploadPalette(R_default_nxp.resource, R_default_nxp.length, 2, R_default_nxp.page);
+  uploadPalette(&R_default_nxp_zx0, 512, 2);
 }

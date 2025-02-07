@@ -98,12 +98,27 @@ void selectPalette(byte paletteMask) __z88dk_fastcall {
   ZXN_NEXTREG(0x40, 0); // start palette index
 }
 
-void fadePalette(const byte *restrict colors, word numBytes, byte shift) {
+static byte paletteBuffer[] = {
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0 }; // 512 bytes
+
+void loadPaletteBuffer(const ResourceInfo *restrict compressedPalette) {
+  byte previousMmu3 = ZXN_READ_MMU3();
+  ZXN_WRITE_MMU3(compressedPalette->page);
+  decompressZX0(paletteBuffer, compressedPalette->resource);
+  ZXN_WRITE_MMU3(previousMmu3);
+}
+
+void fadePalette(word numBytes, byte shift) {
   ZXN_NEXTREG(0x40, 0); // start palette index
 
   for(word c=0; c<numBytes; c += 2) {
-    byte msb = colors[c];
-    byte lsb = colors[c+1];
+    byte msb = paletteBuffer[c];
+    byte lsb = paletteBuffer[c+1];
 
     byte tr = msb >> 5;
     byte tg = (msb >> 2) & 7;
@@ -126,30 +141,26 @@ void fadePalette(const byte *restrict colors, word numBytes, byte shift) {
 void fadePaletteDown(byte paletteMask, word numBytes) {
   selectPalette(paletteMask);
 
-  byte existing[512];
-  for(word f=0;f<256;f++) {
+  word i = 0;
+  for(word f=0; f<256; f++, i+=2) {
     ZXN_NEXTREGA(0x40, f); // start palette index
 
-    word i = f*2;
-    existing[i] = ZXN_READ_REG(0x41);
-    existing[i+1] = ZXN_READ_REG(0x44) & 1;
+    paletteBuffer[i] = ZXN_READ_REG(0x41);
+    paletteBuffer[i+1] = ZXN_READ_REG(0x44) & 1;
   }
 
   for(byte shift=8; shift > 0; --shift) {
-    fadePalette(existing, numBytes, shift-1);
+    fadePalette(numBytes, shift-1);
   }
 }
 
-void fadePaletteUp(const byte *restrict colors, word numBytes, byte paletteMask, byte page) {
+void fadePaletteUp(const ResourceInfo *restrict compressedPalette, word numBytes, byte paletteMask) {
   selectPalette(paletteMask);
-
-  byte previousMmu3 = ZXN_READ_MMU3();
-  ZXN_WRITE_MMU3(page);
+  loadPaletteBuffer(compressedPalette);
 
   for(byte shift=0; shift < 8; ++shift) {
-    fadePalette(colors, numBytes, shift);
+    fadePalette(numBytes, shift);
   }
-  ZXN_WRITE_MMU3(previousMmu3);
 }
 
 void zeroPalette(byte palette, word length) {
@@ -162,15 +173,12 @@ void zeroPalette(byte palette, word length) {
   }
 }
 
-void uploadPalette(const byte *restrict colors, word numBytes, byte palette, byte page) {
+void uploadPalette(const ResourceInfo *restrict compressedPalette, word numBytes, byte palette) {
   selectPalette(palette);
-
-  byte previousMmu3 = ZXN_READ_MMU3();
-  ZXN_WRITE_MMU3(page);
+  loadPaletteBuffer(compressedPalette);
   
   z80_outp(0x243b, 0x44);
-  dmaMemoryToPort(colors, 0x253b, numBytes);
-  ZXN_WRITE_MMU3(previousMmu3);
+  dmaMemoryToPort(paletteBuffer, 0x253b, numBytes);
 }
 
 void layer2Plot(word x, byte y, byte color) {
@@ -183,13 +191,23 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void loadScreen(ResourceInfo *R[]) {
-  ResourceInfo *screen = R[0];
-  for(byte screenPage=18; screenPage<28; ++screenPage, ++screen) {
-    ZXN_WRITE_MMU1(screen->page);
-    ZXN_WRITE_MMU2(screenPage);
-    decompressZX0((byte *)0x4000, screen->resource);
-  }
+void decompressScreen(ResourceInfo *screen, byte targetPage) __z88dk_callee {
+  ZXN_WRITE_MMU2(targetPage);
+  ZXN_WRITE_MMU1(screen->page);
+  decompressZX0((byte *)0x4000, screen->resource);
+}
+
+void loadScreen(const LevelInfo *info) __z88dk_fastcall {
+  decompressScreen(info->screen0, 18);
+  decompressScreen(info->screen1, 19);
+  decompressScreen(info->screen2, 20);
+  decompressScreen(info->screen3, 21);
+  decompressScreen(info->screen4, 22);
+  decompressScreen(info->screen5, 23);
+  decompressScreen(info->screen6, 24);
+  decompressScreen(info->screen7, 25);
+  decompressScreen(info->screen8, 26);
+  decompressScreen(info->screen9, 27);
 }
 
 void writeColourToIndex(const byte *colour, byte index) {
@@ -207,16 +225,14 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
   writeColourToIndex(&white, 128);
   writeColourToIndex(&white, 224);
 
-  const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
-  fadePaletteDown(1, nonHudPaletteByteCount);
-
-  loadScreen(info->screenArray);
-
+  fadePaletteDown(1, 512);
+  loadScreen(info);
   initHud(level);
 
   effectSiren();
 
-  fadePaletteUp(info->paletteAsset->resource, nonHudPaletteByteCount, 1, info->paletteAsset->page);
+  const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
+  fadePaletteUp(info->paletteAsset, nonHudPaletteByteCount, 1);
 
   selectPalette(2);
   writeColourToIndex(info->jeffDark, 128);
@@ -233,28 +249,25 @@ void loadTitleScreen(void) __z88dk_fastcall {
   } else {
     zeroPalette(1, 512);
   }
-  ResourceInfo *titleScreenArray[] = SCREEN_ARRAY(title);
-  loadScreen(titleScreenArray);
+  loadScreen(&titleInfo);
   if(shouldFadeTitle) {
-    fadePaletteUp(R_title_nxi_nxp.resource, R_title_nxi_nxp.length, 1, R_title_nxi_nxp.page);
+    fadePaletteUp(&R_title_nxp_zx0, 512, 1);
   } else {
-    uploadPalette(R_title_nxi_nxp.resource, R_title_nxi_nxp.length, 1, R_title_nxi_nxp.page);
+    uploadPalette(&R_title_nxp_zx0, 512, 1);
     shouldFadeTitle = 1;
   }
 }
 
 void loadInfoScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
-  ResourceInfo *screenArray[] = SCREEN_ARRAY(info);
-  loadScreen(screenArray);
-  fadePaletteUp(R_info_nxi_nxp.resource, R_info_nxi_nxp.length, 1, R_info_nxi_nxp.page);
+  loadScreen(&infoInfo);
+  fadePaletteUp(&R_info_nxp_zx0, 512, 1);
 }
 
 void loadGameOverScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
-  ResourceInfo *screenArray[] = SCREEN_ARRAY(info);
-  loadScreen(screenArray);
-  fadePaletteUp(R_gameOverScreen_nxi_nxp.resource, R_gameOverScreen_nxi_nxp.length, 1, R_gameOverScreen_nxi_nxp.page);
+  loadScreen(&gameOverInfo);
+  fadePaletteUp(&R_gameOverScreen_nxp_zx0, 512, 1);
 }
 
 void setFallbackColour(byte index) {

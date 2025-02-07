@@ -5,10 +5,15 @@ DST=resources/
 LETTERS=(A B C D E F G H I J K L)
 NUMBERS=(0 1 2 3 4 5 6 7 8 9)
 
-rm "${DST}*.nxi" "${DST}level*.nxp" "${DST}*.zx0"
+rm "${DST}*"
+
+cp resources_original/*.pcm resources_original/*.nxp resources_original/*.spr resources
 
 for LETTER in "${LETTERS[@]}"; do
     "${CONV}" "${SRC}Level${LETTER}.png" -pal-min -bitmap-y -bank-8k "${DST}level${LETTER}.nxi"
+
+    "${COMPRESS}" -f "${DST}level${LETTER}.nxp" "${DST}level${LETTER}.nxp.zx0"
+    rm "${DST}level${LETTER}.nxp"
 
     for NUMBER in "${NUMBERS[@]}"; do
         "${COMPRESS}" -f "${DST}level${LETTER}_${NUMBER}.nxi" "${DST}level${LETTER}_${NUMBER}.nxi.zx0"
@@ -30,4 +35,10 @@ done
 
 "${CONV}" "${SRC}Loading.png" -pal-min -pal-embed -bitmap "${DST}loadingScreen.nxi"
 
-swift makeResources.swift resources/*.nxp resources/*.spr resources/*.pcm resources/*.nxi.zx0
+PALETTES=(title info gameOverScreen default)
+for PALETTE in "${PALETTES[@]}"; do
+    "${COMPRESS}" -f "${DST}/${PALETTE}.nxp" "${DST}/${PALETTE}.nxp.zx0"
+    rm "${DST}/${PALETTE}.nxp"
+done
+
+swift makeResources.swift resources/*.nxp.zx0 resources/*.pcm resources/*.nxi.zx0 resources/*.spr

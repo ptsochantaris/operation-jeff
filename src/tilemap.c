@@ -1,6 +1,6 @@
 #include "resources.h"
 
-const byte tilemapPalette[] = {
+static const byte tilemapPalette[] = {
   COLOR9(0, 0, 0),
   COLOR9(7, 0, 0),
   COLOR9(0, 7, 0),
@@ -20,7 +20,10 @@ void initTilemap(void) __z88dk_fastcall {
 
   writeNextReg(0x1B, clipBytes, CLIPBYTES_LEN);
 
-  uploadPalette(tilemapPalette, 16, 3, 28);
+  // Upoad palette
+  selectPalette(3);
+  ZXN_NEXTREG(0x40, 0);
+  writeNextReg(0x44, tilemapPalette, 16);
 }
 
 void clearTilemap(void) __z88dk_fastcall {

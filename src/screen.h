@@ -1,12 +1,14 @@
 #ifndef _SCREEN_H_
 #define _SCREEN_H_
 
+#include "assets.h"
+
 #define CLIPBYTES_LEN 4
 
 extern const byte clipBytes[];
 
 void layer2Clear(byte index) __z88dk_fastcall;
-void uploadPalette(const byte *restrict colors, word numColors, byte palette, byte page);
+void uploadPalette(const ResourceInfo *restrict compressedPalette, word numBytes, byte palette);
 void layer2Plot(word x, byte y, byte color);
 void setupScreen(void) __z88dk_fastcall;
 void setupLayers(byte mode) __z88dk_fastcall;

@@ -66,17 +66,66 @@ func main() {
     if !currentGroup.isEmpty {
         groups.append(currentGroup)
     }
+
+    for _ in 0 ..< 10 {
+        var defragmenting = true
+        while defragmenting {
+            defragmenting = false
+            // defrag pages after the initial one (which is mapped to 0x6000)
+            pass: for defragmentingGroupIndex in 1 ..< groups.count - 1 {
+                var groupWithPotentialSpace = groups[defragmentingGroupIndex]
+                let totalSize = groupWithPotentialSpace.reduce(0) { $0 + $1.size }
+                let remaining = maxSize - totalSize
+                if remaining > 8 {
+                    for examiningGroupIndex in defragmentingGroupIndex + 1 ..< groups.count {
+                        var potentialDonorGroup = groups[examiningGroupIndex]
+                        for potentialTransplantIndex in 0 ..< potentialDonorGroup.count {
+                            var potentialTransplant = potentialDonorGroup[potentialTransplantIndex]
+                            if potentialTransplant.size < remaining {
+                                //let previousPage = potentialTransplant.page
+                                potentialTransplant.page = groupWithPotentialSpace.first!.page
+                                //print("Moving asset \(potentialTransplant.name) from page \(previousPage) to \(potentialTransplant.page)")
+                                groupWithPotentialSpace.append(potentialTransplant)
+                                potentialDonorGroup.remove(at: potentialTransplantIndex)
+                                groups[defragmentingGroupIndex] = groupWithPotentialSpace
+                                if potentialDonorGroup.isEmpty {
+                                    groups.remove(at: examiningGroupIndex)
+                                } else {
+                                    groups[examiningGroupIndex] = potentialDonorGroup
+                                }
+                                defragmenting = true
+                                break pass
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    var newPage = 28
+    groups = groups.map { group in
+        newPage += 1
+        let remappedGroup = group.map { var entry = $0; entry.page = newPage; return entry }
+        let size = remappedGroup.reduce(0) { $0 + $1.size }
+        if size > maxSize {
+            newPage += 1
+        }
+        return remappedGroup
+    }
     
     // Write the groups to an output file
     var outputContent = ""
+    var isFirst = true
     for group in groups {
         outputContent += """
         ;-------------------------------------------------
         
         SECTION PAGE_\(group.first!.page)\n
         """
-        if group.first!.name.contains("nxp") {
+        if isFirst {
             outputContent += "ORG 0x6000\n\n"
+            isFirst = false
         } else {
             outputContent += "ORG 0x2000\n\n"
         }
@@ -113,7 +162,7 @@ func main() {
     for file in allFiles {
         let name = file.variableName
         outputContent += """
-        extern ResourceInfo R_\(name);\n
+        extern const ResourceInfo R_\(name);\n
         """
     }
     outputContent += "\n#endif\n"
@@ -131,7 +180,7 @@ func main() {
         let name = file.variableName
         outputContent += """
         \nextern word \(name);
-        ResourceInfo R_\(name) = { &\(name), \(file.size), \(file.page) };\n
+        const ResourceInfo R_\(name) = { &\(name), \(file.size), \(file.page) };\n
         """
     }
 

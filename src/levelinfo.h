@@ -12,10 +12,10 @@ typedef struct {
     word killsRequired;
     word difficultyStep;
     byte initialGenerationPeriod;
-    ResourceInfo *screenArray[10];
-    ResourceInfo *paletteAsset;
+    ResourceInfo *screen0, *screen1, *screen2, *screen3, *screen4, *screen5, *screen6, *screen7, *screen8, *screen9, *paletteAsset;
 } LevelInfo;
 
-extern LevelInfo *levelInfo[];
+extern LevelInfo titleInfo, infoInfo, gameOverInfo;
+extern const LevelInfo *levelInfo[];
 
 #endif
