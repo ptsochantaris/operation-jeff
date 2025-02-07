@@ -26,6 +26,6 @@ typedef struct {
     &R_##X##_9_nxi_zx0 \
 }
 
-extern void decompressZX0(uint32_t) __z88dk_fastcall;
+extern void decompressZX0(byte *dst, byte *src) __z88dk_callee __smallc;
 
 #endif

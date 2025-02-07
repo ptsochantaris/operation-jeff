@@ -18,6 +18,11 @@ SECTION code_compiler
 
 PUBLIC _decompressZX0
 _decompressZX0:
+        pop bc
+        pop hl
+        pop de
+        push bc
+
         ld      ix, CopyMatch1
         ld      bc, $ffff
         ld      (PrevOffset+1), bc      ; default offset is -1

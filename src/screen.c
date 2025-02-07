@@ -183,29 +183,13 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void loadScreenPage(byte screenPage, ResourceInfo *screen) {
-    byte bank = screenPage >> 1;
-    selectLayer2Page(bank);
-
-    word page = screen->page;
-    ZXN_WRITE_MMU1(page);
-    ZXN_WRITE_MMU2(18+screenPage);
-
-    uint32_t params = (uint32_t)screen->resource | (uint32_t)0x4000 << 16; // dst
-    decompressZX0(params);
-}
-
 void loadScreen(ResourceInfo *R[]) {
-  loadScreenPage(0, R[0]);
-  loadScreenPage(1, R[1]);
-  loadScreenPage(2, R[2]);
-  loadScreenPage(3, R[3]);
-  loadScreenPage(4, R[4]);
-  loadScreenPage(5, R[5]);
-  loadScreenPage(6, R[6]);
-  loadScreenPage(7, R[7]);
-  loadScreenPage(8, R[8]);
-  loadScreenPage(9, R[9]);
+  ResourceInfo *screen = R[0];
+  for(byte screenPage=18; screenPage<28; ++screenPage, ++screen) {
+    ZXN_WRITE_MMU1(screen->page);
+    ZXN_WRITE_MMU2(screenPage);
+    decompressZX0((byte *)0x4000, screen->resource);
+  }
 }
 
 void writeColourToIndex(const byte *colour, byte index) {
