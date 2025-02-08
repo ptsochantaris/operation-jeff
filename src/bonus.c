@@ -45,6 +45,7 @@ void updateBonuses(void) __z88dk_fastcall {
                     if((b->sprite.pos.x >> 3 == roundedX) && (b->sprite.pos.y >> 3 == roundedY)) {
                         processBonusHit(targetType);
                         targetType = BONUS_NONE;
+                        transition = 0;
                         break;
                     }
                 }
@@ -53,6 +54,7 @@ void updateBonuses(void) __z88dk_fastcall {
     } else {
         byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
         if(transition==12) {
+            scrollTilemap(0, 0);
             presentedType = targetType;
             setBase(base, targetType);
         } else {
@@ -60,6 +62,7 @@ void updateBonuses(void) __z88dk_fastcall {
             ++transition;
             switch(presentedType) {
                 case BONUS_NONE:
+                    scrollTilemap(0, 24 - (transition << 1));
                     switch(targetType) {
                         case BONUS_HEALTH:
                         case BONUS_SCORE:
@@ -75,9 +78,11 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_HEALTH:
                 case BONUS_SCORE:
                 case BONUS_CHARGE:
+                    scrollTilemap(0, transition << 1);
                     setBase(base, 9 - transitionOffset);
                     break;
                 case BONUS_SMARTBOMB:
+                    scrollTilemap(0, transition << 1);
                     setBase(base, 10 - transitionOffset);
                     break;
             }
