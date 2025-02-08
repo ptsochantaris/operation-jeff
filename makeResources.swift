@@ -25,112 +25,96 @@ func main() {
         return nil
     }
     
+    struct FileGroup {
+        var files: [FileInfo]
+        var totalSize: Int
+        let page: Int
+        let org: String
+
+        mutating func addFile(info: FileInfo) {
+            totalSize += info.size
+            files.append(info)
+        }
+
+        func canFit(info: FileInfo) -> Bool {
+            info.size <= (8192 - totalSize)
+        }
+
+        init(page: Int, org: String) {
+            self.page = page
+            self.org = org
+            files = [FileInfo]()
+            totalSize = 0
+        }
+    }
+
     struct FileInfo {
         let name: String
         let size: Int
-        var page: Int
         
         var variableName: String {
             name.replacingOccurrences(of: ".", with: "_").components(separatedBy: "/").last!
         }
     }
 
-    // Dictionary to store groups of files
-    var currentGroup = [FileInfo]()
-    var groups = [[FileInfo]]()
-    var allFiles = [FileInfo]()
-    let maxSize = 8 * 1024 // 8 KB
-    var currentSize = 0
-    var page = 29
+    var mmu1Files = [FileInfo]()
+    var mmu3Files = [FileInfo]()
 
-    // Process each file
     for filePath in filePaths where !filePath.contains("loadingScreen.") {
         if let fileSize = getFileSize(filePath) {
-            var info = FileInfo(name: filePath, size: fileSize, page: page)
-            if currentSize + fileSize <= maxSize {
-                // Add file to the current group
-                currentGroup.append(info)
-                currentSize += fileSize
+            let info = FileInfo(name: filePath, size: fileSize)
+            if filePath.contains(".nxp") {
+                mmu3Files.append(info)
             } else {
-                // Start a new group
-                page += Int((Double(currentSize) / Double(maxSize)).rounded(.up))
-                info.page = page
-                groups.append(currentGroup)
-                currentGroup = [info]
-                currentSize = fileSize
+                mmu1Files.append(info)
             }
         }
     }
 
-    // Add the last group if it's not empty
-    if !currentGroup.isEmpty {
-        groups.append(currentGroup)
-    }
+    var firstPage = 29
 
-    for _ in 0 ..< 10 {
-        var defragmenting = true
-        while defragmenting {
-            defragmenting = false
-            // defrag pages after the initial one (which is mapped to 0x6000)
-            pass: for defragmentingGroupIndex in 1 ..< groups.count - 1 {
-                var groupWithPotentialSpace = groups[defragmentingGroupIndex]
-                let totalSize = groupWithPotentialSpace.reduce(0) { $0 + $1.size }
-                let remaining = maxSize - totalSize
-                if remaining > 8 {
-                    for examiningGroupIndex in defragmentingGroupIndex + 1 ..< groups.count {
-                        var potentialDonorGroup = groups[examiningGroupIndex]
-                        for potentialTransplantIndex in 0 ..< potentialDonorGroup.count {
-                            var potentialTransplant = potentialDonorGroup[potentialTransplantIndex]
-                            if potentialTransplant.size < remaining {
-                                //let previousPage = potentialTransplant.page
-                                potentialTransplant.page = groupWithPotentialSpace.first!.page
-                                //print("Moving asset \(potentialTransplant.name) from page \(previousPage) to \(potentialTransplant.page)")
-                                groupWithPotentialSpace.append(potentialTransplant)
-                                potentialDonorGroup.remove(at: potentialTransplantIndex)
-                                groups[defragmentingGroupIndex] = groupWithPotentialSpace
-                                if potentialDonorGroup.isEmpty {
-                                    groups.remove(at: examiningGroupIndex)
-                                } else {
-                                    groups[examiningGroupIndex] = potentialDonorGroup
-                                }
-                                defragmenting = true
-                                break pass
-                            }
-                        }
-                    }
-                }
-            }
+    mmu3Files = mmu3Files.sorted { $0.size > $1.size }
+    var mmu3Groups = (firstPage ..< 200).map { FileGroup(page: $0, org: "0x6000") }
+    for info in mmu3Files {
+        if let firstFit = mmu3Groups.firstIndex(where: { $0.canFit(info: info) }) {
+            var group = mmu3Groups[firstFit]
+            group.addFile(info: info)
+            mmu3Groups[firstFit] = group
         }
     }
+    mmu3Groups.removeAll { $0.totalSize == 0 }
 
-    var newPage = 28
-    groups = groups.map { group in
-        newPage += 1
-        let remappedGroup = group.map { var entry = $0; entry.page = newPage; return entry }
-        let size = remappedGroup.reduce(0) { $0 + $1.size }
-        if size > maxSize {
-            newPage += 1
-        }
-        return remappedGroup
+    if let lastFilled = mmu3Groups.last?.page {
+        firstPage = lastFilled + 1
     }
+
+    mmu1Files = mmu1Files.sorted { $0.size > $1.size }
+    var mmu1Groups = (firstPage ..< 200).map { FileGroup(page: $0, org: "0x2000") }
+    for info in mmu1Files {
+        if let firstFit = mmu1Groups.firstIndex(where: { $0.canFit(info: info) }) {
+            var group = mmu1Groups[firstFit]
+            group.addFile(info: info)
+            mmu1Groups[firstFit] = group
+        } else if let firstEmpty = mmu1Groups.firstIndex(where: { $0.totalSize == 0 }) {
+            var group = mmu1Groups[firstEmpty]
+            group.addFile(info: info)
+            mmu1Groups.remove(at: firstEmpty)
+            mmu1Groups[firstEmpty] = group
+        }
+    }
+    mmu1Groups.removeAll { $0.totalSize == 0 }
+
+    let groups = mmu3Groups + mmu1Groups
     
-    // Write the groups to an output file
     var outputContent = ""
-    var isFirst = true
     for group in groups {
         outputContent += """
         ;-------------------------------------------------
         
-        SECTION PAGE_\(group.first!.page)\n
+        SECTION PAGE_\(group.page)
+        ORG \(group.org)\n\n
         """
-        if isFirst {
-            outputContent += "ORG 0x6000\n\n"
-            isFirst = false
-        } else {
-            outputContent += "ORG 0x2000\n\n"
-        }
-        for file in group {
-            allFiles.append(file)
+        for file in group.files {
             let name = file.variableName
             outputContent +=
             """
@@ -159,11 +143,13 @@ func main() {
         byte page;        
     } ResourceInfo;\n\n
     """
-    for file in allFiles {
-        let name = file.variableName
-        outputContent += """
-        extern const ResourceInfo R_\(name);\n
-        """
+    for group in groups {
+        for file in group.files {
+            let name = file.variableName
+            outputContent += """
+            extern const ResourceInfo R_\(name);\n
+            """
+        }
     }
     outputContent += "\n#endif\n"
 
@@ -176,12 +162,14 @@ func main() {
     outputContent = """
     #include "assets.h"
     """
-    for file in allFiles {
-        let name = file.variableName
-        outputContent += """
-        \nextern word \(name);
-        const ResourceInfo R_\(name) = { &\(name), \(file.size), \(file.page) };\n
-        """
+    for group in groups {
+        for file in group.files {
+            let name = file.variableName
+            outputContent += """
+            \nextern word \(name);
+            const ResourceInfo R_\(name) = { &\(name), \(file.size), \(group.page) };\n
+            """
+        }
     }
 
     do {
