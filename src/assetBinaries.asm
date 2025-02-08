@@ -51,6 +51,9 @@ _levelL_nxp_zx0: BINARY "resources/levelL.nxp.zx0"
 PUBLIC _levelM_nxp_zx0 ; 93 bytes
 _levelM_nxp_zx0: BINARY "resources/levelM.nxp.zx0"
 
+PUBLIC _levelN_nxp_zx0 ; 80 bytes
+_levelN_nxp_zx0: BINARY "resources/levelN.nxp.zx0"
+
 PUBLIC _title_nxp_zx0 ; 50 bytes
 _title_nxp_zx0: BINARY "resources/title.nxp.zx0"
 
@@ -446,6 +449,9 @@ _levelE_2_nxi_zx0: BINARY "resources/levelE_2.nxi.zx0"
 PUBLIC _levelE_3_nxi_zx0 ; 3498 bytes
 _levelE_3_nxi_zx0: BINARY "resources/levelE_3.nxi.zx0"
 
+PUBLIC _levelN_2_nxi_zx0 ; 1204 bytes
+_levelN_2_nxi_zx0: BINARY "resources/levelN_2.nxi.zx0"
+
 ;-------------------------------------------------
 
 SECTION PAGE_60
@@ -456,6 +462,9 @@ _levelE_4_nxi_zx0: BINARY "resources/levelE_4.nxi.zx0"
 
 PUBLIC _levelE_5_nxi_zx0 ; 3453 bytes
 _levelE_5_nxi_zx0: BINARY "resources/levelE_5.nxi.zx0"
+
+PUBLIC _levelN_3_nxi_zx0 ; 1129 bytes
+_levelN_3_nxi_zx0: BINARY "resources/levelN_3.nxi.zx0"
 
 ;-------------------------------------------------
 
@@ -554,6 +563,9 @@ _levelF_7_nxi_zx0: BINARY "resources/levelF_7.nxi.zx0"
 PUBLIC _levelG_4_nxi_zx0 ; 3035 bytes
 _levelG_4_nxi_zx0: BINARY "resources/levelG_4.nxi.zx0"
 
+PUBLIC _levelN_5_nxi_zx0 ; 946 bytes
+_levelN_5_nxi_zx0: BINARY "resources/levelN_5.nxi.zx0"
+
 ;-------------------------------------------------
 
 SECTION PAGE_69
@@ -564,6 +576,9 @@ _levelF_8_nxi_zx0: BINARY "resources/levelF_8.nxi.zx0"
 
 PUBLIC _levelG_5_nxi_zx0 ; 3043 bytes
 _levelG_5_nxi_zx0: BINARY "resources/levelG_5.nxi.zx0"
+
+PUBLIC _levelN_7_nxi_zx0 ; 923 bytes
+_levelN_7_nxi_zx0: BINARY "resources/levelN_7.nxi.zx0"
 
 ;-------------------------------------------------
 
@@ -615,6 +630,9 @@ _levelI_1_nxi_zx0: BINARY "resources/levelI_1.nxi.zx0"
 PUBLIC _levelI_2_nxi_zx0 ; 3749 bytes
 _levelI_2_nxi_zx0: BINARY "resources/levelI_2.nxi.zx0"
 
+PUBLIC _levelN_4_nxi_zx0 ; 1011 bytes
+_levelN_4_nxi_zx0: BINARY "resources/levelN_4.nxi.zx0"
+
 ;-------------------------------------------------
 
 SECTION PAGE_74
@@ -647,6 +665,9 @@ _levelI_7_nxi_zx0: BINARY "resources/levelI_7.nxi.zx0"
 
 PUBLIC _levelI_8_nxi_zx0 ; 3376 bytes
 _levelI_8_nxi_zx0: BINARY "resources/levelI_8.nxi.zx0"
+
+PUBLIC _levelN_6_nxi_zx0 ; 1128 bytes
+_levelN_6_nxi_zx0: BINARY "resources/levelN_6.nxi.zx0"
 
 ;-------------------------------------------------
 
@@ -687,6 +708,9 @@ _levelJ_3_nxi_zx0: BINARY "resources/levelJ_3.nxi.zx0"
 PUBLIC _levelJ_4_nxi_zx0 ; 3473 bytes
 _levelJ_4_nxi_zx0: BINARY "resources/levelJ_4.nxi.zx0"
 
+PUBLIC _levelN_0_nxi_zx0 ; 1273 bytes
+_levelN_0_nxi_zx0: BINARY "resources/levelN_0.nxi.zx0"
+
 ;-------------------------------------------------
 
 SECTION PAGE_80
@@ -698,6 +722,9 @@ _levelJ_5_nxi_zx0: BINARY "resources/levelJ_5.nxi.zx0"
 PUBLIC _levelJ_6_nxi_zx0 ; 3080 bytes
 _levelJ_6_nxi_zx0: BINARY "resources/levelJ_6.nxi.zx0"
 
+PUBLIC _levelN_1_nxi_zx0 ; 1430 bytes
+_levelN_1_nxi_zx0: BINARY "resources/levelN_1.nxi.zx0"
+
 ;-------------------------------------------------
 
 SECTION PAGE_81
@@ -708,6 +735,9 @@ _levelJ_7_nxi_zx0: BINARY "resources/levelJ_7.nxi.zx0"
 
 PUBLIC _levelJ_8_nxi_zx0 ; 3136 bytes
 _levelJ_8_nxi_zx0: BINARY "resources/levelJ_8.nxi.zx0"
+
+PUBLIC _levelN_8_nxi_zx0 ; 1118 bytes
+_levelN_8_nxi_zx0: BINARY "resources/levelN_8.nxi.zx0"
 
 ;-------------------------------------------------
 
@@ -851,6 +881,9 @@ _levelM_6_nxi_zx0: BINARY "resources/levelM_6.nxi.zx0"
 
 PUBLIC _levelM_7_nxi_zx0 ; 3073 bytes
 _levelM_7_nxi_zx0: BINARY "resources/levelM_7.nxi.zx0"
+
+PUBLIC _levelN_9_nxi_zx0 ; 1762 bytes
+_levelN_9_nxi_zx0: BINARY "resources/levelN_9.nxi.zx0"
 
 ;-------------------------------------------------
 

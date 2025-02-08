@@ -47,6 +47,9 @@ const ResourceInfo R_levelL_nxp_zx0 = { &levelL_nxp_zx0, 60, 29 };
 extern word levelM_nxp_zx0;
 const ResourceInfo R_levelM_nxp_zx0 = { &levelM_nxp_zx0, 93, 29 };
 
+extern word levelN_nxp_zx0;
+const ResourceInfo R_levelN_nxp_zx0 = { &levelN_nxp_zx0, 80, 29 };
+
 extern word title_nxp_zx0;
 const ResourceInfo R_title_nxp_zx0 = { &title_nxp_zx0, 50, 29 };
 
@@ -302,11 +305,17 @@ const ResourceInfo R_levelE_2_nxi_zx0 = { &levelE_2_nxi_zx0, 3480, 59 };
 extern word levelE_3_nxi_zx0;
 const ResourceInfo R_levelE_3_nxi_zx0 = { &levelE_3_nxi_zx0, 3498, 59 };
 
+extern word levelN_2_nxi_zx0;
+const ResourceInfo R_levelN_2_nxi_zx0 = { &levelN_2_nxi_zx0, 1204, 59 };
+
 extern word levelE_4_nxi_zx0;
 const ResourceInfo R_levelE_4_nxi_zx0 = { &levelE_4_nxi_zx0, 3498, 60 };
 
 extern word levelE_5_nxi_zx0;
 const ResourceInfo R_levelE_5_nxi_zx0 = { &levelE_5_nxi_zx0, 3453, 60 };
+
+extern word levelN_3_nxi_zx0;
+const ResourceInfo R_levelN_3_nxi_zx0 = { &levelN_3_nxi_zx0, 1129, 60 };
 
 extern word levelE_6_nxi_zx0;
 const ResourceInfo R_levelE_6_nxi_zx0 = { &levelE_6_nxi_zx0, 3500, 61 };
@@ -365,11 +374,17 @@ const ResourceInfo R_levelF_7_nxi_zx0 = { &levelF_7_nxi_zx0, 4206, 68 };
 extern word levelG_4_nxi_zx0;
 const ResourceInfo R_levelG_4_nxi_zx0 = { &levelG_4_nxi_zx0, 3035, 68 };
 
+extern word levelN_5_nxi_zx0;
+const ResourceInfo R_levelN_5_nxi_zx0 = { &levelN_5_nxi_zx0, 946, 68 };
+
 extern word levelF_8_nxi_zx0;
 const ResourceInfo R_levelF_8_nxi_zx0 = { &levelF_8_nxi_zx0, 4153, 69 };
 
 extern word levelG_5_nxi_zx0;
 const ResourceInfo R_levelG_5_nxi_zx0 = { &levelG_5_nxi_zx0, 3043, 69 };
+
+extern word levelN_7_nxi_zx0;
+const ResourceInfo R_levelN_7_nxi_zx0 = { &levelN_7_nxi_zx0, 923, 69 };
 
 extern word levelF_9_nxi_zx0;
 const ResourceInfo R_levelF_9_nxi_zx0 = { &levelF_9_nxi_zx0, 4208, 70 };
@@ -401,6 +416,9 @@ const ResourceInfo R_levelI_1_nxi_zx0 = { &levelI_1_nxi_zx0, 3230, 73 };
 extern word levelI_2_nxi_zx0;
 const ResourceInfo R_levelI_2_nxi_zx0 = { &levelI_2_nxi_zx0, 3749, 73 };
 
+extern word levelN_4_nxi_zx0;
+const ResourceInfo R_levelN_4_nxi_zx0 = { &levelN_4_nxi_zx0, 1011, 73 };
+
 extern word levelI_3_nxi_zx0;
 const ResourceInfo R_levelI_3_nxi_zx0 = { &levelI_3_nxi_zx0, 3981, 74 };
 
@@ -418,6 +436,9 @@ const ResourceInfo R_levelI_7_nxi_zx0 = { &levelI_7_nxi_zx0, 3624, 76 };
 
 extern word levelI_8_nxi_zx0;
 const ResourceInfo R_levelI_8_nxi_zx0 = { &levelI_8_nxi_zx0, 3376, 76 };
+
+extern word levelN_6_nxi_zx0;
+const ResourceInfo R_levelN_6_nxi_zx0 = { &levelN_6_nxi_zx0, 1128, 76 };
 
 extern word levelI_9_nxi_zx0;
 const ResourceInfo R_levelI_9_nxi_zx0 = { &levelI_9_nxi_zx0, 2647, 77 };
@@ -443,17 +464,26 @@ const ResourceInfo R_levelJ_3_nxi_zx0 = { &levelJ_3_nxi_zx0, 3076, 79 };
 extern word levelJ_4_nxi_zx0;
 const ResourceInfo R_levelJ_4_nxi_zx0 = { &levelJ_4_nxi_zx0, 3473, 79 };
 
+extern word levelN_0_nxi_zx0;
+const ResourceInfo R_levelN_0_nxi_zx0 = { &levelN_0_nxi_zx0, 1273, 79 };
+
 extern word levelJ_5_nxi_zx0;
 const ResourceInfo R_levelJ_5_nxi_zx0 = { &levelJ_5_nxi_zx0, 3231, 80 };
 
 extern word levelJ_6_nxi_zx0;
 const ResourceInfo R_levelJ_6_nxi_zx0 = { &levelJ_6_nxi_zx0, 3080, 80 };
 
+extern word levelN_1_nxi_zx0;
+const ResourceInfo R_levelN_1_nxi_zx0 = { &levelN_1_nxi_zx0, 1430, 80 };
+
 extern word levelJ_7_nxi_zx0;
 const ResourceInfo R_levelJ_7_nxi_zx0 = { &levelJ_7_nxi_zx0, 2835, 81 };
 
 extern word levelJ_8_nxi_zx0;
 const ResourceInfo R_levelJ_8_nxi_zx0 = { &levelJ_8_nxi_zx0, 3136, 81 };
+
+extern word levelN_8_nxi_zx0;
+const ResourceInfo R_levelN_8_nxi_zx0 = { &levelN_8_nxi_zx0, 1118, 81 };
 
 extern word levelJ_9_nxi_zx0;
 const ResourceInfo R_levelJ_9_nxi_zx0 = { &levelJ_9_nxi_zx0, 3493, 82 };
@@ -532,6 +562,9 @@ const ResourceInfo R_levelM_6_nxi_zx0 = { &levelM_6_nxi_zx0, 3109, 94 };
 
 extern word levelM_7_nxi_zx0;
 const ResourceInfo R_levelM_7_nxi_zx0 = { &levelM_7_nxi_zx0, 3073, 94 };
+
+extern word levelN_9_nxi_zx0;
+const ResourceInfo R_levelN_9_nxi_zx0 = { &levelN_9_nxi_zx0, 1762, 94 };
 
 extern word levelM_8_nxi_zx0;
 const ResourceInfo R_levelM_8_nxi_zx0 = { &levelM_8_nxi_zx0, 3222, 95 };
