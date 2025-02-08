@@ -12,7 +12,6 @@ cp ${ORIG}*.pcm ${ORIG}*.nxp ${ORIG}*.spr resources
 $CONV "${ORIG}OperationJeffTitle.png" -pal-min -bitmap-y -bank-8k "${DST}title.nxi" &
 $CONV "${ORIG}OperationJeffInfo.png" -pal-min -bitmap-y -bank-8k "${DST}info.nxi" &
 $CONV "${ORIG}OperationJeffGameOver.png" -pal-min -bitmap-y -bank-8k "${DST}gameOverScreen.nxi" &
-$CONV "${ORIG}OperationJeffLoading.png" -pal-min -pal-embed -bitmap "${DST}loadingScreen.nxi" &
 
 for LETTER in "${LETTERS[@]}"; do
     $CONV "${ORIG}OperationJeffLevel${LETTER}.png" -pal-min -bitmap-y -bank-8k "${DST}level${LETTER}.nxi" &
@@ -43,5 +42,7 @@ done
 wait
 
 rm $DST*.nxp $DST*.nxi
+
+$CONV "${ORIG}OperationJeffLoading.png" -pal-min -pal-embed -bitmap "${DST}loadingScreen.nxi" &
 
 swift makeResources.swift resources/*.nxp.zx0 resources/*.pcm resources/*.nxi.zx0 resources/*.spr
