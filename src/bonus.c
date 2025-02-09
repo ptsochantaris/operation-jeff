@@ -18,7 +18,8 @@ void resetBonuses(void) __z88dk_fastcall {
     clearTilemap();
 }
 
-void setBase(byte *base, byte value) {
+void setBase(byte value) __z88dk_fastcall {
+    byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
     ZXN_WRITE_MMU3(11);
     *base = value;
     ZXN_WRITE_MMU3(10);
@@ -27,6 +28,7 @@ void setBase(byte *base, byte value) {
 void updateBonuses(void) __z88dk_fastcall {
     if(++bonusLoop == bonusTime) {
         if(targetType==BONUS_NONE) {
+            setBase(0); // this in case a previous bonus is in the process of transitioning out
             targetType = 1 + rand() % BONUS_MAX;
             currentX = 3 + rand() % 36;
             currentY = 3 + rand() % 28;
@@ -52,11 +54,10 @@ void updateBonuses(void) __z88dk_fastcall {
             }
         }
     } else {
-        byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
         if(transition==12) {
             scrollTilemap(0, 0);
             presentedType = targetType;
-            setBase(base, targetType);
+            setBase(targetType);
         } else {
             byte transitionOffset = 2 * (transition >> 2);
             ++transition;
@@ -67,11 +68,11 @@ void updateBonuses(void) __z88dk_fastcall {
                         case BONUS_HEALTH:
                         case BONUS_SCORE:
                         case BONUS_CHARGE:
-                            setBase(base, 5 + transitionOffset);
+                            setBase(5 + transitionOffset);
 
                             break;
                         case BONUS_SMARTBOMB:
-                            setBase(base, 6 + transitionOffset);
+                            setBase(6 + transitionOffset);
                             break;
                     }
                     break;
@@ -79,11 +80,11 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_SCORE:
                 case BONUS_CHARGE:
                     scrollTilemap(0, transition << 1);
-                    setBase(base, 9 - transitionOffset);
+                    setBase(9 - transitionOffset);
                     break;
                 case BONUS_SMARTBOMB:
                     scrollTilemap(0, transition << 1);
-                    setBase(base, 10 - transitionOffset);
+                    setBase(10 - transitionOffset);
                     break;
             }
         }

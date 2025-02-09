@@ -33,6 +33,6 @@ typedef struct {
     ResourceInfo screens[10], paletteAsset;
 } LevelInfo;
 
-const LevelInfo *levelInfo(byte level);
+const LevelInfo *levelInfo(byte level) __z88dk_fastcall;
 
 #endif

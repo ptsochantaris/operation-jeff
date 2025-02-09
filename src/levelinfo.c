@@ -19,6 +19,6 @@ static LevelInfo _levelInfo[] = {
     { { COLOR9(1, 1, 1) }, { COLOR9(0, 0, 0) }, 130, 160,  50, SCREEN_ARRAY(levelH) }
 };
 
-const LevelInfo *levelInfo(byte level) {
+const LevelInfo *levelInfo(byte level) __z88dk_fastcall {
     return &_levelInfo[level];
 }
