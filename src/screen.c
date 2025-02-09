@@ -191,23 +191,13 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void decompressScreen(const ResourceInfo *restrict screen, byte targetPage) __z88dk_callee {
-  ZXN_WRITE_MMU2(targetPage);
-  ZXN_WRITE_MMU1(screen->page);
-  decompressZX0((byte *)0x4000, (byte *)screen->resource);
-}
-
 void loadScreen(const LevelInfo *restrict info) __z88dk_fastcall {
-  decompressScreen(&info->screen0, 18);
-  decompressScreen(&info->screen1, 19);
-  decompressScreen(&info->screen2, 20);
-  decompressScreen(&info->screen3, 21);
-  decompressScreen(&info->screen4, 22);
-  decompressScreen(&info->screen5, 23);
-  decompressScreen(&info->screen6, 24);
-  decompressScreen(&info->screen7, 25);
-  decompressScreen(&info->screen8, 26);
-  decompressScreen(&info->screen9, 27);
+  ResourceInfo *slice = info->screens;
+  for(byte page=18; page<28; ++page, ++slice) {
+    ZXN_WRITE_MMU2(page);
+    ZXN_WRITE_MMU1(slice->page);
+    decompressZX0((byte *)0x4000, (byte *)slice->resource);
+  }
 }
 
 void writeColourToIndex(const byte *colour, byte index) {
@@ -217,7 +207,7 @@ void writeColourToIndex(const byte *colour, byte index) {
 }
 
 void loadLevelScreen(byte level) __z88dk_fastcall {
-  const LevelInfo info = levelInfo[level];
+  const LevelInfo *info = levelInfo+level;
 
   // flash jeffs white
   selectPalette(2);
@@ -226,17 +216,17 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
   writeColourToIndex(&white, 224);
 
   fadePaletteDown(1, 512);
-  loadScreen(&info);
+  loadScreen(info);
   initHud(level);
 
   effectSiren();
 
   const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
-  fadePaletteUp(&(info.paletteAsset), nonHudPaletteByteCount, 1);
+  fadePaletteUp(&(info->paletteAsset), nonHudPaletteByteCount, 1);
 
   selectPalette(2);
-  writeColourToIndex(info.jeffDark, 128);
-  writeColourToIndex(info.jeffBright, 224);
+  writeColourToIndex(info->jeffDark, 128);
+  writeColourToIndex(info->jeffBright, 224);
 
   sprintf(textBuf, "ZONE %03d", level + 1);
   status(textBuf);

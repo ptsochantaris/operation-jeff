@@ -18,7 +18,7 @@ typedef struct {
     word killsRequired;
     word difficultyStep;
     byte initialGenerationPeriod;
-    ResourceInfo screen0, screen1, screen2, screen3, screen4, screen5, screen6, screen7, screen8, screen9, paletteAsset;
+    ResourceInfo screens[10], paletteAsset;
 } LevelInfo;
 
 extern LevelInfo titleInfo, infoInfo, gameOverInfo;
