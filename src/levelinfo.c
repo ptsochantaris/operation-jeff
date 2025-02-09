@@ -1,7 +1,7 @@
 #include "levelinfo.h"
 #include "assets.h"
 
-static LevelInfo _levelInfo[] = {
+LevelInfo levelInfo[] = {
     { { COLOR9(7, 1, 1) }, { COLOR9(3, 1, 1) },  40, 160, 100, SCREEN_ARRAY(levelA) },
     { { COLOR9(7, 7, 7) }, { COLOR9(5, 5, 5) },  45, 160,  90, SCREEN_ARRAY(levelO) }, 
     { { COLOR9(4, 7, 4) }, { COLOR9(0, 6, 0) },  50, 160,  85, SCREEN_ARRAY(levelB) }, 
@@ -18,7 +18,3 @@ static LevelInfo _levelInfo[] = {
     { { COLOR9(7, 2, 4) }, { COLOR9(0, 0, 2) }, 130, 160,  60, SCREEN_ARRAY(levelF) }, 
     { { COLOR9(1, 1, 1) }, { COLOR9(0, 0, 0) }, 130, 160,  50, SCREEN_ARRAY(levelH) }
 };
-
-const LevelInfo *levelInfo(byte level) __z88dk_fastcall {
-    return &_levelInfo[level];
-}

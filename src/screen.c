@@ -209,7 +209,7 @@ void writeColourToIndex(const byte *colour, byte index) {
 }
 
 void loadLevelScreen(byte level) __z88dk_fastcall {
-  const LevelInfo *info = levelInfo(level);
+  const LevelInfo info = levelInfo[level];
 
   // flash jeffs white
   selectPalette(2);
@@ -218,17 +218,17 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
   writeColourToIndex(&white, 224);
 
   fadePaletteDown(1, 512);
-  loadScreen(info);
+  loadScreen(&info);
   initHud(level);
 
   effectSiren();
 
   const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
-  fadePaletteUp(&(info->paletteAsset), nonHudPaletteByteCount, 1);
+  fadePaletteUp(&(info.paletteAsset), nonHudPaletteByteCount, 1);
 
   selectPalette(2);
-  writeColourToIndex(info->jeffDark, 128);
-  writeColourToIndex(info->jeffBright, 224);
+  writeColourToIndex(info.jeffDark, 128);
+  writeColourToIndex(info.jeffBright, 224);
 
   sprintf(textBuf, "ZONE %03d", level + 1);
   status(textBuf);
