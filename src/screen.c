@@ -106,6 +106,8 @@ static byte paletteBuffer[] = {
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0 }; // 512 bytes
 
+extern void decompressZX0(byte *dst, byte *src) __z88dk_callee __smallc;
+
 void loadPaletteBuffer(const ResourceInfo *restrict compressedPalette) {
   byte previousMmu3 = ZXN_READ_MMU3();
   ZXN_WRITE_MMU3(compressedPalette->page);
@@ -207,7 +209,7 @@ void writeColourToIndex(const byte *colour, byte index) {
 }
 
 void loadLevelScreen(byte level) __z88dk_fastcall {
-  const LevelInfo *info = levelInfo+level;
+  const LevelInfo *info = levelInfo(level);
 
   // flash jeffs white
   selectPalette(2);
@@ -233,7 +235,7 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
 }
 
 static byte shouldFadeTitle = 0;
-static const ResourceInfo tR = R_title_nxp_zx0;
+static const LevelInfo titleInfo =    { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(title) };
 void loadTitleScreen(void) __z88dk_fastcall {
   if(shouldFadeTitle) {
     fadePaletteDown(1, 512);
@@ -242,25 +244,25 @@ void loadTitleScreen(void) __z88dk_fastcall {
   }
   loadScreen(&titleInfo);
   if(shouldFadeTitle) {
-    fadePaletteUp(&tR, 512, 1);
+    fadePaletteUp(&titleInfo.paletteAsset, 512, 1);
   } else {
-    uploadPalette(&tR, 512, 1);
+    uploadPalette(&titleInfo.paletteAsset, 512, 1);
     shouldFadeTitle = 1;
   }
 }
 
-static const ResourceInfo iR = R_info_nxp_zx0;
+static const LevelInfo infoInfo =     { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(info) };
 void loadInfoScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
   loadScreen(&infoInfo);
-  fadePaletteUp(&iR, 512, 1);
+  fadePaletteUp(&infoInfo.paletteAsset, 512, 1);
 }
 
-static const ResourceInfo goR = R_gameOverScreen_nxp_zx0;
+static const LevelInfo gameOverInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(gameOverScreen) };
 void loadGameOverScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
   loadScreen(&gameOverInfo);
-  fadePaletteUp(&goR, 512, 1);
+  fadePaletteUp(&gameOverInfo.paletteAsset, 512, 1);
 }
 
 void setFallbackColour(byte index) {

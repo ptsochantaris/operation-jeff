@@ -25,7 +25,7 @@ void statsProgressLevel(void) __z88dk_fastcall {
         currentStats.level = 0;
     }
 
-    const LevelInfo *info = levelInfo+currentStats.level;
+    const LevelInfo *info = levelInfo(currentStats.level);
 
     currentStats.killsInLevel = 0;
     currentStats.difficultyCountdown = 0;

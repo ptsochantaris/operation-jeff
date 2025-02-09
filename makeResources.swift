@@ -114,19 +114,18 @@ func main() {
     var outputContent = ""
     for group in groups {
         outputContent += """
-        ;-------------------------------------------------
-        
-        SECTION PAGE_\(group.page)
-        ORG \(group.org)\n\n
+        ;-------------------------------------------------     
+
+        SECTION PAGE_\(group.page)\n
         """
         for file in group.files {
             let name = file.variableName
             outputContent +=
             """
-            _\(name): BINARY "\(file.name)"
-            \n
+            BINARY "\(file.name)"\n
             """
         }
+        outputContent += "\n"
     }
 
     do {

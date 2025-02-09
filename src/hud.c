@@ -142,7 +142,7 @@ void applyHudPalette(void) __z88dk_fastcall {
 void initHud(byte level) __z88dk_fastcall {
   applyHudPalette();
 
-  const LevelInfo *info = levelInfo+level;
+  const LevelInfo *info = levelInfo(level);
   writeColourToIndex(info->jeffDark, HUD_FILL_DARK);
   writeColourToIndex(info->jeffBright, HUD_FILL_LIGHT);
 
