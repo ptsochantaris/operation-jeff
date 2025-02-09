@@ -109,7 +109,7 @@ static byte paletteBuffer[] = {
 void loadPaletteBuffer(const ResourceInfo *restrict compressedPalette) {
   byte previousMmu3 = ZXN_READ_MMU3();
   ZXN_WRITE_MMU3(compressedPalette->page);
-  decompressZX0(paletteBuffer, compressedPalette->resource);
+  decompressZX0(paletteBuffer, (byte *)(compressedPalette->resource));
   ZXN_WRITE_MMU3(previousMmu3);
 }
 
@@ -191,23 +191,23 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void decompressScreen(ResourceInfo *screen, byte targetPage) __z88dk_callee {
+void decompressScreen(const ResourceInfo *restrict screen, byte targetPage) __z88dk_callee {
   ZXN_WRITE_MMU2(targetPage);
   ZXN_WRITE_MMU1(screen->page);
-  decompressZX0((byte *)0x4000, screen->resource);
+  decompressZX0((byte *)0x4000, (byte *)screen->resource);
 }
 
-void loadScreen(const LevelInfo *info) __z88dk_fastcall {
-  decompressScreen(info->screen0, 18);
-  decompressScreen(info->screen1, 19);
-  decompressScreen(info->screen2, 20);
-  decompressScreen(info->screen3, 21);
-  decompressScreen(info->screen4, 22);
-  decompressScreen(info->screen5, 23);
-  decompressScreen(info->screen6, 24);
-  decompressScreen(info->screen7, 25);
-  decompressScreen(info->screen8, 26);
-  decompressScreen(info->screen9, 27);
+void loadScreen(const LevelInfo *restrict info) __z88dk_fastcall {
+  decompressScreen(&info->screen0, 18);
+  decompressScreen(&info->screen1, 19);
+  decompressScreen(&info->screen2, 20);
+  decompressScreen(&info->screen3, 21);
+  decompressScreen(&info->screen4, 22);
+  decompressScreen(&info->screen5, 23);
+  decompressScreen(&info->screen6, 24);
+  decompressScreen(&info->screen7, 25);
+  decompressScreen(&info->screen8, 26);
+  decompressScreen(&info->screen9, 27);
 }
 
 void writeColourToIndex(const byte *colour, byte index) {
@@ -217,7 +217,7 @@ void writeColourToIndex(const byte *colour, byte index) {
 }
 
 void loadLevelScreen(byte level) __z88dk_fastcall {
-  const LevelInfo *info = *(levelInfo+level);
+  const LevelInfo info = levelInfo[level];
 
   // flash jeffs white
   selectPalette(2);
@@ -226,23 +226,24 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
   writeColourToIndex(&white, 224);
 
   fadePaletteDown(1, 512);
-  loadScreen(info);
+  loadScreen(&info);
   initHud(level);
 
   effectSiren();
 
   const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
-  fadePaletteUp(info->paletteAsset, nonHudPaletteByteCount, 1);
+  fadePaletteUp(&(info.paletteAsset), nonHudPaletteByteCount, 1);
 
   selectPalette(2);
-  writeColourToIndex(info->jeffDark, 128);
-  writeColourToIndex(info->jeffBright, 224);
+  writeColourToIndex(info.jeffDark, 128);
+  writeColourToIndex(info.jeffBright, 224);
 
   sprintf(textBuf, "ZONE %03d", level + 1);
   status(textBuf);
 }
 
 static byte shouldFadeTitle = 0;
+static const ResourceInfo tR = R_title_nxp_zx0;
 void loadTitleScreen(void) __z88dk_fastcall {
   if(shouldFadeTitle) {
     fadePaletteDown(1, 512);
@@ -251,23 +252,25 @@ void loadTitleScreen(void) __z88dk_fastcall {
   }
   loadScreen(&titleInfo);
   if(shouldFadeTitle) {
-    fadePaletteUp(&R_title_nxp_zx0, 512, 1);
+    fadePaletteUp(&tR, 512, 1);
   } else {
-    uploadPalette(&R_title_nxp_zx0, 512, 1);
+    uploadPalette(&tR, 512, 1);
     shouldFadeTitle = 1;
   }
 }
 
+static const ResourceInfo iR = R_info_nxp_zx0;
 void loadInfoScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
   loadScreen(&infoInfo);
-  fadePaletteUp(&R_info_nxp_zx0, 512, 1);
+  fadePaletteUp(&iR, 512, 1);
 }
 
+static const ResourceInfo goR = R_gameOverScreen_nxp_zx0;
 void loadGameOverScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
   loadScreen(&gameOverInfo);
-  fadePaletteUp(&R_gameOverScreen_nxp_zx0, 512, 1);
+  fadePaletteUp(&goR, 512, 1);
 }
 
 void setFallbackColour(byte index) {

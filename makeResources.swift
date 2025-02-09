@@ -30,19 +30,23 @@ func main() {
         var totalSize: Int
         let page: Int
         let org: String
+        let orgOffset: Int
 
         mutating func addFile(info: FileInfo) {
-            totalSize += info.size
+            var info = info
+            info.pos = totalSize
             files.append(info)
+            totalSize += info.size
         }
 
         func canFit(info: FileInfo) -> Bool {
             info.size <= (8192 - totalSize)
         }
 
-        init(page: Int, org: String) {
+        init(page: Int, org: String, orgOffset: Int) {
             self.page = page
             self.org = org
+            self.orgOffset = orgOffset
             files = [FileInfo]()
             totalSize = 0
         }
@@ -51,6 +55,7 @@ func main() {
     struct FileInfo {
         let name: String
         let size: Int
+        var pos: Int
         
         var variableName: String {
             name.replacingOccurrences(of: ".", with: "_").components(separatedBy: "/").last!
@@ -62,7 +67,7 @@ func main() {
 
     for filePath in filePaths where !filePath.contains("loadingScreen.") {
         if let fileSize = getFileSize(filePath) {
-            let info = FileInfo(name: filePath, size: fileSize)
+            let info = FileInfo(name: filePath, size: fileSize, pos: 0)
             if filePath.contains(".nxp") {
                 mmu3Files.append(info)
             } else {
@@ -74,7 +79,7 @@ func main() {
     var firstPage = 29
 
     mmu3Files = mmu3Files.sorted { $0.size > $1.size }
-    var mmu3Groups = (firstPage ..< 200).map { FileGroup(page: $0, org: "0x6000") }
+    var mmu3Groups = (firstPage ..< 200).map { FileGroup(page: $0, org: "0x6000", orgOffset: 0x6000) }
     for info in mmu3Files {
         if let firstFit = mmu3Groups.firstIndex(where: { $0.canFit(info: info) }) {
             var group = mmu3Groups[firstFit]
@@ -89,7 +94,7 @@ func main() {
     }
 
     mmu1Files = mmu1Files.sorted { $0.size > $1.size }
-    var mmu1Groups = (firstPage ..< 200).map { FileGroup(page: $0, org: "0x2000") }
+    var mmu1Groups = (firstPage ..< 200).map { FileGroup(page: $0, org: "0x2000", orgOffset: 0x2000) }
     for info in mmu1Files {
         if let firstFit = mmu1Groups.firstIndex(where: { $0.canFit(info: info) }) {
             var group = mmu1Groups[firstFit]
@@ -118,7 +123,6 @@ func main() {
             let name = file.variableName
             outputContent +=
             """
-            PUBLIC _\(name) ; \(file.size) bytes
             _\(name): BINARY "\(file.name)"
             \n
             """
@@ -126,28 +130,21 @@ func main() {
     }
 
     do {
-        try outputContent.write(to: URL(fileURLWithPath: "src/assetBinaries.asm"), atomically: true, encoding: .utf8)
+        try outputContent.write(to: URL(fileURLWithPath: "src/assets.asm"), atomically: true, encoding: .utf8)
     } catch {
         print("Error writing to output file: \(error)")
     }
 
     outputContent = """
     #ifndef __ASSETS_H__
-    #define __ASSETS_H__
-
-    #include "types.h"
-
-    typedef struct {
-        byte *resource;
-        word length;
-        byte page;        
-    } ResourceInfo;\n\n
+    #define __ASSETS_H__\n
     """
     for group in groups {
         for file in group.files {
             let name = file.variableName
+            let offset = group.orgOffset + file.pos
             outputContent += """
-            extern const ResourceInfo R_\(name);\n
+            #define R_\(name) { \(offset), \(file.size), \(group.page) }\n
             """
         }
     }
@@ -157,27 +154,7 @@ func main() {
         try outputContent.write(to: URL(fileURLWithPath: "src/assets.h"), atomically: true, encoding: .utf8)
     } catch {
         print("Error writing to output file: \(error)")
-    }
-
-    outputContent = """
-    #include "assets.h"
-    """
-    for group in groups {
-        for file in group.files {
-            let name = file.variableName
-            outputContent += """
-            \nextern word \(name);
-            const ResourceInfo R_\(name) = { &\(name), \(file.size), \(group.page) };\n
-            """
-        }
-    }
-
-    do {
-        try outputContent.write(to: URL(fileURLWithPath: "src/assets.c"), atomically: true, encoding: .utf8)
-    } catch {
-        print("Error writing to output file: \(error)")
-    }
-    
+    }    
 }
 
 main()

@@ -1,7 +1,8 @@
 #ifndef _SCREEN_H_
 #define _SCREEN_H_
 
-#include "assets.h"
+#include "types.h"
+#include "levelinfo.h"
 
 #define CLIPBYTES_LEN 4
 

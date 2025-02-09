@@ -21,6 +21,7 @@
         "copper.h": "c",
         "cstddef": "c",
         "tilemap.h": "c",
-        "zx0.h": "c"
+        "zx0.h": "c",
+        "types.h": "c"
     }
 }

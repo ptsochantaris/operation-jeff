@@ -45,7 +45,6 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	tiles.o \
 	main.o \
 	assets.o \
-	assetBinaries.o \
 )
 
 $(OBJDIR)/%.o: $(SRC)/%.c $(PRAGMA_FILE)

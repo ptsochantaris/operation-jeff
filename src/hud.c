@@ -142,9 +142,9 @@ void applyHudPalette(void) __z88dk_fastcall {
 void initHud(byte level) __z88dk_fastcall {
   applyHudPalette();
 
-  const LevelInfo *info = *(levelInfo+level);
-  writeColourToIndex(info->jeffDark, HUD_FILL_DARK);
-  writeColourToIndex(info->jeffBright, HUD_FILL_LIGHT);
+  const LevelInfo info = levelInfo[level];
+  writeColourToIndex(info.jeffDark, HUD_FILL_DARK);
+  writeColourToIndex(info.jeffBright, HUD_FILL_LIGHT);
 
   layer2DmaFill(0, 0, 16, 256, HUD_BLACK);
   layer2DmaFill(16, 0, 320, 15, HUD_BLACK);

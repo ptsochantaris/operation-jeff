@@ -1,205 +1,196 @@
 #ifndef __ASSETS_H__
 #define __ASSETS_H__
-
-#include "types.h"
-
-typedef struct {
-    byte *resource;
-    word length;
-    byte page;        
-} ResourceInfo;
-
-extern const ResourceInfo R_default_nxp_zx0;
-extern const ResourceInfo R_levelM_nxp_zx0;
-extern const ResourceInfo R_levelN_nxp_zx0;
-extern const ResourceInfo R_info_nxp_zx0;
-extern const ResourceInfo R_levelE_nxp_zx0;
-extern const ResourceInfo R_levelG_nxp_zx0;
-extern const ResourceInfo R_levelF_nxp_zx0;
-extern const ResourceInfo R_levelB_nxp_zx0;
-extern const ResourceInfo R_levelL_nxp_zx0;
-extern const ResourceInfo R_levelC_nxp_zx0;
-extern const ResourceInfo R_levelA_nxp_zx0;
-extern const ResourceInfo R_levelD_nxp_zx0;
-extern const ResourceInfo R_levelI_nxp_zx0;
-extern const ResourceInfo R_levelK_nxp_zx0;
-extern const ResourceInfo R_title_nxp_zx0;
-extern const ResourceInfo R_levelJ_nxp_zx0;
-extern const ResourceInfo R_levelH_nxp_zx0;
-extern const ResourceInfo R_gameOverScreen_nxp_zx0;
-extern const ResourceInfo R_sprites_spr;
-extern const ResourceInfo R_menu_pcm;
-extern const ResourceInfo R_siren_pcm;
-extern const ResourceInfo R_levelC_1_nxi_zx0;
-extern const ResourceInfo R_levelJ_0_nxi_zx0;
-extern const ResourceInfo R_title_0_nxi_zx0;
-extern const ResourceInfo R_title_9_nxi_zx0;
-extern const ResourceInfo R_levelC_7_nxi_zx0;
-extern const ResourceInfo R_levelI_7_nxi_zx0;
-extern const ResourceInfo R_levelC_2_nxi_zx0;
-extern const ResourceInfo R_levelK_7_nxi_zx0;
-extern const ResourceInfo R_levelC_6_nxi_zx0;
-extern const ResourceInfo R_levelK_6_nxi_zx0;
-extern const ResourceInfo R_title_8_nxi_zx0;
-extern const ResourceInfo R_levelC_3_nxi_zx0;
-extern const ResourceInfo R_levelK_4_nxi_zx0;
-extern const ResourceInfo R_levelC_5_nxi_zx0;
-extern const ResourceInfo R_levelI_6_nxi_zx0;
-extern const ResourceInfo R_levelC_8_nxi_zx0;
-extern const ResourceInfo R_levelA_4_nxi_zx0;
-extern const ResourceInfo R_levelC_4_nxi_zx0;
-extern const ResourceInfo R_levelA_7_nxi_zx0;
-extern const ResourceInfo R_levelC_9_nxi_zx0;
-extern const ResourceInfo R_levelL_7_nxi_zx0;
-extern const ResourceInfo R_levelF_2_nxi_zx0;
-extern const ResourceInfo R_levelI_5_nxi_zx0;
-extern const ResourceInfo R_levelF_9_nxi_zx0;
-extern const ResourceInfo R_levelI_3_nxi_zx0;
-extern const ResourceInfo R_levelF_7_nxi_zx0;
-extern const ResourceInfo R_levelA_9_nxi_zx0;
-extern const ResourceInfo R_levelK_1_nxi_zx0;
-extern const ResourceInfo R_levelA_1_nxi_zx0;
-extern const ResourceInfo R_levelF_8_nxi_zx0;
-extern const ResourceInfo R_levelK_2_nxi_zx0;
-extern const ResourceInfo R_levelF_3_nxi_zx0;
-extern const ResourceInfo R_levelL_3_nxi_zx0;
-extern const ResourceInfo R_levelL_1_nxi_zx0;
-extern const ResourceInfo R_levelF_5_nxi_zx0;
-extern const ResourceInfo R_levelL_5_nxi_zx0;
-extern const ResourceInfo R_levelF_6_nxi_zx0;
-extern const ResourceInfo R_levelF_1_nxi_zx0;
-extern const ResourceInfo R_levelL_4_nxi_zx0;
-extern const ResourceInfo R_levelF_4_nxi_zx0;
-extern const ResourceInfo R_levelL_6_nxi_zx0;
-extern const ResourceInfo R_levelL_2_nxi_zx0;
-extern const ResourceInfo R_levelI_4_nxi_zx0;
-extern const ResourceInfo R_title_1_nxi_zx0;
-extern const ResourceInfo R_levelK_9_nxi_zx0;
-extern const ResourceInfo R_levelA_2_nxi_zx0;
-extern const ResourceInfo R_title_5_nxi_zx0;
-extern const ResourceInfo R_levelA_8_nxi_zx0;
-extern const ResourceInfo R_levelK_3_nxi_zx0;
-extern const ResourceInfo R_title_2_nxi_zx0;
-extern const ResourceInfo R_levelA_6_nxi_zx0;
-extern const ResourceInfo R_levelK_8_nxi_zx0;
-extern const ResourceInfo R_title_4_nxi_zx0;
-extern const ResourceInfo R_levelA_5_nxi_zx0;
-extern const ResourceInfo R_levelL_8_nxi_zx0;
-extern const ResourceInfo R_title_7_nxi_zx0;
-extern const ResourceInfo R_levelI_2_nxi_zx0;
-extern const ResourceInfo R_levelA_3_nxi_zx0;
-extern const ResourceInfo R_title_6_nxi_zx0;
-extern const ResourceInfo R_levelK_5_nxi_zx0;
-extern const ResourceInfo R_levelE_6_nxi_zx0;
-extern const ResourceInfo R_levelN_8_nxi_zx0;
-extern const ResourceInfo R_levelE_3_nxi_zx0;
-extern const ResourceInfo R_levelE_4_nxi_zx0;
-extern const ResourceInfo R_levelH_6_nxi_zx0;
-extern const ResourceInfo R_levelJ_9_nxi_zx0;
-extern const ResourceInfo R_levelL_9_nxi_zx0;
-extern const ResourceInfo R_levelN_2_nxi_zx0;
-extern const ResourceInfo R_levelE_2_nxi_zx0;
-extern const ResourceInfo R_levelM_3_nxi_zx0;
-extern const ResourceInfo R_gameOverScreen_4_nxi_zx0;
-extern const ResourceInfo R_levelJ_4_nxi_zx0;
-extern const ResourceInfo R_levelG_9_nxi_zx0;
-extern const ResourceInfo R_gameOverScreen_9_nxi_zx0;
-extern const ResourceInfo R_levelE_5_nxi_zx0;
-extern const ResourceInfo R_levelE_1_nxi_zx0;
-extern const ResourceInfo R_levelH_3_nxi_zx0;
-extern const ResourceInfo R_levelB_2_nxi_zx0;
-extern const ResourceInfo R_levelM_2_nxi_zx0;
-extern const ResourceInfo R_levelH_9_nxi_zx0;
-extern const ResourceInfo R_levelG_2_nxi_zx0;
-extern const ResourceInfo R_levelG_1_nxi_zx0;
-extern const ResourceInfo R_gameOverScreen_3_nxi_zx0;
-extern const ResourceInfo R_levelI_8_nxi_zx0;
-extern const ResourceInfo R_levelG_8_nxi_zx0;
-extern const ResourceInfo R_levelN_1_nxi_zx0;
-extern const ResourceInfo R_levelM_9_nxi_zx0;
-extern const ResourceInfo R_levelM_5_nxi_zx0;
-extern const ResourceInfo R_levelH_2_nxi_zx0;
-extern const ResourceInfo R_levelB_1_nxi_zx0;
-extern const ResourceInfo R_levelB_5_nxi_zx0;
-extern const ResourceInfo R_levelH_8_nxi_zx0;
-extern const ResourceInfo R_levelB_3_nxi_zx0;
-extern const ResourceInfo R_levelD_3_nxi_zx0;
-extern const ResourceInfo R_levelH_1_nxi_zx0;
-extern const ResourceInfo R_levelB_4_nxi_zx0;
-extern const ResourceInfo R_levelM_4_nxi_zx0;
-extern const ResourceInfo R_gameOverScreen_1_nxi_zx0;
-extern const ResourceInfo R_levelM_1_nxi_zx0;
-extern const ResourceInfo R_levelD_8_nxi_zx0;
-extern const ResourceInfo R_gameOverScreen_8_nxi_zx0;
-extern const ResourceInfo R_levelD_6_nxi_zx0;
-extern const ResourceInfo R_levelD_7_nxi_zx0;
-extern const ResourceInfo R_levelE_0_nxi_zx0;
-extern const ResourceInfo R_levelG_3_nxi_zx0;
-extern const ResourceInfo R_levelG_7_nxi_zx0;
-extern const ResourceInfo R_levelD_0_nxi_zx0;
-extern const ResourceInfo R_levelD_9_nxi_zx0;
-extern const ResourceInfo R_levelJ_5_nxi_zx0;
-extern const ResourceInfo R_levelM_0_nxi_zx0;
-extern const ResourceInfo R_levelI_1_nxi_zx0;
-extern const ResourceInfo R_levelD_5_nxi_zx0;
-extern const ResourceInfo R_gameOverScreen_7_nxi_zx0;
-extern const ResourceInfo R_levelD_4_nxi_zx0;
-extern const ResourceInfo R_levelM_8_nxi_zx0;
-extern const ResourceInfo R_info_9_nxi_zx0;
-extern const ResourceInfo R_levelE_8_nxi_zx0;
-extern const ResourceInfo R_levelE_7_nxi_zx0;
-extern const ResourceInfo R_levelN_9_nxi_zx0;
-extern const ResourceInfo R_levelB_7_nxi_zx0;
-extern const ResourceInfo R_levelD_1_nxi_zx0;
-extern const ResourceInfo R_levelB_0_nxi_zx0;
-extern const ResourceInfo R_levelG_6_nxi_zx0;
-extern const ResourceInfo R_levelB_8_nxi_zx0;
-extern const ResourceInfo R_levelH_7_nxi_zx0;
-extern const ResourceInfo R_levelJ_8_nxi_zx0;
-extern const ResourceInfo R_levelM_6_nxi_zx0;
-extern const ResourceInfo R_levelG_0_nxi_zx0;
-extern const ResourceInfo R_levelD_2_nxi_zx0;
-extern const ResourceInfo R_levelJ_6_nxi_zx0;
-extern const ResourceInfo R_levelF_0_nxi_zx0;
-extern const ResourceInfo R_levelJ_3_nxi_zx0;
-extern const ResourceInfo R_levelM_7_nxi_zx0;
-extern const ResourceInfo R_gameOverScreen_6_nxi_zx0;
-extern const ResourceInfo R_title_3_nxi_zx0;
-extern const ResourceInfo R_levelE_9_nxi_zx0;
-extern const ResourceInfo R_levelG_5_nxi_zx0;
-extern const ResourceInfo R_levelL_0_nxi_zx0;
-extern const ResourceInfo R_levelB_9_nxi_zx0;
-extern const ResourceInfo R_levelG_4_nxi_zx0;
-extern const ResourceInfo R_levelA_0_nxi_zx0;
-extern const ResourceInfo R_levelJ_1_nxi_zx0;
-extern const ResourceInfo R_levelB_6_nxi_zx0;
-extern const ResourceInfo R_levelK_0_nxi_zx0;
-extern const ResourceInfo R_levelJ_2_nxi_zx0;
-extern const ResourceInfo R_info_2_nxi_zx0;
-extern const ResourceInfo R_levelC_0_nxi_zx0;
-extern const ResourceInfo R_info_3_nxi_zx0;
-extern const ResourceInfo R_levelJ_7_nxi_zx0;
-extern const ResourceInfo R_levelI_0_nxi_zx0;
-extern const ResourceInfo R_info_5_nxi_zx0;
-extern const ResourceInfo R_info_4_nxi_zx0;
-extern const ResourceInfo R_info_1_nxi_zx0;
-extern const ResourceInfo R_levelI_9_nxi_zx0;
-extern const ResourceInfo R_info_8_nxi_zx0;
-extern const ResourceInfo R_info_7_nxi_zx0;
-extern const ResourceInfo R_info_6_nxi_zx0;
-extern const ResourceInfo R_zzzap_pcm;
-extern const ResourceInfo R_gameOverScreen_2_nxi_zx0;
-extern const ResourceInfo R_info_0_nxi_zx0;
-extern const ResourceInfo R_gameOverScreen_5_nxi_zx0;
-extern const ResourceInfo R_levelN_0_nxi_zx0;
-extern const ResourceInfo R_levelN_3_nxi_zx0;
-extern const ResourceInfo R_levelN_6_nxi_zx0;
-extern const ResourceInfo R_levelH_5_nxi_zx0;
-extern const ResourceInfo R_levelN_4_nxi_zx0;
-extern const ResourceInfo R_gameOverScreen_0_nxi_zx0;
-extern const ResourceInfo R_levelN_5_nxi_zx0;
-extern const ResourceInfo R_levelN_7_nxi_zx0;
-extern const ResourceInfo R_levelH_0_nxi_zx0;
-extern const ResourceInfo R_levelH_4_nxi_zx0;
+#define R_default_nxp_zx0 { 24576, 516, 29 }
+#define R_levelM_nxp_zx0 { 25092, 93, 29 }
+#define R_levelN_nxp_zx0 { 25185, 80, 29 }
+#define R_info_nxp_zx0 { 25265, 79, 29 }
+#define R_levelE_nxp_zx0 { 25344, 78, 29 }
+#define R_levelG_nxp_zx0 { 25422, 75, 29 }
+#define R_levelF_nxp_zx0 { 25497, 73, 29 }
+#define R_levelB_nxp_zx0 { 25570, 69, 29 }
+#define R_levelL_nxp_zx0 { 25639, 60, 29 }
+#define R_levelC_nxp_zx0 { 25699, 59, 29 }
+#define R_levelA_nxp_zx0 { 25758, 56, 29 }
+#define R_levelD_nxp_zx0 { 25814, 50, 29 }
+#define R_levelI_nxp_zx0 { 25864, 50, 29 }
+#define R_levelK_nxp_zx0 { 25914, 50, 29 }
+#define R_title_nxp_zx0 { 25964, 50, 29 }
+#define R_levelJ_nxp_zx0 { 26014, 49, 29 }
+#define R_levelH_nxp_zx0 { 26063, 38, 29 }
+#define R_gameOverScreen_nxp_zx0 { 26101, 32, 29 }
+#define R_sprites_spr { 8192, 16384, 30 }
+#define R_menu_pcm { 8192, 16000, 32 }
+#define R_siren_pcm { 8192, 16000, 34 }
+#define R_levelC_1_nxi_zx0 { 8192, 4500, 36 }
+#define R_levelJ_0_nxi_zx0 { 12692, 3654, 36 }
+#define R_title_0_nxi_zx0 { 16346, 7, 36 }
+#define R_title_9_nxi_zx0 { 16353, 7, 36 }
+#define R_levelC_7_nxi_zx0 { 8192, 4498, 37 }
+#define R_levelI_7_nxi_zx0 { 12690, 3624, 37 }
+#define R_levelC_2_nxi_zx0 { 8192, 4489, 38 }
+#define R_levelK_7_nxi_zx0 { 12681, 3699, 38 }
+#define R_levelC_6_nxi_zx0 { 8192, 4483, 39 }
+#define R_levelK_6_nxi_zx0 { 12675, 3616, 39 }
+#define R_title_8_nxi_zx0 { 16291, 74, 39 }
+#define R_levelC_3_nxi_zx0 { 8192, 4460, 40 }
+#define R_levelK_4_nxi_zx0 { 12652, 3726, 40 }
+#define R_levelC_5_nxi_zx0 { 8192, 4416, 41 }
+#define R_levelI_6_nxi_zx0 { 12608, 3774, 41 }
+#define R_levelC_8_nxi_zx0 { 8192, 4398, 42 }
+#define R_levelA_4_nxi_zx0 { 12590, 3791, 42 }
+#define R_levelC_4_nxi_zx0 { 8192, 4349, 43 }
+#define R_levelA_7_nxi_zx0 { 12541, 3813, 43 }
+#define R_levelC_9_nxi_zx0 { 8192, 4322, 44 }
+#define R_levelL_7_nxi_zx0 { 12514, 3849, 44 }
+#define R_levelF_2_nxi_zx0 { 8192, 4221, 45 }
+#define R_levelI_5_nxi_zx0 { 12413, 3946, 45 }
+#define R_levelF_9_nxi_zx0 { 8192, 4208, 46 }
+#define R_levelI_3_nxi_zx0 { 12400, 3981, 46 }
+#define R_levelF_7_nxi_zx0 { 8192, 4206, 47 }
+#define R_levelA_9_nxi_zx0 { 12398, 3973, 47 }
+#define R_levelK_1_nxi_zx0 { 8192, 4156, 48 }
+#define R_levelA_1_nxi_zx0 { 12348, 4015, 48 }
+#define R_levelF_8_nxi_zx0 { 8192, 4153, 49 }
+#define R_levelK_2_nxi_zx0 { 12345, 4000, 49 }
+#define R_levelF_3_nxi_zx0 { 8192, 4145, 50 }
+#define R_levelL_3_nxi_zx0 { 12337, 3993, 50 }
+#define R_levelL_1_nxi_zx0 { 8192, 4129, 51 }
+#define R_levelF_5_nxi_zx0 { 12321, 4051, 51 }
+#define R_levelL_5_nxi_zx0 { 8192, 4119, 52 }
+#define R_levelF_6_nxi_zx0 { 12311, 4072, 52 }
+#define R_levelF_1_nxi_zx0 { 8192, 4107, 53 }
+#define R_levelL_4_nxi_zx0 { 12299, 3989, 53 }
+#define R_levelF_4_nxi_zx0 { 8192, 4103, 54 }
+#define R_levelL_6_nxi_zx0 { 12295, 3935, 54 }
+#define R_levelL_2_nxi_zx0 { 8192, 4099, 55 }
+#define R_levelI_4_nxi_zx0 { 12291, 3916, 55 }
+#define R_title_1_nxi_zx0 { 16207, 155, 55 }
+#define R_levelK_9_nxi_zx0 { 8192, 3896, 56 }
+#define R_levelA_2_nxi_zx0 { 12088, 3880, 56 }
+#define R_title_5_nxi_zx0 { 15968, 398, 56 }
+#define R_levelA_8_nxi_zx0 { 8192, 3847, 57 }
+#define R_levelK_3_nxi_zx0 { 12039, 3846, 57 }
+#define R_title_2_nxi_zx0 { 15885, 499, 57 }
+#define R_levelA_6_nxi_zx0 { 8192, 3801, 58 }
+#define R_levelK_8_nxi_zx0 { 11993, 3767, 58 }
+#define R_title_4_nxi_zx0 { 15760, 534, 58 }
+#define R_levelA_5_nxi_zx0 { 8192, 3762, 59 }
+#define R_levelL_8_nxi_zx0 { 11954, 3761, 59 }
+#define R_title_7_nxi_zx0 { 15715, 470, 59 }
+#define R_levelI_2_nxi_zx0 { 8192, 3749, 60 }
+#define R_levelA_3_nxi_zx0 { 11941, 3742, 60 }
+#define R_title_6_nxi_zx0 { 15683, 390, 60 }
+#define R_levelK_5_nxi_zx0 { 8192, 3574, 61 }
+#define R_levelE_6_nxi_zx0 { 11766, 3500, 61 }
+#define R_levelN_8_nxi_zx0 { 15266, 1118, 61 }
+#define R_levelE_3_nxi_zx0 { 8192, 3498, 62 }
+#define R_levelE_4_nxi_zx0 { 11690, 3498, 62 }
+#define R_levelH_6_nxi_zx0 { 15188, 1194, 62 }
+#define R_levelJ_9_nxi_zx0 { 8192, 3493, 63 }
+#define R_levelL_9_nxi_zx0 { 11685, 3487, 63 }
+#define R_levelN_2_nxi_zx0 { 15172, 1204, 63 }
+#define R_levelE_2_nxi_zx0 { 8192, 3480, 64 }
+#define R_levelM_3_nxi_zx0 { 11672, 3475, 64 }
+#define R_gameOverScreen_4_nxi_zx0 { 15147, 1228, 64 }
+#define R_levelJ_4_nxi_zx0 { 8192, 3473, 65 }
+#define R_levelG_9_nxi_zx0 { 11665, 3471, 65 }
+#define R_gameOverScreen_9_nxi_zx0 { 15136, 1242, 65 }
+#define R_levelE_5_nxi_zx0 { 8192, 3453, 66 }
+#define R_levelE_1_nxi_zx0 { 11645, 3445, 66 }
+#define R_levelH_3_nxi_zx0 { 15090, 1286, 66 }
+#define R_levelB_2_nxi_zx0 { 8192, 3435, 67 }
+#define R_levelM_2_nxi_zx0 { 11627, 3433, 67 }
+#define R_levelH_9_nxi_zx0 { 15060, 1273, 67 }
+#define R_levelG_2_nxi_zx0 { 8192, 3402, 68 }
+#define R_levelG_1_nxi_zx0 { 11594, 3378, 68 }
+#define R_gameOverScreen_3_nxi_zx0 { 14972, 1361, 68 }
+#define R_levelI_8_nxi_zx0 { 8192, 3376, 69 }
+#define R_levelG_8_nxi_zx0 { 11568, 3365, 69 }
+#define R_levelN_1_nxi_zx0 { 14933, 1430, 69 }
+#define R_levelM_9_nxi_zx0 { 8192, 3358, 70 }
+#define R_levelM_5_nxi_zx0 { 11550, 3355, 70 }
+#define R_levelH_2_nxi_zx0 { 14905, 1462, 70 }
+#define R_levelB_1_nxi_zx0 { 8192, 3344, 71 }
+#define R_levelB_5_nxi_zx0 { 11536, 3337, 71 }
+#define R_levelH_8_nxi_zx0 { 14873, 1511, 71 }
+#define R_levelB_3_nxi_zx0 { 8192, 3334, 72 }
+#define R_levelD_3_nxi_zx0 { 11526, 3305, 72 }
+#define R_levelH_1_nxi_zx0 { 14831, 1547, 72 }
+#define R_levelB_4_nxi_zx0 { 8192, 3297, 73 }
+#define R_levelM_4_nxi_zx0 { 11489, 3289, 73 }
+#define R_gameOverScreen_1_nxi_zx0 { 14778, 1593, 73 }
+#define R_levelM_1_nxi_zx0 { 8192, 3276, 74 }
+#define R_levelD_8_nxi_zx0 { 11468, 3259, 74 }
+#define R_gameOverScreen_8_nxi_zx0 { 14727, 1633, 74 }
+#define R_levelD_6_nxi_zx0 { 8192, 3258, 75 }
+#define R_levelD_7_nxi_zx0 { 11450, 3255, 75 }
+#define R_levelE_0_nxi_zx0 { 14705, 1672, 75 }
+#define R_levelG_3_nxi_zx0 { 8192, 3246, 76 }
+#define R_levelG_7_nxi_zx0 { 11438, 3246, 76 }
+#define R_levelD_0_nxi_zx0 { 14684, 1680, 76 }
+#define R_levelD_9_nxi_zx0 { 8192, 3237, 77 }
+#define R_levelJ_5_nxi_zx0 { 11429, 3231, 77 }
+#define R_levelM_0_nxi_zx0 { 14660, 1658, 77 }
+#define R_levelI_1_nxi_zx0 { 8192, 3230, 78 }
+#define R_levelD_5_nxi_zx0 { 11422, 3224, 78 }
+#define R_gameOverScreen_7_nxi_zx0 { 14646, 1624, 78 }
+#define R_levelD_4_nxi_zx0 { 8192, 3222, 79 }
+#define R_levelM_8_nxi_zx0 { 11414, 3222, 79 }
+#define R_info_9_nxi_zx0 { 14636, 1564, 79 }
+#define R_levelE_8_nxi_zx0 { 8192, 3200, 80 }
+#define R_levelE_7_nxi_zx0 { 11392, 3196, 80 }
+#define R_levelN_9_nxi_zx0 { 14588, 1762, 80 }
+#define R_levelB_7_nxi_zx0 { 8192, 3165, 81 }
+#define R_levelD_1_nxi_zx0 { 11357, 3159, 81 }
+#define R_levelB_0_nxi_zx0 { 14516, 1838, 81 }
+#define R_levelG_6_nxi_zx0 { 8192, 3155, 82 }
+#define R_levelB_8_nxi_zx0 { 11347, 3148, 82 }
+#define R_levelH_7_nxi_zx0 { 14495, 1510, 82 }
+#define R_levelJ_8_nxi_zx0 { 8192, 3136, 83 }
+#define R_levelM_6_nxi_zx0 { 11328, 3109, 83 }
+#define R_levelG_0_nxi_zx0 { 14437, 1893, 83 }
+#define R_levelD_2_nxi_zx0 { 8192, 3105, 84 }
+#define R_levelJ_6_nxi_zx0 { 11297, 3080, 84 }
+#define R_levelF_0_nxi_zx0 { 14377, 1965, 84 }
+#define R_levelJ_3_nxi_zx0 { 8192, 3076, 85 }
+#define R_levelM_7_nxi_zx0 { 11268, 3073, 85 }
+#define R_gameOverScreen_6_nxi_zx0 { 14341, 1488, 85 }
+#define R_title_3_nxi_zx0 { 15829, 387, 85 }
+#define R_levelE_9_nxi_zx0 { 8192, 3061, 86 }
+#define R_levelG_5_nxi_zx0 { 11253, 3043, 86 }
+#define R_levelL_0_nxi_zx0 { 14296, 2075, 86 }
+#define R_levelB_9_nxi_zx0 { 8192, 3037, 87 }
+#define R_levelG_4_nxi_zx0 { 11229, 3035, 87 }
+#define R_levelA_0_nxi_zx0 { 14264, 2091, 87 }
+#define R_levelJ_1_nxi_zx0 { 8192, 3018, 88 }
+#define R_levelB_6_nxi_zx0 { 11210, 2936, 88 }
+#define R_levelK_0_nxi_zx0 { 14146, 2145, 88 }
+#define R_levelJ_2_nxi_zx0 { 8192, 2895, 89 }
+#define R_info_2_nxi_zx0 { 11087, 2876, 89 }
+#define R_levelC_0_nxi_zx0 { 13963, 2270, 89 }
+#define R_info_3_nxi_zx0 { 8192, 2872, 90 }
+#define R_levelJ_7_nxi_zx0 { 11064, 2835, 90 }
+#define R_levelI_0_nxi_zx0 { 13899, 2472, 90 }
+#define R_info_5_nxi_zx0 { 8192, 2741, 91 }
+#define R_info_4_nxi_zx0 { 10933, 2706, 91 }
+#define R_info_1_nxi_zx0 { 13639, 2683, 91 }
+#define R_levelI_9_nxi_zx0 { 8192, 2647, 92 }
+#define R_info_8_nxi_zx0 { 10839, 2629, 92 }
+#define R_info_7_nxi_zx0 { 13468, 2605, 92 }
+#define R_info_6_nxi_zx0 { 8192, 2555, 93 }
+#define R_zzzap_pcm { 10747, 2529, 93 }
+#define R_gameOverScreen_2_nxi_zx0 { 13276, 1485, 93 }
+#define R_info_0_nxi_zx0 { 14761, 1482, 93 }
+#define R_gameOverScreen_5_nxi_zx0 { 8192, 1353, 94 }
+#define R_levelN_0_nxi_zx0 { 9545, 1273, 94 }
+#define R_levelN_3_nxi_zx0 { 10818, 1129, 94 }
+#define R_levelN_6_nxi_zx0 { 11947, 1128, 94 }
+#define R_levelH_5_nxi_zx0 { 13075, 1052, 94 }
+#define R_levelN_4_nxi_zx0 { 14127, 1011, 94 }
+#define R_gameOverScreen_0_nxi_zx0 { 15138, 1005, 94 }
+#define R_levelN_5_nxi_zx0 { 8192, 946, 95 }
+#define R_levelN_7_nxi_zx0 { 9138, 923, 95 }
+#define R_levelH_0_nxi_zx0 { 10061, 874, 95 }
+#define R_levelH_4_nxi_zx0 { 10935, 852, 95 }
 
 #endif
