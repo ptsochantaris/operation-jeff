@@ -22,6 +22,7 @@
         "cstddef": "c",
         "tilemap.h": "c",
         "zx0.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "levelinfo.h": "c"
     }
 }
