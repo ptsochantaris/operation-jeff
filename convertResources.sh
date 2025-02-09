@@ -2,7 +2,7 @@ CONV=../Gfx2Next/build/gfx2next
 COMPRESS=../ZX0/src/zx0
 ORIG=resources_original/
 DST=resources/
-LETTERS=(A B C D E F G H I J K L M N)
+LETTERS=(A B C D E F G H I J K L M N O)
 NUMBERS=(0 1 2 3 4 5 6 7 8 9)
 
 rm $DST*

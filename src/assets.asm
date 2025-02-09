@@ -5,6 +5,8 @@ ORG 0x6000
 
 _default_nxp_zx0: BINARY "resources/default.nxp.zx0"
 
+_levelO_nxp_zx0: BINARY "resources/levelO.nxp.zx0"
+
 _levelM_nxp_zx0: BINARY "resources/levelM.nxp.zx0"
 
 _levelN_nxp_zx0: BINARY "resources/levelN.nxp.zx0"
@@ -378,7 +380,7 @@ _levelB_2_nxi_zx0: BINARY "resources/levelB_2.nxi.zx0"
 
 _levelM_2_nxi_zx0: BINARY "resources/levelM_2.nxi.zx0"
 
-_levelH_9_nxi_zx0: BINARY "resources/levelH_9.nxi.zx0"
+_levelO_2_nxi_zx0: BINARY "resources/levelO_2.nxi.zx0"
 
 ;-------------------------------------------------
 
@@ -499,7 +501,7 @@ _levelI_1_nxi_zx0: BINARY "resources/levelI_1.nxi.zx0"
 
 _levelD_5_nxi_zx0: BINARY "resources/levelD_5.nxi.zx0"
 
-_gameOverScreen_7_nxi_zx0: BINARY "resources/gameOverScreen_7.nxi.zx0"
+_levelO_6_nxi_zx0: BINARY "resources/levelO_6.nxi.zx0"
 
 ;-------------------------------------------------
 
@@ -510,7 +512,7 @@ _levelD_4_nxi_zx0: BINARY "resources/levelD_4.nxi.zx0"
 
 _levelM_8_nxi_zx0: BINARY "resources/levelM_8.nxi.zx0"
 
-_info_9_nxi_zx0: BINARY "resources/info_9.nxi.zx0"
+_gameOverScreen_7_nxi_zx0: BINARY "resources/gameOverScreen_7.nxi.zx0"
 
 ;-------------------------------------------------
 
@@ -543,7 +545,7 @@ _levelG_6_nxi_zx0: BINARY "resources/levelG_6.nxi.zx0"
 
 _levelB_8_nxi_zx0: BINARY "resources/levelB_8.nxi.zx0"
 
-_levelH_7_nxi_zx0: BINARY "resources/levelH_7.nxi.zx0"
+_info_9_nxi_zx0: BINARY "resources/info_9.nxi.zx0"
 
 ;-------------------------------------------------
 
@@ -554,7 +556,7 @@ _levelJ_8_nxi_zx0: BINARY "resources/levelJ_8.nxi.zx0"
 
 _levelM_6_nxi_zx0: BINARY "resources/levelM_6.nxi.zx0"
 
-_levelG_0_nxi_zx0: BINARY "resources/levelG_0.nxi.zx0"
+_levelO_8_nxi_zx0: BINARY "resources/levelO_8.nxi.zx0"
 
 ;-------------------------------------------------
 
@@ -576,9 +578,7 @@ _levelJ_3_nxi_zx0: BINARY "resources/levelJ_3.nxi.zx0"
 
 _levelM_7_nxi_zx0: BINARY "resources/levelM_7.nxi.zx0"
 
-_gameOverScreen_6_nxi_zx0: BINARY "resources/gameOverScreen_6.nxi.zx0"
-
-_title_3_nxi_zx0: BINARY "resources/title_3.nxi.zx0"
+_levelG_0_nxi_zx0: BINARY "resources/levelG_0.nxi.zx0"
 
 ;-------------------------------------------------
 
@@ -651,20 +651,35 @@ _info_1_nxi_zx0: BINARY "resources/info_1.nxi.zx0"
 SECTION PAGE_92
 ORG 0x2000
 
+_levelO_7_nxi_zx0: BINARY "resources/levelO_7.nxi.zx0"
+
 _levelI_9_nxi_zx0: BINARY "resources/levelI_9.nxi.zx0"
 
 _info_8_nxi_zx0: BINARY "resources/info_8.nxi.zx0"
-
-_info_7_nxi_zx0: BINARY "resources/info_7.nxi.zx0"
 
 ;-------------------------------------------------
 
 SECTION PAGE_93
 ORG 0x2000
 
+_info_7_nxi_zx0: BINARY "resources/info_7.nxi.zx0"
+
 _info_6_nxi_zx0: BINARY "resources/info_6.nxi.zx0"
 
 _zzzap_pcm: BINARY "resources/zzzap.pcm"
+
+_title_3_nxi_zx0: BINARY "resources/title_3.nxi.zx0"
+
+;-------------------------------------------------
+
+SECTION PAGE_94
+ORG 0x2000
+
+_levelO_9_nxi_zx0: BINARY "resources/levelO_9.nxi.zx0"
+
+_levelH_7_nxi_zx0: BINARY "resources/levelH_7.nxi.zx0"
+
+_gameOverScreen_6_nxi_zx0: BINARY "resources/gameOverScreen_6.nxi.zx0"
 
 _gameOverScreen_2_nxi_zx0: BINARY "resources/gameOverScreen_2.nxi.zx0"
 
@@ -672,12 +687,25 @@ _info_0_nxi_zx0: BINARY "resources/info_0.nxi.zx0"
 
 ;-------------------------------------------------
 
-SECTION PAGE_94
+SECTION PAGE_95
 ORG 0x2000
+
+_levelO_5_nxi_zx0: BINARY "resources/levelO_5.nxi.zx0"
 
 _gameOverScreen_5_nxi_zx0: BINARY "resources/gameOverScreen_5.nxi.zx0"
 
+_levelH_9_nxi_zx0: BINARY "resources/levelH_9.nxi.zx0"
+
 _levelN_0_nxi_zx0: BINARY "resources/levelN_0.nxi.zx0"
+
+_levelO_4_nxi_zx0: BINARY "resources/levelO_4.nxi.zx0"
+
+_levelO_1_nxi_zx0: BINARY "resources/levelO_1.nxi.zx0"
+
+;-------------------------------------------------
+
+SECTION PAGE_96
+ORG 0x2000
 
 _levelN_3_nxi_zx0: BINARY "resources/levelN_3.nxi.zx0"
 
@@ -689,16 +717,20 @@ _levelN_4_nxi_zx0: BINARY "resources/levelN_4.nxi.zx0"
 
 _gameOverScreen_0_nxi_zx0: BINARY "resources/gameOverScreen_0.nxi.zx0"
 
-;-------------------------------------------------
-
-SECTION PAGE_95
-ORG 0x2000
+_levelO_0_nxi_zx0: BINARY "resources/levelO_0.nxi.zx0"
 
 _levelN_5_nxi_zx0: BINARY "resources/levelN_5.nxi.zx0"
 
 _levelN_7_nxi_zx0: BINARY "resources/levelN_7.nxi.zx0"
 
+;-------------------------------------------------
+
+SECTION PAGE_97
+ORG 0x2000
+
 _levelH_0_nxi_zx0: BINARY "resources/levelH_0.nxi.zx0"
+
+_levelO_3_nxi_zx0: BINARY "resources/levelO_3.nxi.zx0"
 
 _levelH_4_nxi_zx0: BINARY "resources/levelH_4.nxi.zx0"
 

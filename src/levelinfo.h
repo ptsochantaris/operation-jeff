@@ -4,7 +4,7 @@
 #include "types.h"
 #include "assets.h"
 
-#define LEVEL_COUNT 14
+#define LEVEL_COUNT 15
 
 typedef struct {
     word resource;

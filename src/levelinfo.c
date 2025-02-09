@@ -5,7 +5,8 @@ LevelInfo infoInfo =     { { 0,0 }, { 0,0 }, 0, 0, 0, { SCREEN_ARRAY(info) },   
 LevelInfo gameOverInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, { SCREEN_ARRAY(gameOverScreen) }, R_gameOverScreen_nxp_zx0 };
 
 #define _LA  { { COLOR9(7, 1, 1) }, { COLOR9(3, 1, 1) },  40, 160, 100, { SCREEN_ARRAY(levelA) }, R_levelA_nxp_zx0 }
-#define _LB  { { COLOR9(4, 7, 4) }, { COLOR9(0, 6, 0) },  50, 160,  90, { SCREEN_ARRAY(levelB) }, R_levelB_nxp_zx0 }
+#define _LO  { { COLOR9(7, 7, 7) }, { COLOR9(5, 5, 5) },  45, 160,  90, { SCREEN_ARRAY(levelO) }, R_levelO_nxp_zx0 }
+#define _LB  { { COLOR9(4, 7, 4) }, { COLOR9(0, 6, 0) },  50, 160,  85, { SCREEN_ARRAY(levelB) }, R_levelB_nxp_zx0 }
 #define _LG  { { COLOR9(6, 6, 7) }, { COLOR9(5, 5, 6) },  60, 160,  80, { SCREEN_ARRAY(levelG) }, R_levelG_nxp_zx0 }
 #define _LD  { { COLOR9(6, 6, 6) }, { COLOR9(2, 1, 1) },  70, 160,  78, { SCREEN_ARRAY(levelD) }, R_levelD_nxp_zx0 }
 #define _LI  { { COLOR9(7, 6, 5) }, { COLOR9(6, 4, 1) },  80, 160,  76, { SCREEN_ARRAY(levelI) }, R_levelI_nxp_zx0 }
@@ -20,7 +21,7 @@ LevelInfo gameOverInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, { SCREEN_ARRAY(gameOverScr
 #define _LH  { { COLOR9(1, 1, 1) }, { COLOR9(0, 0, 0) }, 130, 160,  50, { SCREEN_ARRAY(levelH) }, R_levelH_nxp_zx0 }
 
 LevelInfo levelInfo[] = {
-    _LA, _LB, _LG, _LD, 
+    _LA, _LO, _LB, _LG, _LD, 
     _LI, _LL, _LE, _LN,
     _LJ, _LC, _LK, _LM, _LF, 
     _LH
