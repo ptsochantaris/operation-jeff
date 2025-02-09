@@ -43,6 +43,9 @@ wait
 
 rm $DST*.nxp $DST*.nxi
 
-$CONV "${ORIG}OperationJeffLoading.png" -pal-min -pal-embed -bitmap "${DST}loadingScreen.nxi" &
-
+echo "Creating assets.h and assets.asm ..."
 swift makeResources.swift resources/*.nxp.zx0 resources/*.pcm resources/*.nxi.zx0 resources/*.spr
+
+$CONV "${ORIG}OperationJeffLoading.png" -pal-min -pal-embed -bitmap "${DST}loadingScreen.nxi"
+
+echo "All done"
