@@ -304,3 +304,36 @@ void fillNextReg(byte reg, byte value, byte len) {
     ZXN_WRITE_REG(reg, value);
   }
 }
+
+ const byte corner1px[] = { 1 };
+ const byte corner2px[] = { 1, 2 };
+ const byte corner3px[] = { 2, 2, 3 };
+ const byte corner4px[] = { 2, 3, 3, 4 };
+ const byte corner5px[] = { 2, 4, 4, 5, 5 };
+ const byte corner6px[] = { 2, 4, 5, 5, 6, 6 };
+ const byte corner7px[] = { 2, 4, 5, 6, 6, 7, 7 };
+ const byte corner8px[] = { 2, 4, 5, 6, 7, 7, 8, 8 };
+
+ const byte *corners[] = { 
+  corner1px, 
+  corner2px, 
+  corner3px, 
+  corner4px, 
+  corner5px, 
+  corner6px, 
+  corner7px, 
+  corner8px
+};
+
+void layer2circle(byte radius, word x, word y, byte color) {
+  const byte *widths = corners[radius-1];
+  word mid = x + radius;
+  word ey = y + (radius << 1) - 1;
+  for(word c = 0; c < radius; ++c) {
+    word w = *(widths+c);
+    word l = mid-w;
+    word W = w << 1;
+    horizontalLine(l, y+c, W, color);
+    horizontalLine(l, ey-c, W, color);
+  }
+}

@@ -93,7 +93,7 @@ void hudScoreUpdated(void) __z88dk_fastcall {
   print(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
 }
 
-#define LEVEL_PROGRESS_WIDTH 15
+#define LEVEL_PROGRESS_WIDTH 7
 
 void hudKillsUpdated(void) __z88dk_fastcall {
   word level = (currentStats.killsInLevel * LEVEL_PROGRESS_WIDTH) / currentStats.maxKillsInLevel;
@@ -101,13 +101,12 @@ void hudKillsUpdated(void) __z88dk_fastcall {
     return;
   }
   
-  layer2roundedBox(0, 4, LEVEL_PROGRESS_WIDTH+1, 12, HUD_WHITE);
+  layer2circle(7, 1, 3, HUD_FILL_DARK);
 
-  if(level > 0) {
-    layer2fill(1, 5, level, 11, HUD_FILL_LIGHT);
-  }
-  
-  layer2fill(1 + level, 5, LEVEL_PROGRESS_WIDTH - level, 11, HUD_FILL_DARK);
+  // TODO: clip based on "level"
+  /*if(level > 0) {
+    layer2circle(7, 1, 3, HUD_FILL_LIGHT);
+  }*/
   
   int res = currentStats.maxKillsInLevel - currentStats.killsInLevel;
   if(res >= 0) {
@@ -160,6 +159,8 @@ void initHud(byte level) __z88dk_fastcall {
   layer2box(RATE_X, RATE_Y, 5, 203, HUD_WHITE);
   layer2box(ENERGY_X, 8, 66, 5, HUD_WHITE);
   layer2box(HEALTH_X, 8, 66, 5, HUD_WHITE);
+
+  layer2circle(8, 0, 2, HUD_WHITE);
 
   hudScoreUpdated();
   hudHealthUpdated();
