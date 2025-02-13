@@ -325,7 +325,7 @@ void fillNextReg(byte reg, byte value, byte len) {
   corner8px
 };
 
-void layer2circle(byte radius, word x, word y, byte color) {
+void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) {
   const byte *widths = corners[radius-1];
   word mid = x + radius;
   word ey = y + (radius << 1) - 1;
@@ -333,7 +333,9 @@ void layer2circle(byte radius, word x, word y, byte color) {
     word w = *(widths+c);
     word l = mid-w;
     word W = w << 1;
-    horizontalLine(l, y+c, W, color);
-    horizontalLine(l, ey-c, W, color);
+    word Y = y+c;
+    horizontalLine(l, Y, W, (Y>dividerY) ? colorBottom : colorTop);
+    Y = ey-c;
+    horizontalLine(l, Y, W, (Y>dividerY) ? colorBottom : colorTop);
   }
 }
