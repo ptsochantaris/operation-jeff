@@ -95,9 +95,9 @@ byte gameLoop(void) __z88dk_fastcall {
           status(pause ? "PAUSED" : NULL);
         }
 
-        if(debugKeys()) {
-          return 1;
-        }
+        // if(debugKeys()) {
+        //   return 1;
+        // }
       }
 
       updateMouse();
