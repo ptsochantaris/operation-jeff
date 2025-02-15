@@ -47,11 +47,11 @@ void cycleGrayPalette(void) __z88dk_fastcall {
 
     selectPalette(0);
 
-    ZXN_NEXTREG(0x44, 0);
-    ZXN_NEXTREG(0x44, 0);
+    ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
+    ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
 
-    writeNextReg(0x44, ulaPalette+gray_offset, 16-gray_offset);
-    writeNextReg(0x44, ulaPalette, gray_offset);
+    writeNextReg(REG_PALETTE_VALUE_16, ulaPalette+gray_offset, 16-gray_offset);
+    writeNextReg(REG_PALETTE_VALUE_16, ulaPalette, gray_offset);
 }
 
 void printAttributes(const byte *restrict text, byte x, byte y) {

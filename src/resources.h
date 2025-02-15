@@ -36,6 +36,7 @@
 #include "gameover.h"
 #include "stars.h"
 #include "assets.h"
+#include "copper.h"
 
 #endif
 

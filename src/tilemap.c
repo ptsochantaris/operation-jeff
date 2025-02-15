@@ -22,8 +22,8 @@ void initTilemap(void) __z88dk_fastcall {
 
   // Upoad palette
   selectPalette(3);
-  ZXN_NEXTREG(0x40, 0);
-  writeNextReg(0x44, tilemapPalette, 16);
+  ZXN_NEXTREG(REG_PALETTE_INDEX, 0);
+  writeNextReg(REG_PALETTE_VALUE_16, tilemapPalette, 16);
 }
 
 void clearTilemap(void) __z88dk_fastcall {

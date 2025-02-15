@@ -95,7 +95,7 @@ void layer2Clear(byte index) __z88dk_fastcall {
 
 void selectPalette(byte paletteMask) __z88dk_fastcall {
   ZXN_NEXTREGA(0x43, paletteMask << 4 | 1); // select palette, enable ulanext,
-  ZXN_NEXTREG(0x40, 0); // start palette index
+  ZXN_NEXTREG(REG_PALETTE_INDEX, 0); // start palette index
 }
 
 static byte paletteBuffer[] = {
@@ -116,7 +116,7 @@ void loadPaletteBuffer(const ResourceInfo *restrict compressedPalette) {
 }
 
 void fadePalette(word numBytes, byte shift) {
-  ZXN_NEXTREG(0x40, 0); // start palette index
+  ZXN_NEXTREG(REG_PALETTE_INDEX, 0); // start palette index
 
   for(word c=0; c<numBytes; c += 2) {
     byte msb = paletteBuffer[c];
@@ -131,10 +131,10 @@ void fadePalette(word numBytes, byte shift) {
     byte b = shift<tb ? shift : tb;
 
     msb = r << 5 | g << 2 | b >> 1;
-    ZXN_WRITE_REG(0x44, msb);
+    ZXN_WRITE_REG(REG_PALETTE_VALUE_16, msb);
 
     lsb = b & 1;
-    ZXN_WRITE_REG(0x44, lsb);
+    ZXN_WRITE_REG(REG_PALETTE_VALUE_16, lsb);
   }
 
   intrinsic_halt();
@@ -145,10 +145,10 @@ void fadePaletteDown(byte paletteMask, word numBytes) {
 
   word i = 0;
   for(word f=0; f<256; f++, i+=2) {
-    ZXN_NEXTREGA(0x40, f); // start palette index
+    ZXN_NEXTREGA(REG_PALETTE_INDEX, f); // start palette index
 
     paletteBuffer[i] = ZXN_READ_REG(0x41);
-    paletteBuffer[i+1] = ZXN_READ_REG(0x44) & 1;
+    paletteBuffer[i+1] = ZXN_READ_REG(REG_PALETTE_VALUE_16) & 1;
   }
 
   for(byte shift=8; shift > 0; --shift) {
@@ -168,10 +168,10 @@ void fadePaletteUp(const ResourceInfo *restrict compressedPalette, word numBytes
 void zeroPalette(byte palette, word length) {
   selectPalette(palette);
   
-  ZXN_NEXTREG(0x40, 0);
+  ZXN_NEXTREG(REG_PALETTE_INDEX, 0);
   word bytes = length * 2;
   for(word f=0; f<bytes; ++f) {
-    ZXN_NEXTREG(0x44, 0);
+    ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
   }
 }
 
@@ -179,7 +179,7 @@ void uploadPalette(const ResourceInfo *restrict compressedPalette, word numBytes
   selectPalette(palette);
   loadPaletteBuffer(compressedPalette);
   
-  z80_outp(0x243b, 0x44);
+  z80_outp(0x243b, REG_PALETTE_VALUE_16);
   dmaMemoryToPort(paletteBuffer, 0x253b, numBytes);
 }
 
@@ -203,9 +203,9 @@ void loadScreen(const LevelInfo *restrict info) {
 }
 
 void writeColourToIndex(const byte *colour, byte index) {
-  ZXN_NEXTREGA(0x40, index);
-  ZXN_NEXTREGA(0x44, *colour);
-  ZXN_NEXTREGA(0x44, *colour+1);
+  ZXN_NEXTREGA(REG_PALETTE_INDEX, index);
+  ZXN_NEXTREGA(REG_PALETTE_VALUE_16, *colour);
+  ZXN_NEXTREGA(REG_PALETTE_VALUE_16, *colour+1);
 }
 
 void loadLevelScreen(byte level) __z88dk_fastcall {
@@ -235,7 +235,7 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
 }
 
 static byte shouldFadeTitle = 0;
-static const LevelInfo titleInfo =    { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(title) };
+static const LevelInfo titleInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(title) };
 void loadTitleScreen(void) __z88dk_fastcall {
   if(shouldFadeTitle) {
     fadePaletteDown(1, 512);
@@ -283,7 +283,7 @@ void setupScreen(void) __z88dk_fastcall {
   ZXN_NEXTREG(0x14, 0);
 
   // ULAnext all ink
-  ZXN_NEXTREG(0x42, 0xFF);
+  ZXN_NEXTREG(REG_ULANEXT_PALETTE_FORMAT, 0xFF);
 
   setFallbackColour(0);
 

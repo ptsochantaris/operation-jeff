@@ -113,9 +113,9 @@ void hudKillsUpdated(void) __z88dk_fastcall {
 
 void setHudBackground(int color) __z88dk_fastcall {
   selectPalette(1);
-  ZXN_NEXTREG(0x40, HUD_BLACK); // start palette index
-  ZXN_NEXTREGA(0x44, color & 0xFF);
-  ZXN_NEXTREGA(0x44, (color >> 8) & 0x01);
+  ZXN_NEXTREG(REG_PALETTE_INDEX, HUD_BLACK); // start palette index
+  ZXN_NEXTREGA(REG_PALETTE_VALUE_16, color & 0xFF);
+  ZXN_NEXTREGA(REG_PALETTE_VALUE_16, (color >> 8) & 0x01);
 }
 
 static const byte hudPalette[] = {
@@ -130,8 +130,8 @@ static const byte hudPalette[] = {
 
 void applyHudPalette(void) __z88dk_fastcall {
   selectPalette(1); // L2 first palette
-  ZXN_NEXTREG(0x40, HUD_BLACK); // start palette index
-  writeNextReg(0x44, hudPalette, 14);
+  ZXN_NEXTREG(REG_PALETTE_INDEX, HUD_BLACK); // start palette index
+  writeNextReg(REG_PALETTE_VALUE_16, hudPalette, 14);
 }
 
 void initHud(byte level) __z88dk_fastcall {

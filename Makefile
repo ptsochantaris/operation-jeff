@@ -28,13 +28,13 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	jeff.o \
 	sprites.o \
 	stars.o \
+	copper.o \
 	leds.o \
 	mouse.o \
 	bomb.o \
 	stats.o \
 	hud.o \
 	font.o \
-	copper.o \
 	menu.o \
 	gameover.o \
 	game.o \
