@@ -1,6 +1,5 @@
 #include "resources.h"
 
-#define FIRE_ENERGY 4
 #define DAMAGE 50
 
 stats currentStats;
@@ -78,15 +77,6 @@ byte processGameStats(void) __z88dk_fastcall {
     }
 
     return 0;
-}
-
-byte canFire(void) __z88dk_fastcall {
-    byte canFire = currentStats.energy >= FIRE_ENERGY;
-    if(canFire) {
-        currentStats.energy -= FIRE_ENERGY;
-        hudEnergyUpdated();
-    }
-    return canFire;
 }
 
 void processBonusHit(byte type) __z88dk_fastcall {

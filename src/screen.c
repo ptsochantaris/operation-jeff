@@ -11,7 +11,7 @@ const byte clipBytes[] = {0,159,0,255};
 void verticalLine(word x, word lowY, word highY, byte color) {
   selectLayer2Page(x >> 6);
   byte *pos = (byte *)((x % 64) * 256 + lowY);
-  for(word y=lowY; y!=highY; ++y, ++pos) {
+  for(byte *end = pos+highY-lowY; pos != end; ++pos) {
     *pos = color;
   }
 }

@@ -21,15 +21,21 @@ void initBombs(void) __z88dk_fastcall {
     }
 }
 
+#define FIRE_ENERGY 4
+
 void fireIfPossible(void) __z88dk_fastcall {
     if(cooldown) {
         --cooldown;
         return;
     }
-    if(canFire()) {
+
+    if(currentStats.energy >= FIRE_ENERGY) {
         bomb *b = bombs;
-        for(byte f=0; f!=bombCount; ++f, ++b) {
+        for(bomb *end = b+bombCount; b != end; ++b) {
             if(b->state == BOMB_STATE_NONE) {
+                currentStats.energy -= FIRE_ENERGY;
+                hudEnergyUpdated();
+
                 b->countdown = 22;
                 b->target = mouseState.pos;
                 b->sprite.pos.x = mouseState.pos.x;
@@ -47,7 +53,7 @@ void fireIfPossible(void) __z88dk_fastcall {
 void updateBombs(void) __z88dk_fastcall {
     if(bombLoop) {
         bomb *b = bombs;
-        for(byte f=0; f!=bombCount; ++f, ++b) {
+        for(bomb *end = b+bombCount; b != end; ++b) {
             switch(b->state) {
                 case BOMB_STATE_NONE:
                     break;

@@ -144,9 +144,7 @@ void initJeffs(void) __z88dk_fastcall {
 
 void launchRandomJeff(void) __z88dk_fastcall {
     // reverse so the new jeff will grow behind existing ones
-    byte c = jeffCount - 1;
-    jeff *j = jeffs + c;
-    for(byte f=0 ; f!=c; ++f, --j) {
+    for(jeff *j = jeffs + jeffCount - 1; j >= jeffs; --j) {
         if(j->state == JEFF_STATE_NONE) {
             growJeff(j);
             return;
@@ -173,11 +171,11 @@ void jeffHit(jeff *restrict j) __z88dk_fastcall {
 }
 
 void jeffCheckBombs(jeff *restrict j) __z88dk_fastcall {
-    bomb *b = bombs;
     word C;
     word jx = j->sprite.pos.x;
     word jy = j->sprite.pos.y;
-    for(byte f=0; f!=bombCount; ++f, ++b) {
+    bomb *b = bombs;
+    for(bomb *end = b+bombCount; b != end; ++b) {
         if(b->state == BOMB_STATE_EXPLODING) {
             word bx = b->sprite.pos.x;
             word by = b->sprite.pos.y;
@@ -312,7 +310,7 @@ void jeffAppearStep(jeff *j) __z88dk_fastcall {
 
 void jeffKillAll(void) __z88dk_fastcall {
     jeff *j = jeffs;
-    for(byte f=0; f!=jeffCount; ++f, ++j) {
+    for(jeff *end = j+jeffCount; j != end; ++j) {
         switch(j->state) {
             case JEFF_STATE_STAND:
             case JEFF_STATE_WALK:
@@ -363,7 +361,7 @@ void updateJeffs(void) __z88dk_fastcall {
     logicLoop = (logicLoop << 1) | (logicLoop >> 15);
 
     jeff *j = jeffs;
-    for(byte f=0; f!=jeffCount; ++f, ++j) {
+    for(jeff *end = jeffs+jeffCount; j != end; ++j) {
         if(!(j->moveMask & logicLoop)) {
             continue;
         }
