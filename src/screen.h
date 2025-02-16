@@ -31,5 +31,6 @@ void writeColourToIndex(const byte *colour, byte index);
 
 void writeNextReg(byte reg, const char *bytes, byte len);
 void fillNextReg(byte reg, byte value, byte len);
+void scrollLayer2(word x, byte y) __z88dk_callee;
 
 #endif
