@@ -11,6 +11,7 @@ LevelInfo levelInfo[] = {
     { { COLOR9(4, 6, 3) }, { COLOR9(3, 4, 2) },  90, 160,  74, SCREEN_ARRAY(levelL) }, 
     { { COLOR9(5, 6, 7) }, { COLOR9(3, 4, 5) }, 100, 160,  72, SCREEN_ARRAY(levelE) }, 
     { { COLOR9(7, 7, 4) }, { COLOR9(7, 6, 1) }, 110, 160,  70, SCREEN_ARRAY(levelN) },
+    { { COLOR9(7, 7, 7) }, { COLOR9(6, 6, 0) }, 115, 160,  69, SCREEN_ARRAY(levelP) },
     { { COLOR9(7, 7, 7) }, { COLOR9(1, 2, 3) }, 120, 160,  68, SCREEN_ARRAY(levelJ) }, 
     { { COLOR9(5, 7, 2) }, { COLOR9(1, 5, 1) }, 130, 160,  66, SCREEN_ARRAY(levelC) }, 
     { { COLOR9(7, 6, 6) }, { COLOR9(3, 2, 2) }, 130, 160,  64, SCREEN_ARRAY(levelK) }, 

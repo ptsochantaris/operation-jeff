@@ -119,7 +119,6 @@ func main() {
         SECTION PAGE_\(group.page)\n
         """
         for file in group.files {
-            let name = file.variableName
             outputContent +=
             """
             BINARY "\(file.name)"\n
@@ -140,10 +139,9 @@ func main() {
     """
     for group in groups {
         for file in group.files {
-            let name = file.variableName
             let offset = group.orgOffset + file.pos
             outputContent += """
-            #define R_\(name) { \(offset), \(file.size), \(group.page) }\n
+            #define R_\(file.variableName) { \(offset), \(file.size), \(group.page) }\n
             """
         }
     }
