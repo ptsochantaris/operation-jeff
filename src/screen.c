@@ -10,7 +10,7 @@ const byte clipBytes[] = {0,159,0,255};
 
 void verticalLine(word x, word lowY, word highY, byte color) {
   selectLayer2Page(x >> 6);
-  byte *pos = (byte *)((x % 64) * 256 + lowY);
+  byte *pos = (byte *)((x & 0x3F) * 256 + lowY);
   for(byte *end = pos+highY-lowY; pos != end; ++pos) {
     *pos = color;
   }
@@ -18,12 +18,10 @@ void verticalLine(word x, word lowY, word highY, byte color) {
 
 void horizontalLine(word x, word y, word width, byte color) {
   selectLayer2Page(x >> 6);
-  word xInPage = (x % 64);
-  byte *pos = (byte *)(xInPage * 256 + y);
+  byte *pos = (byte *)((x & 0x3F) * 256 + y);
 
-  for(word ex = x+width; x<=ex; ++x, pos += 256) {
-    xInPage = (x % 64);
-    if(xInPage==0) {
+  for(word end = x+width+1; x != end; ++x, pos += 256) {
+    if((x & 0x3F) == 0) {
       selectLayer2Page(x >> 6);
       pos = (byte *)y;
     }
@@ -42,7 +40,7 @@ void layer2fill(word x, word y, word width, word height, byte color) {
 void layer2DmaFill(word x, word y, word width, word height, byte color) {
   word ex = x + width;
   byte endPage = ex >> 6;
-  byte xInPage = x % 64;
+  byte xInPage = x & 0x3F;
   word bottomLeft = xInPage * 256 + y;
   byte page = x >> 6;
 
@@ -185,7 +183,7 @@ void uploadPalette(const ResourceInfo *restrict compressedPalette, word numBytes
 
 void layer2Plot(word x, byte y, byte color) {
   selectLayer2Page(x >> 6);
-  byte *pos = (byte *)((x % 64) * 256 + y);
+  byte *pos = (byte *)((x & 0x3F) * 256 + y);
   *pos = color;
 }
 

@@ -53,7 +53,7 @@ void printSidewaysNoBackground(const byte *text, word x, word y, byte textColor)
       byte slice = *base;
       for(byte h=5; h != 8; ++h) {
         if(slice & (1 << h)) {
-          byte *pos = (byte *)((x % 64) * 256 + (y - (7 - h)));
+          byte *pos = (byte *)((x & 0x3F) * 256 + (y - (7 - h)));
           *pos = textColor;
         }
       }

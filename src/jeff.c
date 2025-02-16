@@ -102,12 +102,12 @@ void growJeff(jeff *restrict j) __z88dk_fastcall {
     j->sprite.pattern = JEFF_APPEAR_FIRST;
     switch(j->direction) {
         case JEFF_LEFT:
-            j->sprite.pos.x = 160 + rand() % 64 * 2;
+            j->sprite.pos.x = 160 + (rand() & 0x3F) * 2;
             j->sprite.pos.y = 16 + rand() % 224;
             break;
 
         case JEFF_RIGHT:
-            j->sprite.pos.x = 16 + rand() % 64 * 2;
+            j->sprite.pos.x = 16 + (rand() & 0x3F) * 2;
             j->sprite.pos.y = 16 + rand() % 224;
             break;
 
