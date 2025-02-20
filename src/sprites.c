@@ -7,11 +7,13 @@ void hideSprite(byte index) __z88dk_fastcall {
 
 void updateSprite(sprite_info *restrict s) __z88dk_fastcall {
   ZXN_NEXTREGA(0x34, s->index); // sprite index
-  ZXN_NEXTREGA(0x35, s->pos.x & 0xFF); // x low
-  ZXN_NEXTREGA(0x36, s->pos.y & 0xFF); // y low
-  ZXN_NEXTREGA(0x37, s->attrs | (s->pos.x >> 8) & 1); // x high, default attrs
+  word X = s->pos.x;
+  ZXN_NEXTREGA(0x35, X & 0xFF); // x low
+  ZXN_NEXTREGA(0x37, s->attrs | X >> 8); // x high, default attrs
+  word Y = s->pos.y;
+  ZXN_NEXTREGA(0x36, Y & 0xFF); // y low
+  ZXN_NEXTREGA(0x39, Y >> 8); // y high
   ZXN_NEXTREGA(0x38, 0xC0 | s->pattern); // 1'0'PPPPPP ; sprite visible, using pattern 00000
-  ZXN_NEXTREGA(0x39, (s->pos.y >> 8) & 1); // y high
 }
 
 void setSpriteGameClipping(void) __z88dk_fastcall {

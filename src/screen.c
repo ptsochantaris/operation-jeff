@@ -116,23 +116,25 @@ void loadPaletteBuffer(const ResourceInfo *restrict compressedPalette) {
 void fadePalette(word numBytes, byte shift) {
   ZXN_NEXTREG(REG_PALETTE_INDEX, 0); // start palette index
 
-  for(word c=0; c<numBytes; c += 2) {
-    byte msb = paletteBuffer[c];
-    byte lsb = paletteBuffer[c+1];
+  byte r, g, b, col;
+  byte *pairEnd = paletteBuffer+numBytes;
+  for(byte *pairs = paletteBuffer; pairs != pairEnd; ++pairs) {
+    col = *pairs;
 
-    byte tr = msb >> 5;
-    byte tg = (msb >> 2) & 7;
-    byte tb = ((msb & 3) << 1) | (lsb & 1);
+    r = col >> 5;
+    if(shift < r) r = shift;
 
-    byte r = shift<tr ? shift : tr;
-    byte g = shift<tg ? shift : tg;
-    byte b = shift<tb ? shift : tb;
+    g = (col >> 2) & 7;
+    if(shift < g) g = shift;
 
-    msb = r << 5 | g << 2 | b >> 1;
-    ZXN_WRITE_REG(REG_PALETTE_VALUE_16, msb);
+    b = ((col & 3) << 1) | (*(++pairs) & 1);
+    if(shift < b) b = shift;
 
-    lsb = b & 1;
-    ZXN_WRITE_REG(REG_PALETTE_VALUE_16, lsb);
+    col = r << 5 | g << 2 | b >> 1;
+    ZXN_WRITE_REG(REG_PALETTE_VALUE_16, col);
+
+    col = b & 1;
+    ZXN_WRITE_REG(REG_PALETTE_VALUE_16, col);
   }
 
   intrinsic_halt();
