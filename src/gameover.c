@@ -14,6 +14,13 @@ void gameOverEffect(void) {
   aySetAmplitude(2, 0x1F);
 }
 
+static const LevelInfo gameOverInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(gameOverScreen) };
+void loadGameOverScreen(void) __z88dk_fastcall {
+  fadePaletteDown(1, 512);
+  loadScreen(&gameOverInfo);
+  fadePaletteUp(&gameOverInfo.paletteAsset, 512, 1);
+}
+
 void gameOverLoop(void) __z88dk_fastcall {
   resetBonuses();
   setSpriteMenuClipping();

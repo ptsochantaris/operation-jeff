@@ -212,63 +212,6 @@ void writeColourToIndex(const byte *colour, byte index) {
   ZXN_NEXTREGA(REG_PALETTE_VALUE_16, *colour+1);
 }
 
-void loadLevelScreen(byte level) __z88dk_fastcall {
-  const LevelInfo info = levelInfo[level];
-
-  // flash jeffs white
-  selectPalette(2);
-  word white = 0x01FF;
-  writeColourToIndex(&white, 128);
-  writeColourToIndex(&white, 224);
-
-  fadePaletteDown(1, 512);
-  loadScreen(&info);
-  initHud(level);
-
-  effectSiren();
-
-  const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
-  fadePaletteUp(&(info.paletteAsset), nonHudPaletteByteCount, 1);
-
-  selectPalette(2);
-  writeColourToIndex(info.jeffDark, 128);
-  writeColourToIndex(info.jeffBright, 224);
-
-  sprintf(textBuf, "ZONE %03d", level + 1);
-  status(textBuf);
-}
-
-static byte shouldFadeTitle = 0;
-static const LevelInfo titleInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(title) };
-void loadTitleScreen(void) __z88dk_fastcall {
-  if(shouldFadeTitle) {
-    fadePaletteDown(1, 512);
-  } else {
-    zeroPalette(1, 512);
-  }
-  loadScreen(&titleInfo);
-  if(shouldFadeTitle) {
-    fadePaletteUp(&titleInfo.paletteAsset, 512, 1);
-  } else {
-    uploadPalette(&titleInfo.paletteAsset, 512, 1);
-    shouldFadeTitle = 1;
-  }
-}
-
-static const LevelInfo infoInfo =     { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(info) };
-void loadInfoScreen(void) __z88dk_fastcall {
-  fadePaletteDown(1, 512);
-  loadScreen(&infoInfo);
-  fadePaletteUp(&infoInfo.paletteAsset, 512, 1);
-}
-
-static const LevelInfo gameOverInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(gameOverScreen) };
-void loadGameOverScreen(void) __z88dk_fastcall {
-  fadePaletteDown(1, 512);
-  loadScreen(&gameOverInfo);
-  fadePaletteUp(&gameOverInfo.paletteAsset, 512, 1);
-}
-
 void setFallbackColour(byte index) {
   ZXN_NEXTREGA(0x4A, index);
 }

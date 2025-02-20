@@ -4,6 +4,30 @@ static byte menuInfoMode = 0;
 
 byte inputDelay = 0;
 
+static byte shouldFadeTitle = 0;
+static const LevelInfo titleInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(title) };
+void loadTitleScreen(void) __z88dk_fastcall {
+  if(shouldFadeTitle) {
+    fadePaletteDown(1, 512);
+  } else {
+    zeroPalette(1, 512);
+  }
+  loadScreen(&titleInfo);
+  if(shouldFadeTitle) {
+    fadePaletteUp(&titleInfo.paletteAsset, 512, 1);
+  } else {
+    uploadPalette(&titleInfo.paletteAsset, 512, 1);
+    shouldFadeTitle = 1;
+  }
+}
+
+static const LevelInfo infoInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(info) };
+void loadInfoScreen(void) __z88dk_fastcall {
+  fadePaletteDown(1, 512);
+  loadScreen(&infoInfo);
+  fadePaletteUp(&infoInfo.paletteAsset, 512, 1);
+}
+
 void setupTitle(void) __z88dk_fastcall {
   loadTitleScreen();
   setupTitleLeds();

@@ -44,6 +44,32 @@ byte debugKeys(void) {
   return 0;
 }
 
+void loadLevelScreen(byte level) __z88dk_fastcall {
+  const LevelInfo info = levelInfo[level];
+
+  // flash jeffs white
+  selectPalette(2);
+  word white = 0x01FF;
+  writeColourToIndex(&white, 128);
+  writeColourToIndex(&white, 224);
+
+  fadePaletteDown(1, 512);
+  loadScreen(&info);
+  initHud(level);
+
+  effectSiren();
+
+  const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
+  fadePaletteUp(&(info.paletteAsset), nonHudPaletteByteCount, 1);
+
+  selectPalette(2);
+  writeColourToIndex(info.jeffDark, 128);
+  writeColourToIndex(info.jeffBright, 224);
+
+  sprintf(textBuf, "ZONE %03d", level + 1);
+  status(textBuf);
+}
+
 void nextLevel(void) __z88dk_fastcall {
   jeffKillAll();
   statsProgressLevel();
@@ -130,3 +156,6 @@ byte gameLoop(void) __z88dk_fastcall {
 // FBFE  [ Q ] [ W ] [ E ] [ R ] [ T ]  |  [ Y ] [ U ] [ I ] [ O ] [ P ]   DFFE
 // FDFE  [ A ] [ S ] [ D ] [ F ] [ G ]  |  [ H ] [ J ] [ K ] [ L ] [ ENT ] BFFE
 // FEFE  [SHI] [ Z ] [ X ] [ C ] [ V ]  |  [ B ] [ N ] [ M ] [sym] [ SPC ] 7FFE
+
+
+
