@@ -32,8 +32,8 @@ void setupTitle(void) __z88dk_fastcall {
   loadTitleScreen();
   setupTitleLeds();
   menuInfoMode = 0;
-  playTitleSong();
   effectMenuLoop();
+  playTitleSong();
 }
 
 void menuLoop(void) __z88dk_fastcall {

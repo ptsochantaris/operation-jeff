@@ -3,8 +3,6 @@
 
 #include "types.h"
 
-extern word notePitches[];
-
 void playTitleSong(void) __z88dk_fastcall;
 void updateTitleSong(void) __z88dk_fastcall;
 
