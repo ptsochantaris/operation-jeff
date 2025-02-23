@@ -37,6 +37,7 @@
 #include "stars.h"
 #include "assets.h"
 #include "copper.h"
+#include "music.h"
 
 #endif
 

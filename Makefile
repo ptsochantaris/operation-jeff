@@ -21,6 +21,7 @@ SRC=src
 
 OBJECTS = $(addprefix $(OBJDIR)/, \
 	levelinfo.o \
+	music.o \
 	effects.o \
 	base.o \
 	dma.o \
@@ -39,7 +40,6 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	gameover.o \
 	game.o \
 	sound.o \
-	noteFrequencies.o \
 	bonus.o \
 	tilemap.o \
 	tiles.o \

@@ -73,3 +73,13 @@ void aySetMixer(word channel, word tone, word noise) {
     }
     z80_outp(0xBFFD, existing);
 }
+
+void ayStopAllSound(void) __z88dk_fastcall {
+    for(byte ayChip=0; ayChip<3; ++ayChip) {
+        ayChipSelect(ayChip);
+        for(byte channel=0; channel<3; ++channel) {
+          aySetMixer(channel, 0, 0);
+          aySetAmplitude(channel, 0x0);
+        }
+      }
+}

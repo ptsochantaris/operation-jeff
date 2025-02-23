@@ -102,12 +102,12 @@ void hudKillsUpdated(void) __z88dk_fastcall {
   }
   
   byte dividerY = 14-(level << 1) + 3;
-  layer2circleFill(7, 1, 3, HUD_FILL_DARK, HUD_FILL_LIGHT, dividerY);
+  layer2circleFill(7, 3, 3, HUD_FILL_DARK, HUD_FILL_LIGHT, dividerY);
   
   int res = currentStats.maxKillsInLevel - currentStats.killsInLevel;
   if(res >= 0) {
     sprintf(textBuf, "%03d", res);
-    printNoBackground(textBuf, 3, 8, HUD_WHITE);
+    printNoBackground(textBuf, 5, 8, HUD_WHITE);
   }
 }
 
@@ -156,7 +156,7 @@ void initHud(byte level) __z88dk_fastcall {
   layer2box(ENERGY_X, 8, 66, 5, HUD_WHITE);
   layer2box(HEALTH_X, 8, 66, 5, HUD_WHITE);
 
-  layer2circleFill(8, 0, 2, HUD_WHITE, HUD_WHITE, 0);
+  layer2circleFill(8, 2, 2, HUD_WHITE, HUD_WHITE, 0);
 
   hudScoreUpdated();
   hudHealthUpdated();

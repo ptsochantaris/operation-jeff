@@ -17,34 +17,8 @@ void effectSiren(void) __z88dk_fastcall {
 }
 
 static const ResourceInfo menuLoopEffect = R_menu_pcm;
-void effectMenuDroneStart(void) __z88dk_fastcall {
-  playSample(&menuLoopEffect, 0x74, 1);
-
-  for(byte ayChip=0;ayChip<2;++ayChip) {
-    ayChipSelect(ayChip);
-    for(byte channel=0; channel<3; ++channel) {
-      aySetMixer(channel, 1, 0);
-      aySetAmplitude(channel, 0x10);
-    }
-
-    aySetPitch(0, notePitches[C2]-1-ayChip);
-    aySetPitch(1, notePitches[C2]);
-    aySetPitch(2, notePitches[C2]+1+ayChip);
-
-    aySetEnvelope(14, 20000 + (ayChip * 20000));
-  }
-}
-
-void effectMenuDroneEnd(void) __z88dk_fastcall {
-  stopDma();
-  
-  for(byte ayChip=0; ayChip<3; ++ayChip) {
-    ayChipSelect(ayChip);
-    for(byte channel=0; channel<3; ++channel) {
-      aySetMixer(channel, 0, 0);
-      aySetAmplitude(channel, 0x0);
-    }
-  }
+void effectMenuLoop(void) __z88dk_fastcall {
+  playSample(&menuLoopEffect, 0x6E, 1);
 }
 
 void effectFire(void) __z88dk_fastcall {

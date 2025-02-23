@@ -32,7 +32,8 @@ void setupTitle(void) __z88dk_fastcall {
   loadTitleScreen();
   setupTitleLeds();
   menuInfoMode = 0;
-  effectMenuDroneStart();
+  playTitleSong();
+  effectMenuLoop();
 }
 
 void menuLoop(void) __z88dk_fastcall {
@@ -54,16 +55,20 @@ void menuLoop(void) __z88dk_fastcall {
         setupTitle();
 
       } else {
-        effectMenuDroneEnd();
+        stopDma();
+        ayStopAllSound();
         return;
       }
     }
 
     updateMouse();
 
-    if(!menuInfoMode && ++loopCount == 6) {
-      cycleGrayPalette();
-      loopCount = 0;
+    if(!menuInfoMode) {
+      updateTitleSong();
+      if(++loopCount == 6) {
+        cycleGrayPalette();
+        loopCount = 0;
+      }
     }
 
     if(inputDelay) --inputDelay;
@@ -74,7 +79,8 @@ void menuLoop(void) __z88dk_fastcall {
       if(menuInfoMode) {
         setupTitle();
       } else {
-        effectMenuDroneEnd();
+        stopDma();
+        ayStopAllSound();
         ulaAttributeClear();
         loadInfoScreen();
         menuInfoMode = 1;

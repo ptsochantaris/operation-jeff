@@ -73,6 +73,7 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
 void nextLevel(void) __z88dk_fastcall {
   jeffKillAll();
   statsProgressLevel();
+  stopDma(); // stop any potential sample, as level loading will use the same buffers
   loadLevelScreen(currentStats.level);
 }
 
