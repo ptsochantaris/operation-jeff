@@ -24,6 +24,7 @@
         "zx0.h": "c",
         "types.h": "c",
         "levelinfo.h": "c",
-        "assets.h": "c"
+        "assets.h": "c",
+        "esxdos.h": "c"
     }
 }

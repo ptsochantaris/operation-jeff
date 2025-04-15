@@ -218,9 +218,13 @@ void setFallbackColour(byte index) {
   ZXN_NEXTREGA(0x4A, index);
 }
 
-void setupScreen(void) __z88dk_fastcall {
+void configLayer2(word writeThroughEnable) __z88dk_fastcall {
   // https://wiki.specnext.dev/Layer_2
-  z80_outp(__IO_LAYER_2_CONFIG, IO_123B_SHOW_LAYER_2 | IO_123B_ENABLE_LOWER_16K); // bank select 3, i.e. map all L2 and use offsets
+  z80_outp(__IO_LAYER_2_CONFIG, IO_123B_SHOW_LAYER_2 | writeThroughEnable);
+}
+
+void setupScreen(void) __z88dk_fastcall {
+  configLayer2(1);
 
   // Set res https://wiki.specnext.dev/Layer_2_Control_Register
   ZXN_NEXTREG(0x70, 0x10);

@@ -8,6 +8,7 @@
 
 extern const byte clipBytes[];
 
+void configLayer2(word writeThroughEnable) __z88dk_fastcall;
 void layer2Clear(byte index) __z88dk_fastcall;
 void uploadPalette(const ResourceInfo *restrict compressedPalette, word numBytes, byte palette);
 void layer2Plot(word x, byte y, byte color);

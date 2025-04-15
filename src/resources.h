@@ -1,6 +1,7 @@
 #ifndef _RESOURCES_H_
 #define _RESOURCES_H_
 
+#include <errno.h>
 #include <stdint.h>
 #include <string.h>
 #include <strings.h>
@@ -13,6 +14,7 @@
 #include <arch/zxn/copper.h>
 #include <config_zxn.h>
 #include <compress/zx0.h>
+#include <arch/zxn/esxdos.h>
 
 #include "types.h"
 #include "dma.h"
@@ -38,6 +40,7 @@
 #include "assets.h"
 #include "copper.h"
 #include "music.h"
+#include "files.h"
 
 #endif
 

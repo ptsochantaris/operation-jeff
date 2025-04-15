@@ -25,6 +25,7 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	effects.o \
 	base.o \
 	dma.o \
+	files.o \
 	screen.o \
 	jeff.o \
 	sprites.o \
