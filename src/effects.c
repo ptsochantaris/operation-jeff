@@ -18,7 +18,7 @@ void effectSiren(void) __z88dk_fastcall {
 
 static const ResourceInfo menuLoopEffect = R_menu_pcm;
 void effectMenuLoop(void) __z88dk_fastcall {
-  playSample(&menuLoopEffect, 0x6F, 1);
+  playSample(&menuLoopEffect, 112, 1);
 }
 
 void effectFire(void) __z88dk_fastcall {
