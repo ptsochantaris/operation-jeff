@@ -30,10 +30,10 @@ void gameOverLoop(void) __z88dk_fastcall {
   mouseReset();
   status(NULL);
 
+  gameOverEffect();
+
   loadGameOverScreen();
   applyHudPalette();
-
-  gameOverEffect();
 
   word center = 160;
   word top = 110;
@@ -45,6 +45,8 @@ void gameOverLoop(void) __z88dk_fastcall {
   if(currentStats.hiScore == currentStats.score, currentStats.score) {
     x = center - ((4*15) >> 1);
     printNoBackground("NEW HIGH SCORE!", x, top, HUD_ORANGE);
+    newHighScore();
+
   } else {
     x = center - ((4*5) >> 1);
     printNoBackground("SCORE", x, top, HUD_ORANGE);

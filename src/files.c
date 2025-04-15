@@ -35,7 +35,7 @@ void esxDosRomSetup(void) {
     z80_outp(0x7FFD, 1 << 4); // low bit
 }
 
-void persistData(byte *src, int len) {
+void persistData(void *src, int len) {
     prepareForEsxCall();
     byte handle = esx_f_open(filename, ESX_MODE_WRITE | ESX_MODE_OPEN_CREAT_TRUNC);
     if(!errno) {
@@ -45,7 +45,7 @@ void persistData(byte *src, int len) {
     completedEsxCall();
 }
 
-void fetchData(byte *dst, int len) {
+void fetchData(void *dst, int len) {
     prepareForEsxCall();
     byte handle = esx_f_open(filename, ESX_MODE_READ);
     if(!errno) {

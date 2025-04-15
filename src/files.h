@@ -4,7 +4,7 @@
 #include "types.h"
 
 void esxDosRomSetup(void);
-void persistData(byte *src, int len);
-void fetchData(byte *dst, int len);
+void persistData(void *src, int len);
+void fetchData(void *dst, int len);
 
 #endif

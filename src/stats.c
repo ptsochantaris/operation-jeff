@@ -4,9 +4,18 @@
 
 stats currentStats;
 
+typedef struct {
+    long hiScore;
+} SavedStats;
+
+static SavedStats savedStats;
+
 void initStats(void) __z88dk_fastcall {
+    savedStats.hiScore = 0;
+    int len = sizeof(savedStats);
+    fetchData(&savedStats, len);
+    currentStats.hiScore = savedStats.hiScore;
     setupGameStats();
-    currentStats.hiScore = 0;
 }
 
 void setupGameStats(void) __z88dk_fastcall {
@@ -15,6 +24,12 @@ void setupGameStats(void) __z88dk_fastcall {
     currentStats.score = 0;
     currentStats.fireRate = FIRE_RATE_MIN + (FIRE_RATE_MAX - FIRE_RATE_MIN) / 2;
     currentStats.level = 255; // so it loops to zero at game start
+}
+
+void newHighScore(void) __z88dk_fastcall {
+    savedStats.hiScore = currentStats.score;
+    int len = sizeof(savedStats);
+    persistData(&savedStats, len);
 }
 
 void statsProgressLevel(void) __z88dk_fastcall {

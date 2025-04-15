@@ -32,8 +32,21 @@ void setupTitle(void) __z88dk_fastcall {
   loadTitleScreen();
   setupTitleLeds();
   menuInfoMode = 0;
+  if(currentStats.hiScore > 0) {
+    word x = 160 - ((4*19) >> 1);
+    sprintf(textBuf, "HIGH SCORE: %07lu", currentStats.hiScore);
+    printNoBackground(textBuf, x, 10, 4);
+  }
   effectMenuLoop();
   playTitleSong();
+}
+
+void setupInfo(void) __z88dk_fastcall {
+  stopDma();
+  ayStopAllSound();
+  ulaAttributeClear();
+  loadInfoScreen();
+  menuInfoMode = 1;
 }
 
 void menuLoop(void) __z88dk_fastcall {
@@ -71,19 +84,17 @@ void menuLoop(void) __z88dk_fastcall {
       }
     }
 
-    if(inputDelay) --inputDelay;
-
-    byte pressed = z80_inp(0xdffe);
-    if((inputDelay == 0) && (pressed & 4) == 0) { // i
-      inputDelay = SMALL_INPUT_DELAY;
-      if(menuInfoMode) {
-        setupTitle();
-      } else {
-        stopDma();
-        ayStopAllSound();
-        ulaAttributeClear();
-        loadInfoScreen();
-        menuInfoMode = 1;
+    if(inputDelay) {
+      --inputDelay;
+    } else {
+      byte pressed = z80_inp(0xdffe);
+      if((pressed & 4) == 0) { // "i"
+        inputDelay = SMALL_INPUT_DELAY;
+        if(menuInfoMode) {
+          setupTitle();
+        } else {
+          setupInfo();
+        }
       }
     }
   }

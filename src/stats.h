@@ -34,5 +34,6 @@ void processFireStats(void) __z88dk_fastcall;
 void processJeffKill(byte speed) __z88dk_fastcall;
 void processBonusHit(byte type) __z88dk_fastcall;
 void processJeffHit(void) __z88dk_fastcall;
+void newHighScore(void) __z88dk_fastcall;
 
 #endif
