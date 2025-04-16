@@ -5,7 +5,7 @@ static byte menuInfoMode = 0;
 byte inputDelay = 0;
 
 static byte shouldFadeTitle = 0;
-static const LevelInfo titleInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(title) };
+static const LevelInfo titleInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(title), EmptyResource };
 void loadTitleScreen(void) __z88dk_fastcall {
   if(shouldFadeTitle) {
     fadePaletteDown(1, 512);
@@ -21,7 +21,7 @@ void loadTitleScreen(void) __z88dk_fastcall {
   }
 }
 
-static const LevelInfo infoInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(info) };
+static const LevelInfo infoInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(info), EmptyResource };
 void loadInfoScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
   loadScreen(&infoInfo);

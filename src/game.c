@@ -55,6 +55,7 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
 
   fadePaletteDown(1, 512);
   loadScreen(&info);
+  loadHeightmap(&info);
   initHud(level);
 
   effectSiren();

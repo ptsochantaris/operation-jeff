@@ -9,18 +9,18 @@ rm $DST*
 
 cp ${ORIG}*.pcm ${ORIG}*.nxp ${ORIG}*.spr resources
 
-$CONV "${ORIG}OperationJeffTitle.png" -pal-min -bitmap-y -bank-8k "${DST}title.nxi" &
-$CONV "${ORIG}OperationJeffInfo.png" -pal-min -bitmap-y -bank-8k "${DST}info.nxi" &
-$CONV "${ORIG}OperationJeffGameOver.png" -pal-min -bitmap-y -bank-8k "${DST}gameOverScreen.nxi" &
+$CONV "${ORIG}OperationJeffTitle.png" -pal-min -bitmap-y -bank-8k "${DST}title.nxi" 
+$CONV "${ORIG}OperationJeffInfo.png" -pal-min -bitmap-y -bank-8k "${DST}info.nxi" 
+$CONV "${ORIG}OperationJeffGameOver.png" -pal-min -bitmap-y -bank-8k "${DST}gameOverScreen.nxi" 
 
 for LETTER in "${LETTERS[@]}"; do
-    $CONV "${ORIG}OperationJeffLevel${LETTER}.png" -pal-min -bitmap-y -bank-8k "${DST}level${LETTER}.nxi" &
+    $CONV "${ORIG}OperationJeffLevel${LETTER}.png" -pal-min -bitmap-y -bank-8k "${DST}level${LETTER}.nxi" 
+    $CONV "${ORIG}OperationJeffHeightmap${LETTER}.png" -bitmap -pal-none "${DST}heightmap${LETTER}.nxi" 
 done
-
-wait
 
 for LETTER in "${LETTERS[@]}"; do
     $COMPRESS -f "${DST}level${LETTER}.nxp" "${DST}level${LETTER}.nxp.zx0" &
+    $COMPRESS -f "${DST}heightmap${LETTER}.nxi" "${DST}heightmap${LETTER}.nxi.zx0" &
 
     for NUMBER in "${NUMBERS[@]}"; do
         $COMPRESS -f "${DST}level${LETTER}_${NUMBER}.nxi" "${DST}level${LETTER}_${NUMBER}.nxi.zx0" &

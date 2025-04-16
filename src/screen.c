@@ -208,6 +208,19 @@ void loadScreen(const LevelInfo *restrict info) {
   }
 }
 
+void loadHeightmap(const LevelInfo *restrict info) {
+  ZXN_WRITE_MMU1(info->heightmapAsset.page);
+  decompressZX0(heightMap, (byte *)(info->heightmapAsset.resource));
+
+  byte *end = heightMap + info->heightmapAsset.length;
+  for(byte *pos = heightMap; pos < end; ++pos) {
+    byte Z = *pos;
+    if(Z != 0) {
+      *pos = (0xFF - Z) >> 4;
+    }
+  }
+}
+
 void writeColourToIndex(const byte *colour, byte index) {
   ZXN_NEXTREGA(REG_PALETTE_INDEX, index);
   ZXN_NEXTREGA(REG_PALETTE_VALUE_16, *colour);

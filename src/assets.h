@@ -101,7 +101,7 @@
 #define R_levelP_9_nxi_zx0 { 12249, 4022, 70 }
 #define R_levelK_9_nxi_zx0 { 8192, 3995, 71 }
 #define R_levelD_8_nxi_zx0 { 12187, 3525, 71 }
-#define R_levelH_5_nxi_zx0 { 15712, 560, 71 }
+#define R_heightmapA_nxi_zx0 { 15712, 572, 71 }
 #define R_levelB_4_nxi_zx0 { 8192, 3506, 72 }
 #define R_levelJ_8_nxi_zx0 { 11698, 3502, 72 }
 #define R_gameOverScreen_7_nxi_zx0 { 15200, 1180, 72 }
@@ -209,10 +209,26 @@
 #define R_title_7_nxi_zx0 { 15910, 470, 101 }
 #define R_levelH_3_nxi_zx0 { 8192, 693, 102 }
 #define R_gameOverScreen_4_nxi_zx0 { 8885, 689, 102 }
-#define R_levelH_6_nxi_zx0 { 9574, 542, 102 }
-#define R_title_4_nxi_zx0 { 10116, 534, 102 }
-#define R_title_2_nxi_zx0 { 10650, 499, 102 }
-#define R_title_3_nxi_zx0 { 11149, 387, 102 }
-#define R_levelH_4_nxi_zx0 { 11536, 370, 102 }
+#define R_heightmapB_nxi_zx0 { 9574, 572, 102 }
+#define R_heightmapC_nxi_zx0 { 10146, 572, 102 }
+#define R_heightmapD_nxi_zx0 { 10718, 572, 102 }
+#define R_heightmapE_nxi_zx0 { 11290, 572, 102 }
+#define R_heightmapF_nxi_zx0 { 11862, 572, 102 }
+#define R_heightmapG_nxi_zx0 { 12434, 572, 102 }
+#define R_heightmapH_nxi_zx0 { 13006, 572, 102 }
+#define R_heightmapI_nxi_zx0 { 13578, 572, 102 }
+#define R_heightmapJ_nxi_zx0 { 14150, 572, 102 }
+#define R_heightmapK_nxi_zx0 { 14722, 572, 102 }
+#define R_heightmapL_nxi_zx0 { 15294, 572, 102 }
+#define R_title_2_nxi_zx0 { 15866, 499, 102 }
+#define R_heightmapM_nxi_zx0 { 8192, 572, 103 }
+#define R_heightmapN_nxi_zx0 { 8764, 572, 103 }
+#define R_heightmapO_nxi_zx0 { 9336, 572, 103 }
+#define R_heightmapP_nxi_zx0 { 9908, 572, 103 }
+#define R_levelH_5_nxi_zx0 { 10480, 560, 103 }
+#define R_levelH_6_nxi_zx0 { 11040, 542, 103 }
+#define R_title_4_nxi_zx0 { 11582, 534, 103 }
+#define R_title_3_nxi_zx0 { 12116, 387, 103 }
+#define R_levelH_4_nxi_zx0 { 12503, 370, 103 }
 
 #endif

@@ -24,13 +24,15 @@ typedef struct {
     byte page;        
 } ResourceInfo;
 
+#define EmptyResource {0, 0, 0}
+
 typedef struct {
     byte jeffBright[2];
     byte jeffDark[2];
     word killsRequired;
     word difficultyStep;
     byte initialGenerationPeriod;
-    ResourceInfo screens[10], paletteAsset;
+    ResourceInfo screens[10], paletteAsset, heightmapAsset;
 } LevelInfo;
 
 extern LevelInfo levelInfo[];
