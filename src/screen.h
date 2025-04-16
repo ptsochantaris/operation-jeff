@@ -5,6 +5,8 @@
 #include "levelinfo.h"
 
 #define CLIPBYTES_LEN 4
+#define HEIGHTMAP_WIDTH 80
+#define HEIGHTMAP_HEIGHT 64
 
 extern const byte clipBytes[];
 
