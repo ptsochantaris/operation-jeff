@@ -161,7 +161,7 @@ void killJeff(jeff *restrict j) __z88dk_fastcall {
     effectExplosion();
 }
 
-void jeffHit(jeff *restrict j) __z88dk_fastcall {
+void jeffEscape(jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_NONE;
     processJeffHit();
 
@@ -224,44 +224,57 @@ void jeffCheckBombs(jeff *restrict j) __z88dk_fastcall {
 }
 
 void jeffWalkStep(jeff *restrict j) __z88dk_fastcall {
-    ++(j->sprite.pattern);
+    byte newPattern = ++(j->sprite.pattern);
+    coord pos = j->sprite.pos;
     switch(j->direction) {
         case JEFF_UP:                        
-            --(j->sprite.pos.y);
-            if(j->sprite.pos.y == 0) {
-                jeffHit(j);
-            } else if(j->sprite.pattern > JEFF_BACK_LAST) {
-                j->sprite.pattern = JEFF_BACK_FIRST;
+            if(pos.y == 1) {
+                jeffEscape(j);
+            } else {
+                --pos.y;
+                if(newPattern > JEFF_BACK_LAST) {
+                    j->sprite.pattern = JEFF_BACK_FIRST;
+                }
             }
             break;
 
         case JEFF_DOWN:
-            ++(j->sprite.pos.y);
-            if(j->sprite.pos.y == 256) {
-                jeffHit(j);
-            } else if(j->sprite.pattern > JEFF_FRONT_LAST) {
-                j->sprite.pattern = JEFF_FRONT_FIRST;
+            if(pos.y == 255) {
+                jeffEscape(j);
+            } else {
+                ++pos.y;
+                j->sprite.pos = pos;
+                if(newPattern > JEFF_FRONT_LAST) {
+                    j->sprite.pattern = JEFF_FRONT_FIRST;
+                }
             }
             break;
 
         case JEFF_LEFT:
-            j->sprite.pos.x -= 2;
-            if(j->sprite.pos.x == 0) {
-                jeffHit(j);
-            } else if(j->sprite.pattern > JEFF_SIDE_LAST) {
-                j->sprite.pattern = JEFF_SIDE_FIRST;
+            if(pos.x == 2) {
+                jeffEscape(j);
+            } else {
+                pos.x -= 2;
+                j->sprite.pos = pos;
+                if(newPattern > JEFF_SIDE_LAST) {
+                    j->sprite.pattern = JEFF_SIDE_FIRST;
+                }
             }
             break;
 
         case JEFF_RIGHT:
-            j->sprite.pos.x += 2;
-            if(j->sprite.pos.x == 320) {
-                jeffHit(j);
-            } else if(j->sprite.pattern > JEFF_SIDE_LAST) {
-                j->sprite.pattern = JEFF_SIDE_FIRST;
+            if(pos.x == 318) {
+                jeffEscape(j);
+            } else {
+                pos.x += 2;
+                j->sprite.pos = pos;
+                if(newPattern > JEFF_SIDE_LAST) {
+                    j->sprite.pattern = JEFF_SIDE_FIRST;
+                }
             }
             break;
     }
+    j->sprite.pos = pos;
 }
 
 void jeffStandStep(jeff *j) __z88dk_fastcall {
@@ -342,8 +355,9 @@ void updateJeffs(void) __z88dk_fastcall {
             hideSprite(126);
         } else {
             landing.sprite.pos.y+=16;
-            if(landing.sprite.pos.y >= j->sprite.pos.y) {
-                landing.sprite.pos.y = j->sprite.pos.y;
+            int Y = j->sprite.pos.y;
+            if(landing.sprite.pos.y >= Y) {
+                landing.sprite.pos.y = Y;
                 landing.sprite.pattern = LANDING_HIT;
             }
             updateSprite(&landing.sprite);

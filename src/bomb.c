@@ -38,7 +38,7 @@ void fireIfPossible(void) __z88dk_fastcall {
 
                 b->countdown = 22;
                 b->target = mouseState.pos;
-                b->sprite.pos.x = mouseState.pos.x;
+                b->sprite.pos.x = mouseState.pos.x + (mouseState.pos.x >> 4) - 10;
                 b->sprite.pos.y = 255;
                 b->state = BOMB_STATE_TICKING;
                 b->sprite.pattern = BOMB_FIRST;
@@ -59,19 +59,25 @@ void updateBombs(void) __z88dk_fastcall {
                     break;
 
                 case BOMB_STATE_TICKING:
-                    b->sprite.pos.x += (b->target.x - b->sprite.pos.x) >> 2;
-                    b->sprite.pos.y += (b->target.y - b->sprite.pos.y) >> 2;
-                    updateSprite(&b->sprite);
-                    if(--(b->countdown) == 0) {
-                        b->sprite.pattern = EXPLOSION_FIRST;
-                        b->state = BOMB_STATE_EXPLODING;
-                    } else if(b->countdown < 17) {
-                        if(++(b->sprite.pattern) > BOMB_LAST) {
-                            b->sprite.pattern = BOMB_FIRST;
+                    coord pos = b->sprite.pos;
+                    coord target = b->target;
+                    pos.x += (target.x - pos.x) >> 2;
+                    pos.y += (target.y - pos.y) >> 2;
+                    b->sprite.pos = pos;
+                    byte countdown = --(b->countdown);
+                    if(countdown < 17) {
+                        if(countdown == 0) {
+                            b->sprite.pattern = EXPLOSION_FIRST;
+                            b->state = BOMB_STATE_EXPLODING;
+                        } else {    
+                            if(++(b->sprite.pattern) > BOMB_LAST) {
+                                b->sprite.pattern = BOMB_FIRST;
+                            }
                         }
                     } else {
                         b->sprite.pattern = BOMB_LAUNCHED;
                     }
+                    updateSprite(&b->sprite);
                     break;
 
                 case BOMB_STATE_EXPLODING:

@@ -2,12 +2,12 @@
 
 #define MOUSE_PATTERN 9
 
-MouseState mouseState = { {0, 0}, 1 ,0 };
+MouseState mouseState = { {0, 0, 0}, 1 ,0 };
 
-static coord previousPos = { 0, 0 };
+static coord previousPos = { 0, 0, 0 };
 static sprite_info mouseSprite;
 static int currentWheel = 0;
-static coord mouseTopLeft = { 0, 0 };
+static coord mouseTopLeft = { 0, 0, 0 };
 
 void mouseInit(void) __z88dk_fastcall {
     mouseReset();
