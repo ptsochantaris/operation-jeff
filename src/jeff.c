@@ -90,8 +90,8 @@ static const word jeffMoveMasks[] = {
 };
 
 void setSpritePos(jeff *restrict j, coord pos) {
-    int heightX = ((pos.x + 8) >> 2)-1;
-    int heightY = ((pos.y + 16) >> 2)-1;
+    int heightX = (pos.x + 4) >> 2;
+    int heightY = (pos.y + 13) >> 2;
     pos.z = *(heightMap + heightX + heightY * HEIGHTMAP_WIDTH);
     j->sprite.pos = pos;
 }
@@ -185,14 +185,18 @@ void jeffEscape(jeff *restrict j) __z88dk_fastcall {
 }
 
 void jeffCheckBombs(jeff *restrict j) __z88dk_fastcall {
-    word C;
-    word jx = j->sprite.pos.x;
-    word jy = j->sprite.pos.y;
+    int C;
+    coord pos = j->sprite.pos;
+    int jx = pos.x;
+    int jy = pos.y - pos.z;
+    if(jy<0) jy = 0;
+
     bomb *b = bombs;
     for(bomb *end = b+bombCount; b != end; ++b) {
         if(b->state == BOMB_STATE_EXPLODING) {
-            word bx = b->sprite.pos.x;
-            word by = b->sprite.pos.y;
+            coord pos = b->sprite.pos;
+            int bx = pos.x;
+            int by = pos.y;
             C = bx - (BOMB_RANGE>>1);
             if(jx < C) {
                 break;

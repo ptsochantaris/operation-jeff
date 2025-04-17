@@ -40,13 +40,15 @@ for PALETTE in "${PALETTES[@]}"; do
 done
 wait
 
+bordered_output "Converting heightmaps"
+swift convertHeightmaps.swift ${ORIG}OperationJeffHeightmap*.png
+
 for LETTER in "${LETTERS[@]}"; do
     bordered_output "Level ${LETTER}"
     $CONV "${ORIG}OperationJeffLevel${LETTER}.png" -pal-min -bitmap-y -bank-8k "${DST}level${LETTER}.nxi" 
-    $CONV "${ORIG}OperationJeffHeightmap${LETTER}.png" -bitmap -pal-none "${DST}heightmap${LETTER}.nxi" 
 
     $COMPRESS -f "${DST}level${LETTER}.nxp" "${DST}level${LETTER}.nxp.zx0" &
-    $COMPRESS -f "${DST}heightmap${LETTER}.nxi" "${DST}heightmap${LETTER}.nxi.zx0" &
+    $COMPRESS -f "${ORIG}OperationJeffHeightmap${LETTER}.hm" "${DST}heightmap${LETTER}.hm.zx0" &
 
     for NUMBER in "${NUMBERS[@]}"; do
         $COMPRESS -f "${DST}level${LETTER}_${NUMBER}.nxi" "${DST}level${LETTER}_${NUMBER}.nxi.zx0" &
@@ -54,10 +56,10 @@ for LETTER in "${LETTERS[@]}"; do
     wait
 done
 
-rm $DST*.nxp $DST*.nxi
+rm $DST*.nxp $DST*.nxi $ORIG*.hm
 
 bordered_output "Creating assets.h and assets.asm"
-swift makeAssets.swift resources/*.nxp.zx0 resources/*.pcm resources/*.nxi.zx0 resources/*.spr
+swift makeAssets.swift resources/*.nxp.zx0 resources/*.pcm resources/*.nxi.zx0 resources/*.spr resources/*.hm.zx0
 
 bordered_output "Loading screen"
 $CONV "${ORIG}OperationJeffLoading.png" -pal-min -pal-embed -bitmap "${DST}loadingScreen.nxi"
