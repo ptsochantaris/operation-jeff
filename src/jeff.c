@@ -349,6 +349,16 @@ void jeffKillAll(void) __z88dk_fastcall {
     }
 }
 
+void holdStep(void) __z88dk_fastcall {
+    word v = currentStats.holdCount--;
+    if(v == 1) {
+        status(NULL);
+    } else if(v % 40 == 0) {
+        sprintf(textBuf, "%d", v / 40);
+        status(textBuf);
+    }
+}
+
 void updateJeffs(void) __z88dk_fastcall {
     if(damageFlash) {
         if(--damageFlash == 0) {
@@ -391,10 +401,7 @@ void updateJeffs(void) __z88dk_fastcall {
             --currentStats.generationCountdown;
         }
     } else {
-        if((--currentStats.holdCount) % 50 == 0) {
-            sprintf(textBuf, "%d", currentStats.holdCount / 50);
-            status(textBuf);
-        }
+        holdStep();
     }
 
     logicLoop = (logicLoop << 1) | (logicLoop >> 15);

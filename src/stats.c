@@ -132,10 +132,9 @@ void processBonusHit(byte type) __z88dk_fastcall {
             break;
 
         case BONUS_FREEZE:
-            status("FREEZE!");
             effectBonus();
             effectZap();
-            currentStats.holdCount = 300;
+            currentStats.holdCount = 200;
             break;
     }
 }
