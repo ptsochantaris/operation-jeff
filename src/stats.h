@@ -17,6 +17,7 @@ typedef struct {
     byte level;
     byte generationPeriod;
     byte generationCountdown;
+    word holdCount;
     word difficultyCountdown;
 
     word killsInLevel;

@@ -38,7 +38,7 @@ void fireIfPossible(void) __z88dk_fastcall {
 
                 b->countdown = 22;
                 b->target = mouseState.pos;
-                b->sprite.pos.x = mouseState.pos.x + (mouseState.pos.x >> 4) - 10;
+                b->sprite.pos.x = mouseState.pos.x;
                 b->sprite.pos.y = 255;
                 b->state = BOMB_STATE_TICKING;
                 b->sprite.pattern = BOMB_FIRST;
@@ -60,10 +60,9 @@ void updateBombs(void) __z88dk_fastcall {
 
                 case BOMB_STATE_TICKING:
                     coord pos = b->sprite.pos;
-                    coord target = b->target;
-                    pos.x += (target.x - pos.x) >> 2;
-                    pos.y += (target.y - pos.y) >> 2;
+                    pos.y += (b->target.y - pos.y) >> 2;
                     b->sprite.pos = pos;
+
                     byte countdown = --(b->countdown);
                     if(countdown < 17) {
                         if(countdown == 0) {

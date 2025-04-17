@@ -381,13 +381,20 @@ void updateJeffs(void) __z88dk_fastcall {
         }
     }
 
-    if(currentStats.generationCountdown==0) {
-        if(!landing.active) {
-            currentStats.generationCountdown = currentStats.generationPeriod;
-            launchRandomJeff();
+    if(currentStats.holdCount == 0) {
+        if(currentStats.generationCountdown==0) {
+            if(!landing.active) {
+                currentStats.generationCountdown = currentStats.generationPeriod;
+                launchRandomJeff();
+            }
+        } else {
+            --currentStats.generationCountdown;
         }
     } else {
-        --currentStats.generationCountdown;
+        if((--currentStats.holdCount) % 50 == 0) {
+            sprintf(textBuf, "%d", currentStats.holdCount / 50);
+            status(textBuf);
+        }
     }
 
     logicLoop = (logicLoop << 1) | (logicLoop >> 15);
@@ -422,7 +429,9 @@ void updateJeffs(void) __z88dk_fastcall {
                 break;
 
             case JEFF_STATE_WALK:
-                jeffWalkStep(j);
+                if(currentStats.holdCount == 0) {
+                    jeffWalkStep(j);
+                }
                 jeffCheckBombs(j);
                 break;
         }

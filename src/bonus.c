@@ -29,7 +29,11 @@ void updateBonuses(void) __z88dk_fastcall {
     if(++bonusLoop == bonusTime) {
         if(targetType==BONUS_NONE) {
             setBase(0); // this in case a previous bonus is in the process of transitioning out
-            targetType = 1 + rand() % BONUS_MAX;
+            byte newTarget = targetType;
+            while(newTarget == targetType) {
+                newTarget = 1 + rand() % BONUS_MAX;
+            }
+            targetType = newTarget;
             currentX = 3 + rand() % 36;
             currentY = 3 + rand() % 28;
             transition = 0;
@@ -69,10 +73,12 @@ void updateBonuses(void) __z88dk_fastcall {
                         case BONUS_SCORE:
                         case BONUS_CHARGE:
                             setBase(5 + transitionOffset);
-
                             break;
                         case BONUS_SMARTBOMB:
                             setBase(6 + transitionOffset);
+                            break;
+                        case BONUS_FREEZE:
+                            setBase(7 + transitionOffset);
                             break;
                     }
                     break;
@@ -80,11 +86,15 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_SCORE:
                 case BONUS_CHARGE:
                     scrollTilemap(0, transition << 1);
-                    setBase(9 - transitionOffset);
+                    setBase(12 - transitionOffset);
                     break;
                 case BONUS_SMARTBOMB:
                     scrollTilemap(0, transition << 1);
-                    setBase(10 - transitionOffset);
+                    setBase(13 - transitionOffset);
+                    break;
+                case BONUS_FREEZE:
+                    scrollTilemap(0, transition << 1);
+                    setBase(14 - transitionOffset);
                     break;
             }
         }
