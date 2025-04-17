@@ -129,6 +129,7 @@ func main() {
 
     do {
         try outputContent.write(to: URL(fileURLWithPath: "src/assets.asm"), atomically: true, encoding: .utf8)
+        print("assets.asm created")
     } catch {
         print("Error writing to output file: \(error)")
     }
@@ -149,6 +150,7 @@ func main() {
 
     do {
         try outputContent.write(to: URL(fileURLWithPath: "src/assets.h"), atomically: true, encoding: .utf8)
+        print("assets.h created")
     } catch {
         print("Error writing to output file: \(error)")
     }    
