@@ -90,8 +90,8 @@ static const word jeffMoveMasks[] = {
 };
 
 void setSpritePos(jeff *restrict j, coord pos) {
-    int heightX = (pos.x + 4) >> 2;
-    int heightY = (pos.y + 13) >> 2;
+    int heightX = (pos.x + 8) >> 2;
+    int heightY = (pos.y + 14) >> 2;
     pos.z = *(heightMap + heightX + heightY * HEIGHTMAP_WIDTH);
     j->sprite.pos = pos;
 }
@@ -113,12 +113,12 @@ void growJeff(jeff *restrict j) __z88dk_fastcall {
     switch(j->direction) {
         case JEFF_LEFT:
             pos.x = 160 + (rand() & 0x3F) * 2;
-            pos.y = 16 + rand() % 224;
+            pos.y = 32 + rand() % 208;
             break;
 
         case JEFF_RIGHT:
             pos.x = 16 + (rand() & 0x3F) * 2;
-            pos.y = 16 + rand() % 224;
+            pos.y = 32 + rand() % 208;
             break;
 
         case JEFF_UP:
