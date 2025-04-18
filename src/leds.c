@@ -74,7 +74,7 @@ void printAttributes(const byte *restrict text, byte x, byte y) {
 
 static byte statusCount = 0;
 
-void clearStatus() __z88dk_fastcall {
+void clearStatus(void) __z88dk_fastcall {
     bzero((byte *)(ulaAttributes + 320), 160);
 }
 

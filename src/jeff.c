@@ -89,28 +89,64 @@ static const word jeffMoveMasks[] = {
     JEFF_SPEED_MASK_8
 };
 
-void setSpritePos(jeff *restrict j, coord pos) {
-    int heightX = (pos.x + 8) >> 2;
-    int heightY = (pos.y + 14) >> 2;
-    pos.z = *(heightMap + heightX + heightY * HEIGHTMAP_WIDTH);
-    j->sprite.pos = pos;
+coord setJeffPos(coord pos, byte direction) __z88dk_callee {
+    byte interpolate = 1;
+    int vertical = 14;
+    int horizontal = 8;
+
+    switch(direction) {
+        case JEFF_UP:
+        --pos.y;
+        vertical = 10;
+        break;
+
+        case JEFF_DOWN:
+        ++pos.y;
+        vertical = 18;
+        break;
+
+        case JEFF_LEFT:
+        pos.x -= 2;
+        horizontal = 4;
+        break;
+
+        case JEFF_RIGHT:
+        pos.x += 2;
+        horizontal = 12;
+        break;
+
+        default:
+        interpolate = 0;
+        break;
+    }
+
+    int lookupX = (pos.x + horizontal) >> 2;
+    int lookupY = (pos.y + vertical) >> 2;
+    int targetZ = *(heightMap + lookupX + lookupY * HEIGHTMAP_WIDTH);
+    if(interpolate) {
+        if(targetZ > pos.z) {
+            --targetZ;
+        } else if(targetZ < pos.z) {
+            ++targetZ;
+        }
+    }
+    pos.z = targetZ;
+    return pos;
 }
 
 void growJeff(jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_LANDING;
-    j->direction = rand() % 4;
-    if(j->direction == JEFF_LEFT) {
-        j->sprite.attrs = 8;
-    } else {
-        j->sprite.attrs = 0;
-    }
     j->moveMask = JEFF_SPEED_MASK_4;
     j->progress = 0;
+
+    byte direction = rand() % 4;
+    j->direction = direction;
+    j->sprite.attrs = (direction == JEFF_LEFT) ? 8 : 0;
     j->sprite.pattern = JEFF_APPEAR_FIRST;
 
     coord pos;
 
-    switch(j->direction) {
+    switch(direction) {
         case JEFF_LEFT:
             pos.x = 160 + (rand() & 0x3F) * 2;
             pos.y = 32 + rand() % 208;
@@ -132,10 +168,10 @@ void growJeff(jeff *restrict j) __z88dk_fastcall {
             break;
     }
 
-    setSpritePos(j, pos);
+    pos = setJeffPos(pos, 255);
+    j->sprite.pos = pos;
 
     pos.y = 0;
-    pos.z = j->sprite.pos.z;
     landing.sprite.pos = pos;
 
     landing.sprite.pattern = LANDING_AIR;
@@ -245,13 +281,14 @@ byte heightMap[HEIGHTMAP_WIDTH * HEIGHTMAP_HEIGHT];
 
 void jeffWalkStep(jeff *restrict j) __z88dk_fastcall {
     byte newPattern = ++(j->sprite.pattern);
-    coord pos = j->sprite.pos;
-    switch(j->direction) {
+    byte direction = j->direction;
+    coord pos = setJeffPos(j->sprite.pos, direction);
+    j->sprite.pos = pos;
+    switch(direction) {
         case JEFF_UP:
-            if(pos.y == 1) {
+            if(pos.y == 0) {
                 jeffEscape(j);
             } else {
-                --pos.y;
                 if(newPattern > JEFF_BACK_LAST) {
                     j->sprite.pattern = JEFF_BACK_FIRST;
                 }
@@ -262,7 +299,6 @@ void jeffWalkStep(jeff *restrict j) __z88dk_fastcall {
             if(pos.y == 255) {
                 jeffEscape(j);
             } else {
-                ++pos.y;
                 if(newPattern > JEFF_FRONT_LAST) {
                     j->sprite.pattern = JEFF_FRONT_FIRST;
                 }
@@ -270,10 +306,9 @@ void jeffWalkStep(jeff *restrict j) __z88dk_fastcall {
             break;
 
         case JEFF_LEFT:
-            if(pos.x == 2) {
+            if(pos.x == 0) {
                 jeffEscape(j);
             } else {
-                pos.x -= 2;
                 if(newPattern > JEFF_SIDE_LAST) {
                     j->sprite.pattern = JEFF_SIDE_FIRST;
                 }
@@ -281,17 +316,15 @@ void jeffWalkStep(jeff *restrict j) __z88dk_fastcall {
             break;
 
         case JEFF_RIGHT:
-            if(pos.x == 318) {
+            if(pos.x == 320) {
                 jeffEscape(j);
             } else {
-                pos.x += 2;
                 if(newPattern > JEFF_SIDE_LAST) {
                     j->sprite.pattern = JEFF_SIDE_FIRST;
                 }
             }
             break;
     }
-    setSpritePos(j, pos);
 }
 
 void jeffStandStep(jeff *j) __z88dk_fastcall {
