@@ -125,13 +125,15 @@ coord setJeffPos(coord pos, byte direction) __z88dk_callee {
     int targetZ = *(heightMap + lookupX + lookupY * HEIGHTMAP_WIDTH);
     if(interpolate) {
         if(targetZ > pos.z) {
-            --targetZ;
+            ++pos.z;
         } else if(targetZ < pos.z) {
-            ++targetZ;
+            --pos.z;
         }
+        return pos;
+    } else {
+        pos.z = targetZ;
+        return pos;
     }
-    pos.z = targetZ;
-    return pos;
 }
 
 void growJeff(jeff *restrict j) __z88dk_fastcall {
