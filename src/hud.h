@@ -16,14 +16,10 @@
 extern byte textBuf[];
 
 void initHud(byte level) __z88dk_fastcall;
-void hudEnergyUpdated(void) __z88dk_fastcall;
-void hudRateUpdated(void) __z88dk_fastcall;
-void hudHealthUpdated(void) __z88dk_fastcall;
-void hudScoreUpdated(void) __z88dk_fastcall;
-void hudKillsUpdated(void) __z88dk_fastcall;
 void print(const byte *restrict text, word x, word y, byte textColor, byte bgColor) __z88dk_callee;
 void printNoBackground(const byte *restrict text, word x, word y, byte textColor) __z88dk_callee;
 void setHudBackground(int color) __z88dk_fastcall;
 void applyHudPalette(void) __z88dk_fastcall;
+void updateStatsIfNeeded(void) __z88dk_fastcall;
 
 #endif

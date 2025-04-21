@@ -66,37 +66,39 @@ void printSidewaysNoBackground(const byte *text, word x, word y, byte textColor)
 
 byte textBuf[10];
 
-void hudEnergyUpdated(void) __z88dk_fastcall {
-  byte width = currentStats.energy >> 2;
+static stats displayedStats;
+
+void hudEnergyDraw(void) __z88dk_fastcall {
+  byte width = displayedStats.energy >> 2;
   layer2fill(ENERGY_X + 2, 10, width, 2, HUD_GREEN);
   layer2fill(ENERGY_X + 2 + width, 10, 64 - width, 2, HUD_BLACK);
 }
 
 #define RATE_HEIGHT 200
-void hudRateUpdated(void) __z88dk_fastcall {
-  byte height = ((currentStats.fireRate - FIRE_RATE_MIN) * RATE_HEIGHT) / (FIRE_RATE_MAX - FIRE_RATE_MIN);
+void hudRateDraw(void) __z88dk_fastcall {
+  byte height = ((displayedStats.fireRate - FIRE_RATE_MIN) * RATE_HEIGHT) / (FIRE_RATE_MAX - FIRE_RATE_MIN);
   word invHeight = RATE_HEIGHT - height;
   layer2fill(RATE_X + 2, RATE_Y + 2, 2, height, HUD_YELLOW);
   layer2fill(RATE_X + 2, RATE_Y + 2 + height, 2, invHeight, HUD_BLUE);
 }
 
-void hudHealthUpdated(void) __z88dk_fastcall {
-  byte width = currentStats.health >> 2;
+void hudHealthDraw(void) __z88dk_fastcall {
+  byte width = displayedStats.health >> 2;
   layer2fill(HEALTH_X + 2, 10, width, 2, HUD_RED);
   layer2fill(HEALTH_X + 2 + width, 10, 64 - width, 2, HUD_BLACK);
 }
 
-void hudScoreUpdated(void) __z88dk_fastcall {
-  sprintf(textBuf, "%07lu", currentStats.score);
+void hudScoreDraw(void) __z88dk_fastcall {
+  sprintf(textBuf, "%07lu", displayedStats.score);
   print(textBuf, SCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
-  sprintf(textBuf, "%07lu", currentStats.hiScore);
+  sprintf(textBuf, "%07lu", displayedStats.hiScore);
   print(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
 }
 
 #define LEVEL_PROGRESS_WIDTH 7
 
-void hudKillsUpdated(void) __z88dk_fastcall {
-  word level = (currentStats.killsInLevel * LEVEL_PROGRESS_WIDTH) / currentStats.maxKillsInLevel;
+void hudKillsDraw(void) __z88dk_fastcall {
+  word level = (displayedStats.killsInLevel * LEVEL_PROGRESS_WIDTH) / displayedStats.maxKillsInLevel;
   if(level > LEVEL_PROGRESS_WIDTH) {
     return;
   }
@@ -104,7 +106,7 @@ void hudKillsUpdated(void) __z88dk_fastcall {
   byte dividerY = 14-(level << 1) + 3;
   layer2circleFill(7, 3, 3, HUD_FILL_DARK, HUD_FILL_LIGHT, dividerY);
   
-  int res = currentStats.maxKillsInLevel - currentStats.killsInLevel;
+  int res = displayedStats.maxKillsInLevel - displayedStats.killsInLevel;
   if(res >= 0) {
     sprintf(textBuf, "%03d", res);
     printNoBackground(textBuf, 5, 8, HUD_WHITE);
@@ -134,6 +136,29 @@ void applyHudPalette(void) __z88dk_fastcall {
   writeNextReg(REG_PALETTE_VALUE_16, hudPalette, 14);
 }
 
+void updateStatsIfNeeded(void) __z88dk_fastcall {
+  if(displayedStats.score != currentStats.score) {
+    displayedStats.score = currentStats.score;
+    hudScoreDraw();
+  }
+  if(displayedStats.health != currentStats.health) {
+    displayedStats.health = currentStats.health;
+    hudHealthDraw();
+  }
+  if(displayedStats.fireRate != currentStats.fireRate) {
+    displayedStats.fireRate = currentStats.fireRate;
+    hudRateDraw();
+  }
+  if(displayedStats.energy != currentStats.energy) {
+    displayedStats.energy = currentStats.energy;
+    hudEnergyDraw();
+  }
+  if(displayedStats.killsInLevel != currentStats.killsInLevel) {
+    displayedStats.killsInLevel = currentStats.killsInLevel;
+    hudKillsDraw();
+  }
+}
+
 void initHud(byte level) __z88dk_fastcall {
   applyHudPalette();
 
@@ -158,9 +183,10 @@ void initHud(byte level) __z88dk_fastcall {
 
   layer2circleFill(8, 2, 2, HUD_WHITE, HUD_WHITE, 0);
 
-  hudScoreUpdated();
-  hudHealthUpdated();
-  hudRateUpdated();
-  hudEnergyUpdated();
-  hudKillsUpdated();
+  displayedStats = currentStats;
+  hudScoreDraw();
+  hudHealthDraw();
+  hudRateDraw();
+  hudEnergyDraw();
+  hudKillsDraw();
 }

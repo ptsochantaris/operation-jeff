@@ -59,8 +59,7 @@ byte processGameStats(void) __z88dk_fastcall {
     if(++energyLoop > chargePoint) {
         energyLoop = 0;
         if(currentStats.energy < 255) {
-            ++(currentStats.energy);
-            hudEnergyUpdated();
+            ++currentStats.energy;
         }
     }
 
@@ -69,7 +68,6 @@ byte processGameStats(void) __z88dk_fastcall {
         healthLoop = 0;
         if(currentStats.health < 255) {
             ++(currentStats.health);
-            hudHealthUpdated();
         }
     }
 
@@ -80,10 +78,8 @@ byte processGameStats(void) __z88dk_fastcall {
     if(mouseState.wheel != 0) {
         if(mouseState.wheel > 0 && currentStats.fireRate < FIRE_RATE_MAX) {
             ++currentStats.fireRate;
-            hudRateUpdated();
         } else if(mouseState.wheel < 0 && currentStats.fireRate > FIRE_RATE_MIN) {
             --currentStats.fireRate;
-            hudRateUpdated();
         }
         mouseState.wheel = 0;
     }
@@ -102,7 +98,6 @@ void processBonusHit(byte type) __z88dk_fastcall {
 
         case BONUS_CHARGE: 
             currentStats.energy = 255;
-            hudEnergyUpdated();
             status("+CHARGE");
             effectBonus();
             effectZap();
@@ -110,7 +105,6 @@ void processBonusHit(byte type) __z88dk_fastcall {
 
         case BONUS_HEALTH: 
             currentStats.health = 255;
-            hudHealthUpdated();
             status("+HEALTH");
             effectBonus();
             effectZap();
@@ -118,7 +112,6 @@ void processBonusHit(byte type) __z88dk_fastcall {
 
         case BONUS_SCORE: 
             currentStats.score += 100;
-            hudScoreUpdated();
             status("+100 PTS");
             effectBonus();
             effectZap();
@@ -143,7 +136,6 @@ void processJeffHit(void) __z88dk_fastcall {
     byte canSurvive = currentStats.health >= DAMAGE;
     if(canSurvive) currentStats.health -= DAMAGE;
     else currentStats.health = 0;
-    hudHealthUpdated();
 }
 
 void processJeffKill(byte score) __z88dk_fastcall {
@@ -151,7 +143,5 @@ void processJeffKill(byte score) __z88dk_fastcall {
     if(currentStats.hiScore < currentStats.score) {
         currentStats.hiScore = currentStats.score;
     }
-    hudScoreUpdated();
     ++currentStats.killsInLevel;
-    hudKillsUpdated();
 }

@@ -154,6 +154,7 @@ byte gameLoop(void) __z88dk_fastcall {
         break;
 
       default:
+        updateStatsIfNeeded();
         break;
     }
   }

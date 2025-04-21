@@ -37,7 +37,6 @@ void fireIfPossible(void) __z88dk_fastcall {
     for(bomb *end = b+bombCount; b != end; ++b) {
         if(b->state == BOMB_STATE_NONE) {
             currentStats.energy -= FIRE_ENERGY;
-            hudEnergyUpdated();
 
             b->countdown = 22;
             b->target = mouseState.pos;
