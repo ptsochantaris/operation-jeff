@@ -1,5 +1,7 @@
 #include "resources.h"
 
+// #define DEBUG_KEYS
+
 void wait(byte time) __z88dk_fastcall {
   for(byte f=0;f!=time;f++) {
     intrinsic_halt();
@@ -10,6 +12,7 @@ byte isShifted(void) __z88dk_fastcall {
   return (z80_inp(0xfefe) & 1) == 0;
 }
 
+#ifdef DEBUG_KEYS
 byte debugKeys(void) {
   byte pressed = z80_inp(0x7ffe);
   if((pressed & 1) == 0) { // space
@@ -43,6 +46,7 @@ byte debugKeys(void) {
 
   return 0;
 }
+#endif
 
 void loadLevelScreen(byte level) __z88dk_fastcall {
   const LevelInfo info = levelInfo[level];
@@ -123,9 +127,11 @@ byte gameLoop(void) __z88dk_fastcall {
           status(pause ? "PAUSED" : NULL);
         }
 
-        /*if(debugKeys()) {
+        #ifdef DEBUG_KEYS
+        if(debugKeys()) {
           return 1;
-        }*/
+        }
+        #endif
       }
 
       updateMouse();
