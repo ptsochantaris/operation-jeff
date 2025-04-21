@@ -1,6 +1,6 @@
 #include "resources.h"
 
-void gameOverEffect(void) {
+void gameOverEffect(void) __z88dk_fastcall {
   ayChipSelect(0);
 
   aySetMixer(0, 1, 1);

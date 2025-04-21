@@ -91,7 +91,7 @@ static const word jeffMoveMasks[] = {
     JEFF_SPEED_MASK_8
 };
 
-void loadHeightmap(const LevelInfo *restrict info) {
+void loadHeightmap(const LevelInfo *restrict info) __z88dk_callee {
     ZXN_WRITE_MMU1(info->heightmapAsset.page);
     decompressZX0(heightMap, (byte *)(info->heightmapAsset.resource));
   }

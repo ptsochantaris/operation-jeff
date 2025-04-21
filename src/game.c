@@ -13,7 +13,7 @@ byte isShifted(void) __z88dk_fastcall {
 }
 
 #ifdef DEBUG_KEYS
-byte debugKeys(void) {
+byte debugKeys(void) __z88dk_fastcall {
   byte pressed = z80_inp(0x7ffe);
   if((pressed & 1) == 0) { // space
     inputDelay = SMALL_INPUT_DELAY;

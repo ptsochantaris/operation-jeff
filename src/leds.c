@@ -40,9 +40,10 @@ void setupTitleLeds(void) __z88dk_fastcall {
 }
 
 void cycleGrayPalette(void) __z88dk_fastcall {
-    gray_offset -= 2;
-    if(gray_offset == 0) {
+    if(gray_offset == 2) {
         gray_offset = 16;
+    } else {
+        gray_offset -= 2;
     }
 
     selectPalette(0);
@@ -54,7 +55,7 @@ void cycleGrayPalette(void) __z88dk_fastcall {
     writeNextReg(REG_PALETTE_VALUE_16, ulaPalette, gray_offset);
 }
 
-void printAttributes(const byte *restrict text, byte x, byte y) {
+void printAttributes(const byte *restrict text, byte x, byte y) __z88dk_callee {
   byte C = *text;
   do {
     const byte *base = bFont + (6 * (C - 32));

@@ -29,23 +29,25 @@ void fireIfPossible(void) __z88dk_fastcall {
         return;
     }
 
-    if(currentStats.energy >= FIRE_ENERGY) {
-        bomb *b = bombs;
-        for(bomb *end = b+bombCount; b != end; ++b) {
-            if(b->state == BOMB_STATE_NONE) {
-                currentStats.energy -= FIRE_ENERGY;
-                hudEnergyUpdated();
+    if(currentStats.energy < FIRE_ENERGY) {
+        return;
+    }
 
-                b->countdown = 22;
-                b->target = mouseState.pos;
-                b->sprite.pos.x = mouseState.pos.x;
-                b->sprite.pos.y = 255;
-                b->state = BOMB_STATE_TICKING;
-                b->sprite.pattern = BOMB_FIRST;
-                cooldown = currentStats.fireRate >> 1;
-                effectFire();
-                return;
-            }
+    bomb *b = bombs;
+    for(bomb *end = b+bombCount; b != end; ++b) {
+        if(b->state == BOMB_STATE_NONE) {
+            currentStats.energy -= FIRE_ENERGY;
+            hudEnergyUpdated();
+
+            b->countdown = 22;
+            b->target = mouseState.pos;
+            b->sprite.pos.x = mouseState.pos.x;
+            b->sprite.pos.y = 255;
+            b->state = BOMB_STATE_TICKING;
+            b->sprite.pattern = BOMB_FIRST;
+            cooldown = currentStats.fireRate >> 1;
+            effectFire();
+            return;
         }
     }
 }

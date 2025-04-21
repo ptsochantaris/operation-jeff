@@ -12,7 +12,7 @@ const static word prog[] = {
     CU_WAIT(400,0)
 };
 
-void initCopper(void) {
+void initCopper(void) __z88dk_fastcall {
     word copperProgLen = 7;
     const byte *e = prog + (copperProgLen * 2);
     for (const byte *b = prog; b < e; ++b) {
@@ -23,7 +23,7 @@ void initCopper(void) {
     ZXN_NEXTREG(REG_COPPER_CONTROL_L, 0);
 }
 
-void haltCopper(void) {
+void haltCopper(void) __z88dk_fastcall {
     ZXN_NEXTREG(REG_COPPER_CONTROL_H, 0);
     ZXN_NEXTREG(REG_COPPER_CONTROL_L, 0);
 }

@@ -1,6 +1,6 @@
 #include "resources.h"
 
-void playSample(ResourceInfo *restrict info, byte speed, byte loop) {
+void playSample(ResourceInfo *restrict info, byte speed, byte loop) __z88dk_callee {
   ZXN_WRITE_MMU1(info->page);
   ZXN_WRITE_MMU2((info->page)+1);
   playWithDma((word)info->resource, info->length, speed, loop);

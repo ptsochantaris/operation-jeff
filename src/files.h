@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-void esxDosRomSetup(void);
-void persistData(void *src, int len);
-void fetchData(void *dst, int len);
+void esxDosRomSetup(void) __z88dk_fastcall;
+void persistData(void *src, int len) __z88dk_callee;
+void fetchData(void *dst, int len) __z88dk_callee;
 
 #endif

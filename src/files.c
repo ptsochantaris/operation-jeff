@@ -4,7 +4,7 @@ static byte previousMmu0;
 static byte previousMmu1;
 static byte filename[] = "OperationJeff.scores";
 
-void prepareForEsxCall(void) {
+void prepareForEsxCall(void) __z88dk_fastcall {
     // disable write-through
     configLayer2(0);
 
@@ -17,7 +17,7 @@ void prepareForEsxCall(void) {
     errno = 0;
 }
 
-void completedEsxCall(void) {
+void completedEsxCall(void) __z88dk_fastcall {
     errno = 0;
 
     // page out ROM
@@ -28,14 +28,14 @@ void completedEsxCall(void) {
     configLayer2(1);
 }
 
-void esxDosRomSetup(void) {
+void esxDosRomSetup(void) __z88dk_fastcall {
     // Normally ROM is paged out, but when we page it in we want it to
     // be the ROM3 (i.e. valilla 48k speccy) which esxdos API requires
     z80_outp(0x1FFD, 1 << 2); // high bit
     z80_outp(0x7FFD, 1 << 4); // low bit
 }
 
-void persistData(void *src, int len) {
+void persistData(void *src, int len) __z88dk_callee {
     prepareForEsxCall();
     byte handle = esx_f_open(filename, ESX_MODE_WRITE | ESX_MODE_OPEN_CREAT_TRUNC);
     if(!errno) {
@@ -45,7 +45,7 @@ void persistData(void *src, int len) {
     completedEsxCall();
 }
 
-void fetchData(void *dst, int len) {
+void fetchData(void *dst, int len) __z88dk_callee {
     prepareForEsxCall();
     byte handle = esx_f_open(filename, ESX_MODE_READ);
     if(!errno) {

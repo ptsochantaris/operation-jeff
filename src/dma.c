@@ -38,17 +38,7 @@ static dmaPayload dmaMemoryPrep = {
   0x87cf // cf, 87 in reverse order (R6 load, R6 enable DMA)
 };
 
-// #define DMA_WORKAROUND
-
-void dmaRepeat(void) __z88dk_fastcall {
-#ifdef DMA_WORKAROUND
-  z80_otir(&dmaMemoryPrep, __IO_DMA, 16); // full program, needed on Zesarux
-#else
-  z80_otir(&dmaMemoryPrep.r6b, __IO_DMA, 2); // just the load and enable
-#endif
-}
-
-void dmaMemoryToMemory(const byte *restrict source, byte *restrict destination, word length) {
+void dmaMemoryToMemory(const byte *restrict source, byte *restrict destination, word length) __z88dk_callee {
   dmaMemoryPrep.source = (word)source;
   dmaMemoryPrep.length = length;
   dmaMemoryPrep.r1 = 0x54; // 0101 0100 ; R1 - increment, from memory, bitmask
@@ -57,7 +47,7 @@ void dmaMemoryToMemory(const byte *restrict source, byte *restrict destination, 
   z80_otir(&dmaMemoryPrep, __IO_DMA, 16);
 }
 
-void dmaMemoryToPort(const byte *restrict source, word port, word length) {
+void dmaMemoryToPort(const byte *restrict source, word port, word length) __z88dk_callee {
   dmaMemoryPrep.source = (word)source;
   dmaMemoryPrep.length = length;
   dmaMemoryPrep.r1 = 0x54; // 0101 0100 ; R1 - increment, from memory, bitmask
@@ -66,7 +56,7 @@ void dmaMemoryToPort(const byte *restrict source, word port, word length) {
   z80_otir(&dmaMemoryPrep, __IO_DMA, 16);
 }
 
-void fillWithDma(word destination, word length, byte value) {
+void fillWithDma(word destination, word length, byte value) __z88dk_callee {
   dmaMemoryPrep.source = (word)(&value);
   dmaMemoryPrep.length = length;
   dmaMemoryPrep.r1 = 0x64; // 0110 0100 ; R1 no increment, from memory, bitmask
@@ -75,7 +65,7 @@ void fillWithDma(word destination, word length, byte value) {
   z80_otir(&dmaMemoryPrep, __IO_DMA, 16);
 }
 
-void fillWithDmaRepeat(word destination, word length, byte value, byte times, word step) {
+void fillWithDmaRepeat(word destination, word length, byte value, byte times, word step) __z88dk_callee {
   dmaMemoryPrep.source = (word)(&value);
   dmaMemoryPrep.length = length;
   dmaMemoryPrep.r1 = 0x64; // 0110 0100 ; R1 no increment, from memory, bitmask
@@ -102,7 +92,7 @@ static byte dmaAudioBuf[] = {
   0xcf, 0x87 // R6 load, R6 enable DMA
 };
 
-void playWithDma(word source, word length, byte prescalar, byte loop) {
+void playWithDma(word source, word length, byte prescalar, byte loop) __z88dk_callee {
   dmaMemoryPrep.source = source;
   dmaMemoryPrep.length = length;
   dmaMemoryPrep.r5 = loop ? 0xA2 : 0x82;

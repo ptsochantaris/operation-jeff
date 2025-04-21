@@ -8,7 +8,7 @@ CLIB=sdcc_iy
 VERBOSITY=-vn
 LIBS=-lm --math16
 PRAGMA_FILE=zpragma.inc
-APPMAKE_ARGS=-Cz"--nex-border 0" -Cz"--nex-loadbar 19" -Cz"--nex-screen resources/loadingScreen.nxi"
+APPMAKE_ARGS=-Cz"--nex-border 0" -Cz"--nex-loadbar 19" -Cz"--nex-screen resources/loadingScreen.nxi" -Cz"--clean"
 C_OPT_FLAGS=-SO3 --max-allocs-per-node200000 --math16 #--opt-code-size
 INCLUDES=-I${ZCCCFG}/../../libsrc/_DEVELOPMENT/target/zxn
 CFLAGS=$(TARGET) $(VERBOSITY) -c $(C_OPT_FLAGS) --constsegPAGE_28 -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) $(INCLUDES)
