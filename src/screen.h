@@ -5,6 +5,8 @@
 #include "levelinfo.h"
 
 #define CLIPBYTES_LEN 4
+#define HEIGHTMAP_WIDTH 80
+#define HEIGHTMAP_HEIGHT 64
 
 extern const byte clipBytes[];
 
@@ -30,6 +32,7 @@ void fadePaletteUp(const ResourceInfo *restrict compressedPalette, word numBytes
 void zeroPalette(byte palette, word length);
 
 void loadScreen(const LevelInfo *restrict info);
+void loadHeightmap(const LevelInfo *restrict info);
 
 void writeNextReg(byte reg, const char *bytes, byte len);
 void fillNextReg(byte reg, byte value, byte len);

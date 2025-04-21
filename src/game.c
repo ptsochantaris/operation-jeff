@@ -31,7 +31,7 @@ byte debugKeys(void) {
   for(byte l=0;l<5;++l) { // 10...6
     if((pressed & (1 << l)) == 0) {
       inputDelay = SMALL_INPUT_DELAY;
-      currentStats.level = 8 - l;
+      currentStats.level = isShifted() ? (18 - l) : (8 - l);
       nextLevel();
       return 0;
     }
@@ -55,6 +55,7 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
 
   fadePaletteDown(1, 512);
   loadScreen(&info);
+  loadHeightmap(&info);
   initHud(level);
 
   effectSiren();
@@ -122,9 +123,9 @@ byte gameLoop(void) __z88dk_fastcall {
           status(pause ? "PAUSED" : NULL);
         }
 
-        // if(debugKeys()) {
-        //   return 1;
-        // }
+        /*if(debugKeys()) {
+          return 1;
+        }*/
       }
 
       updateMouse();

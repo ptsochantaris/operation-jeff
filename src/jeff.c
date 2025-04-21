@@ -89,41 +89,94 @@ static const word jeffMoveMasks[] = {
     JEFF_SPEED_MASK_8
 };
 
+coord setJeffPos(coord pos, byte direction) __z88dk_callee {
+    byte interpolate = 1;
+    int vertical = 14;
+    int horizontal = 8;
+
+    switch(direction) {
+        case JEFF_UP:
+        --pos.y;
+        vertical = 10;
+        break;
+
+        case JEFF_DOWN:
+        ++pos.y;
+        vertical = 18;
+        break;
+
+        case JEFF_LEFT:
+        pos.x -= 2;
+        horizontal = 4;
+        break;
+
+        case JEFF_RIGHT:
+        pos.x += 2;
+        horizontal = 12;
+        break;
+
+        default:
+        interpolate = 0;
+        break;
+    }
+
+    int lookupX = (pos.x + horizontal) >> 2;
+    int lookupY = (pos.y + vertical) >> 2;
+    int targetZ = *(heightMap + lookupX + lookupY * HEIGHTMAP_WIDTH);
+    if(interpolate) {
+        if(targetZ > pos.z) {
+            ++pos.z;
+        } else if(targetZ < pos.z) {
+            --pos.z;
+        }
+        return pos;
+    } else {
+        pos.z = targetZ;
+        return pos;
+    }
+}
+
 void growJeff(jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_LANDING;
-    j->direction = rand() % 4;
-    if(j->direction == JEFF_LEFT) {
-        j->sprite.attrs = 8;
-    } else {
-        j->sprite.attrs = 0;
-    }
-    j->moveMask = JEFF_SPEED_MASK_4;
     j->progress = 0;
+    byte maskIndex = rand() % JEFF_SPEED_MASK_COUNT;
+    j->moveMask = *(jeffMoveMasks+maskIndex);
+
+    byte direction = rand() % 4;
+    j->direction = direction;
+    j->sprite.attrs = (direction == JEFF_LEFT) ? 8 : 0;
     j->sprite.pattern = JEFF_APPEAR_FIRST;
-    switch(j->direction) {
+
+    coord pos;
+
+    switch(direction) {
         case JEFF_LEFT:
-            j->sprite.pos.x = 160 + (rand() & 0x3F) * 2;
-            j->sprite.pos.y = 16 + rand() % 224;
+            pos.x = 160 + (rand() & 0x3F) * 2;
+            pos.y = 40 + rand() % 192;
             break;
 
         case JEFF_RIGHT:
-            j->sprite.pos.x = 16 + (rand() & 0x3F) * 2;
-            j->sprite.pos.y = 16 + rand() % 224;
+            pos.x = 16 + (rand() & 0x3F) * 2;
+            pos.y = 40 + rand() % 192;
             break;
 
         case JEFF_UP:
-            j->sprite.pos.x = 16 + rand() % 288;
-            j->sprite.pos.y = 128 + rand() % 112;
+            pos.x = 16 + rand() % 288;
+            pos.y = 128 + rand() % 112;
             break;
 
         case JEFF_DOWN:
-            j->sprite.pos.x = 16 + rand() % 288;
-            j->sprite.pos.y = 16 + rand() % 112;
+            pos.x = 16 + rand() % 288;
+            pos.y = 16 + rand() % 112;
             break;
     }
 
-    landing.sprite.pos.x = j->sprite.pos.x;
+    pos = setJeffPos(pos, 255);
+    j->sprite.pos = pos;
+
+    landing.sprite.pos = pos;
     landing.sprite.pos.y = 0;
+
     landing.sprite.pattern = LANDING_AIR;
     landing.passenger = j;
     landing.active = 1;
@@ -156,7 +209,6 @@ void killJeff(jeff *restrict j) __z88dk_fastcall {
     processJeffKill(j->moveMask);
     j->sprite.pattern = JEFF_DISAPPEAR_FIRST;
     j->state = JEFF_STATE_DISAPPEAR;
-    j->moveMask = JEFF_SPEED_MASK_4;
 
     effectExplosion();
 }
@@ -171,67 +223,56 @@ void jeffEscape(jeff *restrict j) __z88dk_fastcall {
 }
 
 void jeffCheckBombs(jeff *restrict j) __z88dk_fastcall {
-    word C;
-    word jx = j->sprite.pos.x;
-    word jy = j->sprite.pos.y;
+    int C;
+    coord spos = j->sprite.pos;
+    int jx = spos.x;
+    int jy = spos.y - spos.z;
+    if(jy<0) jy = 0;
+
     bomb *b = bombs;
     for(bomb *end = b+bombCount; b != end; ++b) {
         if(b->state == BOMB_STATE_EXPLODING) {
-            word bx = b->sprite.pos.x;
-            word by = b->sprite.pos.y;
-            C = bx - (BOMB_RANGE>>1);
-            if(jx < C) {
-                break;
-            }
+            coord pos = b->sprite.pos;
+            C = pos.x - (BOMB_RANGE>>1);
+            if(jx < C) continue;
             C += BOMB_RANGE;
-            if(jx >= C) {
-                break;
-            }
-            C = by - (BOMB_RANGE>>1) - 4;
-            if(jy < C) {
-                break;
-            }
+            if(jx >= C) continue;
+            C = pos.y - (BOMB_RANGE>>1) - 4;
+            if(jy < C) continue;
             C += BOMB_RANGE;
-            if(jy >= C) {
-                break;
-            }
+            if(jy >= C) continue;
 
             killJeff(j);
 
-            C = bx - (BOMB_CLOSE>>1);
-            if(jx < C) {
-                return;
-            }
+            C = pos.x - (BOMB_CLOSE>>1);
+            if(jx < C) return;
             C += BOMB_CLOSE;
-            if(jx >= C) {
-                return;
-            }
-            C = by - (BOMB_CLOSE>>1) - 4;
-            if(jy < C) {
-                return;
-            }
+            if(jx >= C) return;
+            C = pos.y - (BOMB_CLOSE>>1) - 4;
+            if(jy < C) return;
             C += BOMB_CLOSE;
-            if(jy >= C) {
-                return;
-            }
+            if(jy >= C) return;
+
             status("+10 PTS");
             effectZap();
             currentStats.score += 10;
             return;
         }
     }
-    return;
 }
+
+byte heightMap[HEIGHTMAP_WIDTH * HEIGHTMAP_HEIGHT];
 
 void jeffWalkStep(jeff *restrict j) __z88dk_fastcall {
     byte newPattern = ++(j->sprite.pattern);
-    coord pos = j->sprite.pos;
-    switch(j->direction) {
-        case JEFF_UP:                        
-            if(pos.y == 1) {
+    byte direction = j->direction;
+    coord pos = setJeffPos(j->sprite.pos, direction);
+    j->sprite.pos = pos;
+    switch(direction) {
+        case JEFF_UP:
+            if(pos.y == 0) {
                 jeffEscape(j);
             } else {
-                --pos.y;
                 if(newPattern > JEFF_BACK_LAST) {
                     j->sprite.pattern = JEFF_BACK_FIRST;
                 }
@@ -242,8 +283,6 @@ void jeffWalkStep(jeff *restrict j) __z88dk_fastcall {
             if(pos.y == 255) {
                 jeffEscape(j);
             } else {
-                ++pos.y;
-                j->sprite.pos = pos;
                 if(newPattern > JEFF_FRONT_LAST) {
                     j->sprite.pattern = JEFF_FRONT_FIRST;
                 }
@@ -251,11 +290,9 @@ void jeffWalkStep(jeff *restrict j) __z88dk_fastcall {
             break;
 
         case JEFF_LEFT:
-            if(pos.x == 2) {
+            if(pos.x == 0) {
                 jeffEscape(j);
             } else {
-                pos.x -= 2;
-                j->sprite.pos = pos;
                 if(newPattern > JEFF_SIDE_LAST) {
                     j->sprite.pattern = JEFF_SIDE_FIRST;
                 }
@@ -263,18 +300,15 @@ void jeffWalkStep(jeff *restrict j) __z88dk_fastcall {
             break;
 
         case JEFF_RIGHT:
-            if(pos.x == 318) {
+            if(pos.x == 320) {
                 jeffEscape(j);
             } else {
-                pos.x += 2;
-                j->sprite.pos = pos;
                 if(newPattern > JEFF_SIDE_LAST) {
                     j->sprite.pattern = JEFF_SIDE_FIRST;
                 }
             }
             break;
     }
-    j->sprite.pos = pos;
 }
 
 void jeffStandStep(jeff *j) __z88dk_fastcall {
@@ -315,8 +349,6 @@ void jeffAppearStep(jeff *j) __z88dk_fastcall {
     if(++(j->sprite.pattern) > JEFF_APPEAR_LAST) {
         j->state = JEFF_STATE_STAND;
         j->progress = 0;
-        byte maskIndex = rand() % JEFF_SPEED_MASK_COUNT;
-        j->moveMask = *(jeffMoveMasks+maskIndex);
         jeffStandStep(j);
     }
 }
@@ -329,6 +361,16 @@ void jeffKillAll(void) __z88dk_fastcall {
             case JEFF_STATE_WALK:
             killJeff(j);
         }
+    }
+}
+
+void holdStep(void) __z88dk_fastcall {
+    word v = currentStats.holdCount--;
+    if(v == 1) {
+        status(NULL);
+    } else if(v % 40 == 0) {
+        sprintf(textBuf, "%d", v / 40);
+        status(textBuf);
     }
 }
 
@@ -364,52 +406,63 @@ void updateJeffs(void) __z88dk_fastcall {
         }
     }
 
-    if(currentStats.generationCountdown==0) {
-        if(!landing.active) {
-            currentStats.generationCountdown = currentStats.generationPeriod;
-            launchRandomJeff();
+    if(currentStats.holdCount == 0) {
+        if(currentStats.generationCountdown==0) {
+            if(!landing.active) {
+                currentStats.generationCountdown = currentStats.generationPeriod;
+                launchRandomJeff();
+            }
+        } else {
+            --currentStats.generationCountdown;
         }
     } else {
-        --currentStats.generationCountdown;
+        holdStep();
     }
 
     logicLoop = (logicLoop << 1) | (logicLoop >> 15);
 
     jeff *j = jeffs;
     for(jeff *end = jeffs+jeffCount; j != end; ++j) {
-        if(!(j->moveMask & logicLoop)) {
-            continue;
-        }
-
         switch(j->state) {
             case JEFF_STATE_LANDING:
             case JEFF_STATE_NONE:
-                continue; // do not update sprite
+                break;
 
             case JEFF_STATE_STAND:
-                jeffStandStep(j);
-                jeffCheckBombs(j);
+                if(j->moveMask & logicLoop) {
+                    jeffStandStep(j);
+                    jeffCheckBombs(j);
+                    updateSprite(&j->sprite);
+                }
                 break;
 
             case JEFF_STATE_APPEAR:
-                jeffAppearStep(j);
+                if(JEFF_SPEED_MASK_4 & logicLoop) {
+                    jeffAppearStep(j);
+                    updateSprite(&j->sprite);
+                }
                 break;
 
             case JEFF_STATE_DISAPPEAR:
-                if(++(j->sprite.pattern) > JEFF_DISAPPEAR_LAST) {
-                    j->state = JEFF_STATE_NONE;
-                    j->moveMask = 0;
-                    hideSprite(j->sprite.index);
-                    continue;
+                if(JEFF_SPEED_MASK_4 & logicLoop) {
+                    if(++(j->sprite.pattern) > JEFF_DISAPPEAR_LAST) {
+                        j->state = JEFF_STATE_NONE;
+                        hideSprite(j->sprite.index);
+                    } else {
+                        updateSprite(&j->sprite);
+                    }
                 }
                 break;
 
             case JEFF_STATE_WALK:
-                jeffWalkStep(j);
-                jeffCheckBombs(j);
+                if(j->moveMask & logicLoop) {
+                    if(currentStats.holdCount == 0) {
+                        jeffWalkStep(j);
+                    }
+                    jeffCheckBombs(j);
+                    updateSprite(&j->sprite);
+                }
                 break;
         }
-
-        updateSprite(&j->sprite);
     }
 }

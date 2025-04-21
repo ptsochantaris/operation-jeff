@@ -74,13 +74,19 @@ void printAttributes(const byte *restrict text, byte x, byte y) {
 
 static byte statusCount = 0;
 
-void status(const byte *text) {
+void clearStatus(void) __z88dk_fastcall {
     bzero((byte *)(ulaAttributes + 320), 160);
+}
+
+void status(const byte *text) __z88dk_fastcall {
+    clearStatus();
     if(text) {
         int x = 16 - (strlen(text) << 1);
         if(x<0) x=0;
         printAttributes(text, x, 10);
         statusCount = 16;
+    } else {
+        statusCount = 0;
     }
 }
 
@@ -90,7 +96,7 @@ void updateStatus(void) __z88dk_fastcall {
     }
     
     if(--statusCount == 0) {
-        status(NULL);
+        clearStatus();
     } else {
         cycleGrayPalette();
     }

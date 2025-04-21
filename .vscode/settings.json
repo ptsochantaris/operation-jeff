@@ -25,6 +25,9 @@
         "types.h": "c",
         "levelinfo.h": "c",
         "assets.h": "c",
-        "esxdos.h": "c"
+        "esxdos.h": "c",
+        "__locale": "c",
+        "string": "c",
+        "string_view": "c"
     }
 }

@@ -14,7 +14,7 @@ void gameOverEffect(void) {
   aySetAmplitude(2, 0x1F);
 }
 
-static const LevelInfo gameOverInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(gameOverScreen) };
+static const LevelInfo gameOverInfo = { { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(gameOverScreen), EmptyResource };
 void loadGameOverScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
   loadScreen(&gameOverInfo);

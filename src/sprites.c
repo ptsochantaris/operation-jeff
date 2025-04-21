@@ -10,7 +10,8 @@ void updateSprite(sprite_info *restrict s) __z88dk_fastcall {
   coord pos = s->pos;
   ZXN_NEXTREGA(0x35, pos.x & 0xFF); // x low
   ZXN_NEXTREGA(0x37, s->attrs | pos.x >> 8); // x high, default attrs
-  int Y = pos.y + pos.z;
+  int Y = pos.y - pos.z;
+  if(Y < 0) Y = 0;
   ZXN_NEXTREGA(0x36, Y & 0xFF); // y low
   ZXN_NEXTREGA(0x39, Y >> 8); // y high
   ZXN_NEXTREGA(0x38, 0xC0 | s->pattern); // 1'0'PPPPPP ; sprite visible, using pattern 00000

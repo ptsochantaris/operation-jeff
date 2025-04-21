@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-#define LEVEL_COUNT 15
+#define LEVEL_COUNT 16
 
 #define SCREEN_ARRAY(X) { \
     R_##X##_0_nxi_zx0, \
@@ -24,13 +24,15 @@ typedef struct {
     byte page;        
 } ResourceInfo;
 
+#define EmptyResource {0, 0, 0}
+
 typedef struct {
     byte jeffBright[2];
     byte jeffDark[2];
     word killsRequired;
     word difficultyStep;
     byte initialGenerationPeriod;
-    ResourceInfo screens[10], paletteAsset;
+    ResourceInfo screens[10], paletteAsset, heightmapAsset;
 } LevelInfo;
 
 extern LevelInfo levelInfo[];

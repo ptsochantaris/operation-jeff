@@ -8,7 +8,8 @@ static const byte tilemapPalette[] = {
   COLOR9(7, 7, 0),
   COLOR9(1, 1, 1),
   COLOR9(3, 3, 3),
-  COLOR9(7, 7, 7)
+  COLOR9(7, 7, 7),
+  COLOR9(3, 3, 7)
 };
 
 void initTilemap(void) __z88dk_fastcall {
@@ -23,7 +24,7 @@ void initTilemap(void) __z88dk_fastcall {
   // Upoad palette
   selectPalette(3);
   ZXN_NEXTREG(REG_PALETTE_INDEX, 0);
-  writeNextReg(REG_PALETTE_VALUE_16, tilemapPalette, 16);
+  writeNextReg(REG_PALETTE_VALUE_16, tilemapPalette, sizeof(tilemapPalette));
 }
 
 void clearTilemap(void) __z88dk_fastcall {

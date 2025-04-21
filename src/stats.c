@@ -21,6 +21,7 @@ void initStats(void) __z88dk_fastcall {
 void setupGameStats(void) __z88dk_fastcall {
     currentStats.energy = 0x80;
     currentStats.health = 0x80;
+    currentStats.holdCount = 0;
     currentStats.score = 0;
     currentStats.fireRate = FIRE_RATE_MIN + (FIRE_RATE_MAX - FIRE_RATE_MIN) / 2;
     currentStats.level = 255; // so it loops to zero at game start
@@ -128,6 +129,12 @@ void processBonusHit(byte type) __z88dk_fastcall {
             status("BOOM!");
             effectBonus();
             effectZap();
+            break;
+
+        case BONUS_FREEZE:
+            effectBonus();
+            effectZap();
+            currentStats.holdCount = 200;
             break;
     }
 }
