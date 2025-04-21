@@ -3,10 +3,9 @@
 
 #include "types.h"
 
-extern byte heightMap[];
-
 void initJeffs(void) __z88dk_fastcall;
 void updateJeffs(void) __z88dk_fastcall;
 void jeffKillAll(void) __z88dk_fastcall;
+void loadHeightmap(const LevelInfo *restrict info);
 
 #endif

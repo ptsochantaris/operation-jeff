@@ -98,8 +98,6 @@ void selectPalette(byte paletteMask) __z88dk_fastcall {
 
 static byte paletteBuffer[512];
 
-extern void decompressZX0(byte *dst, byte *src) __z88dk_callee __smallc;
-
 void loadPaletteBuffer(const ResourceInfo *restrict compressedPalette) {
   byte previousMmu3 = ZXN_READ_MMU3();
   ZXN_WRITE_MMU3(compressedPalette->page);
@@ -200,11 +198,6 @@ void loadScreen(const LevelInfo *restrict info) {
     ZXN_WRITE_MMU1(slice->page);
     decompressZX0((byte *)0x4000, (byte *)slice->resource);
   }
-}
-
-void loadHeightmap(const LevelInfo *restrict info) {
-  ZXN_WRITE_MMU1(info->heightmapAsset.page);
-  decompressZX0(heightMap, (byte *)(info->heightmapAsset.resource));
 }
 
 void writeColourToIndex(const byte *colour, byte index) {

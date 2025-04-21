@@ -54,6 +54,8 @@ static lander landing;
 static jeff jeffs[jeffCount];
 static word logicLoop = 1;
 
+static byte heightMap[HEIGHTMAP_WIDTH * HEIGHTMAP_HEIGHT];
+
 #define DAMAGE_FLASH_DURATION 12
 static byte damageFlash;
 
@@ -88,6 +90,11 @@ static const word jeffMoveMasks[] = {
     JEFF_SPEED_MASK_7,
     JEFF_SPEED_MASK_8
 };
+
+void loadHeightmap(const LevelInfo *restrict info) {
+    ZXN_WRITE_MMU1(info->heightmapAsset.page);
+    decompressZX0(heightMap, (byte *)(info->heightmapAsset.resource));
+  }
 
 coord setJeffPos(coord pos, byte direction) __z88dk_callee {
     byte interpolate = 1;
@@ -260,8 +267,6 @@ void jeffCheckBombs(jeff *restrict j) __z88dk_fastcall {
         }
     }
 }
-
-byte heightMap[HEIGHTMAP_WIDTH * HEIGHTMAP_HEIGHT];
 
 void jeffWalkStep(jeff *restrict j) __z88dk_fastcall {
     byte newPattern = ++(j->sprite.pattern);

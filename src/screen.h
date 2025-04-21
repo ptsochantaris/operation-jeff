@@ -32,8 +32,7 @@ void fadePaletteUp(const ResourceInfo *restrict compressedPalette, word numBytes
 void zeroPalette(byte palette, word length);
 
 void loadScreen(const LevelInfo *restrict info);
-void loadHeightmap(const LevelInfo *restrict info);
-
+  
 void writeNextReg(byte reg, const char *bytes, byte len);
 void fillNextReg(byte reg, byte value, byte len);
 void scrollLayer2(word x, byte y) __z88dk_callee;

@@ -9,6 +9,7 @@
 #pragma output CRT_ORG_BSS = -1            // strip bss section from binary
 #pragma output CRT_ENABLE_STDIO = 0
 #pragma output CRT_ENABLE_COMMANDLINE = 0
+#pragma output CRT_CORE_VERSION = 302000
 
 #pragma output CLIB_EXIT_STACK_SIZE = 0
 #pragma output CLIB_MALLOC_HEAP_SIZE = 0   // disable malloc heap

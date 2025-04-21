@@ -42,6 +42,8 @@
 #include "music.h"
 #include "files.h"
 
+extern void decompressZX0(byte *dst, byte *src) __z88dk_callee __smallc;
+
 #endif
 
 // z88dk index: https://github.com/z88dk/z88dk/blob/master/doc/ZXSpectrumZSDCCnewlib_GettingStartedGuide.md
