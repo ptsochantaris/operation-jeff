@@ -45,7 +45,16 @@ void effectLand(void) __z88dk_fastcall {
 void effectExplosion(void) __z88dk_fastcall {
   ayChipSelect(1);
   aySetEnvelope(0, 3000);
-  aySetNoise(10000);
+  aySetNoise(16);
+
+  aySetMixer(1, 0, 1);
+  aySetAmplitude(1, 0x10);
+}
+
+void effectBomb(void) __z88dk_fastcall {
+  ayChipSelect(1);
+  aySetEnvelope(0, 30000);
+  aySetNoise(31);
 
   aySetMixer(1, 0, 1);
   aySetAmplitude(1, 0x10);
@@ -53,8 +62,8 @@ void effectExplosion(void) __z88dk_fastcall {
 
 void effectDamage(void) __z88dk_fastcall {
   ayChipSelect(1);
-  aySetEnvelope(0, 20000);
-  aySetNoise(2000);
+  aySetEnvelope(0, 10000);
+  aySetNoise(16);
 
   aySetMixer(0, 0, 1);
   aySetAmplitude(0, 0x10);
@@ -66,7 +75,7 @@ void effectDamage(void) __z88dk_fastcall {
 void effectBonus(void) __z88dk_fastcall {
   ayChipSelect(2);
   aySetEnvelope(0, 20000);
-  aySetNoise(1000);
+  aySetNoise(8);
   ayPlayNote(1, C1);
   aySetMixer(1, 1, 1);
   aySetAmplitude(1, 0x10);

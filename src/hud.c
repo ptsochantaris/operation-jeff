@@ -109,7 +109,7 @@ void hudKillsDraw(void) __z88dk_fastcall {
   int res = displayedStats.maxKillsInLevel - displayedStats.killsInLevel;
   if(res >= 0) {
     sprintf(textBuf, "%03d", res);
-    printNoBackground(textBuf, 5, 8, HUD_WHITE);
+    printNoBackground(textBuf, 5, 8, HUD_FILL_TEXT);
   }
 }
 
@@ -163,6 +163,7 @@ void initHud(byte level) __z88dk_fastcall {
   applyHudPalette();
 
   const LevelInfo info = levelInfo[level];
+  writeColourToIndex(info.fontDark, HUD_FILL_TEXT);
   writeColourToIndex(info.jeffDark, HUD_FILL_DARK);
   writeColourToIndex(info.jeffBright, HUD_FILL_LIGHT);
 

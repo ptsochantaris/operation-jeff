@@ -24,11 +24,12 @@ typedef struct {
     byte page;        
 } ResourceInfo;
 
-#define EmptyResource {0, 0, 0}
+#define FAKE_LEVEL(L) { { 0,0 }, { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(L), {0, 0, 0} }
 
 typedef struct {
     byte jeffBright[2];
     byte jeffDark[2];
+    byte fontDark[2];
     word killsRequired;
     word difficultyStep;
     byte initialGenerationPeriod;

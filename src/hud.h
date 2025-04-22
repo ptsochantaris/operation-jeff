@@ -1,8 +1,9 @@
 #ifndef __HUD_H__
 #define __HID_H__
 
-#define HUD_COLOUR_COUNT 9
+#define HUD_COLOUR_COUNT 10
 
+#define HUD_FILL_TEXT 246
 #define HUD_FILL_LIGHT 247
 #define HUD_FILL_DARK 248
 #define HUD_BLACK 249

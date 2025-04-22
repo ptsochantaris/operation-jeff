@@ -1,5 +1,7 @@
 #include "resources.h"
 
+const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
+
 // used in places where we define clipping boundaries
 const byte clipBytes[] = {0,159,0,255};
 
@@ -105,7 +107,19 @@ void loadPaletteBuffer(const ResourceInfo *restrict compressedPalette) __z88dk_c
   ZXN_WRITE_MMU3(previousMmu3);
 }
 
-void fadePalette(word numBytes, byte shift) __z88dk_callee {
+void stashPalette(byte paletteMask) __z88dk_fastcall {
+  selectPalette(paletteMask);
+
+  word i = 0;
+  for(word f=0; f<256; f++, i+=2) {
+    ZXN_NEXTREGA(REG_PALETTE_INDEX, f); // start palette index
+
+    paletteBuffer[i] = ZXN_READ_REG(0x41);
+    paletteBuffer[i+1] = ZXN_READ_REG(REG_PALETTE_VALUE_16) & 1;
+  }
+}
+
+void shiftPalette(word numBytes, byte shift, byte bright) __z88dk_callee {
   ZXN_NEXTREG(REG_PALETTE_INDEX, 0); // start palette index
 
   byte r, g, b, col;
@@ -114,13 +128,18 @@ void fadePalette(word numBytes, byte shift) __z88dk_callee {
     col = *pairs;
 
     r = col >> 5;
-    if(shift < r) r = shift;
-
     g = (col >> 2) & 7;
-    if(shift < g) g = shift;
-
     b = ((col & 3) << 1) | (*(++pairs) & 1);
-    if(shift < b) b = shift;
+
+    if(bright) {
+      if(shift > r) r = shift;
+      if(shift > g) g = shift;
+      if(shift > b) b = shift;
+    } else {
+      if(shift < r) r = shift;
+      if(shift < g) g = shift;
+      if(shift < b) b = shift;
+    }
 
     col = r << 5 | g << 2 | b >> 1;
     ZXN_WRITE_REG(REG_PALETTE_VALUE_16, col);
@@ -132,19 +151,24 @@ void fadePalette(word numBytes, byte shift) __z88dk_callee {
   intrinsic_halt();
 }
 
-void fadePaletteDown(byte paletteMask, word numBytes) __z88dk_callee {
-  selectPalette(paletteMask);
+void flashPaletteUp(void) __z88dk_fastcall {
+  stashPalette(1);
+  shiftPalette(nonHudPaletteByteCount, 2, 1);
+  shiftPalette(nonHudPaletteByteCount, 5, 1);
+  shiftPalette(nonHudPaletteByteCount, 6, 1);
+}
 
-  word i = 0;
-  for(word f=0; f<256; f++, i+=2) {
-    ZXN_NEXTREGA(REG_PALETTE_INDEX, f); // start palette index
-
-    paletteBuffer[i] = ZXN_READ_REG(0x41);
-    paletteBuffer[i+1] = ZXN_READ_REG(REG_PALETTE_VALUE_16) & 1;
+void flashPaletteDown(void) __z88dk_fastcall {
+  for(byte shift=8; shift > 0; --shift) {
+    shiftPalette(nonHudPaletteByteCount, shift-1, 1);
   }
+}
+
+void fadePaletteDown(byte paletteMask, word numBytes) __z88dk_callee {
+  stashPalette(paletteMask);
 
   for(byte shift=8; shift > 0; --shift) {
-    fadePalette(numBytes, shift-1);
+    shiftPalette(numBytes, shift-1, 0);
   }
 }
 
@@ -153,7 +177,7 @@ void fadePaletteUp(const ResourceInfo *restrict compressedPalette, word numBytes
   loadPaletteBuffer(compressedPalette);
 
   for(byte shift=0; shift < 8; ++shift) {
-    fadePalette(numBytes, shift);
+    shiftPalette(numBytes, shift, 0);
   }
 }
 

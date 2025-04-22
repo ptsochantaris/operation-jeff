@@ -64,7 +64,6 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
 
   effectSiren();
 
-  const word nonHudPaletteByteCount = 512-(HUD_COLOUR_COUNT * 2);
   fadePaletteUp(&(info.paletteAsset), nonHudPaletteByteCount, 1);
 
   selectPalette(2);
@@ -77,12 +76,14 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
 
 void nextLevel(void) __z88dk_fastcall {
   jeffKillAll();
+  effectExplosion();
   statsProgressLevel();
   stopDma(); // stop any potential sample, as level loading will use the same buffers
   loadLevelScreen(currentStats.level);
 }
 
 byte gameLoop(void) __z88dk_fastcall {
+  srand(100);
   setSpriteGameClipping();
   setGameMouse();
   setupGameStats();

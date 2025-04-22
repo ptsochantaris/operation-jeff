@@ -9,6 +9,7 @@
 #define HEIGHTMAP_HEIGHT 64
 
 extern const byte clipBytes[];
+extern const word nonHudPaletteByteCount;
 
 void configLayer2(word writeThroughEnable) __z88dk_fastcall;
 void layer2Clear(byte index) __z88dk_fastcall;
@@ -27,6 +28,8 @@ void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_
 void setFallbackColour(byte index) __z88dk_callee;
 void writeColourToIndex(const byte *colour, byte index) __z88dk_callee;
 
+void flashPaletteUp(void) __z88dk_fastcall;
+void flashPaletteDown(void) __z88dk_fastcall;
 void fadePaletteDown(byte paletteMask, word numBytes) __z88dk_callee;
 void fadePaletteUp(const ResourceInfo *restrict compressedPalette, word numBytes, byte paletteMask) __z88dk_callee;
 void zeroPalette(byte palette, word length) __z88dk_callee;

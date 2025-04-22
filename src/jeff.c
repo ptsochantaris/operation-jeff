@@ -216,8 +216,6 @@ void killJeff(jeff *restrict j) __z88dk_fastcall {
     processJeffKill(j->moveMask);
     j->sprite.pattern = JEFF_DISAPPEAR_FIRST;
     j->state = JEFF_STATE_DISAPPEAR;
-
-    effectExplosion();
 }
 
 void jeffEscape(jeff *restrict j) __z88dk_fastcall {
@@ -250,7 +248,8 @@ void jeffCheckBombs(jeff *restrict j) __z88dk_fastcall {
             if(jy >= C) continue;
 
             killJeff(j);
-
+            effectExplosion();
+        
             C = pos.x - (BOMB_CLOSE>>1);
             if(jx < C) return;
             C += BOMB_CLOSE;
