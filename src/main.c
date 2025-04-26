@@ -15,15 +15,15 @@ int main(void) {
 
   intrinsic_ei();
 
-  while(1) {
-    menuLoop();
+  // while(1) {
+  //   menuLoop();
 
-    if(gameLoop()) {
-      break;
-    }
+  //   if(gameLoop()) {
+  //     break;
+  //   }
 
     gameOverLoop();
-  }
+  // }
 
   ZXN_NEXTREGA(REG_RESET, RR_SOFT_RESET);
   return 0;

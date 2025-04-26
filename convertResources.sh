@@ -21,10 +21,11 @@ bordered_output "Title Screen"
 $CONV "${ORIG}OperationJeffTitle.png" -pal-min -bitmap-y -bank-8k "${DST}title.nxi" 
 bordered_output "Info Screen"
 $CONV "${ORIG}OperationJeffInfo.png" -pal-min -bitmap-y -bank-8k "${DST}info.nxi" 
-bordered_output "Game Over Screen"
+bordered_output "Game Over Screens"
 $CONV "${ORIG}OperationJeffGameOver.png" -pal-min -bitmap-y -bank-8k "${DST}gameOverScreen.nxi" 
+$CONV "${ORIG}OperationJeffGameOverHighscore.png" -pal-min -bitmap-y -bank-8k "${DST}gameOverHighscoreScreen.nxi" 
 
-SCREENS=(title info gameOverScreen)
+SCREENS=(title info gameOverScreen gameOverHighscoreScreen)
 for SCREEN in "${SCREENS[@]}"; do
     bordered_output "Compression: ${SCREEN}"
     for NUMBER in "${NUMBERS[@]}"; do
@@ -34,7 +35,7 @@ for SCREEN in "${SCREENS[@]}"; do
 done
 
 bordered_output "Compression: Palettes"
-PALETTES=(title info gameOverScreen default)
+PALETTES=(title info gameOverScreen gameOverHighscoreScreen default)
 for PALETTE in "${PALETTES[@]}"; do
     $COMPRESS -f "${DST}/${PALETTE}.nxp" "${DST}/${PALETTE}.nxp.zx0" &
 done
