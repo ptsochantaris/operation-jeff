@@ -1,6 +1,6 @@
 #include "resources.h"
 
-static Note openingSong[] = {
+static const Note openingSong[] = {
 {16010, 17271, 69},
 {17498, 17648, 67},
 {17983, 19369, 69},

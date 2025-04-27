@@ -1,16 +1,16 @@
 #include "resources.h"
 
-extern word *keyboardPorts;
+extern const byte *keyboardLookup;
+extern const word *keyboardPorts;
 
 byte readKeyboardLetter(void) __z88dk_fastcall {
     const word *end = keyboardPorts+9;
-    const byte *offset = 0;
+    const byte *offset = keyboardLookup;
     byte shifted = 0;
     byte v = 0;
-    byte pressed;
 
-    for(word *port = keyboardPorts; port != end; ++port) {
-        pressed = z80_inp(*port);
+    for(const word *port = keyboardPorts; port != end; ++port) {
+        word pressed = z80_inp(*port);
         for(byte i=0; i!=5; ++i) {
             if((pressed & 1) == 0) {
                 byte r = *offset;

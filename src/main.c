@@ -15,7 +15,7 @@ int main(void) {
 
   intrinsic_ei();
 
-  // while(1) {
+  while(1) {
   //   menuLoop();
 
   //   if(gameLoop()) {
@@ -23,7 +23,7 @@ int main(void) {
   //   }
 
     gameOverLoop();
-  // }
+  }
 
   ZXN_NEXTREGA(REG_RESET, RR_SOFT_RESET);
   return 0;
