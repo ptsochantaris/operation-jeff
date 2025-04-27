@@ -6,7 +6,7 @@
 
 #include "types.h"
 
-typedef struct {
+typedef struct stats {
     byte energy;
     byte health;
     byte fireRate;
@@ -23,9 +23,9 @@ typedef struct {
     word killsInLevel;
     word maxKillsInLevel;
     word difficultyStepInLevel;
-} stats;
+};
 
-extern stats currentStats;
+extern struct stats currentStats;
 
 void initStats(void) __z88dk_fastcall;
 void setupGameStats(void) __z88dk_fastcall;

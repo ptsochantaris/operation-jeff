@@ -66,7 +66,7 @@ void printSidewaysNoBackground(const byte *text, word x, word y, byte textColor)
 
 byte textBuf[10];
 
-static stats displayedStats;
+static struct stats displayedStats;
 
 void hudEnergyDraw(void) __z88dk_fastcall {
   byte width = displayedStats.energy >> 2;
@@ -162,7 +162,7 @@ void updateStatsIfNeeded(void) __z88dk_fastcall {
 void initHud(byte level) __z88dk_fastcall {
   applyHudPalette();
 
-  const LevelInfo info = levelInfo[level];
+  const struct LevelInfo info = levelInfo[level];
   writeColourToIndex(info.fontDark, HUD_FILL_TEXT);
   writeColourToIndex(info.jeffDark, HUD_FILL_DARK);
   writeColourToIndex(info.jeffBright, HUD_FILL_LIGHT);

@@ -2,11 +2,11 @@
 
 #define starCount 40
 
-star stars[starCount];
+static struct star stars[starCount];
 
 void initStars(void) __z88dk_fastcall {
     for(byte f=0; f!=starCount; ++f) {
-        star *s = stars+f;
+        struct star *s = stars+f;
         s->x = rand() % 320;
         s->y = rand() % 256;
         s->speed = 1 + rand() % 7;
@@ -15,7 +15,7 @@ void initStars(void) __z88dk_fastcall {
 
 void updateStars(void) __z88dk_fastcall {
     for(byte f=0; f!=starCount; ++f) {
-        star *s = stars+f;
+        struct star *s = stars+f;
         word x = s->x;
         byte y = s->y;
         byte sp = s->speed;

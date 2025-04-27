@@ -18,24 +18,24 @@
     R_##X##_9_nxi_zx0 \
 }, R_##X##_nxp_zx0
 
-typedef struct {
+typedef struct ResourceInfo {
     word resource;
     word length;
     byte page;        
-} ResourceInfo;
+};
 
 #define FAKE_LEVEL(L) { { 0,0 }, { 0,0 }, { 0,0 }, 0, 0, 0, SCREEN_ARRAY(L), {0, 0, 0} }
 
-typedef struct {
+typedef struct LevelInfo {
     byte jeffBright[2];
     byte jeffDark[2];
     byte fontDark[2];
     word killsRequired;
     word difficultyStep;
     byte initialGenerationPeriod;
-    ResourceInfo screens[10], paletteAsset, heightmapAsset;
-} LevelInfo;
+    struct ResourceInfo screens[10], paletteAsset, heightmapAsset;
+};
 
-extern LevelInfo levelInfo[];
+extern struct LevelInfo levelInfo[];
 
 #endif

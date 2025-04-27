@@ -3,7 +3,7 @@
 #include <z80.h>
 #include "dma.h"
 
-typedef struct {
+typedef struct dmaPayload {
   // header
   byte r6a;
   byte r0;
@@ -18,9 +18,9 @@ typedef struct {
   byte r4;
   word destination;
   word r6b;
-} dmaPayload;
+};
 
-static dmaPayload dmaMemoryPrep = {
+static struct dmaPayload dmaMemoryPrep = {
   // header - 7 bytes
   0xc3, // 11000011 ; R6 reset dma
   0x7e, // 01111101 ; R0-Transfer mode, A -> B, will provide address and length

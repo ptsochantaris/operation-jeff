@@ -5,9 +5,9 @@ void hideSprite(byte index) __z88dk_fastcall {
   ZXN_NEXTREGA(0x38, 0); // invisible
 }
 
-void updateSprite(sprite_info *restrict s) __z88dk_fastcall {
+void updateSprite(struct sprite_info *restrict s) __z88dk_fastcall {
   ZXN_NEXTREGA(0x34, s->index); // sprite index
-  coord pos = s->pos;
+  struct coord pos = s->pos;
   ZXN_NEXTREGA(0x35, pos.x & 0xFF); // x low
   ZXN_NEXTREGA(0x37, s->attrs | pos.x >> 8); // x high, default attrs
   int Y = pos.y - pos.z;
@@ -30,8 +30,8 @@ void setSpriteMenuClipping(void) __z88dk_fastcall {
   }
 }
 
-static const ResourceInfo rR = R_sprites_spr;
-static const ResourceInfo rP = R_default_nxp_zx0;
+static const struct ResourceInfo rR = R_sprites_spr;
+static const struct ResourceInfo rP = R_default_nxp_zx0;
 
 void loadSprites(void) __z88dk_fastcall {  
   ZXN_NEXTREG(REG_SPRITE_TRANSPARENCY_INDEX, 0); // sprite palette index 0 is transparent

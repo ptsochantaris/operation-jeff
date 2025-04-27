@@ -29,6 +29,15 @@
         "__locale": "c",
         "string": "c",
         "string_view": "c",
-        "files.h": "c"
+        "files.h": "c",
+        "__bit_reference": "c",
+        "__hash_table": "c",
+        "__split_buffer": "c",
+        "array": "c",
+        "deque": "c",
+        "initializer_list": "c",
+        "ios": "c",
+        "unordered_map": "c",
+        "vector": "c"
     }
 }

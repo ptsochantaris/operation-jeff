@@ -49,7 +49,7 @@ byte debugKeys(void) __z88dk_fastcall {
 #endif
 
 void loadLevelScreen(byte level) __z88dk_fastcall {
-  const LevelInfo info = levelInfo[level];
+  const struct LevelInfo info = levelInfo[level];
 
   // flash jeffs white
   selectPalette(2);

@@ -2,13 +2,33 @@
 
 #define DAMAGE 50
 
-stats currentStats;
+struct stats currentStats;
 
-typedef struct {
+typedef struct ScoreRecord {
+    byte name[11];
+    long score;
+};
+
+typedef struct SavedStats {
     long hiScore;
-} SavedStats;
+    struct ScoreRecord slots[10];
+};
 
-static SavedStats savedStats;
+static struct SavedStats savedStats = {
+    0,
+    {
+        {"MINILAMB  ", 10000},
+        {"MACROLAMB ", 9000},
+        {"PICOLAMB  ", 8000},
+        {"REGULAMB  ", 7000},
+        {"MICROLAMB ", 6000},
+        {"MINILAMP  ", 5000},
+        {"JEFF      ", 4000},
+        {"JEFFF     ", 3000},
+        {"JEFFFF    ", 2000},
+        {"JEFFFFF   ", 1000}
+    }
+};
 
 void initStats(void) __z88dk_fastcall {
     savedStats.hiScore = 0;
@@ -40,7 +60,7 @@ void statsProgressLevel(void) __z88dk_fastcall {
         currentStats.level = 0;
     }
 
-    const LevelInfo info = levelInfo[currentStats.level];
+    const struct LevelInfo info = levelInfo[currentStats.level];
 
     currentStats.killsInLevel = 0;
     currentStats.difficultyCountdown = 0;

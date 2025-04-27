@@ -7,14 +7,14 @@
 #define EXPLOSION_FIRST 10
 #define EXPLOSION_LAST 15
 
-bomb bombs[bombCount];
+struct bomb bombs[bombCount];
 
 static byte bombLoop = 0;
 static byte cooldown = 0;
 
 void initBombs(void) __z88dk_fastcall {
     cooldown = 0;
-    bomb *b = bombs;
+    struct bomb *b = bombs;
     for(byte f=0; f!=bombCount; ++f, ++b) {
         b->sprite.index = f;
         b->state = BOMB_STATE_NONE;
@@ -33,8 +33,8 @@ void fireIfPossible(void) __z88dk_fastcall {
         return;
     }
 
-    bomb *b = bombs;
-    for(bomb *end = b+bombCount; b != end; ++b) {
+    struct bomb *b = bombs;
+    for(struct bomb *end = b+bombCount; b != end; ++b) {
         if(b->state == BOMB_STATE_NONE) {
             currentStats.energy -= FIRE_ENERGY;
 
@@ -53,14 +53,14 @@ void fireIfPossible(void) __z88dk_fastcall {
 
 void updateBombs(void) __z88dk_fastcall {
     if(bombLoop) {
-        bomb *b = bombs;
-        for(bomb *end = b+bombCount; b != end; ++b) {
+        struct bomb *b = bombs;
+        for(struct bomb *end = b+bombCount; b != end; ++b) {
             switch(b->state) {
                 case BOMB_STATE_NONE:
                     break;
 
                 case BOMB_STATE_TICKING:
-                    coord pos = b->sprite.pos;
+                    struct coord pos = b->sprite.pos;
                     pos.y += (b->target.y - pos.y) >> 2;
                     b->sprite.pos = pos;
 

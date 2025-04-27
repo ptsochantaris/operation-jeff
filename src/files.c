@@ -36,6 +36,8 @@ void esxDosRomSetup(void) __z88dk_fastcall {
 }
 
 void persistData(void *src, int len) __z88dk_callee {
+    if(len <= 0) return;
+
     prepareForEsxCall();
     byte handle = esx_f_open(filename, ESX_MODE_WRITE | ESX_MODE_OPEN_CREAT_TRUNC);
     if(!errno) {
@@ -46,11 +48,20 @@ void persistData(void *src, int len) __z88dk_callee {
 }
 
 void fetchData(void *dst, int len) __z88dk_callee {
+    if(len <= 0) return;
+
     prepareForEsxCall();
+
     byte handle = esx_f_open(filename, ESX_MODE_READ);
     if(!errno) {
-        esx_f_read(handle, dst, len);
+        struct esx_stat stsx;
+        bzero(&stsx, sizeof(stsx));
+        esx_f_fstat(handle, &stsx);
+        if(stsx.size >= len) {
+            esx_f_read(handle, dst, len);
+        }
         esx_f_close(handle);
     }
+
     completedEsxCall();
 }

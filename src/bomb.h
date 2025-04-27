@@ -7,14 +7,14 @@
 
 #define bombCount 20
 
-typedef struct {
-    coord target;
+typedef struct bomb {
+    struct coord target;
     byte state;
     byte countdown;
-    sprite_info sprite;
-} bomb;
+    struct sprite_info sprite;
+};
 
-extern bomb bombs[];
+extern struct bomb bombs[];
 
 void initBombs(void) __z88dk_fastcall;
 void updateBombs(void) __z88dk_fastcall;
