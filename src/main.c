@@ -16,11 +16,11 @@ int main(void) {
   intrinsic_ei();
 
   while(1) {
-  //   menuLoop();
+    menuLoop();
 
-  //   if(gameLoop()) {
-  //     break;
-  //   }
+    if(gameLoop()) {
+      break;
+    }
 
     gameOverLoop();
   }
