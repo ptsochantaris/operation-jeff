@@ -23,7 +23,6 @@ bordered_output "Info Screen"
 $CONV "${ORIG}OperationJeffInfo.png" -pal-min -bitmap-y -bank-8k "${DST}info.nxi" 
 bordered_output "Game Over Screens"
 $CONV "${ORIG}OperationJeffGameOver.png" -pal-min -bitmap-y -bank-8k "${DST}gameOverScreen.nxi" 
-$CONV "${ORIG}OperationJeffGameOverHighscore.png" -pal-min -bitmap-y -bank-8k "${DST}gameOverHighscoreScreen.nxi" 
 
 SCREENS=(title info gameOverScreen gameOverHighscoreScreen)
 for SCREEN in "${SCREENS[@]}"; do

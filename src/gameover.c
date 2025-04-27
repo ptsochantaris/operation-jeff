@@ -14,15 +14,19 @@ void gameOverEffect(void) __z88dk_fastcall {
   aySetAmplitude(2, 0x1F);
 }
 
-static const LevelInfo gameOverHighscoreInfo = FAKE_LEVEL(gameOverHighscoreScreen);
 static const LevelInfo gameOverInfo = FAKE_LEVEL(gameOverScreen);
-void loadGameOverScreen(byte highScore) __z88dk_fastcall {
+void loadGameOverScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
-  loadScreen(highScore ? &gameOverHighscoreInfo : &gameOverInfo);
-  fadePaletteUp(highScore ? &gameOverHighscoreInfo.paletteAsset : &gameOverInfo.paletteAsset, 512, 1);
+  loadScreen(&gameOverInfo);
+  fadePaletteUp(&gameOverInfo.paletteAsset, 512, 1);
+}
+
+void printHiScoreName(char *hiScoreBuf, word x, word top) {
+  print(hiScoreBuf, x, top, HUD_BLACK, HUD_ORANGE);
 }
 
 void gameOverLoop(void) __z88dk_fastcall {
+  currentStats.hiScore = 123123; // TODO remove!
   currentStats.score = 123123; // TODO remove!
 
   resetBonuses();
@@ -32,19 +36,18 @@ void gameOverLoop(void) __z88dk_fastcall {
   setHudBackground(0);
   mouseReset();
   status(NULL);
-
   gameOverEffect();
+  loadGameOverScreen();
+  applyHudPalette();
 
   byte isHighScore = (currentStats.hiScore == currentStats.score) && currentStats.score;
-  loadGameOverScreen(isHighScore);
-  applyHudPalette();
 
   word center = 160;
   word x = center - ((4*9) >> 1);
 
   word top;
   if(isHighScore) {
-    top = 60;
+    top = 90;
     printNoBackground("GAME OVER", x, top, HUD_ORANGE);
     top += 20;
     x = center - ((4*15) >> 1);
@@ -65,17 +68,54 @@ void gameOverLoop(void) __z88dk_fastcall {
   sprintf(textBuf, "%07lu", currentStats.score);
   printNoBackground(textBuf, x, top, HUD_ORANGE);
 
-  top += 40;
-  x = center - ((4*28) >> 1);
-  printNoBackground("ENTER YOUR NAME:", x, top, HUD_ORANGE);
-  x += (4*18);
-  print("          ", x, top, HUD_BLACK, HUD_ORANGE);
+  byte hiScoreBufPos = 0;
+  byte hiScoreBuf[11] = "          ";
+  byte keyPressed = 0;
+
+  if(isHighScore) {
+    top += 26;
+    x = center - ((4*28) >> 1);
+    printNoBackground("ENTER YOUR NAME:", x, top, HUD_ORANGE);
+    x += (4*17);
+    layer2roundedBox(x - 2, top - 2, 4*10 + 2, 8, HUD_ORANGE);
+    layer2fill(x - 1, top - 1, 4*10 + 1, 7, HUD_ORANGE);
+  }
 
   while(1) {
     intrinsic_halt();
     updateMouse();
     if(!mouseState.handled) {
       return;
+    }
+
+    if(isHighScore) {
+      byte letter = readKeyboardLetter();
+      if(letter < 8) {
+        keyPressed = 0;
+        continue;
+      }
+      
+      if(keyPressed) {
+        continue;
+      }
+      keyPressed = 1;
+
+      if(letter == 8) {
+        if(hiScoreBufPos > 0) {
+          hiScoreBuf[--hiScoreBufPos] = ' ';
+        }
+
+      } else if(letter == 13) {
+        // TODO submit
+
+      } else {
+        if(hiScoreBufPos > 9) {
+          hiScoreBufPos = 9;
+        }
+        hiScoreBuf[hiScoreBufPos++] = letter;
+      }
+
+      printHiScoreName(hiScoreBuf, x, top);
     }
   }
 }

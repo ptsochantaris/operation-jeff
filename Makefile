@@ -23,6 +23,7 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	levelinfo.o \
 	music.o \
 	effects.o \
+	keyboard.o \
 	base.o \
 	dma.o \
 	files.o \

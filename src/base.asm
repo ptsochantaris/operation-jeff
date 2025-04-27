@@ -1,12 +1,13 @@
 SECTION PAGE_28
 ORG 0
+    DEFB '1', '2', '3', '4', '5', '0', '9', '8', '7', '6'
+    DEFB 'Q', 'W', 'E', 'R', 'T', 'P', 'O', 'I', 'U', 'Y'
+    DEFB 'A', 'S', 'D', 'F', 'G',  13, 'L', 'K', 'J', 'H'
+    DEFB   1, 'Z', 'X', 'C', 'V', ' ',   2, 'M', 'N', 'B'
 
-    DEFB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    DEFB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    DEFB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    DEFB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    DEFB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    DEFB 0, 0, 0, 0, 0, 0
+PUBLIC _keyboardPorts
+_keyboardPorts:
+    DEFW $f7fe, $effe, $fbfe, $dffe, $fdfe, $bffe, $fefe, $7ffe
 
 _isr:
     ei
