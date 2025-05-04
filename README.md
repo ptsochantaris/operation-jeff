@@ -36,11 +36,13 @@ Press P to pause during the game.
 
 The game packs all its resources into a single NEX file. Almost all data, except the executable code and digial audio, is compressed using the zx0 compressor and decompressed at the time of use.
 
-The resources are converted to native Next formats from the files in `resources_original` via the `convertResource.sh` script.
+The resources are converted to native Next formats from the files in `resources_original` via the `convertResource.sh` script. This script performs these steps:
 
-Level heightmaps are converted via the `convertHeightmaps.swift` script.
-
-The converted assets are then scanned by the `makeAssets.swift` script which results in a generated `assets.asm` file with an accompanying `assets.h` file. The ASM file builds the binary blob with all the binary data, sorted to fill each memory page as much as possible, and the H file creates defines which are used in the game to refer to each resource's (paged-in) address, data length, and page.
+- Level backgrounds are converted from PNG to native Next using the `gfx2next` utility.
+- Generated images and palettes are compressed using the `zx0` utility.
+- Level heightmaps are converted from PNG to via the `convertHeightmaps.swift` script to *.hm files (which are just a raster of 8-bit brightness values).
+- The converted assets are then scanned by the `makeAssets.swift` script which results in a generated `assets.asm` file with an accompanying `assets.h` file. The ASM file builds the binary blob with all the binary data, sorted to fill each memory page as much as possible, and the H file creates defines which are used in the game to refer to each resource's (paged-in) address, data length, and page.
+- Finally the loading screen for the NEX is converted in a slightly different native format as required by the NEX spec.
 
 ### Memory map
 
