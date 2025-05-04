@@ -1,6 +1,6 @@
 #include "resources.h"
 
-static Note openingSong[] = {
+static const struct Note openingSong[] = {
 {16010, 17271, 69},
 {17498, 17648, 67},
 {17983, 19369, 69},
@@ -133,7 +133,7 @@ static Note openingSong[] = {
 };
 
 static float time;
-const Note *nextNote;
+const struct Note *nextNote;
 
 void playTitleSong(void) __z88dk_fastcall {
     time = 0;
@@ -166,7 +166,7 @@ void updateTitleSong(void) __z88dk_fastcall {
     time += 39.4492;
 
     if(time >= start) {
-        NoteIndex note = nextNote->note;
+        enum NoteIndex note = nextNote->note;
         word duration = 590;
 
         ayChipSelect(0);

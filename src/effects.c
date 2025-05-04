@@ -1,22 +1,22 @@
 #include "resources.h"
 
-void playSample(ResourceInfo *restrict info, byte speed, byte loop) __z88dk_callee {
+void playSample(struct ResourceInfo *restrict info, byte speed, byte loop) __z88dk_callee {
   ZXN_WRITE_MMU1(info->page);
   ZXN_WRITE_MMU2((info->page)+1);
   playWithDma((word)info->resource, info->length, speed, loop);
 }
 
-static const ResourceInfo zapEffect = R_zzzap_pcm;
+static const struct ResourceInfo zapEffect = R_zzzap_pcm;
 void effectZap(void) __z88dk_fastcall {
   playSample(&zapEffect, 0x74, 0);
 }
 
-static const ResourceInfo sirenEffect = R_siren_pcm;
+static const struct ResourceInfo sirenEffect = R_siren_pcm;
 void effectSiren(void) __z88dk_fastcall {
   playSample(&sirenEffect, 0x74, 0);
 }
 
-static const ResourceInfo menuLoopEffect = R_menu_pcm;
+static const struct ResourceInfo menuLoopEffect = R_menu_pcm;
 void effectMenuLoop(void) __z88dk_fastcall {
   playSample(&menuLoopEffect, 112, 1);
 }

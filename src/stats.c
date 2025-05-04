@@ -2,19 +2,25 @@
 
 #define DAMAGE 50
 
-stats currentStats;
+struct stats currentStats;
 
-typedef struct {
-    long hiScore;
-} SavedStats;
-
-static SavedStats savedStats;
+struct ScoreRecord highScores[] = {
+    { "MINILAMB  ", 1000 },
+    { "MACROLAMB ", 900 },
+    { "MAXILAMB  ", 800 },
+    { "MICROLAMB ", 700 },
+    { "MINTYLAMB ", 600 },
+    { "MILLILAMB ", 500 },
+    { "MINILAMP  ", 400 },
+    { "REGULAMB  ", 300 },
+    { "PICOLAMB  ", 200 },
+    { "JEFFFFFFFF", 100 }
+};
 
 void initStats(void) __z88dk_fastcall {
-    savedStats.hiScore = 0;
-    int len = sizeof(savedStats);
-    fetchData(&savedStats, len);
-    currentStats.hiScore = savedStats.hiScore;
+    int len = sizeof(highScores);
+    fetchData(&highScores, len);
+    currentStats.hiScore = highScores[0].score;
     setupGameStats();
 }
 
@@ -27,10 +33,16 @@ void setupGameStats(void) __z88dk_fastcall {
     currentStats.level = 255; // so it loops to zero at game start
 }
 
-void newHighScore(void) __z88dk_fastcall {
-    savedStats.hiScore = currentStats.score;
-    int len = sizeof(savedStats);
-    persistData(&savedStats, len);
+void newHighScore(byte *name) __z88dk_fastcall {
+    byte i = HIGHSCORE_SLOTS - 1;
+    while(i) {
+        highScores[i] = highScores[--i];
+    }
+    highScores[0].score = currentStats.score;
+    memcpy(highScores[0].name, name, HIGHSCORE_SLOT_NAME_LEN);
+    
+    word len = sizeof(highScores);
+    persistData(highScores, len);
 }
 
 void statsProgressLevel(void) __z88dk_fastcall {
@@ -40,7 +52,7 @@ void statsProgressLevel(void) __z88dk_fastcall {
         currentStats.level = 0;
     }
 
-    const LevelInfo info = levelInfo[currentStats.level];
+    const struct LevelInfo info = levelInfo[currentStats.level];
 
     currentStats.killsInLevel = 0;
     currentStats.difficultyCountdown = 0;

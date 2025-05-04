@@ -6,7 +6,7 @@
 void playTitleSong(void) __z88dk_fastcall;
 void updateTitleSong(void) __z88dk_fastcall;
 
-typedef enum {
+typedef enum NoteIndex {
     C0 = 0,
     CSharp0_DFlat0,
     D0,
@@ -104,12 +104,12 @@ typedef enum {
     ASharp7_BFlat7,
     B7,
     MAX_NOTES
-} NoteIndex;
+};
 
-typedef struct {
+typedef struct Note {
     long start;
     long end;
-    NoteIndex note;
-} Note;
+    enum NoteIndex note;
+};
 
 #endif

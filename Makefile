@@ -11,7 +11,7 @@ PRAGMA_FILE=zpragma.inc
 APPMAKE_ARGS=-Cz"--nex-border 0" -Cz"--nex-loadbar 19" -Cz"--nex-screen resources/loadingScreen.nxi" -Cz"--clean"
 C_OPT_FLAGS=-SO3 --max-allocs-per-node200000 --math16 #--opt-code-size
 INCLUDES=-I${ZCCCFG}/../../libsrc/_DEVELOPMENT/target/zxn
-CFLAGS=$(TARGET) $(VERBOSITY) -c $(C_OPT_FLAGS) --constsegPAGE_28 -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) $(INCLUDES)
+CFLAGS=$(TARGET) $(VERBOSITY) -c $(C_OPT_FLAGS) --constsegPAGE_28_POSTISR -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) $(INCLUDES)
 LDFLAGS=$(TARGET) $(VERBOSITY) -clib=$(CLIB) $(APPMAKE_ARGS) -pragma-include=$(PRAGMA_FILE) $(LIBS)
 ASFLAGS=$(TARGET) $(VERBOSITY) -c -float=ieee16
 EXEC=OperationJeff
@@ -23,6 +23,8 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	levelinfo.o \
 	music.o \
 	effects.o \
+	keyboard.o \
+	zx0.o \
 	base.o \
 	dma.o \
 	files.o \

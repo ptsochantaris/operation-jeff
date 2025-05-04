@@ -4,7 +4,7 @@
 //                                                                             initialGenerationPeriod
 //                                                                        difficultyStep
 //      jeffBright           jeffDark             fontDark           killsRequired  screens+paletteAsset  heightmapAsset
-LevelInfo levelInfo[] = {
+struct LevelInfo levelInfo[] = {
     { { COLOR9(7, 1, 1) }, { COLOR9(3, 1, 1) }, { COLOR9(7, 7, 7) },  40, 160, 100, SCREEN_ARRAY(levelA), R_heightmapA_hm_zx0 }, // 1
     { { COLOR9(7, 7, 7) }, { COLOR9(5, 5, 5) }, { COLOR9(2, 2, 2) },  45, 160,  90, SCREEN_ARRAY(levelO), R_heightmapO_hm_zx0 }, // 2
     { { COLOR9(4, 7, 4) }, { COLOR9(0, 6, 0) }, { COLOR9(7, 7, 7) },  50, 160,  85, SCREEN_ARRAY(levelB), R_heightmapB_hm_zx0 }, // 3

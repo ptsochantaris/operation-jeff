@@ -121,7 +121,7 @@ void aySetPitch(word channel, word pitch) __z88dk_callee { // 0 - 4095
     z80_outp(0xBFFD, 0xF & (pitch >> 8));
 }
 
-void ayPlayNote(word channel, NoteIndex note) __z88dk_callee { // 0 - 4095
+void ayPlayNote(word channel, enum NoteIndex note) __z88dk_callee { // 0 - 4095
     aySetPitch(channel, notePitches[note]);
 }
 

@@ -41,6 +41,7 @@
 #include "copper.h"
 #include "music.h"
 #include "files.h"
+#include "keyboard.h"
 
 extern void decompressZX0(byte *dst, byte *src) __z88dk_callee __smallc;
 

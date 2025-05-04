@@ -39,7 +39,7 @@ void layer2fill(word x, word y, word width, word height, byte color) __z88dk_cal
   }
 }
 
-void layer2DmaFill(word x, word y, word width, word height, byte color)  __z88dk_callee{
+void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee {
   word ex = x + width;
   byte endPage = ex >> 6;
   byte xInPage = x & 0x3F;
@@ -100,7 +100,7 @@ void selectPalette(byte paletteMask) __z88dk_fastcall {
 
 static byte paletteBuffer[512];
 
-void loadPaletteBuffer(const ResourceInfo *restrict compressedPalette) __z88dk_callee {
+void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_callee {
   byte previousMmu3 = ZXN_READ_MMU3();
   ZXN_WRITE_MMU3(compressedPalette->page);
   decompressZX0(paletteBuffer, (byte *)(compressedPalette->resource));
@@ -172,7 +172,7 @@ void fadePaletteDown(byte paletteMask, word numBytes) __z88dk_callee {
   }
 }
 
-void fadePaletteUp(const ResourceInfo *restrict compressedPalette, word numBytes, byte paletteMask) __z88dk_callee {
+void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte paletteMask) __z88dk_callee {
   selectPalette(paletteMask);
   loadPaletteBuffer(compressedPalette);
 
@@ -191,7 +191,7 @@ void zeroPalette(byte palette, word length) __z88dk_callee {
   }
 }
 
-void uploadPalette(const ResourceInfo *restrict compressedPalette, word numBytes, byte palette) __z88dk_callee {
+void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte palette) __z88dk_callee {
   selectPalette(palette);
   loadPaletteBuffer(compressedPalette);
   
@@ -215,8 +215,8 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void loadScreen(const LevelInfo *restrict info) __z88dk_callee {  
-  ResourceInfo *slice = info->screens;
+void loadScreen(const struct LevelInfo *restrict info) __z88dk_callee {  
+  struct ResourceInfo *slice = info->screens;
   for(byte page=18; page<28; ++page, ++slice) {
     ZXN_WRITE_MMU2(page);
     ZXN_WRITE_MMU1(slice->page);

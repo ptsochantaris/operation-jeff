@@ -6,11 +6,11 @@
 #define byte uint8_t
 #define word uint16_t
 
-typedef struct {
+typedef struct coord {
     int x;
     int y;
     int z;
-} coord;
+};
 
 #define COLOR9(r,g,b) (byte)(r << 5) | (byte)(g << 2) | (byte)(b >> 1), (byte)(b & 1)
 

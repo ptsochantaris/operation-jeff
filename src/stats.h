@@ -4,9 +4,17 @@
 #define FIRE_RATE_MAX 14
 #define FIRE_RATE_MIN 2
 
+#define HIGHSCORE_SLOTS 10
+#define HIGHSCORE_SLOT_NAME_LEN 10
+
 #include "types.h"
 
-typedef struct {
+typedef struct ScoreRecord {
+    byte name[HIGHSCORE_SLOT_NAME_LEN+1];
+    long score;
+};
+
+typedef struct stats {
     byte energy;
     byte health;
     byte fireRate;
@@ -23,9 +31,10 @@ typedef struct {
     word killsInLevel;
     word maxKillsInLevel;
     word difficultyStepInLevel;
-} stats;
+};
 
-extern stats currentStats;
+extern struct stats currentStats;
+extern struct ScoreRecord highScores[];
 
 void initStats(void) __z88dk_fastcall;
 void setupGameStats(void) __z88dk_fastcall;
@@ -35,6 +44,6 @@ void processFireStats(void) __z88dk_fastcall;
 void processJeffKill(byte speed) __z88dk_fastcall;
 void processBonusHit(byte type) __z88dk_fastcall;
 void processJeffHit(void) __z88dk_fastcall;
-void newHighScore(void) __z88dk_fastcall;
+void newHighScore(byte *name) __z88dk_fastcall;
 
 #endif
