@@ -50,7 +50,7 @@ Like most z80 targetting software, the code makes heavy use of paging. This diag
 
 #### The low 16k (`MMU0` and `MMU1`)
 
-The ROM is set to ROM3, which is the traditional 48k Sinclair ZX Spectrum ROM and is required by the ESX Dos API. However outside of making ESX Dos API calls, _the ROM is usually paged-out_. Instead the layout of the bottom 16k is this:
+The ROM is configured as `ROM3`, which is the traditional 48k Sinclair ZX Spectrum ROM and is required by the ESX Dos API. However outside of making ESX Dos API calls, _the ROM is usually paged-out_. Instead the layout of the bottom 16k is this:
 
 - `MMU0` is read-only and set to page 28, containing the ISR routine, and most constant values used in the program.
 - `MMU1` is also read-only and mostly used for loading and buffering read-only things, like the compressed contents of levels.
@@ -59,7 +59,8 @@ The ROM is set to ROM3, which is the traditional 48k Sinclair ZX Spectrum ROM an
 #### The next 16k (`MMU2` and `MMU3`)
 
 - `MMU2` is either (a) used as an extension for 16k-size buffers starting at `MMU1`, like when loading sprites, playing audio loops, or (b) as a read/write buffer for data when we're decompressing zx0 data such as screens.
-- `MMU3` would traditionally point to the tilemap on the ZX Spectrum Next, but most of the time we point it to page 10, which is to where the ULA has been relocated. The game can flip between them when required to modify either. It is also used for loading palettes. (The reason we don't use `MMU1` or `MMU2` as a buffer for this is because there are times where we access the palette while also playing sampled sound.)
+- `MMU3` would traditionally point to the tilemap on the ZX Spectrum Next, but most of the time we point it to page 10, which is to where the ULA has been relocated. The game can flip between the two when required to modify each one.
+- `MMU3` Acts as secondary buffer as well, currently used when loading palettes. This secondary buffer is used when playing sampled sound from the "main" buffer area at `MMU1` and `MMU2`.
 
 #### The top 32k (`MMU4` -> `MMU7`)
 
