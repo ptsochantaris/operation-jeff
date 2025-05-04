@@ -27,12 +27,12 @@ void completedEsxCall(void) __z88dk_fastcall {
 }
 
 void esxDosRomSetup(void) __z88dk_fastcall {
-    ZXN_WRITE_MMU0(28);
-
     // Normally ROM is paged out, but when we page it in we want it to
     // be the ROM3 (i.e. valilla 48k speccy) which esxdos API requires
     z80_outp(0x1FFD, 1 << 2); // high bit
     z80_outp(0x7FFD, 1 << 4); // low bit
+
+    ZXN_WRITE_MMU0(28);
 }
 
 void persistData(void *src, int len) __z88dk_callee {
