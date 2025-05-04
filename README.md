@@ -19,6 +19,7 @@ Shoot bonuses for various benefits:
 - Green cross: Replenish charge
 - Black cross: Bonus points
 - Yellow diamond: Smart bomb
+- Blue clock: Freeze the Jeff for 5 seconds
 
 If a bolt explodes especially close enough to a Jeff you get a small bonus as well.
 
@@ -30,5 +31,29 @@ Press P to pause during the game.
 |![Screenshot 3](screenshots/OperationJeffScreenshot3.jpg)|![Screenshot 4](screenshots/OperationJeffScreenshot4.jpg)|![Screenshot 5](screenshots/OperationJeffScreenshot5.jpg)|![Screenshot 6](screenshots/OperationJeffScreenshot6.jpg)|
 |--|--|--|--|
 |![Screenshot 7](screenshots/OperationJeffScreenshot7.jpg)|![Screenshot 8](screenshots/OperationJeffScreenshot8.jpg)|![Screenshot 9](screenshots/OperationJeffScreenshot9.jpg)|![Screenshot 10](screenshots/OperationJeffScreenshot10.jpg)|
+
+### Memory map
+
+![Memory map diagram](screenshots/memory_map.jpg)
+
+Like most z80 targetting software, the code makes heavy use of paging. This diagram may help make code and memory setup more understandable. The main strategy is:
+
+##### The low 16k (MMU0 and MMU1)
+
+The ROM is set to ROM3, which is the traditional 48k Sinclair ZX Spectrum ROM and is required by the ESX Dos API. However outside of making ESX Dos API calls, _the ROM is usually paged-out_. Instead the layout of the bottom 16k is this:
+
+- MMU0 is read-only and set to page 28, containing the ISR routine, and most constant values used in the program.
+- MMU1 is also read-only and mostly used for loading and buffering read-only things, like the compressed contents of levels.
+- MMU0 and MMU1 are set as write-only for writing to the Layer 2 display in 16k chunks.
+
+##### The next 16k (MMU2 and MMU3)
+
+- MMU2 is either (a) used as an extension for 16k-size buffers starting at MMU1, like when loading sprites, playing audio loops, or (b) as a read/write buffer for data when we're decompressing zx0 data such as screens.
+- MMU3 would traditionally point to the tilemap on the ZX Spectrum Next, but most of the time we point it to page 10, which is to where the ULA has been relocated. The game can flip between them when required to modify either. It is also used for loading palettes. (The reason we don't use MMU1 or MMU2 as a buffer for this is because there are times where we access the palette while also playing sampled sound.)
+
+##### The top 32k (MMU4 -> MMU7)
+
+- MMU4 to MMU7 hold the executable code and read/write variables, buffers, etc.
+- The stack grows back from the end at $FFFF.
 
 *All code (c) 2025 Paul Tsochantaris, published under the MIT license.*

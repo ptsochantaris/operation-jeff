@@ -75,10 +75,11 @@ func main() {
             }
         }
     }
+    mmu1Files = mmu1Files.sorted { $0.size > $1.size }
+    mmu3Files = mmu3Files.sorted { $0.size > $1.size }
 
     var firstPage = 29
 
-    mmu3Files = mmu3Files.sorted { $0.size > $1.size }
     var mmu3Groups = (firstPage ..< 200).map { FileGroup(page: $0, org: "0x6000", orgOffset: 0x6000) }
     for info in mmu3Files {
         if let firstFit = mmu3Groups.firstIndex(where: { $0.canFit(info: info) }) {
@@ -93,7 +94,6 @@ func main() {
         firstPage = lastFilled + 1
     }
 
-    mmu1Files = mmu1Files.sorted { $0.size > $1.size }
     var mmu1Groups = (firstPage ..< 200).map { FileGroup(page: $0, org: "0x2000", orgOffset: 0x2000) }
     for info in mmu1Files {
         if let firstFit = mmu1Groups.firstIndex(where: { $0.canFit(info: info) }) {

@@ -39,7 +39,7 @@ void layer2fill(word x, word y, word width, word height, byte color) __z88dk_cal
   }
 }
 
-void layer2DmaFill(word x, word y, word width, word height, byte color)  __z88dk_callee{
+void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee {
   word ex = x + width;
   byte endPage = ex >> 6;
   byte xInPage = x & 0x3F;

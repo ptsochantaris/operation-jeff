@@ -6,6 +6,7 @@
 #define HUD_FILL_TEXT 246
 #define HUD_FILL_LIGHT 247
 #define HUD_FILL_DARK 248
+
 #define HUD_BLACK 249
 #define HUD_ORANGE 250
 #define HUD_YELLOW 251

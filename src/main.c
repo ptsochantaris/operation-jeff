@@ -5,8 +5,6 @@ int main(void) {
   ZXN_NEXTREGA(REG_PERIPHERAL_3, ZXN_READ_REG(REG_PERIPHERAL_3) | RP3_DISABLE_CONTENTION | RP3_ENABLE_TURBOSOUND | RP3_ENABLE_SPECDRUM);
 
   esxDosRomSetup();
-  ZXN_WRITE_MMU0(28);
-
   setupScreen();
   loadSprites();
   initTilemap();
