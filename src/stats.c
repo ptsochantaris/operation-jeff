@@ -20,7 +20,6 @@ struct ScoreRecord highScores[] = {
 void initStats(void) __z88dk_fastcall {
     int len = sizeof(highScores);
     fetchData(&highScores, len);
-    currentStats.hiScore = highScores[0].score;
     setupGameStats();
 }
 
@@ -33,16 +32,43 @@ void setupGameStats(void) __z88dk_fastcall {
     currentStats.level = 255; // so it loops to zero at game start
 }
 
-void newHighScore(byte *name) __z88dk_fastcall {
+void newHighScore(byte *name, byte pos) {
     byte i = HIGHSCORE_SLOTS - 1;
-    while(i) {
+    while(i > pos) {
         highScores[i] = highScores[--i];
     }
-    highScores[0].score = currentStats.score;
-    memcpy(highScores[0].name, name, HIGHSCORE_SLOT_NAME_LEN);
+    highScores[pos].score = currentStats.score;
+    memcpy(highScores[pos].name, name, HIGHSCORE_SLOT_NAME_LEN);
     
     word len = sizeof(highScores);
     persistData(highScores, len);
+}
+
+word displayHighScoreTable(word x, word top, byte newPos) {
+    word entryTop = 0;
+    word row = 0;
+    for(byte i = 0; i < HIGHSCORE_SLOTS; ++i) {
+        byte color;
+        long score;
+        top += 10;
+        if(i == newPos) {
+            layer2fill(x - 1, top - 1, 4*10 + 1, 7, HUD_BLACK);
+            layer2roundedBox(x - 2, top - 2, 4*10 + 2, 8, HUD_WHITE);    
+            entryTop = top;
+            color = HUD_WHITE;
+            score = currentStats.score;
+            newPos = 255;
+        } else {
+            struct ScoreRecord record = highScores[row];
+            printNoBackground(record.name, x, top, HUD_ORANGE);    
+            color = HUD_ORANGE;      
+            score = record.score;
+            ++row;
+        }
+        sprintf(textBuf, "%07lu", score);
+        printNoBackground(textBuf, x + 48, top, color);    
+    }
+    return entryTop;
 }
 
 void statsProgressLevel(void) __z88dk_fastcall {
@@ -152,8 +178,5 @@ void processJeffHit(void) __z88dk_fastcall {
 
 void processJeffKill(byte score) __z88dk_fastcall {
     currentStats.score += score;
-    if(currentStats.hiScore < currentStats.score) {
-        currentStats.hiScore = currentStats.score;
-    }
     ++currentStats.killsInLevel;
 }

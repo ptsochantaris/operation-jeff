@@ -20,7 +20,6 @@ typedef struct stats {
     byte fireRate;
     
     long score;
-    long hiScore;
 
     byte level;
     byte generationPeriod;
@@ -44,6 +43,7 @@ void processFireStats(void) __z88dk_fastcall;
 void processJeffKill(byte speed) __z88dk_fastcall;
 void processBonusHit(byte type) __z88dk_fastcall;
 void processJeffHit(void) __z88dk_fastcall;
-void newHighScore(byte *name) __z88dk_fastcall;
+void newHighScore(byte *name, byte pos);
+word displayHighScoreTable(word x, word top, byte newPos);
 
 #endif

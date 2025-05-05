@@ -91,7 +91,7 @@ void hudHealthDraw(void) __z88dk_fastcall {
 void hudScoreDraw(void) __z88dk_fastcall {
   sprintf(textBuf, "%07lu", displayedStats.score);
   print(textBuf, SCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
-  sprintf(textBuf, "%07lu", displayedStats.hiScore);
+  sprintf(textBuf, "%07lu", highScores[0].score);
   print(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
 }
 

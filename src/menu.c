@@ -32,11 +32,11 @@ void setupTitle(void) __z88dk_fastcall {
   loadTitleScreen();
   setupTitleLeds();
   menuInfoMode = 0;
-  if(currentStats.hiScore > 0) {
-    word x = 160 - ((4*18) >> 1);
-    sprintf(textBuf, "HIGH SCORE %07lu", currentStats.hiScore);
-    printNoBackground(textBuf, x, 10, 4);
-  }
+
+  word x = 160 - ((4*18) >> 1);
+  sprintf(textBuf, "HIGH SCORE %07lu", highScores[0].score);
+  printNoBackground(textBuf, x, 10, 4);
+
   effectMenuLoop();
   playTitleSong();
 }
