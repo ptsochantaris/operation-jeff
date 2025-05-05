@@ -163,11 +163,11 @@ void updateTitleSong(void) __z88dk_fastcall {
         return;
     }
 
-    time += 39.4492;
+    time += 39.4491;
 
     if(time >= start) {
         enum NoteIndex note = nextNote->note;
-        word duration = 590;
+        word duration = 600;
 
         ayChipSelect(0);
         aySetEnvelope(0, duration);
@@ -178,6 +178,7 @@ void updateTitleSong(void) __z88dk_fastcall {
         aySetEnvelope(0, duration);
         ayPlayNote(1, note);
 
+        duration *= 2;
         ayChipSelect(2);
         aySetEnvelope(0, duration);
         ayPlayNote(1, note);
