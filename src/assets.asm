@@ -303,7 +303,7 @@ BINARY "resources/levelN_2.nxi.zx0"
 SECTION PAGE_78
 BINARY "resources/levelD_8.nxi.zx0"
 BINARY "resources/levelJ_8.nxi.zx0"
-BINARY "resources/levelN_4.nxi.zx0"
+BINARY "resources/heightmapD.hm.zx0"
 
 ;-------------------------------------------------     
 
@@ -461,30 +461,31 @@ SECTION PAGE_100
 BINARY "resources/levelD_0.nxi.zx0"
 BINARY "resources/levelN_9.nxi.zx0"
 BINARY "resources/levelM_0.nxi.zx0"
-BINARY "resources/heightmapD.hm.zx0"
-BINARY "resources/gameOverScreen_7.nxi.zx0"
+BINARY "resources/heightmapC.hm.zx0"
+BINARY "resources/levelH_9.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_101
-BINARY "resources/heightmapC.hm.zx0"
-BINARY "resources/levelH_9.nxi.zx0"
 BINARY "resources/levelN_1.nxi.zx0"
 BINARY "resources/levelO_5.nxi.zx0"
+BINARY "resources/gameOverScreen_7.nxi.zx0"
 BINARY "resources/levelO_4.nxi.zx0"
 BINARY "resources/gameOverScreen_1.nxi.zx0"
+BINARY "resources/levelN_3.nxi.zx0"
+BINARY "resources/levelH_5.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_102
-BINARY "resources/levelN_3.nxi.zx0"
 BINARY "resources/levelO_1.nxi.zx0"
+BINARY "resources/levelN_4.nxi.zx0"
 BINARY "resources/levelN_6.nxi.zx0"
 BINARY "resources/levelN_8.nxi.zx0"
 BINARY "resources/levelI_0.nxi.zx0"
 BINARY "resources/levelH_0.nxi.zx0"
 BINARY "resources/levelO_0.nxi.zx0"
-BINARY "resources/levelH_3.nxi.zx0"
+BINARY "resources/levelH_2.nxi.zx0"
 
 ;-------------------------------------------------     
 
@@ -504,10 +505,9 @@ BINARY "resources/heightmapG.hm.zx0"
 SECTION PAGE_104
 BINARY "resources/heightmapB.hm.zx0"
 BINARY "resources/gameOverScreen_3.nxi.zx0"
-BINARY "resources/levelH_2.nxi.zx0"
+BINARY "resources/levelH_3.nxi.zx0"
 BINARY "resources/heightmapF.hm.zx0"
 BINARY "resources/gameOverScreen_4.nxi.zx0"
-BINARY "resources/levelH_5.nxi.zx0"
 BINARY "resources/levelH_6.nxi.zx0"
 BINARY "resources/title_4.nxi.zx0"
 BINARY "resources/title_2.nxi.zx0"
@@ -516,11 +516,11 @@ BINARY "resources/title_7.nxi.zx0"
 BINARY "resources/heightmapA.hm.zx0"
 BINARY "resources/heightmapP.hm.zx0"
 BINARY "resources/title_5.nxi.zx0"
+BINARY "resources/heightmapE.hm.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_105
-BINARY "resources/heightmapE.hm.zx0"
 BINARY "resources/title_6.nxi.zx0"
 BINARY "resources/title_3.nxi.zx0"
 
