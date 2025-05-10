@@ -114,12 +114,12 @@ struct coord setJeffPos(struct coord pos, byte direction) __z88dk_callee {
 
         case JEFF_LEFT:
         pos.x -= 2;
-        horizontal = 4;
+        horizontal = 6;
         break;
 
         case JEFF_RIGHT:
         pos.x += 2;
-        horizontal = 12;
+        horizontal = 6;
         break;
 
         default:
