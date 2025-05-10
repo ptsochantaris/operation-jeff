@@ -130,17 +130,25 @@ struct coord setJeffPos(struct coord pos, byte direction) __z88dk_callee {
     int lookupX = (pos.x + horizontal) >> 2;
     int lookupY = (pos.y + vertical) >> 2;
     int targetZ = *(heightMap + lookupX + lookupY * HEIGHTMAP_WIDTH);
-    if(interpolate) {
-        if(targetZ > pos.z) {
-            ++pos.z;
-        } else if(targetZ < pos.z) {
-            --pos.z;
+
+    if(pos.z != targetZ) {
+        if(interpolate) {
+            int diff = (targetZ - pos.z);
+            if(diff == 0) {
+                pos.z = targetZ;
+            } else {
+                if(diff > 2) {
+                    diff = 2;
+                } else if(diff < -2) {
+                    diff = -2;
+                }
+                pos.z += diff;
+            }
+        } else {
+            pos.z = targetZ;
         }
-        return pos;
-    } else {
-        pos.z = targetZ;
-        return pos;
     }
+    return pos;
 }
 
 void growJeff(struct jeff *restrict j) __z88dk_fastcall {
@@ -220,11 +228,13 @@ void killJeff(struct jeff *restrict j) __z88dk_fastcall {
 
 void jeffEscape(struct jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_NONE;
+    #ifndef DEBUG_KEYS
+    effectDamage();
     processJeffHit();
 
     damageFlash = DAMAGE_FLASH_DURATION;
     setHudBackground(0x40); // redish
-    effectDamage();
+    #endif
 }
 
 void jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {

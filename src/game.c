@@ -1,7 +1,5 @@
 #include "resources.h"
 
-// #define DEBUG_KEYS
-
 void wait(byte time) __z88dk_fastcall {
   for(byte f=0;f!=time;f++) {
     intrinsic_halt();

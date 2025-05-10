@@ -38,6 +38,7 @@
         "initializer_list": "c",
         "ios": "c",
         "unordered_map": "c",
-        "vector": "c"
+        "vector": "c",
+        "locale": "c"
     }
 }
