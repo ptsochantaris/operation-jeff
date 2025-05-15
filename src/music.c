@@ -141,18 +141,24 @@ void playTitleSong(void) __z88dk_fastcall {
 
     ayChipSelect(0);
     aySetNoise(31);
-    aySetAmplitude(1, 0x10);
-    aySetMixer(1, 0, 1);
-    
+    for(byte c=0; c!=3; ++c) {
+        aySetAmplitude(c, 0x10);
+        aySetMixer(c, 1, 1);
+    }
+
     ayChipSelect(1);
     aySetNoise(31);
-    aySetAmplitude(1, 0x10);
-    aySetMixer(1, 1, 1);
-    
+    for(byte c=0; c!=3; ++c) {
+        aySetAmplitude(c, 0x10);
+        aySetMixer(c, 1, 0);
+    }
+
     ayChipSelect(2);
-    aySetNoise(0);
-    aySetAmplitude(1, 0x10);
-    aySetMixer(1, 1, 1);
+    aySetNoise(31);
+    for(byte c=0; c!=3; ++c) {
+        aySetAmplitude(c, 0x10);
+        aySetMixer(c, 1, 0);
+    }
 }
 
 char debugBuf[20];
@@ -163,25 +169,21 @@ void updateTitleSong(void) __z88dk_fastcall {
         return;
     }
 
-    time += 39.4491;
+    time += 40.569783777;
 
     if(time >= start) {
         enum NoteIndex note = nextNote->note;
-        word duration = 600;
-
         ayChipSelect(0);
-        aySetEnvelope(0, duration);
+        aySetEnvelope(1, 1000);
         ayPlayNote(1, note);
 
-        duration *= 2;
         ayChipSelect(1);
-        aySetEnvelope(0, duration);
-        ayPlayNote(1, note);
+        aySetEnvelope(1, 2000);
+        ayPlayNote(1, note - 12);
 
-        duration *= 2;
         ayChipSelect(2);
-        aySetEnvelope(0, duration);
-        ayPlayNote(1, note);
+        aySetEnvelope(1, 2800);
+        ayPlayNote(1, note + 12);
 
         ++nextNote;
     }
