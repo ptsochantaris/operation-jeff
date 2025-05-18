@@ -73,6 +73,8 @@ void nextLevel(void) __z88dk_fastcall {
   const struct LevelInfo info = levelInfo[level];
   loadScreen(&info);
   loadHeightmap(&info);
+
+  statsInitLevel();
   initHud(level);
 
   effectSiren();
@@ -113,6 +115,7 @@ byte gameLoop(void) __z88dk_fastcall {
   while(1) {
     do {
       intrinsic_halt();
+      ++currentStats.frames;
 
       if(++loopCount == 6) {
         updateStatus();

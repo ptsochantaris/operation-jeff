@@ -19,10 +19,12 @@ typedef struct stats {
     byte health;
     byte fireRate;
     
-    long score;
-    long shotsHit;
-    long shotsMiss;
-    long bonusesHit;
+    unsigned long score;
+    unsigned long shotsHit;
+    unsigned long shotsMiss;
+    unsigned long bonusesLanded;
+    unsigned long bonusesHit;
+    unsigned long frames;
 
     byte level;
     byte generationPeriod;
@@ -41,6 +43,7 @@ extern struct ScoreRecord highScores[];
 void initStats(void) __z88dk_fastcall;
 void setupGameStats(void) __z88dk_fastcall;
 void statsProgressLevel(void) __z88dk_fastcall;
+void statsInitLevel(void) __z88dk_fastcall;
 byte processGameStats(void) __z88dk_fastcall;
 void processFireStats(void) __z88dk_fastcall;
 void processJeffKill(byte speed) __z88dk_fastcall;

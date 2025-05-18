@@ -54,6 +54,7 @@ void updateBonuses(void) __z88dk_fastcall {
                         processBonusHit(targetType);
                         targetType = BONUS_NONE;
                         transition = 0;
+                        b->outcome |= BOMB_OUTCOME_BONUS_HIT;
                         break;
                     }
                 }
@@ -64,6 +65,7 @@ void updateBonuses(void) __z88dk_fastcall {
             scrollTilemap(0, 0);
             presentedType = targetType;
             setBase(targetType);
+            ++currentStats.bonusesLanded;
         } else {
             byte transitionOffset = 3 * (transition >> 2);
             ++transition;

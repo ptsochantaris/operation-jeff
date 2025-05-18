@@ -36,19 +36,49 @@ void endOfLeveLoop(byte level) __z88dk_fastcall {
   dmaWaitForEnd();
 
   loadScreen(&levelCompleteInfo);
+
+  endOfLeveDrone();
   fadePaletteUp(&levelCompleteInfo.paletteAsset, 512, 1);
   applyHudPalette();
 
-  word x = center - ((4*14) >> 1);
-  word top = 53;
+  word top = 54;
+  word x = 127;
 
-  sprintf(textBuf, "ZONE %03d CLEARED", level);
+  sprintf(textBuf, " ZONE %03d: CLEAR", level);
   printNoBackground(textBuf, x, top, HUD_WHITE);
-  top += 20;
 
-  endOfLeveDrone();
+  top += 16;
+  sprintf(textBuf, "     TIME: %lu SEC", currentStats.frames / 50);
+  printNoBackground(textBuf, x, top, HUD_WHITE);
 
-  byte keyDown = 0;
+  top += 16;
+  long totalShots = currentStats.shotsHit + currentStats.shotsMiss;
+  sprintf(textBuf, "    SHOTS: %lu", totalShots);
+  printNoBackground(textBuf, x, top, HUD_WHITE);
+
+  top += 8;
+  sprintf(textBuf, "     HITS: %lu", currentStats.shotsHit);
+  printNoBackground(textBuf, x, top, HUD_WHITE);
+
+  top += 8;
+  sprintf(textBuf, "   MISSES: %lu", currentStats.shotsMiss);
+  printNoBackground(textBuf, x, top, HUD_WHITE);
+
+  if(currentStats.shotsMiss) {
+    top += 8;
+    float ratio = ((currentStats.shotsHit * 100) / totalShots);
+    int roundedRatio = (int)ratio;
+    sprintf(textBuf, " ACCURACY: %02d%%", roundedRatio);
+    printNoBackground(textBuf, x, top, HUD_WHITE);
+  }
+
+  top += 16;
+  sprintf(textBuf, "  BONUSES: %lu", currentStats.bonusesLanded);
+  printNoBackground(textBuf, x, top, HUD_WHITE);
+  top += 8;
+
+  sprintf(textBuf, "COLLECTED: %lu", currentStats.bonusesHit);
+  printNoBackground(textBuf, x, top, HUD_WHITE);
 
   while(1) {
     intrinsic_halt();

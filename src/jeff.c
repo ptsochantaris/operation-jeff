@@ -256,6 +256,7 @@ void jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
             C += BOMB_RANGE;
             if(jy >= C) continue;
 
+            b->outcome |= BOMB_OUTCOME_JEFF_KILL;
             killJeff(j);
             effectExplosion();
         
