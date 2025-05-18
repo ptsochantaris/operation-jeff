@@ -54,15 +54,6 @@ void nextLevel(void) __z88dk_fastcall {
   byte level = currentStats.level;
 
   if(level) {
-    jeffKillAll(1);
-    effectExplosion();
-    
-    // flash jeffs white
-    selectPalette(2);
-    word white = 0x01FF;
-    writeColourToIndex(&white, 128);
-    writeColourToIndex(&white, 224);
-
     endOfLeveLoop(level);
   }
 

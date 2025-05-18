@@ -236,6 +236,14 @@ void jeffEscape(struct jeff *restrict j) __z88dk_fastcall {
     #endif
 }
 
+void jeffFlashAll(void) __z88dk_fastcall {
+    // flash jeffs white
+    selectPalette(2);
+    const word white = 0x01FF;
+    writeColourToIndex(&white, 128);
+    writeColourToIndex(&white, 224);
+}
+
 void jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
     int C;
     struct coord spos = j->sprite.pos;

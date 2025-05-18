@@ -24,13 +24,17 @@ static const struct LevelInfo levelCompleteInfo = FAKE_LEVEL(levelComplete);
 
 #define center 160
 
-void endOfLeveLoop(byte level) __z88dk_fastcall {
+void endOfLeveLoop(byte level) __z88dk_fastcall {  
   ayStopAllSound();
   stopDma();
   dmaResetStatus(); // so we can track playback below
   effectSting();
 
+  jeffFlashAll();
+  resetAllBombs();
+
   fadePaletteDownSlow(1, 512);
+  jeffKillAll(1);
   menuMode();
 
   dmaWaitForEnd();

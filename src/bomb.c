@@ -57,6 +57,17 @@ void fireIfPossible(void) __z88dk_fastcall {
     }
 }
 
+void resetAllBombs(void) __z88dk_fastcall {
+    struct bomb *b = bombs;
+    for(struct bomb *end = b+bombCount; b != end; ++b) {
+        if(b->state != BOMB_STATE_NONE) {
+            b->state = BOMB_STATE_NONE;
+            b->outcome = BOMB_OUTCOME_NONE;
+            hideSprite(b->sprite.index);
+        }
+    }
+}
+
 void updateBombs(void) __z88dk_fastcall {
     if(bombLoop) {
         struct bomb *b = bombs;
