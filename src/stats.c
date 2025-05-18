@@ -158,7 +158,7 @@ void processBonusHit(byte type) __z88dk_fastcall {
         case BONUS_SMARTBOMB: 
             effectBomb();
             flashPaletteUp();
-            jeffKillAll();
+            jeffKillAll(0);
             flashPaletteDown();
             break;
 

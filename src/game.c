@@ -15,7 +15,7 @@ byte debugKeys(void) __z88dk_fastcall {
   byte pressed = z80_inp(0x7ffe);
   if((pressed & 1) == 0) { // space
     inputDelay = SMALL_INPUT_DELAY;
-    return 1;
+    return 2;
   }
   
   pressed = z80_inp(0xf7fe);
@@ -46,16 +46,32 @@ byte debugKeys(void) __z88dk_fastcall {
 }
 #endif
 
-void loadLevelScreen(byte level) __z88dk_fastcall {
-  const struct LevelInfo info = levelInfo[level];
+void nextLevel(void) __z88dk_fastcall {
+  resetBonuses();
+  statsProgressLevel();
+  stopDma(); // stop any potential sample, as level loading will use the same buffers
+  
+  byte level = currentStats.level;
 
-  // flash jeffs white
-  selectPalette(2);
-  word white = 0x01FF;
-  writeColourToIndex(&white, 128);
-  writeColourToIndex(&white, 224);
+  if(level) {
+    jeffKillAll(1);
+    effectExplosion();
+    
+    // flash jeffs white
+    selectPalette(2);
+    word white = 0x01FF;
+    writeColourToIndex(&white, 128);
+    writeColourToIndex(&white, 224);
+
+    fadePaletteDown(1, 512);
+    endOfLeveLoop(level);
+  }
 
   fadePaletteDown(1, 512);
+
+  gameMode();
+
+  const struct LevelInfo info = levelInfo[level];
   loadScreen(&info);
   loadHeightmap(&info);
   initHud(level);
@@ -70,27 +86,25 @@ void loadLevelScreen(byte level) __z88dk_fastcall {
 
   sprintf(textBuf, "ZONE %03d", level + 1);
   status(textBuf);
+
 }
 
-void nextLevel(void) __z88dk_fastcall {
-  jeffKillAll();
-  effectExplosion();
-  statsProgressLevel();
-  stopDma(); // stop any potential sample, as level loading will use the same buffers
-  loadLevelScreen(currentStats.level);
+void gameMode(void) __z88dk_fastcall {
+  ayStopAllSound();
+  setSpriteGameClipping();
+  setGameMouse();
+  setupLayers(2); // SUL
+  ulaAttributeClear();
+  mouseReset();
 }
 
 byte gameLoop(void) __z88dk_fastcall {
   srand(100);
-  setSpriteGameClipping();
-  setGameMouse();
+  gameMode();
   setupGameStats();
-  ulaAttributeClear();
 
-  setupLayers(2); // SUL
   initJeffs();
   initBombs();
-  resetBonuses();
 
   nextLevel();
 
@@ -127,8 +141,12 @@ byte gameLoop(void) __z88dk_fastcall {
         }
 
         #ifdef DEBUG_KEYS
-        if(debugKeys()) {
+        byte k = debugKeys();
+        if(k==1) {
           return 1;
+        } else if(k==2) {
+          nextLevel();
+          continue;
         }
         #endif
       }

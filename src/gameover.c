@@ -7,14 +7,14 @@ void gameOverEffect(void) __z88dk_fastcall {
   aySetEnvelope(0, 0x8000);
   aySetNoise(31);
   aySetPitch(0, 0x500);  
-  aySetAmplitude(0, 0x1F);
+  aySetAmplitude(0, 0x10);
 
   aySetMixer(2, 1, 1);
   aySetPitch(2, 0x500);  
-  aySetAmplitude(2, 0x1F);
+  aySetAmplitude(2, 0x10);
 }
 
-static const struct LevelInfo gameOverInfo = FAKE_LEVEL(gameOverScreen);
+static const struct LevelInfo gameOverInfo = FAKE_LEVEL(gameOver);
 void loadGameOverScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
   loadScreen(&gameOverInfo);
@@ -25,12 +25,7 @@ void loadGameOverScreen(void) __z88dk_fastcall {
 
 void gameOverLoop(void) __z88dk_fastcall {
   resetBonuses();
-  setSpriteMenuClipping();
-  setMenuMouse();
-  setupLayers(0); // SLU
-  ulaAttributeClear();
-  mouseReset();
-  status(NULL);
+  menuMode();
   gameOverEffect();
   loadGameOverScreen();
   applyHudPalette();

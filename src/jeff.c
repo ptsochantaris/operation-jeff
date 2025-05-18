@@ -191,7 +191,6 @@ void growJeff(struct jeff *restrict j) __z88dk_fastcall {
 
     landing.sprite.pos = pos;
     landing.sprite.pos.y = 0;
-
     landing.sprite.pattern = LANDING_AIR;
     landing.passenger = j;
     landing.active = 1;
@@ -367,14 +366,34 @@ void jeffAppearStep(struct jeff *j) __z88dk_fastcall {
     }
 }
 
-void jeffKillAll(void) __z88dk_fastcall {
+void retireJeff(struct jeff *j) __z88dk_fastcall {
+    j->state = JEFF_STATE_NONE;
+    hideSprite(j->sprite.index);
+}
+
+void resetLanding(void) __z88dk_fastcall {
+    hideSprite(landing.sprite.index);
+    landing.active = 0;
+}
+
+void jeffKillAll(byte retireImmediately) __z88dk_fastcall {
     struct jeff *j = jeffs;
     for(struct jeff *end = j+jeffCount; j != end; ++j) {
         switch(j->state) {
             case JEFF_STATE_STAND:
             case JEFF_STATE_WALK:
             killJeff(j);
+            case JEFF_STATE_APPEAR:
+            case JEFF_STATE_LANDING:
+            case JEFF_STATE_DISAPPEAR:
+            if(retireImmediately) {
+                retireJeff(j);
+            }
+            case JEFF_STATE_NONE:
         }
+    }
+    if(retireImmediately) {
+        resetLanding();
     }
 }
 
@@ -406,9 +425,8 @@ void updateJeffs(void) __z88dk_fastcall {
         struct jeff *j = landing.passenger;
         if(landing.sprite.pattern == LANDING_HIT) {
             j->state = JEFF_STATE_APPEAR;
-            landing.active = 0;
             updateSprite(&j->sprite);
-            hideSprite(126);
+            resetLanding();
         } else {
             landing.sprite.pos.y+=16;
             int Y = j->sprite.pos.y;
@@ -460,8 +478,7 @@ void updateJeffs(void) __z88dk_fastcall {
             case JEFF_STATE_DISAPPEAR:
                 if(JEFF_SPEED_MASK_4 & logicLoop) {
                     if(++(j->sprite.pattern) > JEFF_DISAPPEAR_LAST) {
-                        j->state = JEFF_STATE_NONE;
-                        hideSprite(j->sprite.index);
+                        retireJeff(j);
                     } else {
                         updateSprite(&j->sprite);
                     }

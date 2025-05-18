@@ -64,7 +64,7 @@ void printSidewaysNoBackground(const byte *text, word x, word y, byte textColor)
   } while(C != 0);
 }
 
-byte textBuf[10];
+byte textBuf[100];
 
 static struct stats displayedStats;
 

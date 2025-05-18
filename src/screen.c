@@ -169,6 +169,7 @@ void fadePaletteDown(byte paletteMask, word numBytes) __z88dk_callee {
 
   for(byte shift=8; shift > 0; --shift) {
     shiftPalette(numBytes, shift-1, 0);
+    intrinsic_halt(); // extra delay
   }
 }
 
@@ -178,6 +179,7 @@ void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word n
 
   for(byte shift=0; shift < 8; ++shift) {
     shiftPalette(numBytes, shift, 0);
+    intrinsic_halt(); // extra delay
   }
 }
 

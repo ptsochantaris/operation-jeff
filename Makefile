@@ -40,6 +40,7 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	hud.o \
 	font.o \
 	menu.o \
+	end_of_level.o \
 	gameover.o \
 	game.o \
 	sound.o \

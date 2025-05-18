@@ -49,12 +49,19 @@ void setupInfo(void) __z88dk_fastcall {
   menuInfoMode = 1;
 }
 
-void menuLoop(void) __z88dk_fastcall {
+void menuMode(void) __z88dk_fastcall {
+  ayStopAllSound();
   setSpriteMenuClipping();
   setMenuMouse();
-  setupLayers(0); // SLU
-  setupTitle();
   mouseReset();
+  setupLayers(0); // SLU
+  ulaAttributeClear();
+  status(NULL);
+}
+
+void menuLoop(void) __z88dk_fastcall {
+  menuMode();
+  setupTitle();
 
   byte loopCount = 0;
 
@@ -69,7 +76,6 @@ void menuLoop(void) __z88dk_fastcall {
 
       } else {
         stopDma();
-        ayStopAllSound();
         return;
       }
     }
