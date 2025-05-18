@@ -27,6 +27,9 @@ void setupGameStats(void) __z88dk_fastcall {
     currentStats.energy = 0x80;
     currentStats.health = 0x80;
     currentStats.holdCount = 0;
+    currentStats.shotsHit = 0;
+    currentStats.shotsMiss = 0;
+    currentStats.bonusesHit = 0;
     currentStats.score = 0;
     currentStats.fireRate = FIRE_RATE_MIN + (FIRE_RATE_MAX - FIRE_RATE_MIN) / 2;
     currentStats.level = 255; // so it loops to zero at game start

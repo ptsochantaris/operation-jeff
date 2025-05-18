@@ -31,6 +31,7 @@ void writeColourToIndex(const byte *colour, byte index) __z88dk_callee;
 void flashPaletteUp(void) __z88dk_fastcall;
 void flashPaletteDown(void) __z88dk_fastcall;
 void fadePaletteDown(byte paletteMask, word numBytes) __z88dk_callee;
+void fadePaletteDownSlow(byte paletteMask, word numBytes) __z88dk_callee;
 void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte paletteMask) __z88dk_callee;
 void zeroPalette(byte palette, word length) __z88dk_callee;
 

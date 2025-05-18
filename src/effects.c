@@ -16,6 +16,11 @@ void effectSiren(void) __z88dk_fastcall {
   playSample(&sirenEffect, 0x74, 0);
 }
 
+static const struct ResourceInfo stingEffect = R_sting_pcm;
+void effectSting(void) __z88dk_fastcall {
+  playSample(&stingEffect, 0x3A, 0);
+}
+
 static const struct ResourceInfo menuLoopEffect = R_menu_pcm;
 void effectMenuLoop(void) __z88dk_fastcall {
   playSample(&menuLoopEffect, 109, 1);
@@ -24,22 +29,23 @@ void effectMenuLoop(void) __z88dk_fastcall {
 void effectFire(void) __z88dk_fastcall {
   ayChipSelect(0);
   aySetEnvelope(0, 1000);
-  aySetMixer(1, 1, 0);
   ayPlayNote(1, C2);
   aySetAmplitude(1, 0x10);
+  aySetMixer(1, 1, 0);
 }
 
 void effectLand(void) __z88dk_fastcall {
   ayChipSelect(0);
   aySetEnvelope(4, 2000);
 
-  aySetMixer(0, 1, 0);
   ayPlayNote(0, C3);
-  aySetAmplitude(0, 0x10);
-
-  aySetMixer(2, 1, 0);
   ayPlayNote(2, C3);
+
+  aySetAmplitude(0, 0x10);
   aySetAmplitude(2, 0x10);
+
+  aySetMixer(0, 1, 0);
+  aySetMixer(2, 1, 0);
 }
 
 void effectExplosion(void) __z88dk_fastcall {
@@ -47,8 +53,8 @@ void effectExplosion(void) __z88dk_fastcall {
   aySetEnvelope(0, 3000);
   aySetNoise(16);
 
-  aySetMixer(1, 0, 1);
   aySetAmplitude(1, 0x10);
+  aySetMixer(1, 0, 1);
 }
 
 void effectBomb(void) __z88dk_fastcall {
@@ -56,8 +62,8 @@ void effectBomb(void) __z88dk_fastcall {
   aySetEnvelope(0, 30000);
   aySetNoise(31);
 
-  aySetMixer(1, 0, 1);
   aySetAmplitude(1, 0x10);
+  aySetMixer(1, 0, 1);
 }
 
 void effectDamage(void) __z88dk_fastcall {
@@ -65,11 +71,11 @@ void effectDamage(void) __z88dk_fastcall {
   aySetEnvelope(0, 10000);
   aySetNoise(16);
 
-  aySetMixer(0, 0, 1);
   aySetAmplitude(0, 0x10);
-
-  aySetMixer(2, 0, 1);
   aySetAmplitude(2, 0x10);
+
+  aySetMixer(0, 0, 1);
+  aySetMixer(2, 0, 1);
 }
 
 void effectBonus(void) __z88dk_fastcall {
@@ -77,6 +83,6 @@ void effectBonus(void) __z88dk_fastcall {
   aySetEnvelope(0, 20000);
   aySetNoise(8);
   ayPlayNote(1, C1);
-  aySetMixer(1, 1, 1);
   aySetAmplitude(1, 0x10);
+  aySetMixer(1, 1, 1);
 }

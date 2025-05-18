@@ -20,6 +20,9 @@ typedef struct stats {
     byte fireRate;
     
     long score;
+    long shotsHit;
+    long shotsMiss;
+    long bonusesHit;
 
     byte level;
     byte generationPeriod;

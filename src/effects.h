@@ -12,5 +12,6 @@ void effectDamage(void) __z88dk_fastcall;
 void effectBonus(void) __z88dk_fastcall;
 void effectZap(void) __z88dk_fastcall;
 void effectSiren(void) __z88dk_fastcall;
+void effectSting(void) __z88dk_fastcall;
 
 #endif

@@ -147,14 +147,12 @@ void playTitleSong(void) __z88dk_fastcall {
     }
 
     ayChipSelect(1);
-    aySetNoise(31);
     for(byte c=0; c!=3; ++c) {
         aySetAmplitude(c, 0x10);
         aySetMixer(c, 1, 0);
     }
 
     ayChipSelect(2);
-    aySetNoise(31);
     for(byte c=0; c!=3; ++c) {
         aySetAmplitude(c, 0x10);
         aySetMixer(c, 1, 0);

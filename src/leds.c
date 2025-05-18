@@ -17,7 +17,7 @@ static const byte ulaPalette[] = {
 static byte gray_offset = 2;
 
 void ulaAttributeClear(void) __z88dk_fastcall {
-    fillWithDma(ulaAttributes, 0x300, 0);
+    bzero((byte *)(ulaAttributes), 0x300);
 }
 
 void setupTitleLeds(void) __z88dk_fastcall {

@@ -101,6 +101,19 @@ void playWithDma(word source, word length, byte prescalar, byte loop) __z88dk_ca
   z80_otir(&dmaAudioBuf, __IO_DMA, 10);
 }
 
+void dmaResetStatus(void) __z88dk_fastcall {
+    z80_outp(__IO_DMA, 0x8B); // 1000 1011 - reset status byte
+}
+
+void dmaWaitForEnd(void) __z88dk_fastcall {
+  byte E = 1;
+  while(E) {
+    z80_outp(__IO_DMA, 0xBF); // 1011 1011 - read status byte
+    byte status = z80_inp(__IO_DMA); // 00E1101T
+    E = status & (1 << 5);
+  }
+}
+
 void stopDma(void) __z88dk_fastcall {
   playWithDma(0, 1, 0x80, 0);
 }

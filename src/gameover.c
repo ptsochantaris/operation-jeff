@@ -3,15 +3,17 @@
 void gameOverEffect(void) __z88dk_fastcall {
   ayChipSelect(0);
 
-  aySetMixer(0, 1, 1);
   aySetEnvelope(0, 0x8000);
   aySetNoise(31);
-  aySetPitch(0, 0x500);  
-  aySetAmplitude(0, 0x10);
 
-  aySetMixer(2, 1, 1);
+  aySetPitch(0, 0x500);  
   aySetPitch(2, 0x500);  
+
+  aySetAmplitude(0, 0x10);
   aySetAmplitude(2, 0x10);
+
+  aySetMixer(0, 1, 1);
+  aySetMixer(2, 1, 1);
 }
 
 static const struct LevelInfo gameOverInfo = FAKE_LEVEL(gameOver);
@@ -26,6 +28,8 @@ void loadGameOverScreen(void) __z88dk_fastcall {
 void gameOverLoop(void) __z88dk_fastcall {
   resetBonuses();
   menuMode();
+  stopDma();
+  ayStopAllSound();
   gameOverEffect();
   loadGameOverScreen();
   applyHudPalette();

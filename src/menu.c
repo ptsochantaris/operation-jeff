@@ -37,6 +37,7 @@ void setupTitle(void) __z88dk_fastcall {
   sprintf(textBuf, "HIGH SCORE %07lu", highScores[0].score);
   printNoBackground(textBuf, x, 10, 4);
 
+  ayStopAllSound();
   effectMenuLoop();
   playTitleSong();
 }
@@ -50,7 +51,6 @@ void setupInfo(void) __z88dk_fastcall {
 }
 
 void menuMode(void) __z88dk_fastcall {
-  ayStopAllSound();
   setSpriteMenuClipping();
   setMenuMouse();
   mouseReset();
@@ -60,6 +60,7 @@ void menuMode(void) __z88dk_fastcall {
 }
 
 void menuLoop(void) __z88dk_fastcall {
+  stopDma();
   menuMode();
   setupTitle();
 

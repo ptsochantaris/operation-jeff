@@ -9,6 +9,8 @@ void fillWithDma(word destination, word length, byte value) __z88dk_callee;
 void fillWithDmaRepeat(word destination, word length, byte value, byte times, word step) __z88dk_callee;
 
 void playWithDma(word source, word length, byte prescalar, byte loop) __z88dk_callee;
+void dmaWaitForEnd(void) __z88dk_fastcall;
+void dmaResetStatus(void) __z88dk_fastcall;
 void stopDma(void) __z88dk_fastcall;
 
 #endif

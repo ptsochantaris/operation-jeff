@@ -4,12 +4,13 @@
 #include "music.h"
 
 void ayChipSelect(byte chip) __z88dk_fastcall;
-void aySetPitch(word channel, word pitch) __z88dk_callee;
-void ayPlayNote(word channel, enum NoteIndex note) __z88dk_callee;
-void aySetEnvelope(word type, word duration) __z88dk_callee;
-void aySetNoise(word speed) __z88dk_fastcall;
-void aySetMixer(word channel, word tone, word noise) __z88dk_callee;
-void aySetAmplitude(word channel, word volume) __z88dk_callee;
+void aySetPitch(byte channel, word pitch) __z88dk_callee;
+void ayPlayNote(byte channel, enum NoteIndex note) __z88dk_callee;
+void aySetEnvelope(byte type, word duration) __z88dk_callee;
+void aySetNoise(byte speed) __z88dk_fastcall;
+void aySetMixer(byte channel, byte tone, byte noise) __z88dk_callee;
+void aySetAmplitude(byte channel, byte volume) __z88dk_callee;
+void ayStopSoundOnChip(byte ayChip) __z88dk_fastcall;
 void ayStopAllSound(void) __z88dk_fastcall;
 
 #endif

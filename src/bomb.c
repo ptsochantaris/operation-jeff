@@ -18,6 +18,7 @@ void initBombs(void) __z88dk_fastcall {
     for(byte f=0; f!=bombCount; ++f, ++b) {
         b->sprite.index = f;
         b->state = BOMB_STATE_NONE;
+        b->outcome = BOMB_OUTCOME_NONE;
     }
 }
 
@@ -43,6 +44,7 @@ void fireIfPossible(void) __z88dk_fastcall {
             b->sprite.pos.x = mouseState.pos.x;
             b->sprite.pos.y = 255;
             b->state = BOMB_STATE_TICKING;
+            b->outcome = BOMB_OUTCOME_NONE;
             b->sprite.pattern = BOMB_FIRST;
             cooldown = currentStats.fireRate >> 1;
             effectFire();
@@ -83,6 +85,17 @@ void updateBombs(void) __z88dk_fastcall {
                 case BOMB_STATE_EXPLODING:
                     if(++(b->sprite.pattern) > EXPLOSION_LAST) {
                         b->state = BOMB_STATE_NONE;
+                        byte outcome = b->outcome;
+                        if(outcome) {
+                            if(outcome & BOMB_OUTCOME_JEFF_KILL) {
+                                ++currentStats.shotsHit;
+                            }
+                            if(outcome & BOMB_OUTCOME_BONUS_HIT) {
+                                ++currentStats.bonusesHit;
+                            }
+                        } else {
+                            ++currentStats.shotsMiss;
+                        }
                         hideSprite(b->sprite.index);
                     } else {
                         updateSprite(&b->sprite);

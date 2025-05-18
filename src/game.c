@@ -63,7 +63,6 @@ void nextLevel(void) __z88dk_fastcall {
     writeColourToIndex(&white, 128);
     writeColourToIndex(&white, 224);
 
-    fadePaletteDown(1, 512);
     endOfLeveLoop(level);
   }
 
