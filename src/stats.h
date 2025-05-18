@@ -19,6 +19,8 @@ typedef struct stats {
     byte health;
     byte fireRate;
     
+    byte supergun;
+
     unsigned long score;
     unsigned long shotsHit;
     unsigned long shotsMiss;

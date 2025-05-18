@@ -42,6 +42,7 @@ void updateBonuses(void) __z88dk_fastcall {
             currentX = 3 + rand() % 36;
             currentY = 3 + rand() % 28;
             transition = 0;
+            ++currentStats.bonusesLanded;
         } else {
             // expire previous bonus
             targetType = BONUS_NONE;
@@ -73,7 +74,6 @@ void updateBonuses(void) __z88dk_fastcall {
         scrollTilemap(0, 0);
         presentedType = targetType;
         setBase(targetType);
-        ++currentStats.bonusesLanded;
         return;
     }
 
@@ -83,32 +83,37 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_NONE:
             scrollTilemap(0, 24 - (transition << 1));
             switch(targetType) {
-                case BONUS_HEALTH:
                 case BONUS_SCORE:
+                case BONUS_HEALTH:
                 case BONUS_CHARGE:
-                    setBase(6 + transitionOffset);
-                    return;
-                case BONUS_SMARTBOMB:
                     setBase(7 + transitionOffset);
                     return;
-                case BONUS_FREEZE:
+                case BONUS_SMARTBOMB:
                     setBase(8 + transitionOffset);
+                    return;
+                case BONUS_FREEZE:
+                case BONUS_RATE:
+                    setBase(9 + transitionOffset);
                     return;
             }
             return;
-        case BONUS_HEALTH:
+
         case BONUS_SCORE:
+        case BONUS_HEALTH:
         case BONUS_CHARGE:
-            scrollTilemap(0, transition << 1);
-            setBase(12 - transitionOffset);
-            return;
-        case BONUS_SMARTBOMB:
             scrollTilemap(0, transition << 1);
             setBase(13 - transitionOffset);
             return;
-        case BONUS_FREEZE:
+
+        case BONUS_SMARTBOMB:
             scrollTilemap(0, transition << 1);
             setBase(14 - transitionOffset);
+            return;
+
+        case BONUS_FREEZE:
+        case BONUS_RATE:
+            scrollTilemap(0, transition << 1);
+            setBase(15 - transitionOffset);
             return;
     }
 }

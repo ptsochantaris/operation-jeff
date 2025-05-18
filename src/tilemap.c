@@ -9,7 +9,9 @@ static const byte tilemapPalette[] = {
   COLOR9(1, 1, 1),
   COLOR9(3, 3, 3),
   COLOR9(7, 7, 7),
-  COLOR9(1, 2, 7)
+  COLOR9(1, 2, 7),
+  COLOR9(7, 4, 1),
+  COLOR9(7, 7, 1),
 };
 
 void initTilemap(void) __z88dk_fastcall {

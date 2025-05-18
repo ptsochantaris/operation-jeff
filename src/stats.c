@@ -88,6 +88,7 @@ void statsInitLevel(void) __z88dk_fastcall {
     currentStats.generationCountdown = currentStats.generationPeriod;
     currentStats.difficultyStepInLevel = info.difficultyStep;
     currentStats.maxKillsInLevel = info.killsRequired;
+    currentStats.supergun = 0;
 
     currentStats.shotsHit = 0;
     currentStats.shotsMiss = 0;
@@ -140,42 +141,42 @@ byte processGameStats(void) __z88dk_fastcall {
 void processBonusHit(byte type) __z88dk_fastcall {
     switch(type) {
         case BONUS_NONE: 
-            break;
-
-        case BONUS_CHARGE: 
-            currentStats.energy = 255;
-            status("+CHARGE");
-            effectBonus();
-            effectZap();
-            break;
-
-        case BONUS_HEALTH: 
-            currentStats.health = 255;
-            status("+HEALTH");
-            effectBonus();
-            effectZap();
-            break;
-
-        case BONUS_SCORE: 
-            currentStats.score += 100;
-            status("+100 PTS");
-            effectBonus();
-            effectZap();
-            break;
+            return;
 
         case BONUS_SMARTBOMB: 
             effectBomb();
             flashPaletteUp();
             jeffKillAll(0);
             flashPaletteDown();
+            return;
+
+        case BONUS_CHARGE: 
+            currentStats.energy = 255;
+            status("+CHARGE");
+            break;
+
+        case BONUS_HEALTH: 
+            currentStats.health = 255;
+            status("+HEALTH");
+            break;
+
+        case BONUS_RATE: 
+            currentStats.supergun = 80;
+            status("SUPERGUN");
+            break;
+
+        case BONUS_SCORE: 
+            currentStats.score += 100;
+            status("+100 PTS");
             break;
 
         case BONUS_FREEZE:
-            effectBonus();
-            effectZap();
             currentStats.holdCount = 200;
             break;
     }
+
+    effectBonus();
+    effectZap();
 }
 
 void processJeffHit(void) __z88dk_fastcall {

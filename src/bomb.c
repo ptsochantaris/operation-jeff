@@ -37,8 +37,13 @@ void fireIfPossible(void) __z88dk_fastcall {
     struct bomb *b = bombs;
     for(struct bomb *end = b+bombCount; b != end; ++b) {
         if(b->state == BOMB_STATE_NONE) {
-            currentStats.energy -= FIRE_ENERGY;
-
+            if(currentStats.supergun == 0) {
+                currentStats.energy -= FIRE_ENERGY;
+                cooldown = currentStats.fireRate >> 1;
+            } else {
+                --currentStats.supergun;
+                cooldown = 1;
+            }
             b->countdown = 22;
             b->target = mouseState.pos;
             b->sprite.pos.x = mouseState.pos.x;
@@ -46,7 +51,6 @@ void fireIfPossible(void) __z88dk_fastcall {
             b->state = BOMB_STATE_TICKING;
             b->outcome = BOMB_OUTCOME_NONE;
             b->sprite.pattern = BOMB_FIRST;
-            cooldown = currentStats.fireRate >> 1;
             effectFire();
             return;
         }
