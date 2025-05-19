@@ -212,10 +212,11 @@ void initJeffs(void) __z88dk_fastcall {
 void launchRandomJeff(void) __z88dk_fastcall {
     // reverse so the new jeff will grow behind existing ones
     for(struct jeff *j = jeffs + jeffCount - 1; j >= jeffs; --j) {
-        if(j->state == JEFF_STATE_NONE) {
-            growJeff(j);
-            return;
+        if(j->state != JEFF_STATE_NONE) {
+            continue;
         }
+        growJeff(j);
+        return;
     }
 }
 
@@ -253,35 +254,37 @@ void jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
 
     struct bomb *b = bombs;
     for(struct bomb *end = b+bombCount; b != end; ++b) {
-        if(b->state == BOMB_STATE_EXPLODING) {
-            struct coord pos = b->sprite.pos;
-            C = pos.x - (BOMB_RANGE>>1);
-            if(jx < C) continue;
-            C += BOMB_RANGE;
-            if(jx >= C) continue;
-            C = pos.y - (BOMB_RANGE>>1) - 4;
-            if(jy < C) continue;
-            C += BOMB_RANGE;
-            if(jy >= C) continue;
-
-            b->outcome |= BOMB_OUTCOME_JEFF_KILL;
-            killJeff(j);
-            effectExplosion();
-        
-            C = pos.x - (BOMB_CLOSE>>1);
-            if(jx < C) return;
-            C += BOMB_CLOSE;
-            if(jx >= C) return;
-            C = pos.y - (BOMB_CLOSE>>1) - 4;
-            if(jy < C) return;
-            C += BOMB_CLOSE;
-            if(jy >= C) return;
-
-            status("+10 PTS");
-            effectZap();
-            currentStats.score += 10;
-            return;
+        if(b->state != BOMB_STATE_EXPLODING) {
+            continue;
         }
+
+        struct coord pos = b->sprite.pos;
+        C = pos.x - (BOMB_RANGE>>1);
+        if(jx < C) continue;
+        C += BOMB_RANGE;
+        if(jx >= C) continue;
+        C = pos.y - (BOMB_RANGE>>1) - 4;
+        if(jy < C) continue;
+        C += BOMB_RANGE;
+        if(jy >= C) continue;
+
+        b->outcome |= BOMB_OUTCOME_JEFF_KILL;
+        killJeff(j);
+        effectExplosion();
+
+        C = pos.x - (BOMB_CLOSE>>1);
+        if(jx < C) return;
+        C += BOMB_CLOSE;
+        if(jx >= C) return;
+        C = pos.y - (BOMB_CLOSE>>1) - 4;
+        if(jy < C) return;
+        C += BOMB_CLOSE;
+        if(jy >= C) return;
+
+        status("+10 PTS");
+        effectZap();
+        currentStats.score += 10;
+        return;
     }
 }
 
@@ -467,7 +470,7 @@ void updateJeffs(void) __z88dk_fastcall {
         switch(j->state) {
             case JEFF_STATE_LANDING:
             case JEFF_STATE_NONE:
-                break;
+                continue;
 
             case JEFF_STATE_STAND:
                 if(j->moveMask & logicLoop) {
@@ -475,14 +478,14 @@ void updateJeffs(void) __z88dk_fastcall {
                     jeffCheckBombs(j);
                     updateSprite(&j->sprite);
                 }
-                break;
+                continue;
 
             case JEFF_STATE_APPEAR:
                 if(JEFF_SPEED_MASK_4 & logicLoop) {
                     jeffAppearStep(j);
                     updateSprite(&j->sprite);
                 }
-                break;
+                continue;
 
             case JEFF_STATE_DISAPPEAR:
                 if(JEFF_SPEED_MASK_4 & logicLoop) {
@@ -492,7 +495,7 @@ void updateJeffs(void) __z88dk_fastcall {
                         updateSprite(&j->sprite);
                     }
                 }
-                break;
+                continue;
 
             case JEFF_STATE_WALK:
                 if(j->moveMask & logicLoop) {
@@ -502,7 +505,7 @@ void updateJeffs(void) __z88dk_fastcall {
                     jeffCheckBombs(j);
                     updateSprite(&j->sprite);
                 }
-                break;
+                continue;
         }
     }
 }

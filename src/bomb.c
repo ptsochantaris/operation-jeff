@@ -36,35 +36,37 @@ void fireIfPossible(void) __z88dk_fastcall {
 
     struct bomb *b = bombs;
     for(struct bomb *end = b+bombCount; b != end; ++b) {
-        if(b->state == BOMB_STATE_NONE) {
-            if(currentStats.supergun == 0) {
-                currentStats.energy -= FIRE_ENERGY;
-                cooldown = currentStats.fireRate >> 1;
-            } else {
-                --currentStats.supergun;
-                cooldown = 1;
-            }
-            b->countdown = 22;
-            b->target = mouseState.pos;
-            b->sprite.pos.x = mouseState.pos.x;
-            b->sprite.pos.y = 255;
-            b->state = BOMB_STATE_TICKING;
-            b->outcome = BOMB_OUTCOME_NONE;
-            b->sprite.pattern = BOMB_FIRST;
-            effectFire();
-            return;
+        if(b->state != BOMB_STATE_NONE) {
+            continue;
         }
+        if(currentStats.supergun == 0) {
+            currentStats.energy -= FIRE_ENERGY;
+            cooldown = currentStats.fireRate >> 1;
+        } else {
+            --currentStats.supergun;
+            cooldown = 1;
+        }
+        b->countdown = 22;
+        b->target = mouseState.pos;
+        b->sprite.pos.x = mouseState.pos.x;
+        b->sprite.pos.y = 255;
+        b->state = BOMB_STATE_TICKING;
+        b->outcome = BOMB_OUTCOME_NONE;
+        b->sprite.pattern = BOMB_FIRST;
+        effectFire();
+        return;
     }
 }
 
 void resetAllBombs(void) __z88dk_fastcall {
     struct bomb *b = bombs;
     for(struct bomb *end = b+bombCount; b != end; ++b) {
-        if(b->state != BOMB_STATE_NONE) {
-            b->state = BOMB_STATE_NONE;
-            b->outcome = BOMB_OUTCOME_NONE;
-            hideSprite(b->sprite.index);
+        if(b->state == BOMB_STATE_NONE) {
+            continue;
         }
+        b->state = BOMB_STATE_NONE;
+        b->outcome = BOMB_OUTCOME_NONE;
+        hideSprite(b->sprite.index);
     }
 }
 
