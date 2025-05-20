@@ -21,6 +21,7 @@ Shoot bonuses for various benefits:
 - Yellow diamond: Smart bomb
 - Blue clock: Freeze the Jeff for 5 seconds
 - Purple stop sign: Pause drops for a moment
+- White block with stripes: Slow down the Jeff temporarily
 
 If a bolt explodes especially close enough to a Jeff you get a small bonus as well.
 
