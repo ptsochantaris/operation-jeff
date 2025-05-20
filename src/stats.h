@@ -34,6 +34,9 @@ typedef struct stats {
     word holdCount;
     word difficultyCountdown;
 
+    byte slowMo;
+    byte sloMoHold;
+
     word killsInLevel;
     word maxKillsInLevel;
     word difficultyStepInLevel;

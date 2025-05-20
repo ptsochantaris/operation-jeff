@@ -450,8 +450,9 @@ void updateJeffs(void) __z88dk_fastcall {
         }
     }
 
+    byte canMove;
     if(currentStats.holdCount == 0) {
-        if(currentStats.generationCountdown==0) {
+        if(currentStats.generationCountdown == 0) {
             if(!landing.active) {
                 currentStats.generationCountdown = currentStats.generationPeriod;
                 launchRandomJeff();
@@ -459,7 +460,20 @@ void updateJeffs(void) __z88dk_fastcall {
         } else {
             --currentStats.generationCountdown;
         }
+
+        canMove = 1;
+        if(currentStats.slowMo) {
+            if(currentStats.sloMoHold) {
+                --currentStats.sloMoHold;
+                canMove = 0;
+            } else {
+                currentStats.sloMoHold = 2;
+                --currentStats.slowMo;
+            }
+        }
+
     } else {
+        canMove = 0;
         holdStep();
     }
 
@@ -498,13 +512,11 @@ void updateJeffs(void) __z88dk_fastcall {
                 continue;
 
             case JEFF_STATE_WALK:
-                if(j->moveMask & logicLoop) {
-                    if(currentStats.holdCount == 0) {
-                        jeffWalkStep(j);
-                    }
-                    jeffCheckBombs(j);
-                    updateSprite(&j->sprite);
+                if(canMove && (j->moveMask & logicLoop)) {
+                    jeffWalkStep(j);
                 }
+                jeffCheckBombs(j);
+                updateSprite(&j->sprite);
                 continue;
         }
     }

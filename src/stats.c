@@ -26,7 +26,6 @@ void initStats(void) __z88dk_fastcall {
 void setupGameStats(void) __z88dk_fastcall {
     currentStats.energy = 0x80;
     currentStats.health = 0x80;
-    currentStats.holdCount = 0;
     currentStats.score = 0;
     currentStats.fireRate = FIRE_RATE_MIN + (FIRE_RATE_MAX - FIRE_RATE_MIN) / 2;
     currentStats.level = 255; // so it loops to zero at game start
@@ -89,6 +88,10 @@ void statsInitLevel(void) __z88dk_fastcall {
     currentStats.difficultyStepInLevel = info.difficultyStep;
     currentStats.maxKillsInLevel = info.killsRequired;
     currentStats.supergun = 0;
+    currentStats.holdCount = 0;
+
+    currentStats.slowMo = 0;
+    currentStats.sloMoHold = 0;
 
     currentStats.shotsHit = 0;
     currentStats.shotsMiss = 0;
@@ -172,6 +175,17 @@ void processBonusHit(byte type) __z88dk_fastcall {
 
         case BONUS_FREEZE:
             currentStats.holdCount = 200;
+            status("FREEZE");
+            break;
+
+        case BONUS_PAUSE:
+            currentStats.generationCountdown = 255;
+            status("SLO-DROP");
+            break;
+
+        case BONUS_SLOW:
+            currentStats.slowMo = 120;
+            status("CHILL");
             break;
     }
 

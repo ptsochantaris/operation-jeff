@@ -8,7 +8,9 @@
 #define BONUS_SMARTBOMB 4
 #define BONUS_FREEZE 5
 #define BONUS_RATE 6
-#define BONUS_MAX 6
+#define BONUS_SLOW 7
+#define BONUS_PAUSE 8
+#define BONUS_MAX 8
 
 void updateBonuses(void) __z88dk_fastcall;
 void resetBonuses(void) __z88dk_fastcall;
