@@ -111,7 +111,7 @@ void stashPalette(byte paletteMask) __z88dk_fastcall {
   selectPalette(paletteMask);
 
   word i = 0;
-  for(word f=0; f<256; f++, i+=2) {
+  for(word f=0; f!=256; f++, i+=2) {
     ZXN_NEXTREGA(REG_PALETTE_INDEX, f); // start palette index
 
     paletteBuffer[i] = ZXN_READ_REG(0x41);
@@ -164,11 +164,16 @@ void flashPaletteDown(void) __z88dk_fastcall {
   }
 }
 
-void _fadePaletteDown(byte paletteMask, word numBytes, byte framesPerFade) __z88dk_callee {
+void _fadePaletteDown(byte paletteMask, word numBytes, byte framesPerFade, byte cycleUlaPalette) __z88dk_callee {
   stashPalette(paletteMask);
 
   for(byte shift=8; shift > 0; --shift) {
     shiftPalette(numBytes, shift-1, 0);
+
+    if(cycleUlaPalette) {
+      cycleGrayPalette();
+      selectPalette(paletteMask);
+    }
 
     for(byte i=0; i!=framesPerFade; ++i) {
       intrinsic_halt();
@@ -177,18 +182,18 @@ void _fadePaletteDown(byte paletteMask, word numBytes, byte framesPerFade) __z88
 }
 
 void fadePaletteDown(byte paletteMask, word numBytes) __z88dk_callee {
-  _fadePaletteDown(paletteMask, numBytes, 1);
+  _fadePaletteDown(paletteMask, numBytes, 1, 0);
 }
 
 void fadePaletteDownSlow(byte paletteMask, word numBytes) __z88dk_callee {
-  _fadePaletteDown(paletteMask, numBytes, 4);
+  _fadePaletteDown(paletteMask, numBytes, 4, 1);
 }
 
 void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte paletteMask) __z88dk_callee {
   selectPalette(paletteMask);
   loadPaletteBuffer(compressedPalette);
 
-  for(byte shift=0; shift < 8; ++shift) {
+  for(byte shift=0; shift != 8; ++shift) {
     shiftPalette(numBytes, shift, 0);
     intrinsic_halt(); // extra delay
   }
@@ -199,7 +204,7 @@ void zeroPalette(byte palette, word length) __z88dk_callee {
   
   ZXN_NEXTREG(REG_PALETTE_INDEX, 0);
   word bytes = length * 2;
-  for(word f=0; f<bytes; ++f) {
+  for(word f=0; f != bytes; ++f) {
     ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
   }
 }
@@ -230,7 +235,7 @@ void setupLayers(byte mode) __z88dk_fastcall {
 
 void loadScreen(const struct LevelInfo *restrict info) __z88dk_callee {  
   struct ResourceInfo *slice = info->screens;
-  for(byte page=18; page<28; ++page, ++slice) {
+  for(byte page=18; page!=28; ++page, ++slice) {
     ZXN_WRITE_MMU2(page);
     ZXN_WRITE_MMU1(slice->page);
     decompressZX0((byte *)0x4000, (byte *)slice->resource);
@@ -282,7 +287,7 @@ void writeNextReg(byte reg, const char *bytes, byte len) __z88dk_callee {
 }
 
 void fillNextReg(byte reg, byte value, byte len) __z88dk_callee {
-  for(byte i=0; i<len; ++i) {
+  for(byte i=0; i!=len; ++i) {
     ZXN_WRITE_REG(reg, value);
   }
 }
@@ -311,7 +316,7 @@ void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBott
   const byte *widths = corners[radius-1];
   word mid = x + radius;
   word ey = y + (radius << 1) - 1;
-  for(word c = 0; c < radius; ++c) {
+  for(word c = 0; c != radius; ++c) {
     word w = *(widths+c);
     word l = mid-w;
     word W = w << 1;

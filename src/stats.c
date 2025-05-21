@@ -46,7 +46,7 @@ void newHighScore(byte *name, byte pos) {
 word displayHighScoreTable(word x, word top, byte newPos) {
     word entryTop = 0;
     word row = 0;
-    for(byte i = 0; i < HIGHSCORE_SLOTS; ++i) {
+    for(byte i = 0; i != HIGHSCORE_SLOTS; ++i) {
         byte color;
         long score;
         top += 10;

@@ -56,12 +56,12 @@ void menuMode(void) __z88dk_fastcall {
   mouseReset();
   setupLayers(0); // SLU
   ulaAttributeClear();
-  status(NULL);
 }
 
 void menuLoop(void) __z88dk_fastcall {
   stopDma();
   menuMode();
+  status(NULL);
   setupTitle();
 
   byte loopCount = 0;

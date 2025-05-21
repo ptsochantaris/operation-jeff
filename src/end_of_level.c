@@ -24,7 +24,9 @@ static const struct LevelInfo levelCompleteInfo = FAKE_LEVEL(levelComplete);
 
 #define center 160
 
-void endOfLeveLoop(byte level) __z88dk_fastcall {  
+void endOfLeveLoop(byte level) __z88dk_fastcall {
+  status("CLEAR");
+
   ayStopAllSound();
   stopDma();
   dmaResetStatus(); // so we can track playback below
@@ -38,10 +40,10 @@ void endOfLeveLoop(byte level) __z88dk_fastcall {
   menuMode();
 
   dmaWaitForEnd();
-
   loadScreen(&levelCompleteInfo);
-
   endOfLeveDrone();
+  status(NULL);
+
   fadePaletteUp(&levelCompleteInfo.paletteAsset, 512, 1);
   applyHudPalette();
 

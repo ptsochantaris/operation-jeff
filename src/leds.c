@@ -23,8 +23,7 @@ void ulaAttributeClear(void) __z88dk_fastcall {
 void setupTitleLeds(void) __z88dk_fastcall {
     fillWithDma(ula, 0x1800 + 0x300, 0);
 
-    gray_offset = 2;
-    cycleGrayPalette();
+    resetGrayPalette();
 
     // grayscale ULA attributes
     for(byte f=1;f!=9;++f) {
@@ -41,18 +40,24 @@ void setupTitleLeds(void) __z88dk_fastcall {
 
 void cycleGrayPalette(void) __z88dk_fastcall {
     if(gray_offset == 2) {
-        gray_offset = 16;
-    } else {
-        gray_offset -= 2;
+        resetGrayPalette();
+        return;
     }
 
     selectPalette(0);
-
     ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
     ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
-
+    gray_offset -= 2;
     writeNextReg(REG_PALETTE_VALUE_16, ulaPalette+gray_offset, 16-gray_offset);
     writeNextReg(REG_PALETTE_VALUE_16, ulaPalette, gray_offset);
+}
+
+void resetGrayPalette(void) __z88dk_fastcall {
+    selectPalette(0);
+    ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
+    ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
+    gray_offset = 16;
+    writeNextReg(REG_PALETTE_VALUE_16, ulaPalette, 16);
 }
 
 void printAttributes(const byte *restrict text, byte x, byte y) __z88dk_callee {
@@ -82,6 +87,8 @@ void clearStatus(void) __z88dk_fastcall {
 void status(const byte *text) __z88dk_fastcall {
     clearStatus();
     if(text) {
+        resetGrayPalette();
+
         int x = 16 - (strlen(text) << 1);
         if(x<0) x=0;
         printAttributes(text, x, 10);

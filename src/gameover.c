@@ -28,6 +28,7 @@ void loadGameOverScreen(void) __z88dk_fastcall {
 void gameOverLoop(void) __z88dk_fastcall {
   resetBonuses();
   menuMode();
+  status(NULL);
   stopDma();
   ayStopAllSound();
   gameOverEffect();

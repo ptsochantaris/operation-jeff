@@ -19,7 +19,7 @@ byte debugKeys(void) __z88dk_fastcall {
   }
   
   pressed = z80_inp(0xf7fe);
-  for(byte l=0;l<6;++l) { // 0...5
+  for(byte l=0;l!=6;++l) { // 0...5
     if((pressed & (1 << l)) == 0) {
       inputDelay = SMALL_INPUT_DELAY;
       currentStats.level = isShifted() ? (l + 9) : (l - 1);
@@ -29,7 +29,7 @@ byte debugKeys(void) __z88dk_fastcall {
   }
 
   pressed = z80_inp(0xeffe);
-  for(byte l=0;l<5;++l) { // 10...6
+  for(byte l=0;l!=5;++l) { // 10...6
     if((pressed & (1 << l)) == 0) {
       inputDelay = SMALL_INPUT_DELAY;
       currentStats.level = isShifted() ? (18 - l) : (8 - l);

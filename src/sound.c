@@ -188,14 +188,14 @@ void aySetMixer(byte channel, byte tone, byte noise) __z88dk_callee {
 
 void ayStopSoundOnChip(byte ayChip) __z88dk_fastcall {
     ayChipSelect(ayChip);
-    for(byte channel=0; channel<3; ++channel) {
+    for(byte channel=0; channel!=3; ++channel) {
         aySetAmplitude(channel, 0x0);
         aySetMixer(channel, 0, 0);
     }
 }
 
 void ayStopAllSound(void) __z88dk_fastcall {
-    for(byte ayChip=0; ayChip<3; ++ayChip) {
+    for(byte ayChip=0; ayChip!=3; ++ayChip) {
         ayStopSoundOnChip(ayChip);
     }
 }

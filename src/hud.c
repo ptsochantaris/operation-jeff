@@ -113,7 +113,7 @@ void hudKillsDraw(void) __z88dk_fastcall {
   }
 }
 
-void setHudBackground(int color) __z88dk_fastcall {
+void setHudBackground(word color) __z88dk_fastcall {
   selectPalette(1);
   ZXN_NEXTREG(REG_PALETTE_INDEX, HUD_BLACK);
   ZXN_NEXTREGA(REG_PALETTE_VALUE_16, color & 0xFF);

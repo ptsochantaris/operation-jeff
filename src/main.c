@@ -24,6 +24,6 @@ int main(void) {
     gameOverLoop();
   }
 
-  ZXN_NEXTREGA(REG_RESET, RR_SOFT_RESET);
+  ZXN_NEXTREG(REG_RESET, RR_SOFT_RESET);
   return 0;
 }

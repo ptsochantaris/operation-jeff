@@ -39,6 +39,7 @@
         "ios": "c",
         "unordered_map": "c",
         "vector": "c",
-        "locale": "c"
+        "locale": "c",
+        "dma.h": "c"
     }
 }

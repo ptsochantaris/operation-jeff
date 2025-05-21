@@ -2,7 +2,7 @@
 
 void hideSprite(byte index) __z88dk_fastcall {
   ZXN_NEXTREGA(0x34, index); // sprite index
-  ZXN_NEXTREGA(0x38, 0); // invisible
+  ZXN_NEXTREG(0x38, 0); // invisible
 }
 
 void updateSprite(struct sprite_info *restrict s) __z88dk_fastcall {
