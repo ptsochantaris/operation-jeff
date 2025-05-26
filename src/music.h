@@ -3,9 +3,10 @@
 
 #include "types.h"
 
+/*
 void playTitleSong(void) __z88dk_fastcall;
 void updateTitleSong(void) __z88dk_fastcall;
-
+*/
 typedef enum NoteIndex {
     C0 = 0,
     CSharp0_DFlat0,

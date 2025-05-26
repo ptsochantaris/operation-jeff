@@ -24,6 +24,16 @@ void effectSting(void) __z88dk_fastcall {
 static const struct ResourceInfo menuLoopEffect = R_menu_pcm;
 void effectMenuLoop(void) __z88dk_fastcall {
   playSample(&menuLoopEffect, 109, 1);
+
+  for(byte chip=0; chip != 3; ++chip) {
+    ayChipSelect(chip);
+    aySetEnvelope(14, 0xD000 - (chip * 0x1000));
+    for(byte i=0; i != 3; ++i) {
+      aySetPitch(i, 20000 + ((chip * 3) + i) * 10);
+      aySetAmplitude(i, 0x10);
+      aySetMixer(i, i, 0);
+    }
+  }
 }
 
 void effectFire(void) __z88dk_fastcall {

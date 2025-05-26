@@ -39,7 +39,6 @@ void setupTitle(void) __z88dk_fastcall {
 
   ayStopAllSound();
   effectMenuLoop();
-  playTitleSong();
 }
 
 void setupInfo(void) __z88dk_fastcall {
@@ -84,7 +83,6 @@ void menuLoop(void) __z88dk_fastcall {
     updateMouse();
 
     if(!menuInfoMode) {
-      updateTitleSong();
       if(++loopCount == 6) {
         cycleGrayPalette();
         loopCount = 0;

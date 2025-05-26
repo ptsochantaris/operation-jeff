@@ -1,5 +1,6 @@
 #include "resources.h"
 
+/* Song isn't nice enough - prefer to overlay with ambiance effect instead, but keeping code here for future use
 static const struct Note openingSong[] = {
 {16010, 17271, 69},
 {17498, 17648, 67},
@@ -186,3 +187,4 @@ void updateTitleSong(void) __z88dk_fastcall {
         ++nextNote;
     }
 }
+*/
