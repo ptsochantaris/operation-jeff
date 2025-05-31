@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-#define LEVEL_COUNT 16
+#define LEVEL_COUNT 17
 
 #define SCREEN_ARRAY(X) { \
     R_##X##_0_nxi_zx0, \
