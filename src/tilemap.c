@@ -1,19 +1,18 @@
 #include "resources.h"
 
 static const byte tilemapPalette[] = {
-  COLOR9(0, 0, 0), // 0
-  COLOR9(7, 0, 0), // 1
-  COLOR9(0, 7, 0), // 2
-  COLOR9(0, 0, 7), // 3
-  COLOR9(7, 7, 0), // 4
-  COLOR9(1, 1, 1), // 5
-  COLOR9(3, 3, 3), // 6
-  COLOR9(7, 7, 7), // 7
-  COLOR9(1, 2, 7), // 8
-  COLOR9(7, 4, 1), // 9
-  COLOR9(7, 7, 1), // A
-  COLOR9(4, 4, 4), // B
-  COLOR9(4, 0, 4), // C
+  COLOR9(0, 0, 0), // 0 All black
+  COLOR9(7, 0, 0), // 1 All red
+  COLOR9(0, 7, 0), // 2 All green
+  COLOR9(0, 0, 7), // 3 All blue
+  COLOR9(7, 7, 0), // 4 All yelow
+  COLOR9(1, 1, 1), // 5 Off black
+  COLOR9(3, 3, 3), // 6 Gray
+  COLOR9(7, 7, 7), // 7 White
+  COLOR9(1, 2, 7), // 8 Lilac
+  COLOR9(7, 4, 1), // 9 Orange
+  COLOR9(7, 7, 1), // A Off yellow
+  COLOR9(4, 0, 4), // B
 };
 
 void initTilemap(void) __z88dk_fastcall {

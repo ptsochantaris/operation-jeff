@@ -9,7 +9,7 @@
 #define BONUS_FREEZE 5
 #define BONUS_RATE 6
 #define BONUS_SLOW 7
-#define BONUS_PAUSE 8
+#define BONUS_UMBRELLA 8
 #define BONUS_MAX 8
 
 void updateBonuses(void) __z88dk_fastcall;

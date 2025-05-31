@@ -24,7 +24,7 @@ func main() {
         }
         return nil
     }
-    
+
     struct FileGroup {
         var files: [FileInfo]
         var totalSize: Int
@@ -56,7 +56,7 @@ func main() {
         let name: String
         let size: Int
         var pos: Int
-        
+
         var variableName: String {
             name.replacingOccurrences(of: ".", with: "_").components(separatedBy: "/").last!
         }
@@ -110,7 +110,7 @@ func main() {
     mmu1Groups.removeAll { $0.totalSize == 0 }
 
     let groups = mmu3Groups + mmu1Groups
-    
+
     var outputContent = ""
     for group in groups {
         outputContent += """
@@ -120,9 +120,9 @@ func main() {
         """
         for file in group.files {
             outputContent +=
-            """
-            BINARY "\(file.name)"\n
-            """
+                """
+                BINARY "\(file.name)"\n
+                """
         }
         outputContent += "\n"
     }
@@ -153,7 +153,7 @@ func main() {
         print("assets.h created")
     } catch {
         print("Error writing to output file: \(error)")
-    }    
+    }
 }
 
 main()

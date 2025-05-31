@@ -26,6 +26,22 @@ void setBase(byte value) __z88dk_fastcall {
     ZXN_WRITE_MMU3(10);
 }
 
+const byte bonusIndexes[] = {
+    BONUS_HEALTH,
+    BONUS_CHARGE,
+    BONUS_SMARTBOMB,
+    BONUS_RATE,
+    BONUS_SCORE,
+    BONUS_SCORE,
+    BONUS_SCORE,
+    BONUS_FREEZE,
+    BONUS_FREEZE,
+    BONUS_SLOW,
+    BONUS_SLOW,
+    BONUS_UMBRELLA
+};
+#define BONUS_INDEX_COUNT 12
+
 void updateBonuses(void) __z88dk_fastcall {
     if(++bonusLoop == bonusTime) {
         bonusLoop = 0;
@@ -33,12 +49,8 @@ void updateBonuses(void) __z88dk_fastcall {
         // time to add new bonus, if none exists
         if(targetType==BONUS_NONE) {
             setBase(0); // in case a previous bonus is in the process of transitioning out
-            byte newTarget;
-            do {
-                newTarget = 1 + rand() % BONUS_MAX;
-            } while(newTarget == lastTargetType);
-            targetType = newTarget;
-            lastTargetType = newTarget;
+            byte i = rand() % BONUS_INDEX_COUNT;
+            lastTargetType = targetType = bonusIndexes[i];
             currentX = 3 + rand() % 36;
             currentY = 3 + rand() % 28;
             transition = 0;
@@ -92,7 +104,7 @@ void updateBonuses(void) __z88dk_fastcall {
                     setBase(BONUS_MAX + 2 + transitionOffset);
                     return;
                 case BONUS_FREEZE:
-                case BONUS_PAUSE:
+                case BONUS_UMBRELLA:
                 case BONUS_SLOW:
                 case BONUS_RATE:
                     setBase(BONUS_MAX + 3 + transitionOffset);
@@ -113,7 +125,7 @@ void updateBonuses(void) __z88dk_fastcall {
             return;
 
         case BONUS_FREEZE:
-        case BONUS_PAUSE:
+        case BONUS_UMBRELLA:
         case BONUS_SLOW:
         case BONUS_RATE:
             scrollTilemap(0, transition << 1);

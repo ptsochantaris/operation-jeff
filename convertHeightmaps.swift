@@ -1,5 +1,5 @@
-import Foundation
 import Cocoa
+import Foundation
 
 func main() {
     guard CommandLine.arguments.count > 1 else {

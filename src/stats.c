@@ -178,14 +178,14 @@ void processBonusHit(byte type) __z88dk_fastcall {
             status("FREEZE");
             break;
 
-        case BONUS_PAUSE:
+        case BONUS_UMBRELLA:
             currentStats.generationCountdown = 255;
-            status("SLO-DROP");
+            status("UMBRELLA");
             break;
 
         case BONUS_SLOW:
             currentStats.slowMo = 120;
-            status("CHILL");
+            status("SLOW");
             break;
     }
 
