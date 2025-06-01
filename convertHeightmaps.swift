@@ -44,12 +44,7 @@ func convert(imagePath: String) -> Data {
         for x in 0..<width {
             let byteIndex = 4 * (y * width + x) // 4 bytes per pixel (R, G, B, A)
             let r = buffer[byteIndex]
-            let g = buffer[byteIndex + 1]
-            let b = buffer[byteIndex + 2]
-
-            // Luma (perceived brightness): Y = 0.299 * R + 0.587 * G + 0.114 * B
-            let brightness = UInt8((0.299 * Double(r) + 0.587 * Double(g) + 0.114 * Double(b)).rounded())
-            brightnessBytes.append(brightness / 10)
+            brightnessBytes.append(r / 8)
         }
     }
     return brightnessBytes
