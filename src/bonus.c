@@ -67,16 +67,17 @@ void updateBonuses(void) __z88dk_fastcall {
             return;
         }
 
-        word roundedX = currentX - 1;
-        word roundedY = currentY - 1;
         struct bomb *b = bombs;
         for(struct bomb *end = b+bombCount; b != end; ++b) {
-            if((b->state == BOMB_STATE_EXPLODING) && (b->sprite.pos.x >> 3 == roundedX) && (b->sprite.pos.y >> 3 == roundedY)) {
-                processBonusHit(targetType);
-                targetType = BONUS_NONE;
-                transition = 0;
-                b->outcome |= BOMB_OUTCOME_BONUS_HIT;
-                return;
+            if(b->state == BOMB_STATE_EXPLODING) {
+                struct coord pos = b->sprite.pos;
+                if(((pos.x + 8) >> 3 == currentX) && ((pos.y + 8) >> 3 == currentY)) {
+                    processBonusHit(targetType);
+                    targetType = BONUS_NONE;
+                    transition = 0;
+                    b->outcome |= BOMB_OUTCOME_BONUS_HIT;
+                    return;
+                }
             }
         }
         return;
