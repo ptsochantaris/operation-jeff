@@ -242,7 +242,7 @@ void loadScreen(const struct LevelInfo *restrict info) __z88dk_callee {
   }
 }
 
-word readColourFromIndex(byte *colour, byte index) __z88dk_callee {
+void readColourFromIndex(byte *colour, byte index) __z88dk_callee {
   ZXN_NEXTREGA(REG_PALETTE_INDEX, index);
   *colour = ZXN_READ_REG(REG_PALETTE_VALUE_8);
   *(colour+1) = ZXN_READ_REG(REG_PALETTE_VALUE_16);

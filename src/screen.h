@@ -26,7 +26,7 @@ void layer2fill(word x, word y, word width, word height, byte color) __z88dk_cal
 void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) __z88dk_callee;
 void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee;
 void setFallbackColour(byte index) __z88dk_callee;
-word readColourFromIndex(byte *colour, byte index) __z88dk_callee;
+void readColourFromIndex(byte *colour, byte index) __z88dk_callee;
 void writeColourToIndex(const byte *colour, byte index) __z88dk_callee;
 
 void flashPaletteUp(void) __z88dk_fastcall;
