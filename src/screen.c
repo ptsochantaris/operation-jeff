@@ -242,6 +242,12 @@ void loadScreen(const struct LevelInfo *restrict info) __z88dk_callee {
   }
 }
 
+word readColourFromIndex(byte *colour, byte index) __z88dk_callee {
+  ZXN_NEXTREGA(REG_PALETTE_INDEX, index);
+  *colour = ZXN_READ_REG(REG_PALETTE_VALUE_8);
+  *(colour+1) = ZXN_READ_REG(REG_PALETTE_VALUE_16);
+}
+
 void writeColourToIndex(const byte *colour, byte index) __z88dk_callee {
   ZXN_NEXTREGA(REG_PALETTE_INDEX, index);
   ZXN_NEXTREGA(REG_PALETTE_VALUE_16, *colour);
@@ -276,8 +282,6 @@ void setupScreen(void) __z88dk_fastcall {
 
   // map ULA to page 10
   ZXN_NEXTREG(0x52, 10); 
-  // map page 10 to 0x6000 instead of 0x4000
-  ZXN_WRITE_MMU3(10);
 }
 
 void writeNextReg(byte reg, const char *bytes, byte len) __z88dk_callee {

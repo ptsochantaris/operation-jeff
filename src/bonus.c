@@ -8,22 +8,25 @@ static byte transition;
 
 #define bonusTime 500
 
+void setBase(byte value) __z88dk_fastcall {
+    byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
+    ZXN_WRITE_MMU3(11);
+    *base = value;
+    ZXN_WRITE_MMU3(10);
+}
+
 void resetBonuses(void) __z88dk_fastcall {
+    setBase(BONUS_NONE);
+
+    scrollTilemap(0, 0);
+
     targetType = BONUS_NONE;
     presentedType = BONUS_NONE;
     lastTargetType = BONUS_FREEZE;
     currentX = 0;
     currentY = 0;
     bonusLoop = 450;
-
-    clearTilemap();
-}
-
-void setBase(byte value) __z88dk_fastcall {
-    byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
-    ZXN_WRITE_MMU3(11);
-    *base = value;
-    ZXN_WRITE_MMU3(10);
+    transition = 0;
 }
 
 const byte bonusIndexes[] = {

@@ -28,11 +28,12 @@ void initTilemap(void) __z88dk_fastcall {
   selectPalette(3);
   ZXN_NEXTREG(REG_PALETTE_INDEX, 0);
   writeNextReg(REG_PALETTE_VALUE_16, tilemapPalette, sizeof(tilemapPalette));
-}
 
-void clearTilemap(void) __z88dk_fastcall {
+  // Fast clear
   ZXN_WRITE_MMU3(11);
-  fillWithDma(tilemapAddress, tilemapLength, 0); // zero out tilemap
+  fillWithDma(tilemapAddress, tilemapLength, 0);
+
+  // Map page 10 to 0x6000 instead of 0x4000
   ZXN_WRITE_MMU3(10);
   scrollTilemap(0, 0);
 }

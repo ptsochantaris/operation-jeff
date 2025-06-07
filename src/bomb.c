@@ -22,6 +22,27 @@ void initBombs(void) __z88dk_fastcall {
     }
 }
 
+const word bombColorIndex[] = { 240, 245, 249, 254 };
+const word whiteColor = 0x01ff;
+static word bombStash[] = { 0, 0, 0, 0 };
+
+void bombsRestoreFromFlash(void) __z88dk_fastcall {
+    selectPalette(2);
+    for(byte i=0; i != 4; ++i) {
+        word index = *(bombColorIndex+i);
+        writeColourToIndex(bombStash+i, index);
+    }
+}
+
+void bombsFlashAll(void) __z88dk_fastcall {
+    selectPalette(2);
+    for(byte i=0; i != 4; ++i) {
+        word index = *(bombColorIndex+i);
+        readColourFromIndex(bombStash+i, index);
+        writeColourToIndex(&whiteColor, index);
+    }
+}
+
 #define FIRE_ENERGY 4
 
 void fireIfPossible(void) __z88dk_fastcall {

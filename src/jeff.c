@@ -94,10 +94,9 @@ static const word jeffMoveMasks[] = {
 void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_callee {
     ZXN_WRITE_MMU1(info->heightmapAsset.page);
     decompressZX0(heightMap, (byte *)(info->heightmapAsset.resource));
-  }
+}
 
 struct coord setJeffPos(struct coord pos, byte direction) __z88dk_callee {
-    byte interpolate = 1;
     int vertical = 14;
     int horizontal = 8;
 
@@ -121,10 +120,6 @@ struct coord setJeffPos(struct coord pos, byte direction) __z88dk_callee {
         pos.x += 2;
         horizontal = 6;
         break;
-
-        default:
-        interpolate = 0;
-        break;
     }
 
     int lookupX = (pos.x + horizontal) >> 2;
@@ -132,20 +127,17 @@ struct coord setJeffPos(struct coord pos, byte direction) __z88dk_callee {
     int targetZ = *(heightMap + lookupX + lookupY * HEIGHTMAP_WIDTH);
 
     if(pos.z != targetZ) {
-        if(interpolate) {
-            int diff = (targetZ - pos.z);
-            if(diff == 0) {
-                pos.z = targetZ;
-            } else {
-                if(diff > 2) {
-                    diff = 2;
-                } else if(diff < -2) {
-                    diff = -2;
-                }
-                pos.z += diff;
-            }
-        } else {
+        if(direction == 255) {
             pos.z = targetZ;
+        } else {
+            int diff = (targetZ - pos.z);
+            if(diff > 1) {
+                pos.z += 2;
+            } else if(diff < -1) {
+                pos.z -= 2;
+            } else {
+                pos.z = targetZ;
+            }
         }
     }
     return pos;

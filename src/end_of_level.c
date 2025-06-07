@@ -27,19 +27,21 @@ static const struct LevelInfo levelCompleteInfo = FAKE_LEVEL(levelComplete);
 void endOfLeveLoop(byte level) __z88dk_fastcall {
   status("CLEAR");
 
-  ayStopAllSound();
   stopDma();
   dmaResetStatus(); // so we can track playback below
   effectSting();
 
+  ayStopAllSound();
   jeffFlashAll();
-  resetAllBombs();
+  bombsFlashAll();
 
   fadePaletteDownSlow(1, 512);
+  resetAllBombs();
   jeffKillAll(1);
   menuMode();
 
-  dmaWaitForEnd();
+  dmaWaitForEnd(); // waiting here for sample end
+  bombsRestoreFromFlash();
   loadScreen(&levelCompleteInfo);
   endOfLeveDrone();
   status(NULL);

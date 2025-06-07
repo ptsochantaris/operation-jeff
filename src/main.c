@@ -7,8 +7,8 @@ int main(void) {
   haltCopper();
   esxDosRomSetup();
   setupScreen();
-  loadSprites();
   initTilemap();
+  loadSprites();
   initStats();
   mouseInit();
 

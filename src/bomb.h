@@ -24,5 +24,7 @@ extern struct bomb bombs[];
 void initBombs(void) __z88dk_fastcall;
 void updateBombs(void) __z88dk_fastcall;
 void resetAllBombs(void) __z88dk_fastcall;
+void bombsFlashAll(void) __z88dk_fastcall;
+void bombsRestoreFromFlash(void) __z88dk_fastcall;
 
 #endif
