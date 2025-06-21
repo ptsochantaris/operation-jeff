@@ -5,5 +5,6 @@
 #include "types.h"
 
 void endOfLeveLoop(byte level) __z88dk_fastcall;
+void endOfGameLoop(byte level) __z88dk_fastcall;
 
 #endif

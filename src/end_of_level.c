@@ -22,9 +22,70 @@ void endOfLeveDrone(void) __z88dk_callee {
 
 static const struct LevelInfo levelCompleteInfo = FAKE_LEVEL(levelComplete);
 
+static const struct LevelInfo endGameInfo = FAKE_LEVEL(endGame);
+
 #define center 160
 
-void endOfLeveLoop(byte level) __z88dk_fastcall {
+void waitForClick(void) __z88dk_fastcall {
+  while(1) {
+    intrinsic_halt();
+    updateMouse();
+
+    if(!mouseState.handled) {
+      return;
+    }
+  }
+}
+
+void displayStats(word top, word x, byte level, word color, byte twoColumns) {
+  word originalTop = top;
+
+  applyHudPalette();
+
+  sprintf(textBuf, " ZONE %03d: CLEAR", level);
+  printNoBackground(textBuf, x, top, color);
+
+  top += 16;
+  sprintf(textBuf, "     TIME: %lu SEC", currentStats.frames / 50);
+  printNoBackground(textBuf, x, top, color);
+
+  if(twoColumns) {
+    top = originalTop;
+    x += 178;
+  } else {
+    top += 16;
+  }
+
+  long totalShots = 123; //currentStats.shotsHit + currentStats.shotsMiss;
+  sprintf(textBuf, "    SHOTS: %lu", totalShots);
+  printNoBackground(textBuf, x, top, color);
+
+  top += 8;
+  sprintf(textBuf, "     HITS: %lu", currentStats.shotsHit);
+  printNoBackground(textBuf, x, top, color);
+
+  top += 8;
+  sprintf(textBuf, "   MISSES: %lu", currentStats.shotsMiss);
+  printNoBackground(textBuf, x, top, color);
+
+  if(currentStats.shotsMiss) {
+    top += 8;
+    float ratio = ((currentStats.shotsHit * 100) / totalShots);
+    int roundedRatio = (int)ratio;
+    sprintf(textBuf, " ACCURACY: %02d%%", roundedRatio);
+    printNoBackground(textBuf, x, top, color);
+  }
+
+  top += 16;
+  sprintf(textBuf, "  BONUSES: %lu", currentStats.bonusesLanded);
+  printNoBackground(textBuf, x, top, color);
+  top += 8;
+
+  sprintf(textBuf, "COLLECTED: %lu", currentStats.bonusesHit);
+  printNoBackground(textBuf, x, top, color);
+}
+
+void endOfLevelSequence(const struct LevelInfo levelInfo) {
   status("CLEAR");
 
   stopDma();
@@ -42,58 +103,22 @@ void endOfLeveLoop(byte level) __z88dk_fastcall {
 
   dmaWaitForEnd(); // waiting here for sample end
   bombsRestoreFromFlash();
-  loadScreen(&levelCompleteInfo);
+
+  loadScreen(&levelInfo);
   endOfLeveDrone();
   status(NULL);
 
-  fadePaletteUp(&levelCompleteInfo.paletteAsset, 512, 1);
-  applyHudPalette();
+  fadePaletteUp(&levelInfo.paletteAsset, 512, 1);
+}
 
-  word top = 54;
-  word x = 127;
+void endOfLeveLoop(byte level) __z88dk_fastcall {
+  endOfLevelSequence(levelCompleteInfo);
+  displayStats(54, 127, level, HUD_WHITE, 0);
+  waitForClick();
+}
 
-  sprintf(textBuf, " ZONE %03d: CLEAR", level);
-  printNoBackground(textBuf, x, top, HUD_WHITE);
-
-  top += 16;
-  sprintf(textBuf, "     TIME: %lu SEC", currentStats.frames / 50);
-  printNoBackground(textBuf, x, top, HUD_WHITE);
-
-  top += 16;
-  long totalShots = currentStats.shotsHit + currentStats.shotsMiss;
-  sprintf(textBuf, "    SHOTS: %lu", totalShots);
-  printNoBackground(textBuf, x, top, HUD_WHITE);
-
-  top += 8;
-  sprintf(textBuf, "     HITS: %lu", currentStats.shotsHit);
-  printNoBackground(textBuf, x, top, HUD_WHITE);
-
-  top += 8;
-  sprintf(textBuf, "   MISSES: %lu", currentStats.shotsMiss);
-  printNoBackground(textBuf, x, top, HUD_WHITE);
-
-  if(currentStats.shotsMiss) {
-    top += 8;
-    float ratio = ((currentStats.shotsHit * 100) / totalShots);
-    int roundedRatio = (int)ratio;
-    sprintf(textBuf, " ACCURACY: %02d%%", roundedRatio);
-    printNoBackground(textBuf, x, top, HUD_WHITE);
-  }
-
-  top += 16;
-  sprintf(textBuf, "  BONUSES: %lu", currentStats.bonusesLanded);
-  printNoBackground(textBuf, x, top, HUD_WHITE);
-  top += 8;
-
-  sprintf(textBuf, "COLLECTED: %lu", currentStats.bonusesHit);
-  printNoBackground(textBuf, x, top, HUD_WHITE);
-
-  while(1) {
-    intrinsic_halt();
-    updateMouse();
-
-    if(!mouseState.handled) {
-      return;
-    }
-  }
+void endOfGameLoop(byte level) __z88dk_fastcall {
+  endOfLevelSequence(endGameInfo);
+  displayStats(28, 42, level, HUD_BLACK, 1);
+  waitForClick();
 }

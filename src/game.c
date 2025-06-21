@@ -47,26 +47,29 @@ byte debugKeys(void) __z88dk_fastcall {
 #endif
 
 void nextLevel(void) __z88dk_fastcall {
+  byte previousLevel = currentStats.level;
+
   resetBonuses();
   statsProgressLevel();
   stopDma(); // stop any potential sample, as level loading will use the same buffers
-  
-  byte level = currentStats.level;
 
-  if(level) {
-    endOfLeveLoop(level);
+  byte newLevel = currentStats.level;
+  if(previousLevel == LEVEL_COUNT - 1) {
+    endOfGameLoop(LEVEL_COUNT);
+  } else if(newLevel) {
+    endOfLeveLoop(newLevel);
   }
 
   fadePaletteDown(1, 512);
 
   gameMode();
 
-  const struct LevelInfo info = levelInfo[level];
+  const struct LevelInfo info = levelInfo[newLevel];
   loadScreen(&info);
   loadHeightmap(&info);
 
   statsInitLevel();
-  initHud(level);
+  initHud(newLevel);
 
   effectSiren();
 
@@ -76,9 +79,8 @@ void nextLevel(void) __z88dk_fastcall {
   writeColourToIndex(info.jeffDark, 128);
   writeColourToIndex(info.jeffBright, 224);
 
-  sprintf(textBuf, "ZONE %03d", level + 1);
+  sprintf(textBuf, "ZONE %03d", newLevel + 1);
   status(textBuf);
-
 }
 
 void gameMode(void) __z88dk_fastcall {
@@ -132,12 +134,12 @@ byte gameLoop(void) __z88dk_fastcall {
           pause = !pause;
           status(pause ? "PAUSED" : NULL);
         }
-
         #ifdef DEBUG_KEYS
         byte k = debugKeys();
         if(k==1) {
           return 1;
         } else if(k==2) {
+          currentStats.level = currentStats.level + 1;
           nextLevel();
           continue;
         }

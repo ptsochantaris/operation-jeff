@@ -26,9 +26,10 @@ bordered_output "Level Complete Screen"
 $CONV "${ORIG}OperationJeffLevelComplete.png" -pal-min -bitmap-y -bank-8k "${DST}levelComplete.nxi" > /dev/null 
 bordered_output "Game Over Screen"
 $CONV "${ORIG}OperationJeffGameOver.png" -pal-min -bitmap-y -bank-8k "${DST}gameOver.nxi" > /dev/null 
+bordered_output "End Game Screen"
+$CONV "${ORIG}OperationJeffEndGame.png" -pal-min -bitmap-y -bank-8k "${DST}endGame.nxi" > /dev/null 
 
-
-SCREENS=(title info gameOver levelComplete)
+SCREENS=(title info gameOver levelComplete endGame)
 for SCREEN in "${SCREENS[@]}"; do
     bordered_output "Compression: ${SCREEN}"
     for NUMBER in "${NUMBERS[@]}"; do
@@ -38,7 +39,7 @@ for SCREEN in "${SCREENS[@]}"; do
 done
 
 bordered_output "Compression: Palettes"
-PALETTES=(title info gameOver levelComplete default)
+PALETTES=(title info gameOver levelComplete endGame default)
 for PALETTE in "${PALETTES[@]}"; do
     $COMPRESS -f "${DST}/${PALETTE}.nxp" "${DST}/${PALETTE}.nxp.zx0" > /dev/null &
 done
@@ -46,6 +47,8 @@ wait
 
 bordered_output "Converting heightmaps"
 xcrun swift convertHeightmaps.swift ${ORIG}OperationJeffHeightmap*.png
+
+bordered_output "Compression: Level backgrounds"
 
 for LETTER in "${LETTERS[@]}"; do
     bordered_output "Level ${LETTER}"
