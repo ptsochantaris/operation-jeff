@@ -33,7 +33,8 @@
 #define JEFF_UP 2
 #define JEFF_DOWN 3
 
-#define BOMB_RANGE 24
+#define BOMB_RANGE_X 14
+#define BOMB_RANGE_Y 18
 #define BOMB_CLOSE 6
 
 typedef struct jeff {
@@ -251,13 +252,13 @@ void jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
         }
 
         struct coord pos = b->sprite.pos;
-        C = pos.x - (BOMB_RANGE>>1);
+        C = pos.x - (BOMB_RANGE_X>>1);
         if(jx < C) continue;
-        C += BOMB_RANGE;
+        C += BOMB_RANGE_X;
         if(jx >= C) continue;
-        C = pos.y - (BOMB_RANGE>>1) - 4;
+        C = pos.y - (BOMB_RANGE_Y>>1) - 4;
         if(jy < C) continue;
-        C += BOMB_RANGE;
+        C += BOMB_RANGE_Y;
         if(jy >= C) continue;
 
         b->outcome |= BOMB_OUTCOME_JEFF_KILL;
