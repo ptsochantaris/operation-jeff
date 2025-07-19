@@ -1,6 +1,6 @@
 #include "resources.h"
 
-static byte targetType, presentedType, lastTargetType;
+static byte targetType, presentedType;
 static word currentX;
 static word currentY;
 static word bonusLoop;
@@ -22,7 +22,6 @@ void resetBonuses(void) __z88dk_fastcall {
 
     targetType = BONUS_NONE;
     presentedType = BONUS_NONE;
-    lastTargetType = BONUS_FREEZE;
     currentX = 0;
     currentY = 0;
     bonusLoop = 450;
@@ -41,9 +40,19 @@ const byte bonusIndexes[] = {
     BONUS_FREEZE,
     BONUS_SLOW,
     BONUS_SLOW,
+    BONUS_INVUNERABLE,
+    BONUS_RANGE,
     BONUS_UMBRELLA
 };
-#define BONUS_INDEX_COUNT 12
+#define BONUS_INDEX_COUNT 13
+
+void newRandomTargetType(void) __z88dk_fastcall {
+    byte lastTargetType = targetType;
+    do {
+        byte i = rand() % BONUS_INDEX_COUNT;
+        targetType = bonusIndexes[i];
+    } while(lastTargetType == targetType);
+}
 
 void updateBonuses(void) __z88dk_fastcall {
     if(++bonusLoop == bonusTime) {
@@ -52,8 +61,7 @@ void updateBonuses(void) __z88dk_fastcall {
         // time to add new bonus, if none exists
         if(targetType==BONUS_NONE) {
             setBase(0); // in case a previous bonus is in the process of transitioning out
-            byte i = rand() % BONUS_INDEX_COUNT;
-            lastTargetType = targetType = bonusIndexes[i];
+            newRandomTargetType();
             currentX = 3 + rand() % 36;
             currentY = 3 + rand() % 28;
             transition = 0;
@@ -110,6 +118,8 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_FREEZE:
                 case BONUS_UMBRELLA:
                 case BONUS_SLOW:
+                case BONUS_INVUNERABLE:
+                case BONUS_RANGE:
                 case BONUS_RATE:
                     setBase(BONUS_MAX + 3 + transitionOffset);
                     return;
@@ -131,6 +141,8 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_FREEZE:
         case BONUS_UMBRELLA:
         case BONUS_SLOW:
+        case BONUS_INVUNERABLE:
+        case BONUS_RANGE:
         case BONUS_RATE:
             scrollTilemap(0, transition << 1);
             setBase(BONUS_MAX + 9 - transitionOffset);

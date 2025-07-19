@@ -5,7 +5,8 @@ typedef struct sprite_info {
     byte index;
     struct coord pos;
     byte pattern;
-    byte attrs;
+    byte horizontalMirror;
+    byte scaleUp;
 };
 
 void loadSprites(void) __z88dk_fastcall;

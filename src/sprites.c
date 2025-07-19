@@ -8,13 +8,24 @@ void hideSprite(byte index) __z88dk_fastcall {
 void updateSprite(struct sprite_info *restrict s) __z88dk_fastcall {
   ZXN_NEXTREGA(0x34, s->index); // sprite index
   struct coord pos = s->pos;
-  ZXN_NEXTREGA(0x35, pos.x & 0xFF); // x low
-  ZXN_NEXTREGA(0x37, s->attrs | pos.x >> 8); // x high, default attrs
-  int Y = pos.y - pos.z;
-  if(Y < 0) Y = 0;
-  ZXN_NEXTREGA(0x36, Y & 0xFF); // y low
-  ZXN_NEXTREGA(0x39, Y >> 8); // y high
-  ZXN_NEXTREGA(0x38, 0xC0 | s->pattern); // 1'0'PPPPPP ; sprite visible, using pattern 00000
+
+  int targetX = pos.x;
+  int targetY = pos.y - pos.z;
+
+  byte scaleUp = s->scaleUp;
+  if(scaleUp) {
+    targetX -= 8;
+    targetY -= 8;
+  }
+  if(targetY < 0) targetY = 0;
+
+  ZXN_NEXTREGA(0x35, targetX & 0xFF); // x low
+  int value = (s->horizontalMirror ? 8 : 0) | targetX >> 8; // x high
+  ZXN_NEXTREGA(0x37, value);
+  ZXN_NEXTREGA(0x36, targetY & 0xFF); // y low
+  value = (scaleUp ? 0xA : 0) | targetY >> 8; // y high
+  ZXN_NEXTREGA(0x39, value);
+  ZXN_NEXTREGA(0x38, 0xC0 | s->pattern); // 1'0'PPPPPP ; sprite visible, using pattern
 }
 
 void setSpriteGameClipping(void) __z88dk_fastcall {

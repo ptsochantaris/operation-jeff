@@ -21,6 +21,9 @@ typedef struct bomb {
 
 extern struct bomb bombs[];
 
+extern struct bomb* explodingBombs[];
+extern byte explodingBombCount;
+
 void initBombs(void) __z88dk_fastcall;
 void updateBombs(void) __z88dk_fastcall;
 void resetAllBombs(void) __z88dk_fastcall;

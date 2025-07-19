@@ -33,8 +33,6 @@
 #define JEFF_UP 2
 #define JEFF_DOWN 3
 
-#define BOMB_RANGE_X 14
-#define BOMB_RANGE_Y 18
 #define BOMB_CLOSE 6
 
 typedef struct jeff {
@@ -152,7 +150,7 @@ void growJeff(struct jeff *restrict j) __z88dk_fastcall {
 
     byte direction = rand() % 4;
     j->direction = direction;
-    j->sprite.attrs = (direction == JEFF_LEFT) ? 8 : 0;
+    j->sprite.horizontalMirror = (direction == JEFF_LEFT) ? 1 : 0;
     j->sprite.pattern = JEFF_APPEAR_FIRST;
 
     struct coord pos;
@@ -221,6 +219,11 @@ void killJeff(struct jeff *restrict j) __z88dk_fastcall {
 
 void jeffEscape(struct jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_NONE;
+
+    if(currentStats.invunerableCount > 0) {
+        return;
+    }
+
     #ifndef DEBUG_KEYS
     effectDamage();
     processJeffHit();
@@ -239,26 +242,29 @@ void jeffFlashAll(void) __z88dk_fastcall {
 }
 
 void jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
+    if(explodingBombCount==0) {
+        return;
+    }
+
     int C;
     struct coord spos = j->sprite.pos;
     int jx = spos.x;
     int jy = spos.y - spos.z;
     if(jy<0) jy = 0;
 
-    struct bomb *b = bombs;
-    for(struct bomb *end = b+bombCount; b != end; ++b) {
-        if(b->state != BOMB_STATE_EXPLODING) {
-            continue;
-        }
+    int radiusX = currentStats.extraRangeBombs ? 15 : 7;
+    int radiusY = currentStats.extraRangeBombs ? 19 : 9;
 
+    for(byte count=0; count<explodingBombCount; ++count) {
+        struct bomb *b = explodingBombs[count];
         struct coord pos = b->sprite.pos;
-        C = pos.x - (BOMB_RANGE_X>>1);
+        C = pos.x - radiusX;
         if(jx < C) continue;
-        C += BOMB_RANGE_X;
+        C += (radiusX << 1);
         if(jx >= C) continue;
-        C = pos.y - (BOMB_RANGE_Y>>1) - 4;
+        C = pos.y - radiusY - 4;
         if(jy < C) continue;
-        C += BOMB_RANGE_Y;
+        C += (radiusY << 1);
         if(jy >= C) continue;
 
         b->outcome |= BOMB_OUTCOME_JEFF_KILL;
@@ -406,8 +412,8 @@ void holdStep(void) __z88dk_fastcall {
     word v = currentStats.holdCount--;
     if(v == 1) {
         status(NULL);
-    } else if(v % 40 == 0) {
-        sprintf(textBuf, "%d", v / 40);
+    } else if(v % 50 == 0) {
+        sprintf(textBuf, "%d", v / 50);
         status(textBuf);
     }
 }
@@ -462,6 +468,12 @@ void updateJeffs(void) __z88dk_fastcall {
             } else {
                 currentStats.sloMoHold = 2;
                 --currentStats.slowMo;
+            }
+        }
+
+        if(currentStats.invunerableCount > 0) {
+            if(--currentStats.invunerableCount == 0) {
+                setHudBackground(0);
             }
         }
 

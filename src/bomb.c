@@ -9,14 +9,19 @@
 
 struct bomb bombs[bombCount];
 
+struct bomb* explodingBombs[bombCount];
+byte explodingBombCount = 0;
+
 static byte bombLoop = 0;
 static byte cooldown = 0;
 
 void initBombs(void) __z88dk_fastcall {
     cooldown = 0;
+    explodingBombCount = 0;
     struct bomb *b = bombs;
     for(byte f=0; f!=bombCount; ++f, ++b) {
         b->sprite.index = f;
+        b->sprite.scaleUp = 0;
         b->state = BOMB_STATE_NONE;
         b->outcome = BOMB_OUTCOME_NONE;
     }
@@ -60,6 +65,9 @@ void fireIfPossible(void) __z88dk_fastcall {
         if(b->state != BOMB_STATE_NONE) {
             continue;
         }
+
+        effectFire();
+
         if(currentStats.supergun == 0) {
             currentStats.energy -= FIRE_ENERGY;
             cooldown = currentStats.fireRate >> 1;
@@ -74,12 +82,16 @@ void fireIfPossible(void) __z88dk_fastcall {
         b->state = BOMB_STATE_TICKING;
         b->outcome = BOMB_OUTCOME_NONE;
         b->sprite.pattern = BOMB_FIRST;
-        effectFire();
+
+        if(currentStats.extraRangeBombs > 0) {
+            --currentStats.extraRangeBombs;
+        }
         return;
     }
 }
 
 void resetAllBombs(void) __z88dk_fastcall {
+    explodingBombCount = 0;
     struct bomb *b = bombs;
     for(struct bomb *end = b+bombCount; b != end; ++b) {
         if(b->state == BOMB_STATE_NONE) {
@@ -87,7 +99,44 @@ void resetAllBombs(void) __z88dk_fastcall {
         }
         b->state = BOMB_STATE_NONE;
         b->outcome = BOMB_OUTCOME_NONE;
+        b->sprite.scaleUp = 0;
         hideSprite(b->sprite.index);
+    }
+}
+
+void startBombExplosion(struct bomb *restrict b) {
+    b->state = BOMB_STATE_EXPLODING;
+    b->sprite.pattern = EXPLOSION_FIRST;
+    b->sprite.scaleUp = currentStats.extraRangeBombs;
+    explodingBombs[explodingBombCount++] = b;
+}
+
+void endBombExplosion(struct bomb *restrict b) {
+    b->state = BOMB_STATE_NONE;
+    b->sprite.scaleUp = 0;
+    byte outcome = b->outcome;
+    if(outcome) {
+        if(outcome & BOMB_OUTCOME_JEFF_KILL) {
+            ++currentStats.shotsHit;
+        }
+        if(outcome & BOMB_OUTCOME_BONUS_HIT) {
+            ++currentStats.bonusesHit;
+        }
+    } else {
+        ++currentStats.shotsMiss;
+    }
+    hideSprite(b->sprite.index);
+
+    if(explodingBombCount > 1) {
+        for(byte count=0; count<explodingBombCount; ++count) {
+            if(explodingBombs[count]==b) {
+                explodingBombs[count] = explodingBombs[explodingBombCount - 1];
+                --explodingBombCount;
+                return;
+            }
+        }
+    } else {
+        explodingBombCount = 0;
     }
 }
 
@@ -107,8 +156,7 @@ void updateBombs(void) __z88dk_fastcall {
                     byte countdown = --(b->countdown);
                     if(countdown < 17) {
                         if(countdown == 0) {
-                            b->sprite.pattern = EXPLOSION_FIRST;
-                            b->state = BOMB_STATE_EXPLODING;
+                            startBombExplosion(b);
                         } else {    
                             if(++(b->sprite.pattern) > BOMB_LAST) {
                                 b->sprite.pattern = BOMB_FIRST;
@@ -122,19 +170,7 @@ void updateBombs(void) __z88dk_fastcall {
 
                 case BOMB_STATE_EXPLODING:
                     if(++(b->sprite.pattern) > EXPLOSION_LAST) {
-                        b->state = BOMB_STATE_NONE;
-                        byte outcome = b->outcome;
-                        if(outcome) {
-                            if(outcome & BOMB_OUTCOME_JEFF_KILL) {
-                                ++currentStats.shotsHit;
-                            }
-                            if(outcome & BOMB_OUTCOME_BONUS_HIT) {
-                                ++currentStats.bonusesHit;
-                            }
-                        } else {
-                            ++currentStats.shotsMiss;
-                        }
-                        hideSprite(b->sprite.index);
+                        endBombExplosion(b);
                     } else {
                         updateSprite(&b->sprite);
                     }

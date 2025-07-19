@@ -87,8 +87,11 @@ void statsInitLevel(void) __z88dk_fastcall {
     currentStats.generationCountdown = currentStats.generationPeriod;
     currentStats.difficultyStepInLevel = info.difficultyStep;
     currentStats.maxKillsInLevel = info.killsRequired;
+
     currentStats.supergun = 0;
     currentStats.holdCount = 0;
+    currentStats.invunerableCount = 0;
+    currentStats.extraRangeBombs = 0;
 
     currentStats.slowMo = 0;
     currentStats.sloMoHold = 0;
@@ -174,8 +177,19 @@ void processBonusHit(byte type) __z88dk_fastcall {
             break;
 
         case BONUS_FREEZE:
-            currentStats.holdCount = 200;
+            currentStats.holdCount = 199;
             status("FREEZE");
+            break;
+
+        case BONUS_INVUNERABLE:
+            currentStats.invunerableCount = 399;
+            status("SHIELD");
+            setHudBackground(5);
+            break;
+
+        case BONUS_RANGE:
+            currentStats.extraRangeBombs = 40;
+            status("+RANGE");
             break;
 
         case BONUS_UMBRELLA:
@@ -194,9 +208,10 @@ void processBonusHit(byte type) __z88dk_fastcall {
 }
 
 void processJeffHit(void) __z88dk_fastcall {
-    byte canSurvive = currentStats.health >= DAMAGE;
-    if(canSurvive) currentStats.health -= DAMAGE;
-    else currentStats.health = 0;
+    if(currentStats.health >= DAMAGE) 
+        currentStats.health -= DAMAGE;
+    else 
+        currentStats.health = 0;
 }
 
 void processJeffKill(byte score) __z88dk_fastcall {

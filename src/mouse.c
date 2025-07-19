@@ -25,7 +25,6 @@ void endMouse(void) __z88dk_fastcall {
 void mouseReset(void) __z88dk_fastcall {
     mouseSprite.pattern = MOUSE_PATTERN;
     mouseSprite.index = 127;
-    mouseSprite.attrs = 0;
     mouseState.handled = 1;
     mouseState.ongoing = 0;
     mouseState.wheel = 0;
