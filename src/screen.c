@@ -278,8 +278,6 @@ void setupScreen(void) __z88dk_fastcall {
   // ULAnext all ink
   ZXN_NEXTREG(REG_ULANEXT_PALETTE_FORMAT, 0xFF);
 
-  setFallbackColour(0);
-
   // map ULA to page 10
   ZXN_NEXTREG(0x52, 10); 
 }

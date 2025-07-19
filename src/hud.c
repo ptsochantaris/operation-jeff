@@ -95,6 +95,14 @@ void hudScoreDraw(void) __z88dk_fastcall {
   print(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
 }
 
+void hudShieldDraw(void) __z88dk_fastcall {
+  if(displayedStats.invunerableCount == 0) {
+    setFallbackColour(0);
+  } else {
+    setFallbackColour(5);
+  }
+}
+
 #define LEVEL_PROGRESS_WIDTH 7
 
 void hudKillsDraw(void) __z88dk_fastcall {
@@ -157,6 +165,16 @@ void updateStatsIfNeeded(void) __z88dk_fastcall {
     displayedStats.killsInLevel = currentStats.killsInLevel;
     hudKillsDraw();
   }
+
+  if(currentStats.invunerableCount > 0) {
+    if(displayedStats.invunerableCount == 0) {
+      displayedStats.invunerableCount = 1;
+      hudShieldDraw();
+    }
+  } else if(displayedStats.invunerableCount > 0) {
+    displayedStats.invunerableCount = 0;
+    hudShieldDraw();
+  }
 }
 
 void initHud(byte level) __z88dk_fastcall {
@@ -190,4 +208,5 @@ void initHud(byte level) __z88dk_fastcall {
   hudRateDraw();
   hudEnergyDraw();
   hudKillsDraw();
+  hudShieldDraw();
 }

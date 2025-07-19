@@ -184,7 +184,6 @@ void processBonusHit(byte type) __z88dk_fastcall {
         case BONUS_INVUNERABLE:
             currentStats.invunerableCount = 399;
             status("SHIELD");
-            setHudBackground(5);
             break;
 
         case BONUS_RANGE:
