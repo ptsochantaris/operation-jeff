@@ -76,22 +76,31 @@ void updateBonuses(void) __z88dk_fastcall {
     }
 
     if(targetType == presentedType) {
-        if(targetType == BONUS_NONE) {
+        if(targetType == BONUS_NONE || explodingBombCount == 0) {
             return;
         }
 
-        struct bomb *b = bombs;
-        for(struct bomb *end = b+bombCount; b != end; ++b) {
-            if(b->state == BOMB_STATE_EXPLODING) {
-                struct coord pos = b->sprite.pos;
-                if(((pos.x + 8) >> 3 == currentX) && ((pos.y + 8) >> 3 == currentY)) {
-                    processBonusHit(targetType);
-                    targetType = BONUS_NONE;
-                    transition = 0;
-                    b->outcome |= BOMB_OUTCOME_BONUS_HIT;
-                    return;
-                }
-            }
+        int centerX = (currentX << 3) - 4;
+        int centerY = (currentY << 3) - 4;
+        int radius = currentStats.extraRangeBombs ? 18 : 8;
+        int C;
+        for(byte count=0; count<explodingBombCount; ++count) {
+            struct bomb *b = explodingBombs[count];
+            struct coord pos = b->sprite.pos;
+            C = pos.x - radius;
+            if(centerX < C) continue;
+            C += (radius << 1);
+            if(centerX >= C) continue;
+            C = pos.y - radius;
+            if(centerY < C) continue;
+            C += (radius << 1);
+            if(centerY >= C) continue;
+
+            processBonusHit(targetType);
+            targetType = BONUS_NONE;
+            transition = 0;
+            b->outcome |= BOMB_OUTCOME_BONUS_HIT;
+            return;
         }
         return;
     }
