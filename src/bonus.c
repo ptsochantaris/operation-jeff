@@ -1,6 +1,6 @@
 #include "resources.h"
 
-static byte targetType, presentedType;
+static byte targetType, presentedType, lastTargetType;
 static word currentX;
 static word currentY;
 static word bonusLoop;
@@ -22,6 +22,7 @@ void resetBonuses(void) __z88dk_fastcall {
 
     targetType = BONUS_NONE;
     presentedType = BONUS_NONE;
+    lastTargetType = BONUS_FREEZE;
     currentX = 0;
     currentY = 0;
     bonusLoop = 450;
@@ -46,12 +47,13 @@ const byte bonusIndexes[] = {
 };
 #define BONUS_INDEX_COUNT 13
 
-void newRandomTargetType(void) __z88dk_fastcall {
-    byte lastTargetType = targetType;
+void newRandomTargetType(void) {
     do {
         byte i = rand() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];
     } while(lastTargetType == targetType);
+
+    lastTargetType = targetType;
 }
 
 void updateBonuses(void) __z88dk_fastcall {

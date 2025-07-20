@@ -275,8 +275,8 @@ void setupScreen(void) __z88dk_fastcall {
   // L2 transparency index as 0
   ZXN_NEXTREG(0x14, 0);
 
-  // ULAnext all ink
-  ZXN_NEXTREG(REG_ULANEXT_PALETTE_FORMAT, 0xFF);
+  // ULAnext ink mode
+  ZXN_NEXTREG(REG_ULANEXT_PALETTE_FORMAT, 127);
 
   // map ULA to page 10
   ZXN_NEXTREG(0x52, 10); 
