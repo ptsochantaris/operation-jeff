@@ -20,9 +20,11 @@ Shoot bonuses for various benefits:
 - Black cross: Bonus points
 - Yellow diamond: Smart bomb
 - Blue clock: Freeze the Jeff for 5 seconds
+- Black rectangle: Temporary shield from damage
 - Purple umbrella-like-thingy: Pause drops for a moment
 - Round yellow down arrow: Slow down the Jeff temporarily
-- Orange concentric circles: Supergun (fast rate, no charge cost, for a limited number of shots)
+- Orange concentric circles: Extended bomb range (for a limited number of shots)
+- Circle with bolt in the middle: Supergun (fast rate, no charge cost, for a limited number of shots)
 
 If a bolt explodes especially close enough to a Jeff you get a small bonus as well.
 
