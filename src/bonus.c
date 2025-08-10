@@ -33,8 +33,8 @@ const byte bonusIndexes[] = {
     BONUS_HEALTH,
     BONUS_CHARGE,
     BONUS_SMARTBOMB,
+    BONUS_SMARTBOMB,
     BONUS_RATE,
-    BONUS_SCORE,
     BONUS_SCORE,
     BONUS_SCORE,
     BONUS_FREEZE,
@@ -45,7 +45,7 @@ const byte bonusIndexes[] = {
     BONUS_RANGE,
     BONUS_UMBRELLA
 };
-#define BONUS_INDEX_COUNT 13
+#define BONUS_INDEX_COUNT 14
 
 void newRandomTargetType(void) {
     do {

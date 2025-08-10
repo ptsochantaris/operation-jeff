@@ -1,6 +1,6 @@
 #include "resources.h"
 
-#define DAMAGE 50
+#define DAMAGE 25
 
 struct stats currentStats;
 

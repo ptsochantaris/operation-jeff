@@ -224,13 +224,13 @@ void jeffEscape(struct jeff *restrict j) __z88dk_fastcall {
         return;
     }
 
-    #ifndef DEBUG_KEYS
+    //#ifndef DEBUG_KEYS
     effectDamage();
     processJeffHit();
 
     damageFlash = DAMAGE_FLASH_DURATION;
     setFallbackColour(0x40); // redish
-    #endif
+    //#endif
 }
 
 void jeffFlashAll(void) __z88dk_fastcall {
