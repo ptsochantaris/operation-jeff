@@ -7,24 +7,22 @@ void hideSprite(byte index) __z88dk_fastcall {
 
 void updateSprite(struct sprite_info *restrict s) __z88dk_fastcall {
   ZXN_NEXTREGA(0x34, s->index); // sprite index
-  struct coord pos = s->pos;
 
-  int targetX = pos.x;
-  int targetY = pos.y - pos.z;
-
-  byte scaleUp = s->scaleUp;
-  if(scaleUp) {
-    targetX -= 8;
-    targetY -= 8;
+  int targetX, targetY;
+  if(s->scaleUp) {
+    targetX = s->pos.x - 8;
+    targetY = s->pos.y - s->pos.z - 8;
+    ZXN_NEXTREG(0x39, 0xA); // y high is always zero in this case
+  } else {
+    targetX = s->pos.x;
+    targetY = s->pos.y - s->pos.z;
+    ZXN_NEXTREG(0x39, 0); // y high is always zero in this case
   }
   if(targetY < 0) targetY = 0;
 
   ZXN_NEXTREGA(0x35, targetX & 0xFF); // x low
-  int value = (s->horizontalMirror ? 8 : 0) | targetX >> 8; // x high
-  ZXN_NEXTREGA(0x37, value);
   ZXN_NEXTREGA(0x36, targetY & 0xFF); // y low
-  value = (scaleUp ? 0xA : 0); // y high is always zero in this case
-  ZXN_NEXTREGA(0x39, value);
+  ZXN_NEXTREGA(0x37, (s->horizontalMirror ? 8 : 0) | targetX >> 8); // x high
   ZXN_NEXTREGA(0x38, 0xC0 | s->pattern); // 1'0'PPPPPP ; sprite visible, using pattern
 }
 
