@@ -15,12 +15,12 @@ Do not let any Jeff reach the edge of the screen, or you will lose health and ev
 Shooting uses _charge_ which slowly replenishes over time. You can trade fire rate for charge speed (and the reverse) by using the mouse wheel.
 
 Shoot bonuses for various benefits:
-- Red cross: Replenish health
-- Green cross: Replenish charge
-- Black cross: Bonus points
+- Red plus: Replenish health
+- Green plus: Replenish charge
+- Black plus: Bonus points
 - Yellow diamond: Smart bomb
 - Blue clock: Freeze the Jeff for 5 seconds
-- Black rectangle: Temporary shield from damage
+- Black and blue rectangle: Temporary shield from damage
 - Purple umbrella-like-thingy: Pause drops for a moment
 - Round yellow down arrow: Slow down the Jeff temporarily
 - Orange concentric circles: Extended bomb range (for a limited number of shots)
