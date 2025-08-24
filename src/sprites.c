@@ -23,7 +23,7 @@ void updateSprite(struct sprite_info *restrict s) __z88dk_fastcall {
   int value = (s->horizontalMirror ? 8 : 0) | targetX >> 8; // x high
   ZXN_NEXTREGA(0x37, value);
   ZXN_NEXTREGA(0x36, targetY & 0xFF); // y low
-  value = (scaleUp ? 0xA : 0) | targetY >> 8; // y high
+  value = (scaleUp ? 0xA : 0); // y high is always zero in this case
   ZXN_NEXTREGA(0x39, value);
   ZXN_NEXTREGA(0x38, 0xC0 | s->pattern); // 1'0'PPPPPP ; sprite visible, using pattern
 }

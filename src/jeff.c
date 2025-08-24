@@ -217,8 +217,13 @@ void killJeff(struct jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_DISAPPEAR;
 }
 
-void jeffEscape(struct jeff *restrict j) __z88dk_fastcall {
+void retireJeff(struct jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_NONE;
+    hideSprite(j->sprite.index);
+}
+
+void jeffEscape(struct jeff *restrict j) __z88dk_fastcall {
+    retireJeff(j);
 
     if(currentStats.invunerableCount > 0) {
         return;
@@ -241,9 +246,9 @@ void jeffFlashAll(void) __z88dk_fastcall {
     writeColourToIndex(&white, 224);
 }
 
-void jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
+byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
     if(explodingBombCount==0) {
-        return;
+        return 0;
     }
 
     int C;
@@ -272,19 +277,21 @@ void jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
         effectExplosion();
 
         C = pos.x - (BOMB_CLOSE>>1);
-        if(jx < C) return;
+        if(jx < C) return 1;
         C += BOMB_CLOSE;
-        if(jx >= C) return;
+        if(jx >= C) return 1;
         C = pos.y - (BOMB_CLOSE>>1) - 4;
-        if(jy < C) return;
+        if(jy < C) return 1;
         C += BOMB_CLOSE;
-        if(jy >= C) return;
+        if(jy >= C) return 1;
 
         status("+10 PTS");
         effectZap();
         currentStats.score += 10;
-        return;
+        return 1;
     }
+
+    return 0;
 }
 
 void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
@@ -294,7 +301,7 @@ void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
     j->sprite.pos = pos;
     switch(direction) {
         case JEFF_UP:
-            if(pos.y == 0) {
+            if((pos.y - pos.z) < 1) {
                 jeffEscape(j);
             } else {
                 if(newPattern > JEFF_BACK_LAST) {
@@ -304,7 +311,7 @@ void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
             break;
 
         case JEFF_DOWN:
-            if(pos.y == 255) {
+            if((pos.y - pos.z) > 254) {
                 jeffEscape(j);
             } else {
                 if(newPattern > JEFF_FRONT_LAST) {
@@ -375,11 +382,6 @@ void jeffAppearStep(struct jeff *j) __z88dk_fastcall {
         j->progress = 0;
         jeffStandStep(j);
     }
-}
-
-void retireJeff(struct jeff *j) __z88dk_fastcall {
-    j->state = JEFF_STATE_NONE;
-    hideSprite(j->sprite.index);
 }
 
 void resetLanding(void) __z88dk_fastcall {
@@ -520,9 +522,14 @@ void updateJeffs(void) __z88dk_fastcall {
             case JEFF_STATE_WALK:
                 if(canMove && (j->moveMask & logicLoop)) {
                     jeffWalkStep(j);
+                    if(j->state != JEFF_STATE_NONE) {
+                        jeffCheckBombs(j);
+                        updateSprite(&j->sprite);
+                    }
+
+                } else if(jeffCheckBombs(j)) {
+                    updateSprite(&j->sprite);
                 }
-                jeffCheckBombs(j);
-                updateSprite(&j->sprite);
                 continue;
         }
     }
