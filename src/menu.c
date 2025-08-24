@@ -35,7 +35,13 @@ void setupTitle(void) __z88dk_fastcall {
 
   word x = 160 - ((4*18) >> 1);
   sprintf(textBuf, "HIGH SCORE %07lu", highScores[0].score);
-  printNoBackground(textBuf, x, 10, 4);
+  printNoBackground(textBuf, x, 12, 4);
+
+  if(currentStats.highestLevel > 0) {
+    x = 160 - ((4*33) >> 1);
+    sprintf(textBuf, "PRESS C TO CONTINUE FROM LEVEL %02d", currentStats.highestLevel + 1);
+    printNoBackground(textBuf, x, 241, 18);
+  }
 
   ayStopAllSound();
   effectMenuLoop();
@@ -58,7 +64,7 @@ void menuMode(void) __z88dk_fastcall {
   ulaAttributeClear();
 }
 
-void menuLoop(void) __z88dk_fastcall {
+byte menuLoop(void) __z88dk_fastcall {
   stopDma();
   menuMode();
   status(NULL);
@@ -77,7 +83,7 @@ void menuLoop(void) __z88dk_fastcall {
 
       } else {
         stopDma();
-        return;
+        return 0;
       }
     }
 
@@ -100,6 +106,17 @@ void menuLoop(void) __z88dk_fastcall {
           setupTitle();
         } else {
           setupInfo();
+        }
+      }
+
+      pressed = z80_inp(0xfefe);
+      if((pressed & 8) == 0) { // "c"
+        inputDelay = SMALL_INPUT_DELAY;
+        if(menuInfoMode) {
+          setupTitle();
+        } else {
+          stopDma();
+          return currentStats.highestLevel;
         }
       }
     }

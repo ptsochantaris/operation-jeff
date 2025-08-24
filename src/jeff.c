@@ -457,6 +457,8 @@ void updateJeffs(void) __z88dk_fastcall {
                 currentStats.generationCountdown = currentStats.generationPeriod;
                 launchRandomJeff();
             }
+        } else if(currentStats.umbrellaCountdown > 0) {
+            --currentStats.umbrellaCountdown;
         } else {
             --currentStats.generationCountdown;
         }

@@ -5,7 +5,7 @@
 
 extern byte inputDelay;
 
-void menuLoop(void) __z88dk_fastcall;
+byte menuLoop(void) __z88dk_fastcall;
 void menuMode(void) __z88dk_fastcall;
 
 #endif

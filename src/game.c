@@ -23,7 +23,7 @@ byte debugKeys(void) __z88dk_fastcall {
     if((pressed & (1 << l)) == 0) {
       inputDelay = SMALL_INPUT_DELAY;
       currentStats.level = isShifted() ? (l + 9) : (l - 1);
-      nextLevel();
+      nextLevel(0);
       return 0;
     }
   }
@@ -33,7 +33,7 @@ byte debugKeys(void) __z88dk_fastcall {
     if((pressed & (1 << l)) == 0) {
       inputDelay = SMALL_INPUT_DELAY;
       currentStats.level = isShifted() ? (18 - l) : (8 - l);
-      nextLevel();
+      nextLevel(0);
       return 0;
     }
   }
@@ -46,7 +46,7 @@ byte debugKeys(void) __z88dk_fastcall {
 }
 #endif
 
-void nextLevel(void) __z88dk_fastcall {
+void nextLevel(byte gameStart) __z88dk_fastcall {
   byte previousLevel = currentStats.level;
 
   resetBonuses();
@@ -56,7 +56,7 @@ void nextLevel(void) __z88dk_fastcall {
   byte newLevel = currentStats.level;
   if(previousLevel == LEVEL_COUNT - 1) {
     endOfGameLoop(LEVEL_COUNT);
-  } else if(newLevel) {
+  } else if(!gameStart) {
     endOfLeveLoop(newLevel);
   }
 
@@ -92,15 +92,18 @@ void gameMode(void) __z88dk_fastcall {
   mouseReset();
 }
 
-byte gameLoop(void) __z88dk_fastcall {
+byte gameLoop(byte startLevel) __z88dk_fastcall {
   srand(100);
   gameMode();
   setupGameStats();
+  if(startLevel > 0) {
+    currentStats.level = startLevel - 1; // gets incremented right below
+  }
 
   initJeffs();
   initBombs();
 
-  nextLevel();
+  nextLevel(1);
 
   byte loopCount = 0;
   byte pause = 0;
@@ -140,7 +143,7 @@ byte gameLoop(void) __z88dk_fastcall {
           return 1;
         } else if(k==2) {
           currentStats.level = currentStats.level + 1;
-          nextLevel();
+          nextLevel(0);
           continue;
         }
         #endif
@@ -162,7 +165,7 @@ byte gameLoop(void) __z88dk_fastcall {
 
       case 2:
         // level complete
-        nextLevel();
+        nextLevel(0);
         break;
 
       default:

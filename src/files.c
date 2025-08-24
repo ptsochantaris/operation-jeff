@@ -1,7 +1,6 @@
 #include "resources.h"
 
 static byte previousMmu1;
-static byte filename[] = "OperationJeff.scores";
 
 void prepareForEsxCall(void) __z88dk_fastcall {
     // disable write-through
@@ -35,7 +34,7 @@ void esxDosRomSetup(void) __z88dk_fastcall {
     ZXN_WRITE_MMU0(28);
 }
 
-void persistData(void *src, int len) __z88dk_callee {
+void persistData(void *src, int len, const char *restrict filename) __z88dk_callee {
     if(len <= 0) return;
 
     prepareForEsxCall();
@@ -47,7 +46,7 @@ void persistData(void *src, int len) __z88dk_callee {
     completedEsxCall();
 }
 
-void fetchData(void *dst, int len) __z88dk_callee {
+void fetchData(void *dst, int len, const char *restrict filename) __z88dk_callee {
     if(len <= 0) return;
 
     prepareForEsxCall();

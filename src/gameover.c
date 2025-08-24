@@ -32,6 +32,7 @@ void gameOverLoop(void) __z88dk_fastcall {
   stopDma();
   ayStopAllSound();
   gameOverEffect();
+  persistHighestLevel();
   loadGameOverScreen();
   applyHudPalette();
 

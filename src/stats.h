@@ -27,6 +27,7 @@ typedef struct stats {
     unsigned long frames;
 
     byte level;
+    byte highestLevel;
     byte generationPeriod;
     byte generationCountdown;
 
@@ -36,6 +37,7 @@ typedef struct stats {
     word holdCount;
     word invunerableCount;
     word difficultyCountdown;
+    word umbrellaCountdown;
 
     byte slowMo;
     byte sloMoHold;
@@ -59,5 +61,6 @@ void processBonusHit(byte type) __z88dk_fastcall;
 void processJeffHit(void) __z88dk_fastcall;
 void newHighScore(byte *name, byte pos);
 word displayHighScoreTable(word x, word top, byte newPos);
+void persistHighestLevel(void) __z88dk_fastcall;
 
 #endif

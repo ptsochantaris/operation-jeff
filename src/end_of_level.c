@@ -100,6 +100,7 @@ void endOfLevelSequence(const struct LevelInfo levelInfo) {
   resetAllBombs();
   jeffKillAll(1);
   menuMode();
+  persistHighestLevel();
 
   dmaWaitForEnd(); // waiting here for sample end
   bombsRestoreFromFlash();

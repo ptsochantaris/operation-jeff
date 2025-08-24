@@ -17,10 +17,16 @@ struct ScoreRecord highScores[] = {
     { "JEFFFFFFFF", 100 }
 };
 
+static char scoresFilename[] = "OperationJeff.scores";
+static char levelFilename[] = "OperationJeff.level";
+
 void initStats(void) __z88dk_fastcall {
     int len = sizeof(highScores);
-    fetchData(&highScores, len);
+    fetchData(&highScores, len, scoresFilename);
     setupGameStats();
+
+    currentStats.highestLevel = 0;
+    fetchData(&currentStats.highestLevel, 1, levelFilename);
 }
 
 void setupGameStats(void) __z88dk_fastcall {
@@ -40,8 +46,16 @@ void newHighScore(byte *name, byte pos) {
     memcpy(highScores[pos].name, name, HIGHSCORE_SLOT_NAME_LEN);
     
     word len = sizeof(highScores);
-    persistData(highScores, len);
+    persistData(highScores, len, scoresFilename);
 }
+
+void persistHighestLevel(void) __z88dk_fastcall {
+    if(currentStats.level <= currentStats.highestLevel) {
+        return;
+    }
+    currentStats.highestLevel = currentStats.level;
+    persistData(&currentStats.highestLevel, 1, levelFilename);
+} 
 
 word displayHighScoreTable(word x, word top, byte newPos) {
     word entryTop = 0;
@@ -92,6 +106,7 @@ void statsInitLevel(void) __z88dk_fastcall {
     currentStats.holdCount = 0;
     currentStats.invunerableCount = 0;
     currentStats.extraRangeBombs = 0;
+    currentStats.umbrellaCountdown = 0;
 
     currentStats.slowMo = 0;
     currentStats.sloMoHold = 0;
@@ -192,7 +207,7 @@ void processBonusHit(byte type) __z88dk_fastcall {
             break;
 
         case BONUS_UMBRELLA:
-            currentStats.generationCountdown = 255;
+            currentStats.umbrellaCountdown = 399;
             status("UMBRELLA");
             break;
 
