@@ -86,12 +86,11 @@ void updateBonuses(void) __z88dk_fastcall {
         int C;
         for(byte count=0; count<explodingBombCount; ++count) {
             struct bomb *b = explodingBombs[count];
-            struct coord pos = b->sprite.pos;
-            C = pos.x - radius;
+            C = b->sprite.pos.x - radius;
             if(centerX < C) continue;
             C += (radius << 1);
             if(centerX >= C) continue;
-            C = pos.y - radius;
+            C = b->sprite.pos.y - radius;
             if(centerY < C) continue;
             C += (radius << 1);
             if(centerY >= C) continue;

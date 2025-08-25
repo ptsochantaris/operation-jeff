@@ -95,51 +95,50 @@ void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_callee {
     decompressZX0(heightMap, (byte *)(info->heightmapAsset.resource));
 }
 
-struct coord setJeffPos(struct coord pos, byte direction) __z88dk_callee {
+void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_callee {
     int vertical = 14;
     int horizontal = 8;
 
     switch(direction) {
         case JEFF_UP:
-        --pos.y;
+        --(s->pos.y);
         vertical = 10;
         break;
 
         case JEFF_DOWN:
-        ++pos.y;
+        ++(s->pos.y);
         vertical = 18;
         break;
 
         case JEFF_LEFT:
-        pos.x -= 2;
+        s->pos.x -= 2;
         horizontal = 6;
         break;
 
         case JEFF_RIGHT:
-        pos.x += 2;
+        s->pos.x += 2;
         horizontal = 6;
         break;
     }
 
-    int lookupX = (pos.x + horizontal) >> 2;
-    int lookupY = (pos.y + vertical) >> 2;
+    int lookupX = (s->pos.x + horizontal) >> 2;
+    int lookupY = (s->pos.y + vertical) >> 2;
     int targetZ = *(heightMap + lookupX + lookupY * HEIGHTMAP_WIDTH);
 
-    if(pos.z != targetZ) {
+    if(s->pos.z != targetZ) {
         if(direction == 255) {
-            pos.z = targetZ;
+            s->pos.z = targetZ;
         } else {
-            int diff = (targetZ - pos.z);
+            int diff = (targetZ - s->pos.z);
             if(diff > 1) {
-                pos.z += 2;
+                s->pos.z += 2;
             } else if(diff < -1) {
-                pos.z -= 2;
+                s->pos.z -= 2;
             } else {
-                pos.z = targetZ;
+                s->pos.z = targetZ;
             }
         }
     }
-    return pos;
 }
 
 void growJeff(struct jeff *restrict j) __z88dk_fastcall {
@@ -153,34 +152,31 @@ void growJeff(struct jeff *restrict j) __z88dk_fastcall {
     j->sprite.horizontalMirror = (direction == JEFF_LEFT) ? 1 : 0;
     j->sprite.pattern = JEFF_APPEAR_FIRST;
 
-    struct coord pos;
-
     switch(direction) {
         case JEFF_LEFT:
-            pos.x = 160 + (rand() & 0x3F) * 2;
-            pos.y = 40 + rand() % 192;
+            j->sprite.pos.x = 160 + (rand() & 0x3F) * 2;
+            j->sprite.pos.y = 40 + rand() % 192;
             break;
 
         case JEFF_RIGHT:
-            pos.x = 16 + (rand() & 0x3F) * 2;
-            pos.y = 40 + rand() % 192;
+            j->sprite.pos.x = 16 + (rand() & 0x3F) * 2;
+            j->sprite.pos.y = 40 + rand() % 192;
             break;
 
         case JEFF_UP:
-            pos.x = 16 + rand() % 288;
-            pos.y = 128 + rand() % 112;
+            j->sprite.pos.x = 16 + rand() % 288;
+            j->sprite.pos.y = 128 + rand() % 112;
             break;
 
         case JEFF_DOWN:
-            pos.x = 16 + rand() % 288;
-            pos.y = 16 + rand() % 112;
+            j->sprite.pos.x = 16 + rand() % 288;
+            j->sprite.pos.y = 16 + rand() % 112;
             break;
     }
 
-    pos = setJeffPos(pos, 255);
-    j->sprite.pos = pos;
+    setJeffPos(&(j->sprite), 255);
 
-    landing.sprite.pos = pos;
+    landing.sprite.pos = j->sprite.pos;
     landing.sprite.pos.y = 0;
     landing.sprite.pattern = LANDING_AIR;
     landing.passenger = j;
@@ -246,6 +242,9 @@ void jeffFlashAll(void) __z88dk_fastcall {
     writeColourToIndex(&white, 224);
 }
 
+const int bombRadii1[] = {7, 8, 9, 10, 9, 8, 8, 8};
+const int bombRadii2[] = {14, 16, 18, 20, 18, 16, 16, 16};
+
 byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
     if(explodingBombCount==0) {
         return 0;
@@ -257,30 +256,31 @@ byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
     int jy = spos.y - spos.z;
     if(jy<0) jy = 0;
 
-    int radiusX = currentStats.extraRangeBombs ? 15 : 7;
-    int radiusY = currentStats.extraRangeBombs ? 19 : 9;
-
     for(byte count=0; count<explodingBombCount; ++count) {
         struct bomb *b = explodingBombs[count];
-        struct coord pos = b->sprite.pos;
-        C = pos.x - radiusX;
+
+        const byte radiusIndex = b->sprite.pattern - BOMB_EXPLOSION_FIRST;
+        const int *lookup = currentStats.extraRangeBombs ? bombRadii2 : bombRadii1;
+        const int radius = *(lookup+radiusIndex);
+
+        C = b->sprite.pos.x - radius;
         if(jx < C) continue;
-        C += (radiusX << 1);
+        C += (radius << 1);
         if(jx >= C) continue;
-        C = pos.y - radiusY - 4;
+        C = b->sprite.pos.y - radius - 4;
         if(jy < C) continue;
-        C += (radiusY << 1);
+        C += (radius << 1);
         if(jy >= C) continue;
 
         b->outcome |= BOMB_OUTCOME_JEFF_KILL;
         killJeff(j);
         effectExplosion();
 
-        C = pos.x - (BOMB_CLOSE>>1);
+        C = b->sprite.pos.x - (BOMB_CLOSE>>1);
         if(jx < C) return 1;
         C += BOMB_CLOSE;
         if(jx >= C) return 1;
-        C = pos.y - (BOMB_CLOSE>>1) - 4;
+        C = b->sprite.pos.y - (BOMB_CLOSE>>1) - 4;
         if(jy < C) return 1;
         C += BOMB_CLOSE;
         if(jy >= C) return 1;
@@ -297,11 +297,10 @@ byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
 void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
     byte newPattern = ++(j->sprite.pattern);
     byte direction = j->direction;
-    struct coord pos = setJeffPos(j->sprite.pos, direction);
-    j->sprite.pos = pos;
+    setJeffPos(&(j->sprite), direction);
     switch(direction) {
         case JEFF_UP:
-            if((pos.y - pos.z) < 1) {
+            if((j->sprite.pos.y - j->sprite.pos.z) < 1) {
                 jeffEscape(j);
             } else {
                 if(newPattern > JEFF_BACK_LAST) {
@@ -311,7 +310,7 @@ void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
             break;
 
         case JEFF_DOWN:
-            if((pos.y - pos.z) > 254) {
+            if((j->sprite.pos.y - j->sprite.pos.z) > 254) {
                 jeffEscape(j);
             } else {
                 if(newPattern > JEFF_FRONT_LAST) {
@@ -321,7 +320,7 @@ void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
             break;
 
         case JEFF_LEFT:
-            if(pos.x == 0) {
+            if(j->sprite.pos.x == 0) {
                 jeffEscape(j);
             } else {
                 if(newPattern > JEFF_SIDE_LAST) {
@@ -331,7 +330,7 @@ void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
             break;
 
         case JEFF_RIGHT:
-            if(pos.x == 320) {
+            if(j->sprite.pos.x == 320) {
                 jeffEscape(j);
             } else {
                 if(newPattern > JEFF_SIDE_LAST) {

@@ -9,6 +9,9 @@
 #define BOMB_OUTCOME_JEFF_KILL 1
 #define BOMB_OUTCOME_BONUS_HIT 2
 
+#define BOMB_EXPLOSION_FIRST 10
+#define BOMB_EXPLOSION_LAST 15
+
 #define bombCount 20
 
 typedef struct bomb {

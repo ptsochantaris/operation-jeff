@@ -4,9 +4,6 @@
 #define BOMB_LAST 29
 #define BOMB_LAUNCHED 41
 
-#define EXPLOSION_FIRST 10
-#define EXPLOSION_LAST 15
-
 struct bomb bombs[bombCount];
 
 struct bomb* explodingBombs[bombCount];
@@ -106,7 +103,7 @@ void resetAllBombs(void) __z88dk_fastcall {
 
 void startBombExplosion(struct bomb *restrict b) {
     b->state = BOMB_STATE_EXPLODING;
-    b->sprite.pattern = EXPLOSION_FIRST;
+    b->sprite.pattern = BOMB_EXPLOSION_FIRST;
     b->sprite.scaleUp = currentStats.extraRangeBombs;
     explodingBombs[explodingBombCount++] = b;
 }
@@ -149,9 +146,7 @@ void updateBombs(void) __z88dk_fastcall {
                     break;
 
                 case BOMB_STATE_TICKING:
-                    struct coord pos = b->sprite.pos;
-                    pos.y += (b->target.y - pos.y) >> 2;
-                    b->sprite.pos = pos;
+                    b->sprite.pos.y += (b->target.y - b->sprite.pos.y) >> 2;
 
                     byte countdown = --(b->countdown);
                     if(countdown < 17) {
@@ -169,7 +164,7 @@ void updateBombs(void) __z88dk_fastcall {
                     break;
 
                 case BOMB_STATE_EXPLODING:
-                    if(++(b->sprite.pattern) > EXPLOSION_LAST) {
+                    if(++(b->sprite.pattern) > BOMB_EXPLOSION_LAST) {
                         endBombExplosion(b);
                     } else {
                         updateSprite(&b->sprite);
