@@ -93,7 +93,7 @@ void gameMode(void) __z88dk_fastcall {
 }
 
 byte gameLoop(byte startLevel) __z88dk_fastcall {
-  srand(100);
+  srand(14 + startLevel);
   gameMode();
   setupGameStats();
   if(startLevel > 0) {

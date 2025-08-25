@@ -6,7 +6,7 @@ static word currentY;
 static word bonusLoop;
 static byte transition;
 
-#define bonusTime 500
+#define bonusTime 600
 
 void setBase(byte value) __z88dk_fastcall {
     byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
