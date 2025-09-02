@@ -40,6 +40,7 @@
         "unordered_map": "c",
         "vector": "c",
         "locale": "c",
-        "dma.h": "c"
+        "dma.h": "c",
+        "keyboard.h": "c"
     }
 }

@@ -1,5 +1,21 @@
 SECTION code_compiler
 
+PUBLIC _selectLayer2Page
+_selectLayer2Page:
+latestL2Page:
+        ld      a, 100
+        cp      l
+        jr      z, selectLayer2Done
+        ld      a, l
+        ld      (latestL2Page+1), a
+        or      $10
+        push    bc
+        ld      bc, $123b
+        out     (bc), a
+        pop bc
+selectLayer2Done:
+        ret
+
 ; ZX0 decompressor from here: https://github.com/einar-saukas/ZX0/blob/main/z80/dzx0_fast.asm
 PUBLIC _decompressZX0
 _decompressZX0:

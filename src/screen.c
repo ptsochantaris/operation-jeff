@@ -82,10 +82,6 @@ void layer2roundedBox(word x, word y, word width, word height, byte color) __z88
   horizontalLine(x+1, ey, width-2, color);
 }
 
-void selectLayer2Page(byte page) __z88dk_fastcall {
-  z80_outp(__IO_LAYER_2_CONFIG, 0x10 | page);
-}
-
 void layer2Clear(byte index) __z88dk_fastcall {
   for(byte page=0; page!=5; ++page) {
     selectLayer2Page(page);

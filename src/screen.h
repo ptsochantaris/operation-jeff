@@ -19,7 +19,6 @@ void setupScreen(void) __z88dk_fastcall;
 void setupLayers(byte mode) __z88dk_fastcall;
 
 void selectPalette(byte paletteMask) __z88dk_fastcall;
-void selectLayer2Page(byte page) __z88dk_fastcall;
 void layer2box(word x, word y, word width, word height, byte color) __z88dk_callee;
 void layer2roundedBox(word x, word y, word width, word height, byte color) __z88dk_callee;
 void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee;

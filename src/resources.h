@@ -47,6 +47,7 @@
 #include "keyboard.h"
 
 extern void decompressZX0(byte *dst, byte *src) __z88dk_callee __smallc;
+extern void selectLayer2Page(byte page) __preserves_regs(b,c,d,e,h,iyh,iyl) __z88dk_fastcall;
 
 #endif
 
