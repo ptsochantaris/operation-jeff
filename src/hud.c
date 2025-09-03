@@ -9,7 +9,7 @@
 
 extern const byte *bFont;
 
-void print(const byte *restrict text, word x, word y, byte textColor, byte bgColor) __z88dk_callee {
+void print(const byte *restrict text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee {
   byte C = *text;
   while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
@@ -22,7 +22,7 @@ void print(const byte *restrict text, word x, word y, byte textColor, byte bgCol
   }
 }
 
-void printNoBackground(const byte *restrict text, word x, word y, byte color) __z88dk_callee {
+void printNoBackground(const byte *restrict text, word x, byte y, byte color) __z88dk_callee {
   byte C = *text;
   while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
@@ -35,7 +35,7 @@ void printNoBackground(const byte *restrict text, word x, word y, byte color) __
   }
 }
 
-void printSidewaysNoBackground(const byte *text, word x, word y, byte textColor) __z88dk_callee {
+void printSidewaysNoBackground(const byte *text, word x, byte y, byte textColor) __z88dk_callee {
   selectLayer2Page(x >> 6);
   byte C = *text;
   do {

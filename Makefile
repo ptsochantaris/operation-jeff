@@ -20,11 +20,12 @@ OBJDIR=build
 SRC=src
 
 OBJECTS = $(addprefix $(OBJDIR)/, \
+	zx0.o \
+	graphics.o \
 	levelinfo.o \
 	music.o \
 	effects.o \
 	keyboard.o \
-	zx0.o \
 	base.o \
 	dma.o \
 	files.o \
