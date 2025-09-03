@@ -213,12 +213,6 @@ void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word n
   dmaMemoryToPort(paletteBuffer, 0x253b, numBytes);
 }
 
-void layer2Plot(word x, byte y, byte color) __z88dk_callee {
-  selectLayer2Page(x >> 6);
-  byte *pos = (byte *)((x & 0x3F) * 256 + y);
-  *pos = color;
-}
-
 void scrollLayer2(word x, byte y) __z88dk_callee {
   ZXN_NEXTREGA(0x71, x >> 8);
   ZXN_NEXTREGA(0x16, x & 0xFF);

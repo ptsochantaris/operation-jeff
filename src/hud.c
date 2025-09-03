@@ -11,37 +11,28 @@ extern const byte *bFont;
 
 void print(const byte *restrict text, word x, word y, byte textColor, byte bgColor) __z88dk_callee {
   byte C = *text;
-  do {
+  while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
     for(byte v=0; v!=5; ++v, ++base, ++y) {
-      byte slice = *base;
-      for(byte h=5; h != 8; ++h) {
-        byte color = (slice & (1 << h)) ? textColor : bgColor;
-        layer2Plot(x + (7 - h), y, color);
-      }
+      layer2PlotSlice(*base, x, y, textColor, bgColor);
     }
     C = *(++text);
     x += 4;
     y -= 5;
-  } while(C != 0);
+  }
 }
 
-void printNoBackground(const byte *restrict text, word x, word y, byte textColor) __z88dk_callee {
+void printNoBackground(const byte *restrict text, word x, word y, byte color) __z88dk_callee {
   byte C = *text;
-  do {
+  while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
     for(byte v=0; v!=5; ++v, ++base, ++y) {
-      byte slice = *base;
-      for(byte h=5; h != 8; ++h) {
-        if(slice & (1 << h)) {
-          layer2Plot(x + (7 - h), y, textColor);
-        }
-      }
+      layer2PlotSliceNoBackground(*base, x, y, color);
     }
     C = *(++text);
     x += 4;
     y -= 5;
-  } while(C != 0);
+  }
 }
 
 void printSidewaysNoBackground(const byte *text, word x, word y, byte textColor) __z88dk_callee {

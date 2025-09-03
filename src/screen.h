@@ -14,7 +14,6 @@ extern const word nonHudPaletteByteCount;
 void configLayer2(word writeThroughEnable) __z88dk_fastcall;
 void layer2Clear(byte index) __z88dk_fastcall;
 void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte palette) __z88dk_callee;
-void layer2Plot(word x, byte y, byte color) __z88dk_callee;
 void setupScreen(void) __z88dk_fastcall;
 void setupLayers(byte mode) __z88dk_fastcall;
 
