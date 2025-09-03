@@ -50,7 +50,7 @@ layer2Set:
 
 PUBLIC _layer2PlotSlice
 _layer2PlotSlice:
-        pop bc          ; return address
+        pop iy          ; return address
 
         pop HL          ; bgColor
         ld a, l
@@ -64,11 +64,9 @@ _layer2PlotSlice:
         pop DE          ; x
         add de, 2
 
-        pop iy          ; slice
-        push bc         ; put return back on stack
-
-        ld c, iyl       ; pattern in C
-        ld b, 3         ; loops
+        pop bc          ; slice in c
+        ld b, 3         ; loops in b
+        push iy         ; put return back on stack
         
 layer2PlotSliceLoop:
         bit 5, c        
@@ -97,7 +95,7 @@ layer2PlotSliceGo:
 
 PUBLIC _layer2PlotSliceNoBackground
 _layer2PlotSliceNoBackground:
-        pop bc          ; return address
+        pop iy          ; return address
 
         pop HL          ; colour
         ld a, l
@@ -107,11 +105,9 @@ _layer2PlotSliceNoBackground:
         pop DE          ; x
         add de, 2
 
-        pop iy          ; slice
-        push bc         ; put return back on stack
-
-        ld c, iyl       ; pattern in C
-        ld b, 3         ; loops
+        pop bc          ; slice in c
+        ld b, 3         ; loops in b
+        push iy         ; put return back on stack
 
 layer2PlotSliceNoBackgroundLoop:
         bit 5, c        

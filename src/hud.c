@@ -13,12 +13,11 @@ void print(const byte *restrict text, word x, byte y, byte textColor, byte bgCol
   byte C = *text;
   while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
-    for(byte v=0; v!=5; ++v, ++base, ++y) {
-      layer2PlotSlice(*base, x, y, textColor, bgColor);
+    for(byte v=0; v!=5; ++v, ++base) {
+      layer2PlotSlice(*base, x, y+v, textColor, bgColor);
     }
     C = *(++text);
     x += 4;
-    y -= 5;
   }
 }
 
@@ -26,12 +25,11 @@ void printNoBackground(const byte *restrict text, word x, byte y, byte color) __
   byte C = *text;
   while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
-    for(byte v=0; v!=5; ++v, ++base, ++y) {
-      layer2PlotSliceNoBackground(*base, x, y, color);
+    for(byte v=0; v!=5; ++v, ++base) {
+      layer2PlotSliceNoBackground(*base, x, y+v, color);
     }
     C = *(++text);
     x += 4;
-    y -= 5;
   }
 }
 
