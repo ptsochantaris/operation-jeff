@@ -13,9 +13,7 @@ void print(const byte *restrict text, word x, byte y, byte textColor, byte bgCol
   byte C = *text;
   while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
-    for(byte v=0; v!=5; ++v, ++base) {
-      layer2PlotSlice(*base, x, y+v, textColor, bgColor);
-    }
+    layer2Char(base, x, y, textColor, bgColor);
     C = *(++text);
     x += 4;
   }
@@ -25,9 +23,7 @@ void printNoBackground(const byte *restrict text, word x, byte y, byte color) __
   byte C = *text;
   while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
-    for(byte v=0; v!=5; ++v, ++base) {
-      layer2PlotSliceNoBackground(*base, x, y+v, color);
-    }
+    layer2CharNoBackground(base, x, y, color);
     C = *(++text);
     x += 4;
   }

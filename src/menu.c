@@ -42,12 +42,12 @@ void setupTitle(void) __z88dk_fastcall {
   sprintf(textBuf, "THIS IS A LONG BIT OF TEXT, THAT *SHOULD* TAKE UP MOST OF THE SCREEN WIDTH!");
   for(byte c=0;c!=10;c++) {
     for(int f=0;f<250;f+=8) {
-      printNoBackground(textBuf, 0, f, c);
-      // print(textBuf, 0, f, c, 1);
+      // printNoBackground(textBuf, 0, f, c);
+      print(textBuf, 0, f, c, 1);
     }
   }
   */
-
+ 
   if(currentStats.highestLevel > 0) {
     x = 160 - ((4*33) >> 1);
     sprintf(textBuf, "PRESS C TO CONTINUE FROM LEVEL %02d", currentStats.highestLevel + 1);
