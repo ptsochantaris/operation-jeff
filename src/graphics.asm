@@ -2,15 +2,17 @@ SECTION code_compiler
 
 PUBLIC _selectLayer2Page
 _selectLayer2Page:
-    ld      a, 100
-    cp      l
-    ret     z
-    ld      a, l
-    ld      (_selectLayer2Page+1), a
-    or      $10
-    push    bc
-    ld      bc, $123b
-    out     (bc), a
+    ld e, l
+selectLayer2PageInternal:
+    ld a, 100                       ; placeholder
+    cp e
+    ret z
+    ld a, e
+    ld (_selectLayer2Page+1), a
+    or $10                          ; add other L2 flag
+    push bc
+    ld bc, $123b
+    out (bc), a
     pop bc
     ret
 
@@ -37,9 +39,8 @@ layer2SlicePlot:
 
     ; destination page
     ld b, 6
-    BSRL DE, B      ; x >> 6 to get L2 page
-    ld l, e         ; function expects this at L
-    call _selectLayer2Page
+    BSRL DE, B      ; x >> 6 to get L2 page in E
+    call selectLayer2PageInternal
 
 layer2Set:
     ld hl, 0         ; in-page x (h) + y (l)
@@ -50,7 +51,7 @@ layer2Set:
 
 PUBLIC _layer2Char
 _layer2Char:
-    pop iy          ; return address
+    pop bc          ; return address
 
     pop HL          ; bgColor
     ld a, l
@@ -64,40 +65,21 @@ _layer2Char:
     pop DE          ; x
     add de, 2
 
-    pop bc          ; address of first slice
-    push iy         ; put return back on stack
-
-    ld iy, bc
+    pop iy          ; address of first slice
+    push bc         ; put return back on stack
 
     ld c, (iy)
     call layer2PlotSlice
-    inc hl
-    add de, 3
-
     ld c, (iy+1)
     call layer2PlotSlice
-    inc hl
-    add de, 3
-
     ld c, (iy+2)
     call layer2PlotSlice
-    inc hl
-    add de, 3
-
     ld c, (iy+3)
     call layer2PlotSlice
-    inc hl
-    add de, 3
-
-    ld c, (iy+4)
-    call layer2PlotSlice
-    RET
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ld c, (iy+4)    ; fallthrough to layer2PlotSlice
 
 layer2PlotSlice:
     ld b, 3         ; loops in b
-
 layer2PlotSliceLoop:
     bit 5, c        
     jr z, layer2PlotSliceBg
@@ -119,13 +101,15 @@ layer2PlotSliceGo:
     dec de
     srl c
     djnz layer2PlotSliceLoop
+    inc hl ; next y
+    add de, 3 ; reset DE
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _layer2CharNoBackground
 _layer2CharNoBackground:
-    pop iy          ; return address
+    pop bc          ; return address
 
     pop HL          ; colour
     ld a, l
@@ -135,42 +119,23 @@ _layer2CharNoBackground:
     pop DE          ; x
     add de, 2
 
-    pop bc          ; address of first slice
-    push iy         ; put return back on stack
-
-    ld iy, bc
+    pop iy          ; address of first slice
+    push bc         ; put return back on stack
 
     ld c, (iy)
     call layer2PlotSliceNoBackground
-    inc hl
-    add de, 3
-
     ld c, (iy+1)
     call layer2PlotSliceNoBackground
-    inc hl
-    add de, 3
-
     ld c, (iy+2)
     call layer2PlotSliceNoBackground
-    inc hl
-    add de, 3
-
     ld c, (iy+3)
     call layer2PlotSliceNoBackground
-    inc hl
-    add de, 3
-
-    ld c, (iy+4)
-    call layer2PlotSliceNoBackground
-    RET
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ld c, (iy+4)    ; fallthrough to layer2PlotSliceNoBackground
 
 layer2PlotSliceNoBackground:
     ld b, 3         ; loops in b
-
 layer2PlotSliceNoBackgroundLoop:
-    bit 5, c        
+    bit 5, c
     jr z, layer2PlotSliceSkip
     push de
     push bc
@@ -183,4 +148,6 @@ layer2PlotSliceSkip:
     dec de
     srl c
     djnz layer2PlotSliceNoBackgroundLoop
+    inc hl ; next y
+    add de, 3 ; reset de
     RET
