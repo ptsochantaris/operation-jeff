@@ -10,19 +10,6 @@ const byte clipBytes[] = {0,159,0,255};
 // https://github.com/benbaker76/Gfx2Next
 // build/gfx2next ~/spacer.png -pal-std -pal-none -bitmap-y -bank-16k spacerTitle.nxi
 
-void horizontalLine(word x, word y, word width, byte color) __z88dk_callee {
-  selectLayer2Page(x >> 6);
-  byte *pos = (byte *)((x & 0x3F) * 256 + y);
-
-  for(word end = x+width+1; x != end; ++x, pos += 256) {
-    if((x & 0x3F) == 0) {
-      selectLayer2Page(x >> 6);
-      pos = (byte *)y;
-    }
-    *pos = color;
-  }
-}
-
 void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee {
   word ex = x + width;
   word ey = y + height;
@@ -59,8 +46,8 @@ void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_
 
 void layer2box(word x, word y, word width, word height, byte color) __z88dk_callee {
   word ey = y + height;
-  horizontalLine(x, y, width, color);
-  horizontalLine(x, ey, width, color);
+  layer2HorizonalLine(x, y, width, color);
+  layer2HorizonalLine(x, ey, width, color);
   ++y;
   layer2VerticalLine(x, y, ey, color);
   layer2VerticalLine(x + width, y, ey, color);
@@ -70,8 +57,8 @@ void layer2roundedBox(word x, word y, word width, word height, byte color) __z88
   word ey = y + height;
   layer2VerticalLine(x, y+1, ey, color);
   layer2VerticalLine(x+width, y+1, ey, color);
-  horizontalLine(x+1, y, width-2, color);
-  horizontalLine(x+1, ey, width-2, color);
+  layer2HorizonalLine(x+1, y, width-2, color);
+  layer2HorizonalLine(x+1, ey, width-2, color);
 }
 
 void layer2Clear(byte index) __z88dk_fastcall {
@@ -305,8 +292,8 @@ void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBott
     word l = mid-w;
     word W = w << 1;
     word Y = y+c;
-    horizontalLine(l, Y, W, (Y>dividerY) ? colorBottom : colorTop);
+    layer2HorizonalLine(l, Y, W, (Y>dividerY) ? colorBottom : colorTop);
     Y = ey-c;
-    horizontalLine(l, Y, W, (Y>dividerY) ? colorBottom : colorTop);
+    layer2HorizonalLine(l, Y, W, (Y>dividerY) ? colorBottom : colorTop);
   }
 }

@@ -33,9 +33,15 @@ void setupTitle(void) __z88dk_fastcall {
   setupTitleLeds();
   menuInfoMode = 0;
 
-  word x = 160 - ((4*18) >> 1);
-  sprintf(textBuf, "HIGH SCORE %07lu", highScores[0].score);
-  printNoBackground(textBuf, x, 12, 4);
+  /* Benchmarking drawing */
+  /*
+  for(byte c=0;c!=15;++c) {
+    //layer2fill(10,10,300,240,c);
+    for(word s=250;s!=1;--s) {
+      layer2box(3, 3, s, s, c);
+    }
+  }
+  */
 
   /* Benchmarking text printing */
   /*
@@ -47,7 +53,11 @@ void setupTitle(void) __z88dk_fastcall {
     }
   }
   */
- 
+
+  word x = 160 - ((4*18) >> 1);
+  sprintf(textBuf, "HIGH SCORE %07lu", highScores[0].score);
+  printNoBackground(textBuf, x, 12, 4);
+
   if(currentStats.highestLevel > 0) {
     x = 160 - ((4*33) >> 1);
     sprintf(textBuf, "PRESS C TO CONTINUE FROM LEVEL %02d", currentStats.highestLevel + 1);

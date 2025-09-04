@@ -24,7 +24,7 @@ _layer2Plot:
 
     pop HL          ; colour
     ld a, l
-    ld (layer2Set+4), a
+    ld (layer2Set+1), a
 
     pop HL          ; y
     pop DE          ; x
@@ -34,8 +34,7 @@ layer2SlicePlot:
     ; offset in page
     ld a, e
     and $3F         ; keep in-page bits of x
-    ld h, a         ; l already has y
-    ld (layer2Set+1), hl
+    ld h, a         ; in-page x (h) + y (l)
 
     ; destination page
     ld b, 6
@@ -43,7 +42,6 @@ layer2SlicePlot:
     call selectLayer2PageInternal
 
 layer2Set:
-    ld hl, 0         ; in-page x (h) + y (l)
     ld (hl), 0       ; set (hl) to colour value
     ret
 
@@ -89,7 +87,7 @@ layer2PlotSliceFg:
 layer2PlotSliceBg:
     ld a, 0
 layer2PlotSliceGo:
-    ld (layer2Set+4), a
+    ld (layer2Set+1), a
     push de
     push bc
     push hl
@@ -113,7 +111,7 @@ _layer2CharNoBackground:
 
     pop HL          ; colour
     ld a, l
-    ld (layer2Set+4), a
+    ld (layer2Set+1), a
 
     pop HL          ; y
     pop DE          ; x
@@ -186,4 +184,55 @@ layer2VerticalLineLoopSet:
     dec l
     ld (hl), 0       ; set (hl) to colour value
     djnz layer2VerticalLineLoopSet
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _layer2HorizonalLine
+_layer2HorizonalLine:
+    pop iy          ; return address
+
+    pop HL          ; colour
+    ld a, l
+    ld (layer2HorizontalLineLoopSet+1), a
+
+    pop BC          ; width
+    inc bc          ; make inclusive
+    pop HL          ; y
+    pop DE          ; start x
+    push iy         ; put return back on stack
+
+    ; destination page, initial
+    push de
+    push bc
+    ld b, 6
+    BSRL DE, B      ; x >> 6 to get L2 page in E
+    call selectLayer2PageInternal
+    pop bc
+    pop de
+
+layer2HorizontalLineLoop:
+    ; offset in page
+    ld a, e
+    and $3F         ; keep in-page bits of x
+    ld h, a         ; l already has y
+
+    cp 0            ; destination page needs update if in-page x is zero
+    jr nz, layer2HorizontalLineLoopSet ; or skip
+    push de
+    push bc
+    ld b, 6
+    BSRL DE, B      ; x >> 6 to get L2 page in E
+    call selectLayer2PageInternal
+    pop bc
+    pop de
+
+layer2HorizontalLineLoopSet:
+    ld (hl), 0       ; set (hl) to colour value
+
+    inc de
+    dec bc
+    ld a, b
+    or c
+    jr nz, layer2HorizontalLineLoop
     ret
