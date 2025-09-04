@@ -8,7 +8,7 @@ selectLayer2PageInternal:
     cp e
     ret z
     ld a, e
-    ld (_selectLayer2Page+1), a
+    ld (selectLayer2PageInternal+1), a
     or $10                          ; add other L2 flag
     push bc
     ld bc, $123b
