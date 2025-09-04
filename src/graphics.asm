@@ -32,18 +32,25 @@ _layer2Plot:
     push bc         ; put return back on stack
 
 layer2SlicePlot:
+    push hl
+
     ; offset in page
     ld a, e
     and $3F         ; keep in-page bits of x
     ld h, a         ; in-page x (h) + y (l)
 
     ; destination page
+    ld a, b
     ld b, 6
+    push de
     BSRL DE, B      ; x >> 6 to get L2 page in E
+    ld b, a
     call selectLayer2PageInternal
+    pop de
 
 layer2Set:
     ld (hl), 0       ; set (hl) to colour value
+    pop hl
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -89,18 +96,12 @@ layer2PlotSliceBg:
     ld a, 0
 layer2PlotSliceGo:
     ld (layer2Set+1), a
-    push de
-    push bc
-    push hl
     call layer2SlicePlot
-    pop hl
-    pop bc
-    pop de
 
     dec de
     srl c
     djnz layer2PlotSliceLoop
-    inc hl ; next y
+    inc l ; next y
     add de, 3 ; reset DE
     RET
 
@@ -136,19 +137,57 @@ layer2PlotSliceNoBackground:
 layer2PlotSliceNoBackgroundLoop:
     bit 5, c
     jr z, layer2PlotSliceSkip
-    push de
-    push bc
-    push hl
     call layer2SlicePlot
-    pop hl
-    pop bc
-    pop de
 layer2PlotSliceSkip:
     dec de
     srl c
     djnz layer2PlotSliceNoBackgroundLoop
-    inc hl ; next y
+    inc l ; next y
     add de, 3 ; reset de
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _layer2CharSidewaysNoBackground
+_layer2CharSidewaysNoBackground:
+    pop bc          ; return address
+
+    pop HL          ; colour
+    ld a, l
+    ld (layer2Set+1), a
+
+    pop HL          ; y
+    dec l
+    dec l
+    pop DE          ; x
+
+    pop iy          ; address of first slice
+    push bc         ; put return back on stack
+
+    ld c, (iy)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+1)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+2)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+3)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+4)    ; fallthrough to layer2PlotSliceSidewaysNoBackground
+
+layer2PlotSliceSidewaysNoBackground:
+    ld b, 3         ; loops in b
+layer2PlotSliceSidewaysNoBackgroundLoop:
+    bit 5, c
+    jr z, layer2PlotSliceSidewaysSkip
+    call layer2SlicePlot
+layer2PlotSliceSidewaysSkip:
+    inc l
+    srl c
+    djnz layer2PlotSliceSidewaysNoBackgroundLoop
+    inc de ; next x
+    dec l
+    dec l
+    dec l
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -205,11 +244,11 @@ _layer2HorizonalLine:
 
     ; destination page, initial
     push de
-    push bc
+    ld a, b
     ld b, 6
     BSRL DE, B      ; x >> 6 to get L2 page in E
+    ld b, a
     call selectLayer2PageInternal
-    pop bc
     pop de
 
 layer2HorizontalLineLoop:
@@ -221,11 +260,11 @@ layer2HorizontalLineLoop:
     cp 0            ; destination page needs update if in-page x is zero
     jr nz, layer2HorizontalLineLoopSet ; or skip
     push de
-    push bc
+    ld a, b
     ld b, 6
     BSRL DE, B      ; x >> 6 to get L2 page in E
+    ld b, a
     call selectLayer2PageInternalNoCheck
-    pop bc
     pop de
 
 layer2HorizontalLineLoopSet:

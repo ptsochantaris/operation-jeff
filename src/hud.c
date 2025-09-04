@@ -30,23 +30,13 @@ void printNoBackground(const byte *restrict text, word x, byte y, byte color) __
 }
 
 void printSidewaysNoBackground(const byte *text, word x, byte y, byte textColor) __z88dk_callee {
-  selectLayer2Page(x >> 6);
   byte C = *text;
-  do {
+  while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
-    for(byte v=0; v!=5; ++v, ++base, ++x) {
-      byte slice = *base;
-      for(byte h=5; h != 8; ++h) {
-        if(slice & (1 << h)) {
-          byte *pos = (byte *)((x & 0x3F) * 256 + (y - (7 - h)));
-          *pos = textColor;
-        }
-      }
-    }
+    layer2CharSidewaysNoBackground(base, x, y, textColor);
     C = *(++text);
     y -= 4;
-    x -= 5;
-  } while(C != 0);
+  }
 }
 
 byte textBuf[100];
