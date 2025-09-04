@@ -10,14 +10,6 @@ const byte clipBytes[] = {0,159,0,255};
 // https://github.com/benbaker76/Gfx2Next
 // build/gfx2next ~/spacer.png -pal-std -pal-none -bitmap-y -bank-16k spacerTitle.nxi
 
-void verticalLine(word x, word lowY, word highY, byte color) __z88dk_callee {
-  selectLayer2Page(x >> 6);
-  byte *pos = (byte *)((x & 0x3F) * 256 + lowY);
-  for(byte *end = pos+highY-lowY; pos != end; ++pos) {
-    *pos = color;
-  }
-}
-
 void horizontalLine(word x, word y, word width, byte color) __z88dk_callee {
   selectLayer2Page(x >> 6);
   byte *pos = (byte *)((x & 0x3F) * 256 + y);
@@ -35,7 +27,7 @@ void layer2fill(word x, word y, word width, word height, byte color) __z88dk_cal
   word ex = x + width;
   word ey = y + height;
   for(word X=x; X!=ex; ++X) {
-    verticalLine(X, y, ey, color);
+    layer2VerticalLine(X, y, ey, color);
   }
 }
 
@@ -70,14 +62,14 @@ void layer2box(word x, word y, word width, word height, byte color) __z88dk_call
   horizontalLine(x, y, width, color);
   horizontalLine(x, ey, width, color);
   ++y;
-  verticalLine(x, y, ey, color);
-  verticalLine(x + width, y, ey, color);
+  layer2VerticalLine(x, y, ey, color);
+  layer2VerticalLine(x + width, y, ey, color);
 }
 
 void layer2roundedBox(word x, word y, word width, word height, byte color) __z88dk_callee {
   word ey = y + height;
-  verticalLine(x, y+1, ey, color);
-  verticalLine(x+width, y+1, ey, color);
+  layer2VerticalLine(x, y+1, ey, color);
+  layer2VerticalLine(x+width, y+1, ey, color);
   horizontalLine(x+1, y, width-2, color);
   horizontalLine(x+1, ey, width-2, color);
 }

@@ -151,3 +151,39 @@ layer2PlotSliceSkip:
     inc hl ; next y
     add de, 3 ; reset de
     RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _layer2VerticalLine
+_layer2VerticalLine:
+    pop iy          ; return address
+
+    pop HL          ; colour
+    ld a, l
+    ld (layer2VerticalLineLoopSet+2), a
+
+    pop HL          ; bottom y in L (high number)
+    pop BC          ; top y in C (low number)
+    pop DE          ; x
+    push iy         ; put return back on stack
+
+    ; offset in page
+    ld a, e
+    and $3F         ; keep in-page bits of x
+    ld h, a         ; l already has y, h is now in-page x
+
+    ; destination page
+    ld b, 6
+    BSRL DE, B      ; x >> 6 to get L2 page in E
+    call selectLayer2PageInternal
+
+    ; number of loops
+    ld a, l
+    sub c
+    ld b, a
+
+layer2VerticalLineLoopSet:
+    dec l
+    ld (hl), 0       ; set (hl) to colour value
+    djnz layer2VerticalLineLoopSet
+    ret

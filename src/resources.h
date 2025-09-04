@@ -51,6 +51,7 @@ extern void selectLayer2Page(byte page) __preserves_regs(b,c,d,h,iyh,iyl) __z88d
 extern void layer2Plot(word x, byte y, byte color) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
 extern void layer2CharNoBackground(const byte *restrict glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
 extern void layer2Char(const byte *restrict glyph, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
+extern void layer2VerticalLine(word x, word topY, word bottomY, byte color) __z88dk_callee __smallc;
 
 #endif
 
