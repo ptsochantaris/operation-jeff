@@ -4,12 +4,13 @@ PUBLIC _selectLayer2Page
 _selectLayer2Page:
     ld e, l
 selectLayer2PageInternal:
-    ld a, 100                       ; placeholder
+    ld a, 100       ; placeholder
     cp e
     ret z
+selectLayer2PageInternalNoCheck:
     ld a, e
     ld (selectLayer2PageInternal+1), a
-    or $10                          ; add other L2 flag
+    or $10          ; add other L2 flag
     push bc
     ld bc, $123b
     out (bc), a
@@ -223,7 +224,7 @@ layer2HorizontalLineLoop:
     push bc
     ld b, 6
     BSRL DE, B      ; x >> 6 to get L2 page in E
-    call selectLayer2PageInternal
+    call selectLayer2PageInternalNoCheck
     pop bc
     pop de
 
