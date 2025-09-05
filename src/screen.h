@@ -36,8 +36,6 @@ void zeroPalette(byte palette, word length) __z88dk_callee;
 
 void loadScreen(const struct LevelInfo *restrict info) __z88dk_callee;
   
-void writeNextReg(byte reg, const char *bytes, byte len) __z88dk_callee;
-void fillNextReg(byte reg, byte value, byte len) __z88dk_callee;
 void scrollLayer2(word x, byte y) __z88dk_callee;
 
 #endif

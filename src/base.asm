@@ -12,9 +12,28 @@ PUBLIC _keyboardPorts
 _keyboardPorts:
     DEFW $f7fe, $effe, $fbfe, $dffe, $fdfe, $bffe, $fefe, $7ffe
 
+GLOBAL _mouseHwX, _mouseHwY, _mouseHwB
+
 isr:
+    push af
+    push bc
+
+    ld bc, $fbdf
+    in a, (c)
+    ld (_mouseHwX), a
+
+    ld b, $ff
+    in a, (c)
+    ld (_mouseHwY), a
+
+    ld b, $fa
+    in a, (c)
+    ld (_mouseHwB), a
+
+    pop bc
+    pop af
     ei
     ret
 
 SECTION PAGE_28_POSTISR
-org 0x3a
+org 0x57

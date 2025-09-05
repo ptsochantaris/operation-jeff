@@ -251,18 +251,6 @@ void setupScreen(void) __z88dk_fastcall {
   ZXN_NEXTREG(0x52, 10); 
 }
 
-void writeNextReg(byte reg, const char *bytes, byte len) __z88dk_callee {
-  for(byte f=0; f!=len; ++f, ++bytes) {
-    ZXN_WRITE_REG(reg, *bytes);
-  }
-}
-
-void fillNextReg(byte reg, byte value, byte len) __z88dk_callee {
-  for(byte i=0; i!=len; ++i) {
-    ZXN_WRITE_REG(reg, value);
-  }
-}
-
  const byte corner1px[] = { 1 };
  const byte corner2px[] = { 1, 2 };
  const byte corner3px[] = { 2, 2, 3 };

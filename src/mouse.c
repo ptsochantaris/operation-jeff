@@ -44,19 +44,19 @@ void setMenuMouse(void) __z88dk_fastcall {
     mouseReset();
 }
 
+extern int mouseHwX, mouseHwY, mouseHwB;
+
 void updateMouse(void) __z88dk_fastcall {
-    int newX = z80_inp(0xfbdf);
-    int vx = newX - previousPos.x;
-    previousPos.x = newX;
+    int vx = mouseHwX - previousPos.x;
+    previousPos.x = mouseHwX;
     if(vx < 100 && vx > -100) {
         mouseSprite.pos.x += vx;
         if(mouseSprite.pos.x < mouseTopLeft.x) mouseSprite.pos.x = mouseTopLeft.x;
         else if(mouseSprite.pos.x > 304) mouseSprite.pos.x = 304;
     }
 
-    int newY = z80_inp(0xffdf);
-    int vy = previousPos.y - newY;
-    previousPos.y = newY;
+    int vy = previousPos.y - mouseHwY;
+    previousPos.y = mouseHwY;
     if(vy < 100 && vy > -100) {
         mouseSprite.pos.y += vy;
         if(mouseSprite.pos.y < mouseTopLeft.y) mouseSprite.pos.y = mouseTopLeft.y;
@@ -67,15 +67,14 @@ void updateMouse(void) __z88dk_fastcall {
 
     mouseState.pos = mouseSprite.pos;
 
-    byte buttons = z80_inp(0xfadf);
-    int wheel = buttons >> 4; // wheel WWWW0000
+    int wheel = mouseHwB >> 4; // wheel WWWW0000
     int wheelDiff = wheel - currentWheel;
     currentWheel = wheel;
     if(wheelDiff < 10 && wheelDiff > -10) {
         mouseState.wheel += wheelDiff;
     }
     
-    byte click = buttons & 2; // left click 000000LR
+    word click = mouseHwB & 2; // left click 000000LR
     if(mouseState.ongoing) {
         if(click != 0) {
             mouseState.ongoing = 0;

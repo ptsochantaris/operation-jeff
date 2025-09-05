@@ -54,6 +54,7 @@ extern void layer2CharSidewaysNoBackground(const byte *restrict glyph, word x, b
 extern void layer2Char(const byte *restrict glyph, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
 extern void layer2HorizonalLine(word x, word y, word width, byte color) __z88dk_callee __smallc;
 extern void layer2VerticalLine(word x, word topY, word bottomY, byte color) __z88dk_callee __smallc;
+extern void writeNextReg(byte reg, const char *bytes, byte len) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
 
 #endif
 
