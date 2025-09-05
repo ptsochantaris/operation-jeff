@@ -13,6 +13,7 @@ const byte clipBytes[] = {0,159,0,255};
 extern void layer2HorizonalLine(word x, word y, word width, byte color) __z88dk_callee __smallc;
 extern void layer2VerticalLine(word x, word topY, word bottomY, byte color) __z88dk_callee __smallc;
 extern void selectLayer2Page(byte page) __preserves_regs(b,c,d,h,iyh,iyl) __z88dk_fastcall;
+extern void layer2StashPalette(byte *restrict buffer) __preserves_regs(iyh,iyl) __z88dk_fastcall;
 
 void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee {
   word ex = x + width;
@@ -88,14 +89,7 @@ void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __
 
 void stashPalette(byte paletteMask) __z88dk_fastcall {
   selectPalette(paletteMask);
-
-  word i = 0;
-  for(word f=0; f!=256; f++, i+=2) {
-    ZXN_NEXTREGA(REG_PALETTE_INDEX, f); // start palette index
-
-    paletteBuffer[i] = ZXN_READ_REG(0x41);
-    paletteBuffer[i+1] = ZXN_READ_REG(REG_PALETTE_VALUE_16) & 1;
-  }
+  layer2StashPalette(paletteBuffer);
 }
 
 void shiftPalette(word numBytes, byte shift, byte bright) __z88dk_callee {

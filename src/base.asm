@@ -15,8 +15,8 @@ _keyboardPorts:
 GLOBAL _mouseHwX, _mouseHwY, _mouseHwB
 
 isr:
-    push af
-    push bc
+    ex af, af'
+    exx
 
     ld bc, $fbdf
     in a, (c)
@@ -30,10 +30,11 @@ isr:
     in a, (c)
     ld (_mouseHwB), a
 
-    pop bc
-    pop af
+    exx
+    ex af, af'
+    
     ei
     ret
 
 SECTION PAGE_28_POSTISR
-org 0x57
+org 0x55

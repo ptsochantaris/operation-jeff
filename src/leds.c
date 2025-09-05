@@ -62,7 +62,7 @@ void resetGrayPalette(void) __z88dk_fastcall {
 
 void printAttributes(const byte *restrict text, byte x, byte y) __z88dk_callee {
   byte C = *text;
-  do {
+  while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
     for(byte v=1; v!=6; ++v, ++base, ++y) {
       byte slice = *base;
@@ -75,7 +75,7 @@ void printAttributes(const byte *restrict text, byte x, byte y) __z88dk_callee {
     C = *(++text);
     x += 4;
     y -= 5;
-  } while(C != 0);
+  }
 }
 
 static byte statusCount = 0;

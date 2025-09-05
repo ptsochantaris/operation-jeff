@@ -314,6 +314,38 @@ layer2HorizontalLineLoopSet:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+PUBLIC _layer2StashPalette
+_layer2StashPalette:
+    ; buffer at HL, 512 bytes
+    xor a
+    ld bc, $253B
+layer2StashPaletteLoop:
+    nextreg 64, a
+    ex af, af'
+    
+    dec b
+    ld a, $41
+    out (c), a
+    inc b
+    in e, (c) ; colour main byte
+
+    dec b
+    ld a, 68
+    out (c), a
+    inc b
+    in d, (c) ; colour last byte
+
+    ld (hl), de
+    inc hl
+    inc hl
+
+    ex af, af'
+    inc a
+    jr nz, layer2StashPaletteLoop
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _updateSprite
 _updateSprite:
     ld a, (hl) ; index byte
