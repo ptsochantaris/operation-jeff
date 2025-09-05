@@ -292,7 +292,7 @@ layer2HorizontalLineLoop:
     and $3F         ; keep in-page bits of x
     ld h, a         ; l already has y
 
-    cp 0            ; destination page needs update if in-page x is zero
+    or a            ; destination page needs update if in-page x is zero
     jr nz, layer2HorizontalLineLoopSet ; or skip
     push de
     ld a, b
@@ -311,3 +311,70 @@ layer2HorizontalLineLoopSet:
     or c
     jr nz, layer2HorizontalLineLoop
     ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _updateSprite
+_updateSprite:
+    ld a, (hl) ; index byte
+    nextreg $34, a
+    inc hl
+
+    ld bc, (hl) ; targetX
+    inc hl
+    inc hl
+
+    ld de, (hl) ; y
+    inc hl
+    inc hl
+
+    push bc
+    ld bc, (hl) ; z
+    inc hl
+    inc hl
+
+    ex de, hl ; swap y into HL to subtract
+    sbc hl, bc  ; targetY (y - z)
+    ex de, hl ; put y back into DE
+    pop bc
+
+    jr nc, updateSpriteScaleNegativeDone
+    ld de, 0
+updateSpriteScaleNegativeDone:
+
+    ld a, (hl)  ; scale up
+    inc hl
+    or a
+    jr nz, updateSpriteScale
+    xor a   ; clear a
+    jr updateSpriteScaleDone
+updateSpriteScale:
+    add bc, -8
+    add de, -8
+    ld a, $a
+updateSpriteScaleDone:
+    nextreg $39, a
+
+    ld a, c
+    nextreg $35, a  ; x low
+
+    ld a, e
+    nextreg $36, a  ; y low, y high is always 0
+
+    ld a, (hl) ; mirrored?
+    inc hl
+    or a
+    jr nz, updateSpriteMirror
+    xor a ; clear
+    jr updateSpriteMirrorDone
+updateSpriteMirror:
+    ld a, 8
+updateSpriteMirrorDone:
+    or b    ; targetX high
+    nextreg $37, a
+
+    ld a, (hl) ; pattern byte
+    or $c0  ; // 1'0'PPPPPP ; sprite visible, using pattern
+    nextreg $38, a
+
+    RET

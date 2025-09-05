@@ -47,14 +47,8 @@
 #include "keyboard.h"
 
 extern void decompressZX0(byte *dst, byte *src) __z88dk_callee __smallc;
-extern void selectLayer2Page(byte page) __preserves_regs(b,c,d,h,iyh,iyl) __z88dk_fastcall;
-extern void layer2Plot(word x, byte y, byte color) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
-extern void layer2CharNoBackground(const byte *restrict glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
-extern void layer2CharSidewaysNoBackground(const byte *restrict glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
-extern void layer2Char(const byte *restrict glyph, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
-extern void layer2HorizonalLine(word x, word y, word width, byte color) __z88dk_callee __smallc;
-extern void layer2VerticalLine(word x, word topY, word bottomY, byte color) __z88dk_callee __smallc;
 extern void writeNextReg(byte reg, const char *bytes, byte len) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
+extern void updateSprite(struct sprite_info *restrict s) __preserves_regs(iyh,iyl) __z88dk_fastcall;
 
 #endif
 

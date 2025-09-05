@@ -10,6 +10,10 @@ const byte clipBytes[] = {0,159,0,255};
 // https://github.com/benbaker76/Gfx2Next
 // build/gfx2next ~/spacer.png -pal-std -pal-none -bitmap-y -bank-16k spacerTitle.nxi
 
+extern void layer2HorizonalLine(word x, word y, word width, byte color) __z88dk_callee __smallc;
+extern void layer2VerticalLine(word x, word topY, word bottomY, byte color) __z88dk_callee __smallc;
+extern void selectLayer2Page(byte page) __preserves_regs(b,c,d,h,iyh,iyl) __z88dk_fastcall;
+
 void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee {
   word ex = x + width;
   word ey = y + height;

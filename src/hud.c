@@ -8,6 +8,9 @@
 #define HISCORE_X 186
 
 extern const byte *bFont;
+extern void layer2CharNoBackground(const byte *restrict glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
+extern void layer2CharSidewaysNoBackground(const byte *restrict glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
+extern void layer2Char(const byte *restrict glyph, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
 
 void print(const byte *restrict text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee {
   byte C = *text;
