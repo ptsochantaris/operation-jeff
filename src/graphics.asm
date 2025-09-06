@@ -12,6 +12,30 @@ _mouseHwB:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; from the brilliant guide here: http://www.retroprogramming.com/2017/07/xorshift-pseudorandom-numbers-in-z80.html
+
+PUBLIC _random16
+_random16:
+    ld hl,1       ; seed must not be 0
+    ld a,h
+    rra
+    ld a,l
+    rra
+    xor h
+    ld h,a
+    ld a,l
+    rra
+    ld a,h
+    rra
+    xor l
+    ld l,a
+    xor h
+    ld h,a
+    ld (_random16+1),hl
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _writeNextReg
 _writeNextReg:
     pop hl ; return address

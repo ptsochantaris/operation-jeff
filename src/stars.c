@@ -9,9 +9,9 @@ static struct star stars[starCount];
 void initStars(void) __z88dk_fastcall {
     for(byte f=0; f!=starCount; ++f) {
         struct star *s = stars+f;
-        s->x = rand() % 320;
-        s->y = rand() % 256;
-        s->speed = 1 + rand() % 7;
+        s->x = random16() % 320;
+        s->y = random16() % 256;
+        s->speed = 1 + random16() % 7;
     }
 }
 
@@ -26,8 +26,8 @@ void updateStars(void) __z88dk_fastcall {
 
         if(x < sp) {
             x = 319;
-            y = rand() % 256;
-            sp = 1 + rand() % 7;
+            y = random16() % 256;
+            sp = 1 + random16() % 7;
             s->y = y;
             s->speed = sp;
         } else {

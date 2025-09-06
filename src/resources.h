@@ -49,6 +49,7 @@
 extern void decompressZX0(byte *dst, byte *src) __z88dk_callee __smallc;
 extern void writeNextReg(byte reg, const char *bytes, byte len) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
 extern void updateSprite(struct sprite_info *restrict s) __preserves_regs(iyh,iyl) __z88dk_fastcall;
+extern int random16(void) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;
 
 #endif
 

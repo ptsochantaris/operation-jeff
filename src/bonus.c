@@ -49,7 +49,7 @@ const byte bonusIndexes[] = {
 
 void newRandomTargetType(void) {
     do {
-        byte i = rand() % BONUS_INDEX_COUNT;
+        byte i = random16() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];
     } while(lastTargetType == targetType);
 
@@ -64,8 +64,8 @@ void updateBonuses(void) __z88dk_fastcall {
         if(targetType==BONUS_NONE) {
             setBase(0); // in case a previous bonus is in the process of transitioning out
             newRandomTargetType();
-            currentX = 3 + rand() % 36;
-            currentY = 3 + rand() % 28;
+            currentX = 3 + random16() % 36;
+            currentY = 3 + random16() % 28;
             transition = 0;
             ++currentStats.bonusesLanded;
         } else {

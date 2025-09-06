@@ -144,33 +144,33 @@ void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_callee {
 void growJeff(struct jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_LANDING;
     j->progress = 0;
-    byte maskIndex = rand() % JEFF_SPEED_MASK_COUNT;
+    byte maskIndex = random16() % JEFF_SPEED_MASK_COUNT;
     j->moveMask = *(jeffMoveMasks+maskIndex);
 
-    byte direction = rand() % 4;
+    byte direction = random16() % 4;
     j->direction = direction;
     j->sprite.horizontalMirror = (direction == JEFF_LEFT) ? 1 : 0;
     j->sprite.pattern = JEFF_APPEAR_FIRST;
 
     switch(direction) {
         case JEFF_LEFT:
-            j->sprite.pos.x = 160 + (rand() & 0x3F) * 2;
-            j->sprite.pos.y = 40 + rand() % 192;
+            j->sprite.pos.x = 160 + (random16() & 0x3F) * 2;
+            j->sprite.pos.y = 40 + random16() % 192;
             break;
 
         case JEFF_RIGHT:
-            j->sprite.pos.x = 16 + (rand() & 0x3F) * 2;
-            j->sprite.pos.y = 40 + rand() % 192;
+            j->sprite.pos.x = 16 + (random16() & 0x3F) * 2;
+            j->sprite.pos.y = 40 + random16() % 192;
             break;
 
         case JEFF_UP:
-            j->sprite.pos.x = 16 + rand() % 288;
-            j->sprite.pos.y = 128 + rand() % 112;
+            j->sprite.pos.x = 16 + random16() % 288;
+            j->sprite.pos.y = 128 + random16() % 112;
             break;
 
         case JEFF_DOWN:
-            j->sprite.pos.x = 16 + rand() % 288;
-            j->sprite.pos.y = 16 + rand() % 112;
+            j->sprite.pos.x = 16 + random16() % 288;
+            j->sprite.pos.y = 16 + random16() % 112;
             break;
     }
 
