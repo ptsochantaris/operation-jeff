@@ -166,34 +166,16 @@ layer2PlotSliceGo:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;void printAttributes(const byte *restrict text, byte x, byte y) __z88dk_callee {
-;  byte C = *text;
-;  while(C != 0) {
-;    const byte *base = bFont + (6 * (C - 32));
-;    for(byte v=1; v!=6; ++v, ++base, ++y) {
-;      byte slice = *base;
-;      for(byte h=5; h != 8; ++h) {
-;        if(slice & (1 << h)) {
-;            *(byte *)((ulaAttributes + x + 8 - h) + (y * 32)) = v;
-;        }
-;      }
-;    }
-;    C = *(++text);
-;    x += 4;
-;    y -= 5;
-;  }
-;}
-
 PUBLIC _ulaAttributeChar
 _ulaAttributeChar:
     pop bc          ; return address
     pop hl          ; y
-    ld h, 32
+    ld h, 32        ; will be using for multiplication
     pop de          ; x
     pop iy          ; address of first slice
     push bc         ; put return back on stack
 
-    add de, $7804   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, with a minor X offset
+    add de, $77E4   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 + 4
 
     ld a, 1
     ld c, (iy)
