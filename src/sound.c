@@ -108,82 +108,8 @@ static const word notePitches[] = {
     55
 };
 
-void ayChipSelect(byte chip) __z88dk_fastcall { // 0 - 2
-    z80_outp(0xFFFD, 0xFC | (3 - chip)); // first AY on both channels
-}
-
-void aySetPitch(byte channel, word pitch) __z88dk_callee { // 0 - 4095
-    byte reg = channel << 1;
-    z80_outp(0xFFFD, reg);
-    z80_outp(0xBFFD, pitch & 0xFF);
-
-    z80_outp(0xFFFD, reg+1);
-    z80_outp(0xBFFD, 0xF & (pitch >> 8));
-}
-
 void ayPlayNote(byte channel, enum NoteIndex note) __z88dk_callee { // 0 - 4095
     aySetPitch(channel, notePitches[note]);
-}
-
-void aySetAmplitude(byte channel, byte volume) __z88dk_callee { // 0 - 15 (16 = use envelope)
-    byte reg = 8 + channel;
-    z80_outp(0xFFFD, reg);
-    z80_outp(0xBFFD, volume);
-}
-
-void aySetEnvelope(byte type, word duration) __z88dk_callee { // 0 - 15, 0 - 65535
-    /*
-    0       \__________     single decay then off
-
-    4       /|_________     single attack then off
-
-    8       \|\|\|\|\|\     repeated decay
-
-    10      \/\/\/\/\/\     repeated decay-attack
-              _________
-    11      \|              single decay then hold
-
-    12      /|/|/|/|/|/     repeated attack
-             __________
-    13      /               single attack then hold
-
-    14      /\/\/\/\/\/     repeated attack-decay
-    */
-
-    z80_outp(0xFFFD, 11);
-    z80_outp(0xBFFD, duration & 0xFF);
-
-    z80_outp(0xFFFD, 12);
-    z80_outp(0xBFFD, duration >> 8);
-
-    z80_outp(0xFFFD, 13);
-    z80_outp(0xBFFD, type & 0xF);
-}
-
-void aySetNoise(byte speed) __z88dk_fastcall { // 0 - 31
-    z80_outp(0xFFFD, 6);
-    z80_outp(0xBFFD, 0x1F & speed);
-}
-
-void aySetMixer(byte channel, byte tone, byte noise) __z88dk_callee {
-    z80_outp(0xFFFD, 7);
-    byte existing = z80_inp(0xFFFD);
-
-    byte toneBit = (1 << channel);
-    if(tone) {
-        existing &= ~toneBit;
-    } else {
-        existing |= toneBit;
-    }
-
-    byte noiseBit = (8 << channel);
-    if(noise) {
-        existing &= ~noiseBit;
-    } else {
-        existing |= noiseBit;
-    }
-
-    z80_outp(0xBFFD, existing);
 }
 
 void ayStopSoundOnChip(byte ayChip) __z88dk_fastcall {
