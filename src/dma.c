@@ -106,12 +106,12 @@ void dmaResetStatus(void) __z88dk_fastcall {
 }
 
 void dmaWaitForEnd(void) __z88dk_fastcall {
-  byte E = 1;
-  while(E) {
+  byte E;
+  do {
     z80_outp(__IO_DMA, 0xBF); // 1011 1011 - read status byte
     byte status = z80_inp(__IO_DMA); // 00E1101T
     E = status & (1 << 5);
-  }
+  } while(E);
 }
 
 void stopDma(void) __z88dk_fastcall {
