@@ -1,6 +1,7 @@
 #include "resources.h"
 
 extern const byte *bFont;
+extern void ulaAttributeChar(const byte *restrict glyph, word x, byte y) __z88dk_callee __smallc;
 
 static const byte ulaPalette[] = {
   COLOR9(1, 1, 1),
@@ -64,17 +65,9 @@ void printAttributes(const byte *restrict text, byte x, byte y) __z88dk_callee {
   byte C = *text;
   while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
-    for(byte v=1; v!=6; ++v, ++base, ++y) {
-      byte slice = *base;
-      for(byte h=5; h != 8; ++h) {
-        if(slice & (1 << h)) {
-            *(byte *)((ulaAttributes + x + 8 - h) + (y * 32)) = v;
-        }
-      }
-    }
+    ulaAttributeChar(base, x, y);
     C = *(++text);
     x += 4;
-    y -= 5;
   }
 }
 

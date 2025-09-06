@@ -166,6 +166,83 @@ layer2PlotSliceGo:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;void printAttributes(const byte *restrict text, byte x, byte y) __z88dk_callee {
+;  byte C = *text;
+;  while(C != 0) {
+;    const byte *base = bFont + (6 * (C - 32));
+;    for(byte v=1; v!=6; ++v, ++base, ++y) {
+;      byte slice = *base;
+;      for(byte h=5; h != 8; ++h) {
+;        if(slice & (1 << h)) {
+;            *(byte *)((ulaAttributes + x + 8 - h) + (y * 32)) = v;
+;        }
+;      }
+;    }
+;    C = *(++text);
+;    x += 4;
+;    y -= 5;
+;  }
+;}
+
+PUBLIC _ulaAttributeChar
+_ulaAttributeChar:
+    pop bc          ; return address
+    pop hl          ; y
+    ld h, 32
+    pop de          ; x
+    pop iy          ; address of first slice
+    push bc         ; put return back on stack
+
+    add de, $7804   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, with a minor X offset
+
+    ld a, 1
+    ld c, (iy)
+    call ulaAttributeCharPlotSlice
+
+    inc a
+    ld c, (iy+1)
+    call ulaAttributeCharPlotSlice
+
+    inc a
+    ld c, (iy+2)
+    call ulaAttributeCharPlotSlice
+
+    inc a
+    ld c, (iy+3)
+    call ulaAttributeCharPlotSlice
+
+    inc a
+    ld c, (iy+4)    ; fallthrough to ulaAttributeCharPlotSlice
+
+ulaAttributeCharPlotSlice:
+    ld b, 3         ; loops in b
+ulaAttributeCharPlotSliceLoop:
+    bit 5, c
+    jr z, ulaAttributeCharPlotSliceSkip
+
+    push hl
+
+    add hl, a ; y + current row from A
+
+    ex de, hl
+    mul d, e
+    ex de, hl
+
+    add hl, de ; y+x
+    ld (hl), a
+
+    pop hl
+
+ulaAttributeCharPlotSliceSkip:
+    dec de
+    srl c
+    djnz ulaAttributeCharPlotSliceLoop
+
+    add de, 3 ; reset x
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _layer2CharNoBackground
 _layer2CharNoBackground:
     pop bc          ; return address
