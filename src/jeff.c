@@ -95,7 +95,7 @@ static const int bombRadii2[] = {14, 16, 18, 20, 18, 16, 16, 16};
 
 void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_callee {
     ZXN_WRITE_MMU1(info->heightmapAsset.page);
-    decompressZX0(heightMap, (byte *)(info->heightmapAsset.resource));
+    decompressZX0((byte *)(info->heightmapAsset.resource), heightMap);
 }
 
 void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_callee {

@@ -3,10 +3,9 @@ SECTION code_compiler
 ; ZX0 decompressor from here: https://github.com/einar-saukas/ZX0/blob/main/z80/dzx0_fast.asm
 PUBLIC _decompressZX0
 _decompressZX0:
-        pop bc          ; return
-        pop hl          ; source
+        pop hl          ; return address
         pop de          ; destination
-        push bc
+        ex (sp), hl     ; source
 
         ld      ix, CopyMatch1
         ld      bc, $ffff

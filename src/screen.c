@@ -79,7 +79,7 @@ static byte paletteBuffer[512];
 void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_callee {
   byte previousMmu3 = ZXN_READ_MMU3();
   ZXN_WRITE_MMU3(compressedPalette->page);
-  decompressZX0(paletteBuffer, (byte *)(compressedPalette->resource));
+  decompressZX0((byte *)(compressedPalette->resource), paletteBuffer);
   ZXN_WRITE_MMU3(previousMmu3);
 }
 
@@ -201,7 +201,7 @@ void loadScreen(const struct LevelInfo *restrict info) __z88dk_callee {
   for(byte page=18; page!=28; ++page, ++slice) {
     ZXN_WRITE_MMU2(page);
     ZXN_WRITE_MMU1(slice->page);
-    decompressZX0((byte *)0x4000, (byte *)slice->resource);
+    decompressZX0((byte *)slice->resource, (byte *)0x4000);
   }
 }
 
