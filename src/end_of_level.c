@@ -85,18 +85,24 @@ void displayStats(word top, word x, byte level, word color, byte twoColumns) {
   printNoBackground(textBuf, x, top, color);
 }
 
-void endOfLevelSequence(const struct LevelInfo levelInfo) {
-  status("CLEAR");
+void wait(byte time) __z88dk_fastcall {
+  for(byte f=0;f!=time;f++) {
+    intrinsic_halt();
+  }
+}
 
+void endOfLevelSequence(const struct LevelInfo levelInfo) {
   stopDma();
   dmaResetStatus(); // so we can track playback below
   effectSting();
+  status("CLEAR");
 
   ayStopAllSound();
   jeffFlashAll();
   bombsFlashAll();
 
   fadePaletteDownSlow(1, 512);
+
   resetAllBombs();
   jeffKillAll(1);
   menuMode();

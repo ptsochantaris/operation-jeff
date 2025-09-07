@@ -33,7 +33,7 @@ void setupTitleLeds(void) __z88dk_fastcall {
         fillWithDmaRepeat(offset + 256, 32, f, 2, 256);
     }
 
-    // horizontal stripes on ULA
+    // leds on ULA
     for(word f=0; f!=8; f+=2) {
         fillWithDmaRepeat(f * 256 + ula, 256, 0x55, 3, 2048);
     }

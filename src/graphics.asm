@@ -351,7 +351,7 @@ _ulaAttributeChar:
     pop iy          ; address of first slice
     push bc         ; put return back on stack
 
-    add de, $77E4   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 + 4
+    add de, $77E3   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 (one row) + 3 (initial char width)
 
     ld a, 1
     ld c, (iy)

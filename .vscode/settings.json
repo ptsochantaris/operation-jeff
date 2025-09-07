@@ -41,6 +41,7 @@
         "vector": "c",
         "locale": "c",
         "dma.h": "c",
-        "keyboard.h": "c"
+        "keyboard.h": "c",
+        "mouse.h": "c"
     }
 }

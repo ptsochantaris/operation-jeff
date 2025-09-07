@@ -1,50 +1,8 @@
 #include "resources.h"
 
-void wait(byte time) __z88dk_fastcall {
-  for(byte f=0;f!=time;f++) {
-    intrinsic_halt();
-  }
-}
-
 byte isShifted(void) __z88dk_fastcall {
   return (z80_inp(0xfefe) & 1) == 0;
 }
-
-#ifdef DEBUG_KEYS
-byte debugKeys(void) __z88dk_fastcall {
-  byte pressed = z80_inp(0x7ffe);
-  if((pressed & 1) == 0) { // space
-    inputDelay = SMALL_INPUT_DELAY;
-    return 2;
-  }
-  
-  pressed = z80_inp(0xf7fe);
-  for(byte l=0;l!=6;++l) { // 0...5
-    if((pressed & (1 << l)) == 0) {
-      inputDelay = SMALL_INPUT_DELAY;
-      currentStats.level = isShifted() ? (l + 9) : (l - 1);
-      nextLevel(0);
-      return 0;
-    }
-  }
-
-  pressed = z80_inp(0xeffe);
-  for(byte l=0;l!=5;++l) { // 10...6
-    if((pressed & (1 << l)) == 0) {
-      inputDelay = SMALL_INPUT_DELAY;
-      currentStats.level = isShifted() ? (18 - l) : (8 - l);
-      nextLevel(0);
-      return 0;
-    }
-  }
-
-  //pressed = z80_inp(0xfdfe);
-  //pressed = z80_inp(0xfbfe);
-  //pressed = z80_inp(0xbffe);
-
-  return 0;
-}
-#endif
 
 void nextLevel(byte gameStart) __z88dk_fastcall {
   byte previousLevel = currentStats.level;
@@ -174,3 +132,39 @@ byte gameLoop(byte startLevel) __z88dk_fastcall {
     }
   }
 }
+
+#ifdef DEBUG_KEYS
+byte debugKeys(void) __z88dk_fastcall {
+  byte pressed = z80_inp(0x7ffe);
+  if((pressed & 1) == 0) { // space
+    inputDelay = SMALL_INPUT_DELAY;
+    return 2;
+  }
+  
+  pressed = z80_inp(0xf7fe);
+  for(byte l=0;l!=6;++l) { // 0...5
+    if((pressed & (1 << l)) == 0) {
+      inputDelay = SMALL_INPUT_DELAY;
+      currentStats.level = isShifted() ? (l + 9) : (l - 1);
+      nextLevel(0);
+      return 0;
+    }
+  }
+
+  pressed = z80_inp(0xeffe);
+  for(byte l=0;l!=5;++l) { // 10...6
+    if((pressed & (1 << l)) == 0) {
+      inputDelay = SMALL_INPUT_DELAY;
+      currentStats.level = isShifted() ? (18 - l) : (8 - l);
+      nextLevel(0);
+      return 0;
+    }
+  }
+
+  //pressed = z80_inp(0xfdfe);
+  //pressed = z80_inp(0xfbfe);
+  //pressed = z80_inp(0xbffe);
+
+  return 0;
+}
+#endif
