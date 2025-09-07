@@ -20,28 +20,28 @@ OBJDIR=build
 SRC=src
 
 OBJECTS = $(addprefix $(OBJDIR)/, \
-	levelinfo.o \
+	jeff.o \
+	screen.o \
+	bomb.o \
+	stars.o \
+	stats.o \
 	music.o \
 	effects.o \
+	end_of_level.o \
+	hud.o \
 	keyboard.o \
 	base.o \
 	dma.o \
 	files.o \
-	screen.o \
-	jeff.o \
 	sprites.o \
-	stars.o \
 	copper.o \
 	leds.o \
 	mouse.o \
-	bomb.o \
-	stats.o \
-	hud.o \
+	gameover.o \
 	font.o \
 	menu.o \
-	end_of_level.o \
-	gameover.o \
 	game.o \
+	levelinfo.o \
 	sound.o \
 	bonus.o \
 	tilemap.o \
