@@ -19,6 +19,19 @@ selectLayer2PageInternalNoCheck:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+PUBLIC _selectPalette
+_selectPalette:
+    ld a, l         ; pallete index in top 4 bits
+    sla a
+    sla a
+    sla a
+    sli a           ; adds a 1 for enabling ulanext
+    nextreg $43, a  ; // select palette using A
+    nextreg 64, 0   ; REG_PALETTE_INDEX set to start palette index
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _layer2Plot
 _layer2Plot:
     pop bc          ; return address

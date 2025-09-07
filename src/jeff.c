@@ -90,6 +90,9 @@ static const word jeffMoveMasks[] = {
     JEFF_SPEED_MASK_8
 };
 
+static const int bombRadii1[] = {7, 8, 9, 10, 9, 8, 8, 8};
+static const int bombRadii2[] = {14, 16, 18, 20, 18, 16, 16, 16};
+
 void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_callee {
     ZXN_WRITE_MMU1(info->heightmapAsset.page);
     decompressZX0(heightMap, (byte *)(info->heightmapAsset.resource));
@@ -241,9 +244,6 @@ void jeffFlashAll(void) __z88dk_fastcall {
     writeColourToIndex(&white, 128);
     writeColourToIndex(&white, 224);
 }
-
-const int bombRadii1[] = {7, 8, 9, 10, 9, 8, 8, 8};
-const int bombRadii2[] = {14, 16, 18, 20, 18, 16, 16, 16};
 
 byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
     if(explodingBombCount==0) {

@@ -24,8 +24,8 @@ void initBombs(void) __z88dk_fastcall {
     }
 }
 
-const word bombColorIndex[] = { 240, 245, 249, 254 };
-const word whiteColor = 0x01ff;
+static const word bombColorIndex[] = { 240, 245, 249, 254 };
+static const word whiteColor = 0x01ff;
 static word bombStash[] = { 0, 0, 0, 0 };
 
 void bombsRestoreFromFlash(void) __z88dk_fastcall {

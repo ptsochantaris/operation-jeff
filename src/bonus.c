@@ -29,7 +29,7 @@ void resetBonuses(void) __z88dk_fastcall {
     transition = 0;
 }
 
-const byte bonusIndexes[] = {
+static const byte bonusIndexes[] = {
     BONUS_HEALTH,
     BONUS_CHARGE,
     BONUS_SMARTBOMB,

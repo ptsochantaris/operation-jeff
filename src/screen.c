@@ -74,11 +74,6 @@ void layer2Clear(byte index) __z88dk_fastcall {
   }
 }
 
-void selectPalette(byte paletteMask) __z88dk_fastcall {
-  ZXN_NEXTREGA(0x43, paletteMask << 4 | 1); // select palette, enable ulanext,
-  ZXN_NEXTREG(REG_PALETTE_INDEX, 0); // start palette index
-}
-
 static byte paletteBuffer[512];
 
 void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_callee {
@@ -250,16 +245,16 @@ void setupScreen(void) __z88dk_fastcall {
   ZXN_NEXTREG(0x52, 10); 
 }
 
- const byte corner1px[] = { 1 };
- const byte corner2px[] = { 1, 2 };
- const byte corner3px[] = { 2, 2, 3 };
- const byte corner4px[] = { 2, 3, 3, 4 };
- const byte corner5px[] = { 2, 4, 4, 5, 5 };
- const byte corner6px[] = { 2, 4, 5, 5, 6, 6 };
- const byte corner7px[] = { 2, 4, 5, 6, 6, 7, 7 };
- const byte corner8px[] = { 2, 4, 5, 6, 7, 7, 8, 8 };
+static const byte corner1px[] = { 1 };
+static const byte corner2px[] = { 1, 2 };
+static const byte corner3px[] = { 2, 2, 3 };
+static const byte corner4px[] = { 2, 3, 3, 4 };
+static const byte corner5px[] = { 2, 4, 4, 5, 5 };
+static const byte corner6px[] = { 2, 4, 5, 5, 6, 6 };
+static const byte corner7px[] = { 2, 4, 5, 6, 6, 7, 7 };
+static const byte corner8px[] = { 2, 4, 5, 6, 7, 7, 8, 8 };
 
- const byte *corners[] = { 
+static const byte *corners[] = { 
   corner1px, 
   corner2px, 
   corner3px, 
