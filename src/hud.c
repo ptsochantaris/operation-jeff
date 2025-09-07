@@ -77,7 +77,7 @@ void hudBorderDraw(void) __z88dk_fastcall {
   if(displayedStats.invunerableCount) {
     setFallbackColour(5);
   } else if(displayedStats.umbrellaCountdown) {
-    setFallbackColour(102);
+    setFallbackColour(65);
   } else {
     setFallbackColour(0);
   }
