@@ -73,11 +73,13 @@ void hudScoreDraw(void) __z88dk_fastcall {
   print(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
 }
 
-void hudShieldDraw(void) __z88dk_fastcall {
-  if(displayedStats.invunerableCount == 0) {
-    setFallbackColour(0);
-  } else {
+void hudBorderDraw(void) __z88dk_fastcall {
+  if(displayedStats.invunerableCount) {
     setFallbackColour(5);
+  } else if(displayedStats.umbrellaCountdown) {
+    setFallbackColour(102);
+  } else {
+    setFallbackColour(0);
   }
 }
 
@@ -147,11 +149,21 @@ void updateStatsIfNeeded(void) __z88dk_fastcall {
   if(currentStats.invunerableCount > 0) {
     if(displayedStats.invunerableCount == 0) {
       displayedStats.invunerableCount = 1;
-      hudShieldDraw();
+      hudBorderDraw();
     }
   } else if(displayedStats.invunerableCount > 0) {
     displayedStats.invunerableCount = 0;
-    hudShieldDraw();
+    hudBorderDraw();
+  }
+  
+  if(currentStats.umbrellaCountdown > 0) {
+    if(displayedStats.umbrellaCountdown == 0) {
+      displayedStats.umbrellaCountdown = 1;
+      hudBorderDraw();
+    }
+  } else if(displayedStats.umbrellaCountdown > 0) {
+    displayedStats.umbrellaCountdown = 0;
+    hudBorderDraw();
   }
 }
 
@@ -186,5 +198,5 @@ void initHud(byte level) __z88dk_fastcall {
   hudRateDraw();
   hudEnergyDraw();
   hudKillsDraw();
-  hudShieldDraw();
+  hudBorderDraw();
 }

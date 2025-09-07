@@ -20,10 +20,6 @@ OBJDIR=build
 SRC=src
 
 OBJECTS = $(addprefix $(OBJDIR)/, \
-	zx0.o \
-	graphics.o \
-	utils.o \
-	audio.o \
 	levelinfo.o \
 	music.o \
 	effects.o \
@@ -52,6 +48,10 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	tiles.o \
 	main.o \
 	assets.o \
+	zx0.o \
+	graphics.o \
+	utils.o \
+	audio.o \
 )
 
 $(OBJDIR)/%.o: $(SRC)/%.c $(PRAGMA_FILE)
