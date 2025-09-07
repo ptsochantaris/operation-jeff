@@ -16,6 +16,7 @@ extern void selectLayer2Page(byte page) __preserves_regs(b,c,d,h,iyh,iyl) __z88d
 extern void layer2StashPalette(byte *restrict buffer) __preserves_regs(iyh,iyl) __z88dk_fastcall;
 
 void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee {
+  if(height == 0 || width == 0) return;
   word ex = x + width;
   word ey = y + height;
   for(word X=x; X!=ex; ++X) {
