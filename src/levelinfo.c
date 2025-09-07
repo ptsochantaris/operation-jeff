@@ -18,8 +18,8 @@ struct LevelInfo levelInfo[] = {
     { { COLOR9(7, 7, 7) }, { COLOR9(1, 2, 3) }, { COLOR9(7, 7, 7) }, 120, 160, 68, SCREEN_ARRAY(levelJ), R_heightmapJ_hm_zx0 }, // 11
     { { COLOR9(7, 7, 7) }, { COLOR9(3, 3, 5) }, { COLOR9(7, 7, 7) }, 125, 160, 67, SCREEN_ARRAY(levelQ), R_heightmapQ_hm_zx0 }, // 12
     { { COLOR9(5, 7, 2) }, { COLOR9(1, 5, 1) }, { COLOR9(7, 7, 7) }, 130, 160, 66, SCREEN_ARRAY(levelC), R_heightmapC_hm_zx0 }, // 13
-    { { COLOR9(7, 6, 6) }, { COLOR9(3, 2, 2) }, { COLOR9(7, 7, 7) }, 130, 160, 64, SCREEN_ARRAY(levelK), R_heightmapK_hm_zx0 }, // 14
-    { { COLOR9(7, 2, 0) }, { COLOR9(2, 0, 1) }, { COLOR9(7, 7, 7) }, 130, 160, 62, SCREEN_ARRAY(levelM), R_heightmapM_hm_zx0 }, // 15
-    { { COLOR9(7, 2, 4) }, { COLOR9(0, 0, 2) }, { COLOR9(7, 7, 7) }, 130, 160, 60, SCREEN_ARRAY(levelF), R_heightmapF_hm_zx0 }, // 16
-    { { COLOR9(1, 1, 1) }, { COLOR9(0, 0, 0) }, { COLOR9(7, 7, 7) }, 130, 160, 50, SCREEN_ARRAY(levelH), R_heightmapH_hm_zx0 }  // 17
+    { { COLOR9(7, 7, 7) }, { COLOR9(3, 2, 2) }, { COLOR9(7, 7, 7) }, 130, 160, 65, SCREEN_ARRAY(levelK), R_heightmapK_hm_zx0 }, // 14
+    { { COLOR9(7, 2, 0) }, { COLOR9(2, 0, 1) }, { COLOR9(7, 7, 7) }, 130, 160, 64, SCREEN_ARRAY(levelM), R_heightmapM_hm_zx0 }, // 15
+    { { COLOR9(7, 2, 4) }, { COLOR9(0, 0, 2) }, { COLOR9(7, 7, 7) }, 130, 160, 63, SCREEN_ARRAY(levelF), R_heightmapF_hm_zx0 }, // 16
+    { { COLOR9(1, 1, 1) }, { COLOR9(0, 0, 0) }, { COLOR9(7, 7, 7) }, 130, 160, 60, SCREEN_ARRAY(levelH), R_heightmapH_hm_zx0 }  // 17
 };
