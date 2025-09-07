@@ -22,6 +22,8 @@ SRC=src
 OBJECTS = $(addprefix $(OBJDIR)/, \
 	zx0.o \
 	graphics.o \
+	utils.o \
+	audio.o \
 	levelinfo.o \
 	music.o \
 	effects.o \
