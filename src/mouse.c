@@ -4,13 +4,16 @@
 
 struct MouseState mouseState = { {0, 0, 0}, 1 ,0 };
 
-static struct coord previousPos = { 0, 0, 0 };
 static struct sprite_info mouseSprite;
 static int currentWheel = 0;
 static struct coord mouseTopLeft = { 0, 0, 0 };
 
+extern int mouseX, mouseY, mouseHwB;
+
 void mouseInit(void) __z88dk_fastcall {
     mouseReset();
+    mouseX = 159;
+    mouseY = 127;
     mouseState.pos.x = 159;
     mouseSprite.pos.x = 159;
     mouseState.pos.y = 127;
@@ -44,28 +47,24 @@ void setMenuMouse(void) __z88dk_fastcall {
     mouseReset();
 }
 
-extern int mouseHwX, mouseHwY, mouseHwB;
-
 void updateMouse(void) __z88dk_fastcall {
-    int vx = mouseHwX - previousPos.x;
-    previousPos.x = mouseHwX;
-    if(vx < 100 && vx > -100) {
-        mouseSprite.pos.x += vx;
-        if(mouseSprite.pos.x < mouseTopLeft.x) mouseSprite.pos.x = mouseTopLeft.x;
-        else if(mouseSprite.pos.x > 304) mouseSprite.pos.x = 304;
+    if(mouseX < mouseTopLeft.x) {
+        mouseX = mouseTopLeft.x;
+    } else if(mouseX > 304) {
+        mouseX = 304;
     }
+    mouseSprite.pos.x = mouseX;
+    mouseState.pos.x = mouseX;
 
-    int vy = previousPos.y - mouseHwY;
-    previousPos.y = mouseHwY;
-    if(vy < 100 && vy > -100) {
-        mouseSprite.pos.y += vy;
-        if(mouseSprite.pos.y < mouseTopLeft.y) mouseSprite.pos.y = mouseTopLeft.y;
-        else if(mouseSprite.pos.y > 240) mouseSprite.pos.y = 240;
+    if(mouseY < mouseTopLeft.y) {
+        mouseY = mouseTopLeft.y;
+    } else if(mouseY > 240) {
+        mouseY = 240;
     }
+    mouseSprite.pos.y = mouseY;
+    mouseState.pos.y = mouseY;
 
     updateSprite(&mouseSprite);
-
-    mouseState.pos = mouseSprite.pos;
 
     int wheel = mouseHwB >> 4; // wheel WWWW0000
     int wheelDiff = wheel - currentWheel;

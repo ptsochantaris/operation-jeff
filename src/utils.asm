@@ -1,14 +1,19 @@
 SECTION code_compiler
 
-PUBLIC _mouseHwX
-_mouseHwX:
-    DW 0
-PUBLIC _mouseHwY
-_mouseHwY:
-    DW 0
+PUBLIC _mouseX
+_mouseX: DW 0
+
+PUBLIC _mouseY
+_mouseY: DW 0
+
 PUBLIC _mouseHwB
-_mouseHwB:
-    DW 2
+_mouseHwB: DW 2
+
+PUBLIC _mouseKempstonX
+_mouseKempstonX: DB 0
+
+PUBLIC _mouseKempstonY
+_mouseKempstonY: DB 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
