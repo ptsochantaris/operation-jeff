@@ -9,11 +9,79 @@ _mouseY: DW 0
 PUBLIC _mouseHwB
 _mouseHwB: DW 2
 
-PUBLIC _mouseKempstonX
-_mouseKempstonX: DB 0
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _mouseKempstonY
-_mouseKempstonY: DB 0
+PUBLIC mouseHandler
+mouseHandler:
+    ; buttons
+    ld bc, $fadf
+    in a, (c)
+    ld (_mouseHwB), a
+
+    ; mouse X update
+
+    ld d, 0 ; always stays 0
+mouseKempstonX:
+    ld e, 0 ; previousX in E
+
+    ld b, $fb
+    in a, (c) ; X
+    ld (mouseKempstonX+1), a ; store x for next time
+    ld l, a; X in HL
+    xor a ; clear carry and zero
+    ld h, a
+    sbc hl, de ; X - previous = dx in L
+    ld a, l ; dx in A for range check
+    jp nc, mousePositiveVX
+
+    cp $9c
+    JP C, mouseKempstonY ; ignore dx less than -100
+    ld hl, (_mouseX)
+    neg ; also clears carry
+    ld e, a ; dx in E for subtracting
+    sbc hl, de ; X - dx
+    ld (_mouseX), hl
+    jp mouseKempstonY
+
+mousePositiveVX:
+    cp 101
+    JP NC, mouseKempstonY ; ignore dx greater than 100
+    ld hl, (_mouseX)
+    add hl, a ; X + dx
+    ld (_mouseX), hl
+    jp mouseKempstonY
+
+    ; mouse Y update
+mouseKempstonY:
+    ld e, 0 ; previousY in E
+
+    ld b, $ff
+    in a, (c) ; Y
+    ld (mouseKempstonY+1), a ; store Y for next time
+    ld l, a; Y in HL
+    xor a ; clear carry and zero
+    ld h, a
+    sbc hl, de ; Y - previousY = dy in HL
+    ld a, l ; dy in A for later
+    jp nc, mousePositiveVY
+
+    cp $9c
+    ret c ; ignore dy less than -100
+    ld hl, (_mouseY)
+    neg ; flip a for addition
+    add hl, a ; Y + dy
+    ld (_mouseY), hl
+    RET
+
+mousePositiveVY:
+    cp 101
+    ret nc ; ignore dy greater than 100
+    ld hl, (_mouseY)
+    ld e, a ; dx in E for subtracting
+    or a ; clear carry
+    sbc hl, de ; currentY - dy
+    ld (_mouseY), hl
+    RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
