@@ -35,16 +35,14 @@ void mouseReset(void) __z88dk_fastcall {
 
 void setGameMouse(void) __z88dk_fastcall {
     mouseReset();
-    if(mouseTopLeft.x < 16) {
-        mouseTopLeft.x = 16;
-    }
-    if(mouseTopLeft.y < 16) {
-        mouseTopLeft.y = 16;
-    }
+    mouseTopLeft.x = 16;
+    mouseTopLeft.y = 16;
 }
 
 void setMenuMouse(void) __z88dk_fastcall {
     mouseReset();
+    mouseTopLeft.x = 0;
+    mouseTopLeft.y = 0;
 }
 
 void updateMouse(void) __z88dk_fastcall {

@@ -101,12 +101,14 @@ void endOfLevelSequence(const struct LevelInfo levelInfo) {
   jeffFlashAll();
   bombsFlashAll();
 
+  wait(20);
   fadePaletteDownSlow(1, 512);
 
   resetAllBombs();
   jeffKillAll(1);
-  menuMode();
+
   persistHighestLevel();
+  menuMode();
 
   dmaWaitForEnd(); // waiting here for sample end
   bombsRestoreFromFlash();

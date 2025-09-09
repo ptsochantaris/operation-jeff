@@ -155,7 +155,7 @@ void fadePaletteDown(byte paletteMask, word numBytes) __z88dk_callee {
 }
 
 void fadePaletteDownSlow(byte paletteMask, word numBytes) __z88dk_callee {
-  _fadePaletteDown(paletteMask, numBytes, 8, 1);
+  _fadePaletteDown(paletteMask, numBytes, 4, 1);
 }
 
 void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte paletteMask) __z88dk_callee {

@@ -33,7 +33,7 @@ mouseKempstonX:
     ld a, l ; dx in A for range check
     jp nc, mousePositiveVX
 
-    cp $9c
+    cp $74
     JP C, mouseKempstonY ; ignore dx less than -100
     ld hl, (_mouseX)
     neg ; also clears carry
@@ -43,8 +43,8 @@ mouseKempstonX:
     jp mouseKempstonY
 
 mousePositiveVX:
-    cp 101
-    JP NC, mouseKempstonY ; ignore dx greater than 100
+    cp 141
+    JP NC, mouseKempstonY ; ignore dx greater than 120
     ld hl, (_mouseX)
     add hl, a ; X + dx
     ld (_mouseX), hl
@@ -64,7 +64,7 @@ mouseKempstonY:
     ld a, l ; dy in A for later
     jp nc, mousePositiveVY
 
-    cp $9c
+    cp $74
     ret c ; ignore dy less than -100
     ld hl, (_mouseY)
     neg ; flip a for addition
@@ -73,8 +73,8 @@ mouseKempstonY:
     RET
 
 mousePositiveVY:
-    cp 101
-    ret nc ; ignore dy greater than 100
+    cp 141
+    ret nc ; ignore dy greater than 120
     ld hl, (_mouseY)
     ld e, a ; dx in E for subtracting
     or a ; clear carry
