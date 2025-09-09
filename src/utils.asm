@@ -20,9 +20,8 @@ mouseHandler:
 
     ; mouse X update
 
-    ld d, 0 ; always stays 0
 mouseKempstonX:
-    ld e, 0 ; previousX in E
+    ld de, 0 ; previousX in E, D always zero
 
     ld b, $fb
     in a, (c) ; X
