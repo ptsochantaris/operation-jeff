@@ -1885,5 +1885,3 @@ const byte font_data[] = {
 	_XX_____,
 	________,
 };
-
-const byte *bFont = font_data;

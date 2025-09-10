@@ -7,13 +7,13 @@
 #define SCORE_X 134
 #define HISCORE_X 186
 
-extern const byte *bFont;
-extern void layer2CharSidewaysNoBackground(byte *glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
+extern const byte font_data[];
+extern void layer2CharSidewaysNoBackground(const byte *restrict glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
 
-void printSidewaysNoBackground(byte *text, word x, byte y, byte textColor) __z88dk_callee {
+void printSidewaysNoBackground(const byte *restrict text, word x, byte y, byte textColor) __z88dk_callee {
   byte C = *text;
   while(C != 0) {
-    const byte *base = bFont + (6 * (C - 32));
+    const byte *base = font_data + (6 * (C - 32));
     layer2CharSidewaysNoBackground(base, x, y, textColor);
     C = *(++text);
     y -= 4;

@@ -1,6 +1,6 @@
 #include "resources.h"
 
-extern const byte *bFont;
+extern const byte font_data[];
 extern void ulaAttributeChar(const byte *restrict glyph, word x, byte y) __z88dk_callee __smallc;
 
 static const byte ulaPalette[] = {
@@ -64,7 +64,7 @@ void resetGrayPalette(void) __z88dk_fastcall {
 void printAttributes(const byte *restrict text, byte x, byte y) __z88dk_callee {
   byte C = *text;
   while(C != 0) {
-    const byte *base = bFont + (6 * (C - 32));
+    const byte *base = font_data + (6 * (C - 32));
     ulaAttributeChar(base, x, y);
     C = *(++text);
     x += 4;
