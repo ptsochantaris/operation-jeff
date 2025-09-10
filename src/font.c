@@ -259,7 +259,7 @@
 #define XXXXXXX_ 0xFE
 #define XXXXXXXX 0xFF
 
-static const byte font_data[] = {
+const byte font_data[] = {
 //  32 $20 'space'
 //	width 4, bbx 3, bby 4, bbw 1, bbh 1
 	________,

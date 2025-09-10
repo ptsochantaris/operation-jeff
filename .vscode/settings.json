@@ -42,6 +42,7 @@
         "locale": "c",
         "dma.h": "c",
         "keyboard.h": "c",
-        "mouse.h": "c"
+        "mouse.h": "c",
+        "end_of_level.h": "c"
     }
 }

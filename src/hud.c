@@ -8,31 +8,9 @@
 #define HISCORE_X 186
 
 extern const byte *bFont;
-extern void layer2CharNoBackground(const byte *restrict glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
-extern void layer2CharSidewaysNoBackground(const byte *restrict glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
-extern void layer2Char(const byte *restrict glyph, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
+extern void layer2CharSidewaysNoBackground(byte *glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
 
-void print(const byte *restrict text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee {
-  byte C = *text;
-  while(C != 0) {
-    const byte *base = bFont + (6 * (C - 32));
-    layer2Char(base, x, y, textColor, bgColor);
-    C = *(++text);
-    x += 4;
-  }
-}
-
-void printNoBackground(const byte *restrict text, word x, byte y, byte color) __z88dk_callee {
-  byte C = *text;
-  while(C != 0) {
-    const byte *base = bFont + (6 * (C - 32));
-    layer2CharNoBackground(base, x, y, color);
-    C = *(++text);
-    x += 4;
-  }
-}
-
-void printSidewaysNoBackground(const byte *text, word x, byte y, byte textColor) __z88dk_callee {
+void printSidewaysNoBackground(byte *text, word x, byte y, byte textColor) __z88dk_callee {
   byte C = *text;
   while(C != 0) {
     const byte *base = bFont + (6 * (C - 32));
