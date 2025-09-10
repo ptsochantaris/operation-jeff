@@ -1,5 +1,8 @@
 SECTION code_compiler
 
+PUBLIC _textBuf
+_textBuf: DS 100
+
 PUBLIC _selectLayer2Page
 _selectLayer2Page:
     ld e, l
@@ -432,11 +435,12 @@ printLoop:
     ld iy, de
     pop de
 
-    push hl
     push bc
     call layer2Char
     pop bc
-    pop hl
+    ld a, l
+    sub 5
+    ld l, a
 
     inc bc ; next char
     add de, 4 ; move X to the right
@@ -505,11 +509,12 @@ printNoBackgroundLoop:
     ld iy, de
     pop de
 
-    push hl
     push bc
     call layer2CharNoBackground
     pop bc
-    pop hl
+    ld a, l
+    sub 5
+    ld l, a
 
     inc bc ; next char
     add de, 4 ; move X to the right

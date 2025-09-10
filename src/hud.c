@@ -8,9 +8,9 @@
 #define HISCORE_X 186
 
 extern const byte font_data[];
-extern void layer2CharSidewaysNoBackground(const byte *restrict glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
+extern void layer2CharSidewaysNoBackground(const byte *glyph, word x, byte y, byte textColor) __z88dk_callee __smallc;
 
-void printSidewaysNoBackground(const byte *restrict text, word x, byte y, byte textColor) __z88dk_callee {
+void printSidewaysNoBackground(const byte *text, word x, byte y, byte textColor) __z88dk_callee {
   byte C = *text;
   while(C != 0) {
     const byte *base = font_data + (6 * (C - 32));
@@ -19,8 +19,6 @@ void printSidewaysNoBackground(const byte *restrict text, word x, byte y, byte t
     y -= 4;
   }
 }
-
-byte textBuf[100];
 
 static struct stats displayedStats;
 
