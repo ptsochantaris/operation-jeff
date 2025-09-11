@@ -15,13 +15,19 @@ _keyboardPorts:
 GLOBAL mouseHandler
 
 isr:
-    ex af, af'
-    exx
+    push af
+    push bc
+    push de
+    push hl
+    push iy
 
     call mouseHandler
 
-    exx
-    ex af, af'
+    pop iy
+    pop hl
+    pop de
+    pop bc
+    pop af
     
     ei
     ret
