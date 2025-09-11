@@ -212,7 +212,7 @@ void writeColourToIndex(const byte *colour, byte index) __z88dk_callee {
   ZXN_NEXTREGA(REG_PALETTE_VALUE_16, *colour+1);
 }
 
-void setFallbackColour(byte index) __z88dk_callee {
+void setFallbackColour(byte index) __z88dk_fastcall {
   ZXN_NEXTREGA(0x4A, index);
 }
 
