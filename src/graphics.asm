@@ -135,11 +135,11 @@ _layer2HorizonalLine:
 .layer2HorizontalLineLoop:
     ; offset in page
     ld a, e
-    and $3F         ; keep in-page bits of x
+    and $3F         ; keep in-page bits of x, set Z flag for below
     ld h, a         ; l already has y
 
-    or a            ; destination page needs update if in-page x is zero
-    jr nz, layer2HorizontalLineLoopSet ; or skip
+    ; destination page needs update if in-page x is zero
+    jp nz, layer2HorizontalLineLoopSet ; or skip
     push de
     ld a, b
     ld b, 6
@@ -155,7 +155,7 @@ _layer2HorizonalLine:
     dec bc
     ld a, b
     or c
-    jr nz, layer2HorizontalLineLoop
+    jp nz, layer2HorizontalLineLoop
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -187,7 +187,7 @@ _layer2StashPalette:
 
     ex af, af'
     inc a
-    jr nz, layer2StashPaletteLoop
+    jp nz, layer2StashPaletteLoop
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -216,14 +216,14 @@ _updateSprite:
     ex de, hl ; put y back into DE
     pop bc
 
-    jr nc, updateSpriteScaleNegativeDone
+    jp nc, updateSpriteScaleNegativeDone
     ld de, 0
 .updateSpriteScaleNegativeDone:
 
     ld a, (hl)  ; scale up
     inc hl
     or a
-    jr z, updateSpriteScaleDone
+    jp z, updateSpriteScaleDone
     add bc, -8
     add de, -8
     ld a, $a
@@ -239,7 +239,7 @@ _updateSprite:
     ld a, (hl) ; mirrored?
     inc hl
     or a
-    jr z, updateSpriteMirrorDone
+    jp z, updateSpriteMirrorDone
     ld a, 8
 .updateSpriteMirrorDone:
     or b    ; targetX high
@@ -272,7 +272,7 @@ layer2Char:
     ld b, 3         ; loops in b
 .layer2PlotSliceLoop:
     bit 5, c        
-    jr z, layer2PlotSliceBg
+    jp z, layer2PlotSliceBg
 .layer2PlotSliceFg:
     ld a, 0
     jp layer2PlotSliceGo
@@ -359,7 +359,7 @@ layer2CharNoBackground:
     ld b, 3         ; loops in b
 .layer2PlotSliceNoBackgroundLoop:
     bit 5, c
-    jr z, layer2PlotSliceSkip
+    jp z, layer2PlotSliceSkip
     call layer2SlicePlot
 .layer2PlotSliceSkip:
     dec de
@@ -434,7 +434,7 @@ layer2CharSidewaysNoBackground:
     ld b, 3         ; loops in b
 .layer2PlotSliceSidewaysNoBackgroundLoop:
     bit 5, c
-    jr z, layer2PlotSliceSidewaysSkip
+    jp z, layer2PlotSliceSidewaysSkip
     call layer2SlicePlot
 .layer2PlotSliceSidewaysSkip:
     inc l
@@ -521,7 +521,7 @@ ulaAttributeChar:
     ld b, 3         ; loops in b
 .ulaAttributeCharPlotSliceLoop:
     bit 5, c
-    jr z, ulaAttributeCharPlotSliceSkip
+    jp z, ulaAttributeCharPlotSliceSkip
 
     push hl
 

@@ -54,7 +54,7 @@ aySetMixerShiftLoop:
     ld a, c ; tone set?
     or a
     ld a, b ; a = existing
-    jr z, aySetMixerToneNo
+    jp z, aySetMixerToneNo
 aySetMixerToneYes:
     and 0
     jp aySetMixerToneDone
@@ -66,7 +66,7 @@ aySetMixerToneDone:
     ld a, e ; noise set?
     or a
     ld a, b ; a = existing
-    jr z, aySetMixerNoiseNo
+    jp z, aySetMixerNoiseNo
 aySetMixerNoiseYes:
     and 0
     jp aySetMixerNoiseDone
