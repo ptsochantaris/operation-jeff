@@ -223,10 +223,7 @@ _updateSprite:
     ld a, (hl)  ; scale up
     inc hl
     or a
-    jr nz, updateSpriteScale
-    xor a   ; clear a
-    jp updateSpriteScaleDone
-.updateSpriteScale:
+    jr z, updateSpriteScaleDone
     add bc, -8
     add de, -8
     ld a, $a
@@ -242,10 +239,7 @@ _updateSprite:
     ld a, (hl) ; mirrored?
     inc hl
     or a
-    jr nz, updateSpriteMirror
-    xor a ; clear
-    jp updateSpriteMirrorDone
-.updateSpriteMirror:
+    jr z, updateSpriteMirrorDone
     ld a, 8
 .updateSpriteMirrorDone:
     or b    ; targetX high
