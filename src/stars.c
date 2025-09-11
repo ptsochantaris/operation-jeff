@@ -2,8 +2,6 @@
 
 #define starCount 40
 
-extern void layer2Plot(word x, byte y, byte color) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
-
 static struct star stars[starCount];
 
 void initStars(void) __z88dk_fastcall {

@@ -1,7 +1,5 @@
 #include "resources.h"
 
-void printAttributes(byte *text, byte x, byte y) __z88dk_callee __smallc;
-
 static const byte ulaPalette[] = {
   COLOR9(1, 1, 1),
   COLOR9(3, 3, 3),
@@ -66,7 +64,7 @@ void clearStatus(void) __z88dk_fastcall {
     bzero((byte *)(ulaAttributes + 320), 160);
 }
 
-void status(const byte *text) __z88dk_fastcall {
+void status(byte *text) __z88dk_fastcall {
     clearStatus();
     if(text) {
         resetGrayPalette();

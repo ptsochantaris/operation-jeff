@@ -45,17 +45,8 @@
 #include "music.h"
 #include "files.h"
 #include "keyboard.h"
-
-extern void decompressZX0(byte *src, byte *dst) __z88dk_callee __smallc;
-extern void writeNextReg(byte reg, const char *bytes, byte len) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
-extern void updateSprite(struct sprite_info *restrict s) __preserves_regs(iyh,iyl) __z88dk_fastcall;
-extern void selectPalette(byte paletteMask) __preserves_regs(b,c,d,e,h,iyh,iyl) __z88dk_fastcall;
-extern int random16(void) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;
-
-extern void print(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
-extern void printNoBackground(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
-extern void printSidewaysNoBackground(const byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
-
-#endif
+#include "asm-backed.h"
 
 // z88dk index: https://github.com/z88dk/z88dk/blob/master/doc/ZXSpectrumZSDCCnewlib_GettingStartedGuide.md
+
+#endif
