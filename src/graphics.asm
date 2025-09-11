@@ -5,13 +5,15 @@ _textBuf: DS 100
 
 PUBLIC _selectLayer2Page
 _selectLayer2Page:
-    ld e, l
-selectLayer2PageInternal:
-    ld a, 100       ; placeholder
-    cp e
-    ret z
-selectLayer2PageInternalNoCheck:
+    ld a, l
+    jp selectLayer2PageInternal
+
+.selectLayer2PageInternalE:
     ld a, e
+
+.selectLayer2PageInternal:
+    cp 100       ; placeholder
+    ret z
     ld (selectLayer2PageInternal+1), a
     or $10          ; add other L2 flag
     push bc
@@ -47,7 +49,7 @@ _layer2Plot:
     pop DE          ; x
     push bc         ; put return back on stack
 
-layer2SlicePlot:
+.layer2SlicePlot:
     push hl
 
     ; offset in page
@@ -61,10 +63,10 @@ layer2SlicePlot:
     push de
     BSRL DE, B      ; x >> 6 to get L2 page in E
     ld b, a
-    call selectLayer2PageInternal
+    call selectLayer2PageInternalE
     pop de
 
-layer2Set:
+.layer2Set:
     ld (hl), 0       ; set (hl) to colour value
     pop hl
     ret
@@ -92,14 +94,14 @@ _layer2VerticalLine:
     ; destination page
     ld b, 6
     BSRL DE, B      ; x >> 6 to get L2 page in E
-    call selectLayer2PageInternal
+    call selectLayer2PageInternalE
 
     ; number of loops
     ld a, l
     sub c
     ld b, a
 
-layer2VerticalLineLoopSet:
+.layer2VerticalLineLoopSet:
     dec l
     ld (hl), 0       ; set (hl) to colour value
     djnz layer2VerticalLineLoopSet
@@ -127,10 +129,10 @@ _layer2HorizonalLine:
     ld b, 6
     BSRL DE, B      ; x >> 6 to get L2 page in E
     ld b, a
-    call selectLayer2PageInternal
+    call selectLayer2PageInternalE
     pop de
 
-layer2HorizontalLineLoop:
+.layer2HorizontalLineLoop:
     ; offset in page
     ld a, e
     and $3F         ; keep in-page bits of x
@@ -143,10 +145,10 @@ layer2HorizontalLineLoop:
     ld b, 6
     BSRL DE, B      ; x >> 6 to get L2 page in E
     ld b, a
-    call selectLayer2PageInternalNoCheck
+    call selectLayer2PageInternalE
     pop de
 
-layer2HorizontalLineLoopSet:
+.layer2HorizontalLineLoopSet:
     ld (hl), 0       ; set (hl) to colour value
 
     inc de
@@ -163,7 +165,7 @@ _layer2StashPalette:
     ; buffer at HL, 512 bytes
     xor a
     ld bc, $253B
-layer2StashPaletteLoop:
+.layer2StashPaletteLoop:
     nextreg 64, a
     ex af, af'
     
@@ -216,7 +218,7 @@ _updateSprite:
 
     jr nc, updateSpriteScaleNegativeDone
     ld de, 0
-updateSpriteScaleNegativeDone:
+.updateSpriteScaleNegativeDone:
 
     ld a, (hl)  ; scale up
     inc hl
@@ -224,11 +226,11 @@ updateSpriteScaleNegativeDone:
     jr nz, updateSpriteScale
     xor a   ; clear a
     jp updateSpriteScaleDone
-updateSpriteScale:
+.updateSpriteScale:
     add bc, -8
     add de, -8
     ld a, $a
-updateSpriteScaleDone:
+.updateSpriteScaleDone:
     nextreg $39, a
 
     ld a, c
@@ -243,9 +245,9 @@ updateSpriteScaleDone:
     jr nz, updateSpriteMirror
     xor a ; clear
     jp updateSpriteMirrorDone
-updateSpriteMirror:
+.updateSpriteMirror:
     ld a, 8
-updateSpriteMirrorDone:
+.updateSpriteMirrorDone:
     or b    ; targetX high
     nextreg $37, a
 
@@ -272,17 +274,17 @@ layer2Char:
     call layer2PlotSlice
     ld c, (iy+4)    ; fallthrough to layer2PlotSlice
 
-layer2PlotSlice:
+.layer2PlotSlice:
     ld b, 3         ; loops in b
-layer2PlotSliceLoop:
+.layer2PlotSliceLoop:
     bit 5, c        
     jr z, layer2PlotSliceBg
-layer2PlotSliceFg:
+.layer2PlotSliceFg:
     ld a, 0
     jp layer2PlotSliceGo
-layer2PlotSliceBg:
+.layer2PlotSliceBg:
     ld a, 0
-layer2PlotSliceGo:
+.layer2PlotSliceGo:
     ld (layer2Set+1), a
     call layer2SlicePlot
 
@@ -317,7 +319,7 @@ _print:
     push bc         ; put return back on stack
     ld bc, iy
 
-printLoop:
+.printLoop:
     ld a, (bc)
     or a
     ret z ; exit if char is zero
@@ -359,13 +361,13 @@ layer2CharNoBackground:
     call layer2PlotSliceNoBackground
     ld c, (iy+4)    ; fallthrough to layer2PlotSliceNoBackground
 
-layer2PlotSliceNoBackground:
+.layer2PlotSliceNoBackground:
     ld b, 3         ; loops in b
-layer2PlotSliceNoBackgroundLoop:
+.layer2PlotSliceNoBackgroundLoop:
     bit 5, c
     jr z, layer2PlotSliceSkip
     call layer2SlicePlot
-layer2PlotSliceSkip:
+.layer2PlotSliceSkip:
     dec de
     srl c
     djnz layer2PlotSliceNoBackgroundLoop
@@ -391,7 +393,7 @@ _printNoBackground:
     push bc         ; put return back on stack
     ld bc, iy
 
-printNoBackgroundLoop:
+.printNoBackgroundLoop:
     ld a, (bc)
     or a
     ret z ; exit if char is zero
@@ -434,13 +436,13 @@ layer2CharSidewaysNoBackground:
     call layer2PlotSliceSidewaysNoBackground
     ld c, (iy+4)    ; fallthrough to layer2PlotSliceSidewaysNoBackground
 
-layer2PlotSliceSidewaysNoBackground:
+.layer2PlotSliceSidewaysNoBackground:
     ld b, 3         ; loops in b
-layer2PlotSliceSidewaysNoBackgroundLoop:
+.layer2PlotSliceSidewaysNoBackgroundLoop:
     bit 5, c
     jr z, layer2PlotSliceSidewaysSkip
     call layer2SlicePlot
-layer2PlotSliceSidewaysSkip:
+.layer2PlotSliceSidewaysSkip:
     inc l
     srl c
     djnz layer2PlotSliceSidewaysNoBackgroundLoop
@@ -467,7 +469,7 @@ _printSidewaysNoBackground:
     push bc         ; put return back on stack
     ld bc, iy
 
-printSidewaysNoBackgroundLoop:
+.printSidewaysNoBackgroundLoop:
     ld a, (bc)
     or a
     ret z ; exit if char is zero
@@ -521,9 +523,9 @@ ulaAttributeChar:
     inc a
     ld c, (iy+4)    ; fallthrough to ulaAttributeCharPlotSlice
 
-ulaAttributeCharPlotSlice:
+.ulaAttributeCharPlotSlice:
     ld b, 3         ; loops in b
-ulaAttributeCharPlotSliceLoop:
+.ulaAttributeCharPlotSliceLoop:
     bit 5, c
     jr z, ulaAttributeCharPlotSliceSkip
 
@@ -540,7 +542,7 @@ ulaAttributeCharPlotSliceLoop:
 
     pop hl
 
-ulaAttributeCharPlotSliceSkip:
+.ulaAttributeCharPlotSliceSkip:
     dec de
     srl c
     djnz ulaAttributeCharPlotSliceLoop
@@ -564,7 +566,7 @@ _printAttributes:
     push bc         ; put return back on stack
     ld bc, iy
 
-printAttributesLoop:
+.printAttributesLoop:
     ld a, (bc)
     or a
     ret z ; exit if char is zero

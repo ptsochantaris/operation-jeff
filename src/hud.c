@@ -146,8 +146,8 @@ void initHud(byte level) __z88dk_fastcall {
   printNoBackground("HIGH", HISCORE_X + 2, 1, HUD_WHITE);
   printNoBackground("HEALTH", HEALTH_X + 22, 1, HUD_WHITE);
 
-  printSidewaysNoBackground("CHARGING", 1, 100, HUD_WHITE);
-  printSidewaysNoBackground("FIRE RATE", 1, 200, HUD_WHITE);
+  printSidewaysNoBackground("CHARGING", 1, 98, HUD_WHITE);
+  printSidewaysNoBackground("FIRE RATE", 1, 196, HUD_WHITE);
 
   layer2box(RATE_X, RATE_Y, 5, 203, HUD_WHITE);
   layer2box(ENERGY_X, 8, 66, 5, HUD_WHITE);
