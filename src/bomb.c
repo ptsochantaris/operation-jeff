@@ -58,7 +58,7 @@ void fireIfPossible(void) __z88dk_fastcall {
     }
 
     struct bomb *b = bombs;
-    for(struct bomb *end = b+bombCount; b != end; ++b) {
+    for(const struct bomb *end = b+bombCount; b != end; ++b) {
         if(b->state != BOMB_STATE_NONE) {
             continue;
         }
@@ -90,7 +90,7 @@ void fireIfPossible(void) __z88dk_fastcall {
 void resetAllBombs(void) __z88dk_fastcall {
     explodingBombCount = 0;
     struct bomb *b = bombs;
-    for(struct bomb *end = b+bombCount; b != end; ++b) {
+    for(const struct bomb *end = b+bombCount; b != end; ++b) {
         if(b->state == BOMB_STATE_NONE) {
             continue;
         }
@@ -140,7 +140,7 @@ void endBombExplosion(struct bomb *restrict b) {
 void updateBombs(void) __z88dk_fastcall {
     if(bombLoop) {
         struct bomb *b = bombs;
-        for(struct bomb *end = b+bombCount; b != end; ++b) {
+        for(const struct bomb *end = b+bombCount; b != end; ++b) {
             switch(b->state) {
                 case BOMB_STATE_NONE:
                     break;

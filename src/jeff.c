@@ -390,7 +390,7 @@ void resetLanding(void) __z88dk_fastcall {
 
 void jeffKillAll(byte retireImmediately) __z88dk_fastcall {
     struct jeff *j = jeffs;
-    for(struct jeff *end = j+jeffCount; j != end; ++j) {
+    for(const struct jeff *end = j+jeffCount; j != end; ++j) {
         switch(j->state) {
             case JEFF_STATE_STAND:
             case JEFF_STATE_WALK:
@@ -487,7 +487,7 @@ void updateJeffs(void) __z88dk_fastcall {
     logicLoop = (logicLoop << 1) | (logicLoop >> 15);
 
     struct jeff *j = jeffs;
-    for(struct jeff *end = jeffs+jeffCount; j != end; ++j) {
+    for(const struct jeff *end = jeffs+jeffCount; j != end; ++j) {
         switch(j->state) {
             case JEFF_STATE_LANDING:
             case JEFF_STATE_NONE:
