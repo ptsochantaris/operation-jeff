@@ -130,50 +130,6 @@ ulaAttributeCharPlotSliceSkip:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _layer2CharSidewaysNoBackground
-_layer2CharSidewaysNoBackground:
-    pop bc          ; return address
-
-    pop HL          ; colour
-    ld a, l
-    ld (layer2Set+1), a
-
-    pop HL          ; y
-    dec l
-    dec l
-    pop DE          ; x
-
-    pop iy          ; address of first slice
-    push bc         ; put return back on stack
-
-    ld c, (iy)
-    call layer2PlotSliceSidewaysNoBackground
-    ld c, (iy+1)
-    call layer2PlotSliceSidewaysNoBackground
-    ld c, (iy+2)
-    call layer2PlotSliceSidewaysNoBackground
-    ld c, (iy+3)
-    call layer2PlotSliceSidewaysNoBackground
-    ld c, (iy+4)    ; fallthrough to layer2PlotSliceSidewaysNoBackground
-
-layer2PlotSliceSidewaysNoBackground:
-    ld b, 3         ; loops in b
-layer2PlotSliceSidewaysNoBackgroundLoop:
-    bit 5, c
-    jr z, layer2PlotSliceSidewaysSkip
-    call layer2SlicePlot
-layer2PlotSliceSidewaysSkip:
-    inc l
-    srl c
-    djnz layer2PlotSliceSidewaysNoBackgroundLoop
-    inc de ; next x
-    dec l
-    dec l
-    dec l
-    RET
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 PUBLIC _layer2VerticalLine
 _layer2VerticalLine:
     pop iy          ; return address
@@ -427,13 +383,13 @@ printLoop:
 
     ; put first slice of font in IY
     sub 32
-    push de
+    exx
     ld d, a
     ld e, 6
     mul d, e
     add de, _font_data
     ld iy, de
-    pop de
+    exx
 
     push bc
     call layer2Char
@@ -501,13 +457,13 @@ printNoBackgroundLoop:
 
     ; put first slice of font in IY
     sub 32
-    push de
+    exx
     ld d, a
     ld e, 6
     mul d, e
     add de, _font_data
     ld iy, de
-    pop de
+    exx
 
     push bc
     call layer2CharNoBackground
@@ -521,3 +477,79 @@ printNoBackgroundLoop:
     jp printNoBackgroundLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+layer2CharSidewaysNoBackground:
+    ; HL          ; y
+    ; DE          ; x
+    ; iy          ; address of first slice
+
+    ld c, (iy)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+1)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+2)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+3)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+4)    ; fallthrough to layer2PlotSliceSidewaysNoBackground
+
+layer2PlotSliceSidewaysNoBackground:
+    ld b, 3         ; loops in b
+layer2PlotSliceSidewaysNoBackgroundLoop:
+    bit 5, c
+    jr z, layer2PlotSliceSidewaysSkip
+    call layer2SlicePlot
+layer2PlotSliceSidewaysSkip:
+    inc l
+    srl c
+    djnz layer2PlotSliceSidewaysNoBackgroundLoop
+    inc de ; next x
+    dec l
+    dec l
+    dec l
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _printSidewaysNoBackground
+_printSidewaysNoBackground:
+    pop bc          ; return address
+
+    pop HL          ; colour
+    ld a, l
+    ld (layer2Set+1), a
+
+    pop HL          ; y
+    pop DE          ; x
+
+    pop iy          ; address of first char
+    push bc         ; put return back on stack
+    ld bc, iy
+
+printSidewaysNoBackgroundLoop:
+    ld a, (bc)
+    or a
+    ret z ; exit if char is zero
+
+    ; put first slice of font in IY
+    sub 32
+    exx
+    ld d, a
+    ld e, 6
+    mul d, e
+    add de, _font_data
+    ld iy, de
+    exx
+
+    push bc
+    call layer2CharSidewaysNoBackground
+    pop bc
+
+    add de, $FFFB ; add -4
+
+    inc bc ; next char
+    
+    ld a, l
+    sub 4 ; move Y up
+    ld l, a
+    jp printSidewaysNoBackgroundLoop

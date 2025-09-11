@@ -54,6 +54,7 @@ extern int random16(void) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;
 
 extern void print(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
 extern void printNoBackground(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
+extern void printSidewaysNoBackground(const byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
 
 #endif
 
