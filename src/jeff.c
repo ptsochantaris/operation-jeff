@@ -93,7 +93,7 @@ static const word jeffMoveMasks[] = {
 static const int bombRadii1[] = {7, 8, 9, 10, 9, 8, 8, 8};
 static const int bombRadii2[] = {14, 16, 18, 20, 18, 16, 16, 16};
 
-void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_callee {
+void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_fastcall {
     ZXN_WRITE_MMU1(info->heightmapAsset.page);
     decompressZX0((byte *)(info->heightmapAsset.resource), heightMap);
 }

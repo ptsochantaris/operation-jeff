@@ -1,6 +1,6 @@
 #include "resources.h"
 
-static void endOfLeveDrone(void) __z88dk_callee {
+static void endOfLeveDrone(void) __z88dk_fastcall {
   ayChipSelect(0);
   aySetEnvelope(10, 0x1FFF);
   ayPlayNote(1, E0);

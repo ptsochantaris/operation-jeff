@@ -71,7 +71,7 @@ void layer2Clear(byte index) __z88dk_fastcall {
 
 static byte paletteBuffer[512];
 
-void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_callee {
+void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_fastcall {
   byte previousMmu3 = ZXN_READ_MMU3();
   ZXN_WRITE_MMU3(compressedPalette->page);
   decompressZX0((byte *)(compressedPalette->resource), paletteBuffer);
@@ -191,7 +191,7 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void loadScreen(const struct LevelInfo *restrict info) __z88dk_callee {  
+void loadScreen(const struct LevelInfo *restrict info) __z88dk_fastcall {  
   struct ResourceInfo *slice = info->screens;
   for(byte page=18; page!=28; ++page, ++slice) {
     ZXN_WRITE_MMU2(page);
