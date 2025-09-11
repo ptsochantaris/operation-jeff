@@ -7,7 +7,7 @@ _decompressZX0:
         pop de          ; destination
         ex (sp), hl     ; source
 
-        ld      ix, CopyMatch1
+        ld      iy, CopyMatch1
         ld      bc, $ffff
         ld      (PrevOffset+1), bc      ; default offset is -1
         inc     bc
@@ -165,7 +165,7 @@ LongerRepMatch:
         jp      nz, CopyMatch1
 
         ; this is a crafty equivalent of CALL ReloadReadGamma : JP CopyMatch1
-        push    ix
+        push    iy
 
         ;  the subroutine for reading the remainder of the partly read Elias gamma code.
         ;  it has two entry points: ReloadReadGamma first refills the bit reservoir in A,
