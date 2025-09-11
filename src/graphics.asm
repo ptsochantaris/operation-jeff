@@ -580,11 +580,7 @@ printAttributesLoop:
     exx
 
     push bc
-    push de
-    push hl
     call ulaAttributeChar
-    pop hl
-    pop de
     pop bc
 
     inc bc ; next char
