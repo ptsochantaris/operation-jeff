@@ -1,7 +1,6 @@
 #include "resources.h"
 
-extern const byte font_data[];
-extern void ulaAttributeChar(const byte *restrict glyph, word x, byte y) __z88dk_callee __smallc;
+void printAttributes(byte *text, byte x, byte y) __z88dk_callee __smallc;
 
 static const byte ulaPalette[] = {
   COLOR9(1, 1, 1),
@@ -59,16 +58,6 @@ void resetGrayPalette(void) __z88dk_fastcall {
     ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
     gray_offset = 16;
     writeNextReg(REG_PALETTE_VALUE_16, ulaPalette, 16);
-}
-
-void printAttributes(const byte *restrict text, byte x, byte y) __z88dk_callee {
-  byte C = *text;
-  while(C != 0) {
-    const byte *base = font_data + (6 * (C - 32));
-    ulaAttributeChar(base, x, y);
-    C = *(++text);
-    x += 4;
-  }
 }
 
 static byte statusCount = 0;

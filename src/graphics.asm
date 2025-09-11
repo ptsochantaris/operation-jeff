@@ -71,65 +71,6 @@ layer2Set:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _ulaAttributeChar
-_ulaAttributeChar:
-    pop bc          ; return address
-    pop hl          ; y
-    ld h, 32        ; will be using for multiplication
-    pop de          ; x
-    pop iy          ; address of first slice
-    push bc         ; put return back on stack
-
-    add de, $77E3   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 (one row) + 3 (initial char width)
-
-    ld a, 1
-    ld c, (iy)
-    call ulaAttributeCharPlotSlice
-
-    inc a
-    ld c, (iy+1)
-    call ulaAttributeCharPlotSlice
-
-    inc a
-    ld c, (iy+2)
-    call ulaAttributeCharPlotSlice
-
-    inc a
-    ld c, (iy+3)
-    call ulaAttributeCharPlotSlice
-
-    inc a
-    ld c, (iy+4)    ; fallthrough to ulaAttributeCharPlotSlice
-
-ulaAttributeCharPlotSlice:
-    ld b, 3         ; loops in b
-ulaAttributeCharPlotSliceLoop:
-    bit 5, c
-    jr z, ulaAttributeCharPlotSliceSkip
-
-    push hl
-
-    add hl, a ; y + current row from A
-
-    ex de, hl
-    mul d, e
-    ex de, hl
-
-    add hl, de ; y+x
-    ld (hl), a
-
-    pop hl
-
-ulaAttributeCharPlotSliceSkip:
-    dec de
-    srl c
-    djnz ulaAttributeCharPlotSliceLoop
-
-    add de, 3 ; reset x
-    RET
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 PUBLIC _layer2VerticalLine
 _layer2VerticalLine:
     pop iy          ; return address
@@ -553,3 +494,99 @@ printSidewaysNoBackgroundLoop:
     sub 4 ; move Y up
     ld l, a
     jp printSidewaysNoBackgroundLoop
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ulaAttributeChar:
+    ; l           ; y
+    ; de          ; x + ula attributes
+    ; iy          ; address of first slice
+
+    ld a, 1
+    ld c, (iy)
+    call ulaAttributeCharPlotSlice
+
+    inc a
+    ld c, (iy+1)
+    call ulaAttributeCharPlotSlice
+
+    inc a
+    ld c, (iy+2)
+    call ulaAttributeCharPlotSlice
+
+    inc a
+    ld c, (iy+3)
+    call ulaAttributeCharPlotSlice
+
+    inc a
+    ld c, (iy+4)    ; fallthrough to ulaAttributeCharPlotSlice
+
+ulaAttributeCharPlotSlice:
+    ld b, 3         ; loops in b
+ulaAttributeCharPlotSliceLoop:
+    bit 5, c
+    jr z, ulaAttributeCharPlotSliceSkip
+
+    push hl
+
+    add hl, a ; y + current row from A
+
+    ex de, hl
+    mul d, e
+    ex de, hl
+
+    add hl, de ; y+x
+    ld (hl), a
+
+    pop hl
+
+ulaAttributeCharPlotSliceSkip:
+    dec de
+    srl c
+    djnz ulaAttributeCharPlotSliceLoop
+
+    add de, 3 ; reset x
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _printAttributes
+_printAttributes:
+    pop bc          ; return address
+
+    pop HL          ; y
+    ld h, 32        ; will be using for multiplication
+
+    pop DE          ; x
+    add de, $77E3   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 (one row) + 3 (initial char width)
+
+    pop iy          ; address of first char
+    push bc         ; put return back on stack
+    ld bc, iy
+
+printAttributesLoop:
+    ld a, (bc)
+    or a
+    ret z ; exit if char is zero
+
+    ; put first slice of font in IY
+    sub 32
+    exx
+    ld d, a
+    ld e, 6
+    mul d, e
+    add de, _font_data
+    ld iy, de
+    exx
+
+    push bc
+    push de
+    push hl
+    call ulaAttributeChar
+    pop hl
+    pop de
+    pop bc
+
+    inc bc ; next char
+    add de, 4 ; move X to the right
+    jp printAttributesLoop
