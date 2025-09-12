@@ -212,6 +212,7 @@ _updateSprite:
     inc hl
 
     ex de, hl ; swap y into HL to subtract
+    or a ; clear C
     sbc hl, bc  ; targetY (y - z)
     ex de, hl ; put y back into DE
     pop bc
