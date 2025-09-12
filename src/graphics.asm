@@ -18,7 +18,7 @@ _selectLayer2Page:
     or $10          ; add other L2 flag
     push bc
     ld bc, $123b
-    out (bc), a
+    out (c), a
     pop bc
     ret
 
@@ -26,11 +26,11 @@ _selectLayer2Page:
 
 PUBLIC _selectPalette
 _selectPalette:
-    ld a, l         ; pallete index in top 4 bits
-    sla a
-    sla a
-    sla a
-    sli a           ; adds a 1 for enabling ulanext
+    ld a, l         ; 0000 xxxx - pallete index
+    add a           ; 000x xxx0
+    add a           ; 00xx xx00
+    add a           ; 0xxx x000
+    sli a           ; xxxx 0001 - 1 for enabling ulanext
     nextreg $43, a  ; // select palette using A
     nextreg 64, 0   ; REG_PALETTE_INDEX set to start palette index
     RET

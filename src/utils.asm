@@ -11,8 +11,8 @@ _mouseHwB: DW 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-lastMouseDirectionX: DB 0 ; 1=left 0=right
-lastMouseDirectionY: DB 0 ; 1=up 0=down
+lastMouseDirectionX: DB 0 ; (!0)=left 0=right
+lastMouseDirectionY: DB 0 ; (!0)=up 0=down
 
 PUBLIC mouseHandler
 mouseHandler:
@@ -40,7 +40,7 @@ mouseHandler:
 
     ; potential spike
     ld a, (lastMouseDirectionX)
-    or a ; was previous direction left (1)?
+    or a ; was previous direction left (non-zero)?
     jp z, mouseKempstonY ; if not, it's a spike
     ld a, l ; restore dx
 
@@ -50,8 +50,7 @@ mouseHandler:
     ld e, a ; dx in E for subtracting
     sbc hl, de ; X - dx
     ld (_mouseX), hl
-    ld a, 1
-    ld (lastMouseDirectionX), a
+    ld (lastMouseDirectionX), a ; a will be non-zero here
     jp mouseKempstonY
 
 .mousePositiveX:
@@ -60,7 +59,7 @@ mouseHandler:
 
     ; potential spike
     ld a, (lastMouseDirectionX)
-    or a ; was previous direction right (0)?
+    or a ; was previous direction right (non-zero)?
     jp nz, mouseKempstonY ; if not, it's a spike
     ld a, l ; restore dx
 
@@ -100,8 +99,7 @@ mouseHandler:
     neg ; flip a for addition
     add hl, a ; Y + dy
     ld (_mouseY), hl
-    ld a, 1
-    ld (lastMouseDirectionY), a
+    ld (lastMouseDirectionY), a ; a will be non zero here
     RET
 
 .mousePositiveY:
