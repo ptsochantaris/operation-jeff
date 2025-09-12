@@ -22,7 +22,7 @@ mouseHandler:
     ld (_mouseHwB), a
 
 .mouseKempstonX:
-    ld de, 0 ; previousX in E, D always zero
+    ld de, 0 ; d always stays zero
 
     ld b, $fb
     in a, (c) ; X
@@ -73,7 +73,7 @@ mouseHandler:
     jp mouseKempstonY
 
 .mouseKempstonY:
-    ld e, 0 ; previousY in E
+    ld e, 0
 
     ld b, $ff
     in a, (c) ; Y
