@@ -11,6 +11,9 @@ _mouseHwB: DW 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+lastMouseDirectionX: DB 0 ; 1=left 0=right
+lastMouseDirectionY: DB 0 ; 1=up 0=down
+
 PUBLIC mouseHandler
 mouseHandler:
     ; buttons
@@ -18,9 +21,7 @@ mouseHandler:
     in a, (c)
     ld (_mouseHwB), a
 
-    ; mouse X update
-
-mouseKempstonX:
+.mouseKempstonX:
     ld de, 0 ; previousX in E, D always zero
 
     ld b, $fb
@@ -31,27 +32,47 @@ mouseKempstonX:
     ld h, a
     sbc hl, de ; X - previous = dx in L
     ld a, l ; dx in A for range check
-    jp nc, mousePositiveVX
+    jp nc, mousePositiveX
 
-    cp $74
-    JP C, mouseKempstonY ; ignore dx less than -100
+    ; negative dx
+    cp $9c
+    JP nc, mouseNegativeXSane ; within -100 <-> 0
+
+    ; potential spike
+    ld a, (lastMouseDirectionX)
+    or a ; was previous direction left (1)?
+    jp z, mouseKempstonY ; if not, it's a spike
+    ld a, l ; restore dx
+
+.mouseNegativeXSane:
     ld hl, (_mouseX)
     neg ; also clears carry
     ld e, a ; dx in E for subtracting
     sbc hl, de ; X - dx
     ld (_mouseX), hl
+    ld a, 1
+    ld (lastMouseDirectionX), a
     jp mouseKempstonY
 
-mousePositiveVX:
-    cp 141
-    JP NC, mouseKempstonY ; ignore dx greater than 120
+.mousePositiveX:
+    cp 99
+    JP C, mousePositiveXSane ; within 0 <-> 100
+
+    ; potential spike
+    ld a, (lastMouseDirectionX)
+    or a ; was previous direction right (0)?
+    jp nz, mouseKempstonY ; if not, it's a spike
+    ld a, l ; restore dx
+
+.mousePositiveXSane
     ld hl, (_mouseX)
     add hl, a ; X + dx
     ld (_mouseX), hl
+    xor a
+    ld (lastMouseDirectionX), a
     jp mouseKempstonY
 
-    ; mouse Y update
-mouseKempstonY:
+.mouseKempstonY:
     ld e, 0 ; previousY in E
 
     ld b, $ff
@@ -62,22 +83,42 @@ mouseKempstonY:
     ld h, a
     sbc hl, de ; Y - previousY = dy in HL
     ld a, l ; dy in A for later
-    jp nc, mousePositiveVY
+    jp nc, mousePositiveY
 
-    cp $74
-    ret c ; ignore dy less than -100
+    ; negative dy
+    cp $9c
+    JP nc, mouseNegativeYSane ; within -100 <-> 0
+
+    ; potential spike
+    ld a, (lastMouseDirectionY)
+    or a ; was previous direction up (1)?
+    ret z ; if not, it's a spike
+    ld a, l ; restore dy
+
+.mouseNegativeYSane:
     ld hl, (_mouseY)
     neg ; flip a for addition
     add hl, a ; Y + dy
     ld (_mouseY), hl
+    ld a, 1
+    ld (lastMouseDirectionY), a
     RET
 
-mousePositiveVY:
-    cp 141
-    ret nc ; ignore dy greater than 120
+.mousePositiveY:
+    cp 99
+    JP C, mousePositiveYSane ; within 0 <-> 100
+
+    ; potential spike
+    ld a, (lastMouseDirectionY)
+    or a ; was previous direction down (0)?
+    ret nz; if not, it's a spike
+    ld a, l ; restore dy
+
+.mousePositiveYSane:    
     ld hl, (_mouseY)
     ld e, a ; dx in E for subtracting
-    or a ; clear carry
+    xor a ; zero and clear carry
+    ld (lastMouseDirectionY), a
     sbc hl, de ; currentY - dy
     ld (_mouseY), hl
     RET
