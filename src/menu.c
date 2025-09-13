@@ -10,7 +10,7 @@ void loadTitleScreen(void) __z88dk_fastcall {
   if(shouldFadeTitle) {
     fadePaletteDown(1, 512);
   } else {
-    zeroPalette(1, 512);
+    zeroPalette(1);
   }
   loadScreen(&titleInfo);
   if(shouldFadeTitle) {

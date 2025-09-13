@@ -3,6 +3,77 @@ SECTION code_compiler
 PUBLIC _textBuf
 _textBuf: DS 100
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _zeroPalette
+_zeroPalette:
+    call _selectPalette ; index is in L, passed through to this
+    
+    xor a
+    ld b, $FF
+.zeroPaletteLoop:
+    nextreg 68, a ; REG_PALETTE_VALUE_16
+    nextreg 68, a ; REG_PALETTE_VALUE_16
+    djnz zeroPaletteLoop
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _readColourFromIndex
+_readColourFromIndex:
+    pop hl ; address
+    pop bc ; index
+    ex (sp), hl ; colour address, put address back
+
+    ld a, c
+    nextreg 64, a ; REG_PALETTE_INDEX
+
+    ld bc, $243B
+    ld a, 65 ; REG_PALETTE_VALUE_8
+    out (c), a
+    inc b
+    in a, (c)
+    ld (hl), a
+
+    inc hl
+
+    dec b
+    ld a, 68 ; REG_PALETTE_VALUE_16
+    out (c), a
+    inc b
+    in a, (c)
+    ld (hl), a
+
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _writeColourToIndex
+_writeColourToIndex:
+    pop hl ; address
+    pop bc ; index
+    ex (sp), hl ; colour address, address back on stack
+
+    ld a, c
+    nextreg 64, a ; REG_PALETTE_INDEX
+    ld a, (hl)
+    nextreg 68, a ; REG_PALETTE_VALUE_16
+    inc hl
+    ld a, (hl)
+    nextreg 68, a ; REG_PALETTE_VALUE_16
+
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _setFallbackColour
+_setFallbackColour:
+    ld a, l
+    nextreg $4a, a
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _selectLayer2Page
 _selectLayer2Page:
     ld a, l

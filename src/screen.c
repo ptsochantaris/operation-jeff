@@ -163,16 +163,6 @@ void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word n
   }
 }
 
-void zeroPalette(byte palette, word length) __z88dk_callee {
-  selectPalette(palette);
-  
-  ZXN_NEXTREG(REG_PALETTE_INDEX, 0);
-  word bytes = length * 2;
-  for(word f=0; f != bytes; ++f) {
-    ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
-  }
-}
-
 void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte palette) __z88dk_callee {
   selectPalette(palette);
   loadPaletteBuffer(compressedPalette);
@@ -198,22 +188,6 @@ void loadScreen(const struct LevelInfo *restrict info) __z88dk_fastcall {
     ZXN_WRITE_MMU1(slice->page);
     decompressZX0((byte *)slice->resource, (byte *)0x4000);
   }
-}
-
-void readColourFromIndex(byte *colour, byte index) __z88dk_callee {
-  ZXN_NEXTREGA(REG_PALETTE_INDEX, index);
-  *colour = ZXN_READ_REG(REG_PALETTE_VALUE_8);
-  *(colour+1) = ZXN_READ_REG(REG_PALETTE_VALUE_16);
-}
-
-void writeColourToIndex(const byte *colour, byte index) __z88dk_callee {
-  ZXN_NEXTREGA(REG_PALETTE_INDEX, index);
-  ZXN_NEXTREGA(REG_PALETTE_VALUE_16, *colour);
-  ZXN_NEXTREGA(REG_PALETTE_VALUE_16, *colour+1);
-}
-
-void setFallbackColour(byte index) __z88dk_fastcall {
-  ZXN_NEXTREGA(0x4A, index);
 }
 
 void configLayer2(word writeThroughEnable) __z88dk_fastcall {
