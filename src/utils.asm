@@ -42,7 +42,8 @@ mouseHandler:
     ld a, (lastMouseDirectionX)
     or a ; was previous direction left (non-zero)?
     jp z, mouseKempstonY ; if not, it's a spike
-    ld a, l ; restore dx
+    ld a, 255
+    sub l ; restore 255-dy
 
 .mouseNegativeXSane:
     ld hl, (_mouseX)
@@ -61,7 +62,8 @@ mouseHandler:
     ld a, (lastMouseDirectionX)
     or a ; was previous direction right (zero)?
     jp nz, mouseKempstonY ; if not, it's a spike
-    ld a, l ; restore dx
+    ld a, 255
+    sub l ; restore 255-dx
 
 .mousePositiveXSane
     ld hl, (_mouseX)
@@ -91,7 +93,8 @@ mouseHandler:
     ld a, (lastMouseDirectionY)
     or a ; was previous direction up (non-zero)?
     ret z ; if not, it's a spike
-    ld a, l ; restore dy
+    ld a, 255
+    sub l ; restore 255-dy
 
 .mouseNegativeYSane:
     ld hl, (_mouseY)
@@ -109,7 +112,8 @@ mouseHandler:
     ld a, (lastMouseDirectionY)
     or a ; was previous direction down (zero)?
     ret nz; if not, it's a spike
-    ld a, l ; restore dy
+    ld a, 255
+    sub l ; restore 255-dy
 
 .mousePositiveYSane:    
     ld hl, (_mouseY)
