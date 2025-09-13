@@ -59,7 +59,7 @@ mouseHandler:
 
     ; potential spike
     ld a, (lastMouseDirectionX)
-    or a ; was previous direction right (non-zero)?
+    or a ; was previous direction right (zero)?
     jp nz, mouseKempstonY ; if not, it's a spike
     ld a, l ; restore dx
 
@@ -69,7 +69,6 @@ mouseHandler:
     ld (_mouseX), hl
     xor a
     ld (lastMouseDirectionX), a
-    jp mouseKempstonY
 
 .mouseKempstonY:
     ld e, 0
@@ -90,7 +89,7 @@ mouseHandler:
 
     ; potential spike
     ld a, (lastMouseDirectionY)
-    or a ; was previous direction up (1)?
+    or a ; was previous direction up (non-zero)?
     ret z ; if not, it's a spike
     ld a, l ; restore dy
 
@@ -108,7 +107,7 @@ mouseHandler:
 
     ; potential spike
     ld a, (lastMouseDirectionY)
-    or a ; was previous direction down (0)?
+    or a ; was previous direction down (zero)?
     ret nz; if not, it's a spike
     ld a, l ; restore dy
 
