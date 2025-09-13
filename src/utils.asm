@@ -41,8 +41,8 @@ mouseHandler:
     ; potential spike
     ld a, (lastMouseDirectionX)
     or a ; was previous direction left (non-zero)?
-    jp z, mouseKempstonY ; if not, it's a spike
-    ld a, 255
+    jp z, mouseKempstonY ; if not, it's a phase spike
+    ld a, 255 ; correct for wrap spike
     sub l ; restore 255-dy
 
 .mouseNegativeXSane:
@@ -61,8 +61,8 @@ mouseHandler:
     ; potential spike
     ld a, (lastMouseDirectionX)
     or a ; was previous direction right (zero)?
-    jp nz, mouseKempstonY ; if not, it's a spike
-    ld a, 255
+    jp nz, mouseKempstonY ; if not, it's a phase spike
+    ld a, 255 ; correct for wrap spike
     sub l ; restore 255-dx
 
 .mousePositiveXSane
@@ -92,8 +92,8 @@ mouseHandler:
     ; potential spike
     ld a, (lastMouseDirectionY)
     or a ; was previous direction up (non-zero)?
-    ret z ; if not, it's a spike
-    ld a, 255
+    ret z ; if not, it's a phase spike
+    ld a, 255 ; correct for wrap spike
     sub l ; restore 255-dy
 
 .mouseNegativeYSane:
@@ -111,8 +111,8 @@ mouseHandler:
     ; potential spike
     ld a, (lastMouseDirectionY)
     or a ; was previous direction down (zero)?
-    ret nz; if not, it's a spike
-    ld a, 255
+    ret nz; if not, it's a phase spike
+    ld a, 255 ; correct for wrap spike
     sub l ; restore 255-dy
 
 .mousePositiveYSane:    
