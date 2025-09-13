@@ -47,14 +47,15 @@ void hudBorderDraw(void) __z88dk_fastcall {
 }
 
 #define LEVEL_PROGRESS_WIDTH 7
+#define LEVEL_PROGRESS_HEIGHT 9
 
 void hudKillsDraw(void) __z88dk_fastcall {
-  word level = (displayedStats.killsInLevel * LEVEL_PROGRESS_WIDTH) / displayedStats.maxKillsInLevel;
-  if(level > LEVEL_PROGRESS_WIDTH) {
+  word level = (displayedStats.killsInLevel * LEVEL_PROGRESS_HEIGHT) / displayedStats.maxKillsInLevel;
+  if(level > LEVEL_PROGRESS_HEIGHT) {
     return;
   }
   
-  byte dividerY = 14-(level << 1) + 3;
+  byte dividerY = 18-(level << 1);
   layer2circleFill(7, 3, 3, HUD_FILL_DARK, HUD_FILL_LIGHT, dividerY);
   
   int res = displayedStats.maxKillsInLevel - displayedStats.killsInLevel;

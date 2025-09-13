@@ -263,7 +263,7 @@ static const byte *corners[] = {
 void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) __z88dk_callee {
   const byte *widths = corners[radius-1];
   word mid = x + radius;
-  word ey = y + (radius << 1) - 1;
+  word ey = y + (radius << 1);
   for(word c = 0; c != radius; ++c) {
     word w = *(widths+c);
     word l = mid-w;
@@ -273,4 +273,6 @@ void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBott
     Y = ey-c;
     layer2HorizonalLine(l, Y, W, (Y>dividerY) ? colorBottom : colorTop);
   }
+  word Y = y+radius;
+  layer2HorizonalLine(x, Y, radius << 1, (Y>dividerY) ? colorBottom : colorTop);
 }
