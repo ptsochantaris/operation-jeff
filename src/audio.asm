@@ -27,64 +27,93 @@ _aySetMixer:
     push bc
     ld a, 7
     ld bc, $fffd
-    out(c), a
+    out(c), a ; b = current AY7 register
 
-    ld a, 1
-
-    ld b, l ; channel
-aySetMixerShiftLoop:
-    RLCA
-    djnz aySetMixerShiftLoop
-
-    ld (aySetMixerToneNo+1), a
-    cpl
-    ld (aySetMixerToneYes+1), a
-    RLCA
-    RLCA
-    RLCA
-    ld (aySetMixerNoiseYes+1), a
-    cpl
-    ld (aySetMixerNoiseNo+1), a
+    ld a, l ; channel number in L
+    or a
+    jp nz, ayChannel2
+    ld d, 1 ; d = 0000 0001
+    jp ayChannelDone
+.ayChannel2:
+    dec a
+    jp nz, ayChannel3
+    ld d, 2 ; d = 0000 0010
+    jp ayChannelDone
+.ayChannel3:
+    ld d, 4 ; d = 0000 0100    
+.ayChannelDone
 
     ld bc, $fffd
     in a, (c) ; a = existing
-    pop bc
+    pop bc ; c = tone parameter
     ld b, a ; b = existing
+
+    ; tone
 
     ld a, c ; tone set?
     or a
+    jp nz, aySetMixerToneYes
+
+    ; no tone
     ld a, b ; a = existing
-    jp z, aySetMixerToneNo
-aySetMixerToneYes:
-    and 0
+    or d ; set channel bit (d = 1 << channel)
     jp aySetMixerToneDone
-aySetMixerToneNo:
-    or 0
-aySetMixerToneDone:
-    ld b, a; b = existing
+
+.aySetMixerToneYes:
+    ld a, d ; a = 1 << channel
+    cpl ; a = ^(1 << channel)
+    and b ; cleared channel bit
+
+.aySetMixerToneDone:
+    ld b, a ; b = updated 0000 0TTT (one of T is now set or cleared)
+
+    ; move 3 places up and do the same for the noise flag
+    ld a, d ; a = 1 << channel
+    add a
+    add a
+    add a
+    ld d, a ; d = 1 << (channel + 3)
+
+    ; noise
 
     ld a, e ; noise set?
     or a
-    ld a, b ; a = existing
-    jp z, aySetMixerNoiseNo
-aySetMixerNoiseYes:
-    and 0
+    jp nz, aySetMixerNoiseYes
+
+    ; no noise
+    ld a, b ; a = existing (0000 0TTT)
+    or d ; set channel+3 bit (d = (1 << channel + 3))
     jp aySetMixerNoiseDone
-aySetMixerNoiseNo:
-    or 0
-aySetMixerNoiseDone:
+
+.aySetMixerNoiseYes:
+    ld a, d ; a = (1 << channel + 3)
+    cpl ; invert
+    and b ; cleared channel+3 bit
+
+.aySetMixerNoiseDone:
     ld bc, $bffd
-    out(c), a
+    out(c), a ; a = updated 00NN NTTT (one of N is now set or cleared)
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 0       \__________     single decay then off
+; 4       /|_________     single attack then off
+; 8       \|\|\|\|\|\     repeated decay
+; 10      \/\/\/\/\/\     repeated decay-attack
+;           _________
+; 11      \|              single decay then hold
+; 12      /|/|/|/|/|/     repeated attack
+;          __________
+; 13      /               single attack then hold
+; 14      /\/\/\/\/\/     repeated attack-decay
 
 PUBLIC _aySetEnvelope
 _aySetEnvelope:
     pop hl ; address
     pop de ; duration: 0 - 65535
-    ex (sp), hl ; type: 0 - 15
+    ex (sp), hl ; type: 0 - 14
 
+    ; ay register 11
     ld bc, $fffd
     ld a, 11
     out (c), a
@@ -93,6 +122,7 @@ _aySetEnvelope:
     ld a, e ; duration low
     out(c), a
 
+    ; ay register 12
     ld b, $ff
     ld a, 12
     out (c), a
@@ -101,6 +131,7 @@ _aySetEnvelope:
     ld a, d ; duration high
     out(c), a
 
+    ; ay register 13
     ld b, $ff
     ld a, 13
     out (c), a
@@ -109,16 +140,6 @@ _aySetEnvelope:
     ld a, l ; type
     out(c), a
 
-    ;0       \__________     single decay then off
-    ;4       /|_________     single attack then off
-    ;8       \|\|\|\|\|\     repeated decay
-    ;10      \/\/\/\/\/\     repeated decay-attack
-    ;          _________
-    ;11      \|              single decay then hold
-    ;12      /|/|/|/|/|/     repeated attack
-    ;         __________
-    ;13      /               single attack then hold
-    ;14      /\/\/\/\/\/     repeated attack-decay
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -140,12 +161,16 @@ _aySetNoise:
 
 PUBLIC _ayChipSelect ; L: chip 0 - 2
 _ayChipSelect:
-    ld a, 3 ; first AY on both channels
-    sub l
-    or $fc
+    ; L = chip (0-2)  -> 1PQ1 11XX (P = left on, Q = right on)
+    ; 0000 0000 (AY1) -> 1111 1111 (XX = 3)
+    ; 0000 0001 (AY2) -> 1111 1110 (XX = 2)
+    ; 0000 0002 (AY3) -> 1111 1101 (XX = 1)
+
+    ld a, l
+    cpl
+
     ld bc, $fffd
     out(c), a
-
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -155,19 +180,23 @@ _aySetPitch:
     pop hl ; address
     pop de ; pitch: 0 - 4095
     ex (sp), hl ; channel on l, address back on stack
+
     sla l ; reg1 = channel x 2
 
     ld a, l
     ld bc, $fffd
     out(c), a ; reg1 index
+
     ld a, e
     ld b, $bf
     out(c), a ; pitch low byte
 
-    inc l ; next reg
+
     ld a, l
+    inc a ; reg 2
     ld b, $ff
     out(c), a ; reg 2 index
+
     ld a, d
     and $F
     ld b, $bf
