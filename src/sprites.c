@@ -1,10 +1,5 @@
 #include "resources.h"
 
-void hideSprite(byte index) __z88dk_fastcall {
-  ZXN_NEXTREGA(0x34, index); // sprite index
-  ZXN_NEXTREG(0x38, 0); // invisible
-}
-
 void setSpriteGameClipping(void) __z88dk_fastcall {
   const byte gameClipBytes[] = {8,159,16,255};
   writeNextReg(0x19, gameClipBytes, 4);

@@ -6,6 +6,7 @@ void writeNextReg(byte reg, const char *bytes, byte len) __preserves_regs(iyh,iy
 int random16(void) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;
 
 void updateSprite(struct sprite_info *restrict s) __preserves_regs(iyh,iyl) __z88dk_fastcall;
+void hideSprite(byte index) __preserves_regs(b,c,d,e,h,iyh,iyl) __z88dk_fastcall;
 
 void selectPalette(byte paletteMask) __preserves_regs(b,c,d,e,h,iyh,iyl) __z88dk_fastcall;
 void layer2Plot(word x, byte y, byte color) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;

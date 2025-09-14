@@ -10,7 +10,6 @@ typedef struct sprite_info {
 };
 
 void loadSprites(void) __z88dk_fastcall;
-void hideSprite(byte index) __z88dk_fastcall;
 void setSpriteGameClipping(void) __z88dk_fastcall;
 void setSpriteMenuClipping(void) __z88dk_fastcall;
 

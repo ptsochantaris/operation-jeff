@@ -5,6 +5,15 @@ _textBuf: DS 100
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+PUBLIC _hideSprite
+_hideSprite:
+    ld a, l ; sprite index
+    nextreg $34, a
+    nextreg $38, 0 ; invisible
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _scrollTilemap
 _scrollTilemap:
     pop hl ; address
