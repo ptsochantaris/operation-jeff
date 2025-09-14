@@ -92,7 +92,7 @@ void gameOverLoop(void) __z88dk_fastcall {
       }
       keyDown = 1;
 
-      if(letter == 8) {
+      if(letter == '0' && keyboardShiftPressed) {
         if(hiScoreBufPos > 0) {
           hiScoreBuf[--hiScoreBufPos] = ' ';
         }

@@ -42,7 +42,6 @@
 #include "copper.h"
 #include "music.h"
 #include "files.h"
-#include "keyboard.h"
 #include "asm-backed.h"
 
 // z88dk index: https://github.com/z88dk/z88dk/blob/master/doc/ZXSpectrumZSDCCnewlib_GettingStartedGuide.md

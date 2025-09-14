@@ -1,14 +1,15 @@
 SECTION PAGE_28
 ORG 0
 
-PUBLIC _keyboardLookup
-_keyboardLookup:
-    DEFB '1', '2', '3', '4', '5', '0', '9', '8', '7', '6'
-    DEFB 'Q', 'W', 'E', 'R', 'T', 'P', 'O', 'I', 'U', 'Y'
-    DEFB 'A', 'S', 'D', 'F', 'G',  13, 'L', 'K', 'J', 'H'
-    DEFB   1, 'Z', 'X', 'C', 'V', ' ',   2, 'M', 'N', 'B'
+PUBLIC keyboardLookup
+keyboardLookup:
+    DB '1', '2', '3', '4', '5', '0', '9', '8', '7', '6'
+    DB 'Q', 'W', 'E', 'R', 'T', 'P', 'O', 'I', 'U', 'Y'
+    DB 'A', 'S', 'D', 'F', 'G',  13, 'L', 'K', 'J', 'H'
+    DB   1, 'Z', 'X', 'C', 'V', ' ',   2, 'M', 'N', 'B'
+    DB 0
 
-    DS 16 ; to get to ISR address
+    DS 15
 
 GLOBAL mouseHandler
 
