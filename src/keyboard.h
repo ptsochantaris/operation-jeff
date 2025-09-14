@@ -3,6 +3,9 @@
 
 #include "types.h"
 
+extern byte keyboardShiftPressed;
+extern byte keyboardSymbolShiftPressed;
+
 byte readKeyboardLetter(void) __z88dk_fastcall;
 
 #endif

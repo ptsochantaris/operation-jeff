@@ -8,9 +8,7 @@ _keyboardLookup:
     DEFB 'A', 'S', 'D', 'F', 'G',  13, 'L', 'K', 'J', 'H'
     DEFB   1, 'Z', 'X', 'C', 'V', ' ',   2, 'M', 'N', 'B'
 
-PUBLIC _keyboardPorts
-_keyboardPorts:
-    DEFW $f7fe, $effe, $fbfe, $dffe, $fdfe, $bffe, $fefe, $7ffe
+    DS 16 ; to get to ISR address
 
 GLOBAL mouseHandler
 

@@ -1,9 +1,5 @@
 #include "resources.h"
 
-byte isShifted(void) __z88dk_fastcall {
-  return (z80_inp(0xfefe) & 1) == 0;
-}
-
 void nextLevel(byte gameStart) __z88dk_fastcall {
   byte previousLevel = currentStats.level;
 
@@ -50,6 +46,26 @@ void gameMode(void) __z88dk_fastcall {
   mouseReset();
 }
 
+void pauseKeys(byte key) __z88dk_fastcall {
+  if(keyboardSymbolShiftPressed && key >= 48 && key < 58) {
+    if(key=='0') {
+      key = 8;
+    } else {
+      key -= 50;
+    }
+    if(keyboardShiftPressed) {
+      key += 10;
+      if(key >= LEVEL_COUNT) {
+        key = LEVEL_COUNT - 1;
+      }
+    }
+    currentStats.level = key;
+    nextLevel(0);
+  } else {
+    status("GO");
+  }
+}
+
 byte gameLoop(byte startLevel) __z88dk_fastcall {
   srand(14 + startLevel);
   gameMode();
@@ -71,40 +87,38 @@ byte gameLoop(byte startLevel) __z88dk_fastcall {
       intrinsic_halt();
       ++currentStats.frames;
 
+      byte pressed = readKeyboardLetter();
+
       if(++loopCount == 6) {
         updateStatus();
         loopCount = 0;
 
       } else if(loopCount==3) {
-        byte pressed;
-        pressed = z80_inp(0xfefe);
-        if((pressed & 2) == 0) { // z
+        if(pressed=='Z') {
           mouseState.wheel = 1;
-        }
-        if((pressed & 4) == 0) { // x
+        } else if(pressed=='X') {
           mouseState.wheel = -1;
         }
       }
 
       if(inputDelay) {
         --inputDelay;
-      } else {
-        byte pressed = z80_inp(0xdffe);
-        if((pressed & 1) == 0) { // p
+
+      } else if(pressed) {
+        if(pressed=='P') {
           inputDelay = SMALL_INPUT_DELAY;
-          pause = !pause;
-          status(pause ? "PAUSED" : NULL);
+          pause = 1;
+          status("PAUSE");
+
+        } else if(pressed=='Q') {
+          inputDelay = SMALL_INPUT_DELAY;
+          return 0; // game over
+
+        } else if(pause) {
+          inputDelay = SMALL_INPUT_DELAY;
+          pause = 0;
+          pauseKeys(pressed);
         }
-        #ifdef DEBUG_KEYS
-        byte k = debugKeys();
-        if(k==1) {
-          return 1;
-        } else if(k==2) {
-          currentStats.level = currentStats.level + 1;
-          nextLevel(0);
-          continue;
-        }
-        #endif
       }
 
       updateMouse();
@@ -132,39 +146,3 @@ byte gameLoop(byte startLevel) __z88dk_fastcall {
     }
   }
 }
-
-#ifdef DEBUG_KEYS
-byte debugKeys(void) __z88dk_fastcall {
-  byte pressed = z80_inp(0x7ffe);
-  if((pressed & 1) == 0) { // space
-    inputDelay = SMALL_INPUT_DELAY;
-    return 2;
-  }
-  
-  pressed = z80_inp(0xf7fe);
-  for(byte l=0;l!=6;++l) { // 0...5
-    if((pressed & (1 << l)) == 0) {
-      inputDelay = SMALL_INPUT_DELAY;
-      currentStats.level = isShifted() ? (l + 9) : (l - 1);
-      nextLevel(0);
-      return 0;
-    }
-  }
-
-  pressed = z80_inp(0xeffe);
-  for(byte l=0;l!=5;++l) { // 10...6
-    if((pressed & (1 << l)) == 0) {
-      inputDelay = SMALL_INPUT_DELAY;
-      currentStats.level = isShifted() ? (18 - l) : (8 - l);
-      nextLevel(0);
-      return 0;
-    }
-  }
-
-  //pressed = z80_inp(0xfdfe);
-  //pressed = z80_inp(0xfbfe);
-  //pressed = z80_inp(0xbffe);
-
-  return 0;
-}
-#endif

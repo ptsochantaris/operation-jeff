@@ -120,18 +120,15 @@ byte menuLoop(void) __z88dk_fastcall {
     if(inputDelay) {
       --inputDelay;
     } else {
-      byte pressed = z80_inp(0xdffe);
-      if((pressed & 4) == 0) { // "i"
+      byte pressed = readKeyboardLetter();
+      if(pressed == 'I') {
         inputDelay = SMALL_INPUT_DELAY;
         if(menuInfoMode) {
           setupTitle();
         } else {
           setupInfo();
         }
-      }
-
-      pressed = z80_inp(0xfefe);
-      if((pressed & 8) == 0) { // "c"
+      } else if(pressed == 'C') {
         inputDelay = SMALL_INPUT_DELAY;
         if(menuInfoMode) {
           setupTitle();
