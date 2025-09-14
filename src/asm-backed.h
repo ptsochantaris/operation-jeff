@@ -22,6 +22,8 @@ void scrollLayer2(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee _
 
 void scrollTilemap(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee __smallc;
 
+void stackClear(byte *base, word len) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
+
 void print(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
 void printNoBackground(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
 void printSidewaysNoBackground(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;

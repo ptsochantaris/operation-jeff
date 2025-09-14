@@ -170,3 +170,39 @@ writeNextRegSet:
     NEXTREG 0, a
     djnz writeNextRegLoop
     ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _stackClear
+_stackClear:
+    DI
+
+    pop hl ; return address
+    pop de ; len
+    ex (sp), hl ; base, return address back on stack
+
+    ld (stackClearSp+1), sp
+
+    add hl, de ; add len
+    ld sp, hl ; (final address + 1)
+
+    ld b, 1
+    BSRL de, b ; divide len by two
+
+    ; from: https://www.cpcwiki.eu/index.php/Programming:Filling_memory_with_a_byte
+    ld b, e    ; This method takes advantage of the fact that DJNZ leaves B as 0, which subsequent DJNZs see as 256
+    dec de     ; B = (length/2) MOD 256, so 0 = a 512-byte block
+    inc d      ; D = the number of 512-byte blocks to write, or just = 1 if the length is <512
+
+    ld hl, 0 ; byte to push
+
+.stackClearLoop:
+    push hl
+    djnz stackClearLoop
+    dec d
+    jp nz, stackClearLoop
+
+.stackClearSp:
+    ld SP, 0 ; placeholder
+    EI
+    RET
