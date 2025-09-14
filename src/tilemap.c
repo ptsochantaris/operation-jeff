@@ -37,9 +37,3 @@ void initTilemap(void) __z88dk_fastcall {
   ZXN_WRITE_MMU3(10);
   scrollTilemap(0, 0);
 }
-
-void scrollTilemap(word x, byte y) __z88dk_callee {
-  ZXN_NEXTREGA(47, x >> 8);
-  ZXN_NEXTREGA(48, x & 0xFF);
-  ZXN_NEXTREGA(49, y);
-}

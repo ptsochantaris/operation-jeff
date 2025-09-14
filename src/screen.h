@@ -30,7 +30,5 @@ void fadePaletteDownSlow(byte paletteMask, word numBytes) __z88dk_callee;
 void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte paletteMask) __z88dk_callee;
 
 void loadScreen(const struct LevelInfo *restrict info) __z88dk_fastcall;
-  
-void scrollLayer2(word x, byte y) __z88dk_callee;
 
 #endif

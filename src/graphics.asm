@@ -5,6 +5,40 @@ _textBuf: DS 100
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+PUBLIC _scrollTilemap
+_scrollTilemap:
+    pop hl ; address
+    pop de ; y
+    ex (sp), hl ; x
+
+    ld a, h
+    nextreg 47, a
+    ld a, l
+    nextreg 48, a
+    ld a, e
+    nextreg 49, a
+
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _scrollLayer2
+_scrollLayer2:
+    pop hl ; address
+    pop de ; y
+    ex (sp), hl ; x
+
+    ld a, h
+    nextreg $71, a
+    ld a, l
+    nextreg $16, a
+    ld a, e
+    nextreg $17, a
+
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _zeroPalette
 _zeroPalette:
     call _selectPalette ; index is in L, passed through to this

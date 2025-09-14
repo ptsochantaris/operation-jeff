@@ -171,12 +171,6 @@ void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word n
   dmaMemoryToPort(paletteBuffer, 0x253b, numBytes);
 }
 
-void scrollLayer2(word x, byte y) __z88dk_callee {
-  ZXN_NEXTREGA(0x71, x >> 8);
-  ZXN_NEXTREGA(0x16, x & 0xFF);
-  ZXN_NEXTREGA(0x17, y);
-}
-
 void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }

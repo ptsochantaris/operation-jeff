@@ -14,6 +14,5 @@
 
 void initTilemap(void) __z88dk_fastcall;
 void clearTilemap(void) __z88dk_fastcall;
-void scrollTilemap(word x, byte y) __z88dk_callee;
 
 #endif

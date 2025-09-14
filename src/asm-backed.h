@@ -17,6 +17,9 @@ void setFallbackColour(byte index) __preserves_regs(b,c,d,h,iyh,iyl) __z88dk_fas
 void readColourFromIndex(byte *colour, byte index) __preserves_regs(d,e,iyh,iyl) __z88dk_callee __smallc;
 void writeColourToIndex(const byte *colour, byte index) __preserves_regs(d,e,iyh,iyl) __z88dk_callee __smallc;
 void zeroPalette(byte palette) __preserves_regs(c,d,h,iyh,iyl) __z88dk_fastcall;
+void scrollLayer2(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee __smallc;
+
+void scrollTilemap(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee __smallc;
 
 void print(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
 void printNoBackground(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
