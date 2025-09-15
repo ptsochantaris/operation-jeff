@@ -1,6 +1,6 @@
 #include "resources.h"
 
-void gameOverEffect(void) __z88dk_fastcall {
+static void gameOverEffect(void) __z88dk_fastcall {
   ayChipSelect(0);
 
   aySetEnvelope(0, 0x8000);
@@ -17,7 +17,7 @@ void gameOverEffect(void) __z88dk_fastcall {
 }
 
 static const struct LevelInfo gameOverInfo = FAKE_LEVEL(gameOver);
-void loadGameOverScreen(void) __z88dk_fastcall {
+static void loadGameOverScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 512);
   loadScreen(&gameOverInfo);
   fadePaletteUp(&gameOverInfo.paletteAsset, 512, 1);

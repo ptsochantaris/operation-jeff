@@ -2,7 +2,7 @@
 
 static byte previousMmu1;
 
-void prepareForEsxCall(void) __z88dk_fastcall {
+static void prepareForEsxCall(void) __z88dk_fastcall {
     // disable write-through
     configLayer2(0);
 
@@ -14,7 +14,7 @@ void prepareForEsxCall(void) __z88dk_fastcall {
     errno = 0;
 }
 
-void completedEsxCall(void) __z88dk_fastcall {
+static void completedEsxCall(void) __z88dk_fastcall {
     errno = 0;
 
     // page out ROM

@@ -8,7 +8,7 @@ static byte transition;
 
 #define bonusTime 600
 
-void setBase(byte value) __z88dk_fastcall {
+static void setBase(byte value) __z88dk_fastcall {
     byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
     ZXN_WRITE_MMU3(11);
     *base = value;
@@ -47,7 +47,7 @@ static const byte bonusIndexes[] = {
 };
 #define BONUS_INDEX_COUNT 14
 
-void newRandomTargetType(void) {
+static void newRandomTargetType(void) {
     do {
         byte i = random16() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];

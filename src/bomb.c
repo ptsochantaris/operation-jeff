@@ -47,7 +47,7 @@ void bombsFlashAll(void) __z88dk_fastcall {
 
 #define FIRE_ENERGY 4
 
-void fireIfPossible(void) __z88dk_fastcall {
+static void fireIfPossible(void) __z88dk_fastcall {
     if(cooldown) {
         --cooldown;
         return;
@@ -101,14 +101,14 @@ void resetAllBombs(void) __z88dk_fastcall {
     }
 }
 
-void startBombExplosion(struct bomb *restrict b) {
+static void startBombExplosion(struct bomb *restrict b) {
     b->state = BOMB_STATE_EXPLODING;
     b->sprite.pattern = BOMB_EXPLOSION_FIRST;
     b->sprite.scaleUp = currentStats.extraRangeBombs;
     explodingBombs[explodingBombCount++] = b;
 }
 
-void endBombExplosion(struct bomb *restrict b) {
+static void endBombExplosion(struct bomb *restrict b) {
     b->state = BOMB_STATE_NONE;
     b->sprite.scaleUp = 0;
     byte outcome = b->outcome;

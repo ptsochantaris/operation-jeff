@@ -1,6 +1,6 @@
 #include "resources.h"
 
-void nextLevel(byte gameStart) __z88dk_fastcall {
+static void nextLevel(byte gameStart) __z88dk_fastcall {
   byte previousLevel = currentStats.level;
 
   resetBonuses();
@@ -37,7 +37,7 @@ void nextLevel(byte gameStart) __z88dk_fastcall {
   status(textBuf);
 }
 
-void gameMode(void) __z88dk_fastcall {
+static void gameMode(void) __z88dk_fastcall {
   ayStopAllSound();
   setSpriteGameClipping();
   setGameMouse();
@@ -46,7 +46,7 @@ void gameMode(void) __z88dk_fastcall {
   mouseReset();
 }
 
-void pauseKeys(byte key) __z88dk_fastcall {
+static void pauseKeys(byte key) __z88dk_fastcall {
   if(keyboardSymbolShiftPressed && key >= 48 && key < 58) {
     if(key=='0') {
       key = 8;

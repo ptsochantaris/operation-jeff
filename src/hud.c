@@ -9,34 +9,34 @@
 
 static struct stats displayedStats;
 
-void hudEnergyDraw(void) __z88dk_fastcall {
+static void hudEnergyDraw(void) __z88dk_fastcall {
   byte width = displayedStats.energy >> 2;
   layer2fill(ENERGY_X + 2, 10, width, 2, HUD_GREEN);
   layer2fill(ENERGY_X + 2 + width, 10, 64 - width, 2, HUD_BLACK);
 }
 
 #define RATE_HEIGHT 200
-void hudRateDraw(void) __z88dk_fastcall {
+static void hudRateDraw(void) __z88dk_fastcall {
   byte height = ((displayedStats.fireRate - FIRE_RATE_MIN) * RATE_HEIGHT) / (FIRE_RATE_MAX - FIRE_RATE_MIN);
   word invHeight = RATE_HEIGHT - height;
   layer2fill(RATE_X + 2, RATE_Y + 2, 2, height, HUD_YELLOW);
   layer2fill(RATE_X + 2, RATE_Y + 2 + height, 2, invHeight, HUD_BLUE);
 }
 
-void hudHealthDraw(void) __z88dk_fastcall {
+static void hudHealthDraw(void) __z88dk_fastcall {
   byte width = displayedStats.health >> 2;
   layer2fill(HEALTH_X + 2, 10, width, 2, HUD_RED);
   layer2fill(HEALTH_X + 2 + width, 10, 64 - width, 2, HUD_BLACK);
 }
 
-void hudScoreDraw(void) __z88dk_fastcall {
+static void hudScoreDraw(void) __z88dk_fastcall {
   sprintf(textBuf, "%07lu", displayedStats.score);
   print(textBuf, SCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
   sprintf(textBuf, "%07lu", highScores[0].score);
   print(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
 }
 
-void hudBorderDraw(void) __z88dk_fastcall {
+static void hudBorderDraw(void) __z88dk_fastcall {
   if(displayedStats.invunerableCount) {
     setFallbackColour(5);
   } else if(displayedStats.umbrellaCountdown) {
@@ -49,7 +49,7 @@ void hudBorderDraw(void) __z88dk_fastcall {
 #define LEVEL_PROGRESS_WIDTH 7
 #define LEVEL_PROGRESS_HEIGHT 9
 
-void hudKillsDraw(void) __z88dk_fastcall {
+static void hudKillsDraw(void) __z88dk_fastcall {
   word level = (displayedStats.killsInLevel * LEVEL_PROGRESS_HEIGHT) / displayedStats.maxKillsInLevel;
   if(level > LEVEL_PROGRESS_HEIGHT) {
     return;

@@ -98,7 +98,7 @@ void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_fastcall {
     decompressZX0((byte *)(info->heightmapAsset.resource), heightMap);
 }
 
-void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_callee {
+static void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_callee {
     int vertical = 14;
     int horizontal = 8;
 
@@ -144,7 +144,7 @@ void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_callee {
     }
 }
 
-void growJeff(struct jeff *restrict j) __z88dk_fastcall {
+static void growJeff(struct jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_LANDING;
     j->progress = 0;
     byte maskIndex = random16() % JEFF_SPEED_MASK_COUNT;
@@ -199,7 +199,7 @@ void initJeffs(void) __z88dk_fastcall {
     }
 }
 
-void launchRandomJeff(void) __z88dk_fastcall {
+static void launchRandomJeff(void) __z88dk_fastcall {
     // reverse so the new jeff will grow behind existing ones
     for(struct jeff *j = jeffs + jeffCount - 1; j >= jeffs; --j) {
         if(j->state != JEFF_STATE_NONE) {
@@ -210,18 +210,18 @@ void launchRandomJeff(void) __z88dk_fastcall {
     }
 }
 
-void killJeff(struct jeff *restrict j) __z88dk_fastcall {
+static void killJeff(struct jeff *restrict j) __z88dk_fastcall {
     processJeffKill(j->moveMask);
     j->sprite.pattern = JEFF_DISAPPEAR_FIRST;
     j->state = JEFF_STATE_DISAPPEAR;
 }
 
-void retireJeff(struct jeff *restrict j) __z88dk_fastcall {
+static void retireJeff(struct jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_NONE;
     hideSprite(j->sprite.index);
 }
 
-void jeffEscape(struct jeff *restrict j) __z88dk_fastcall {
+static void jeffEscape(struct jeff *restrict j) __z88dk_fastcall {
     retireJeff(j);
 
     if(currentStats.invunerableCount > 0) {
@@ -243,7 +243,7 @@ void jeffFlashAll(void) __z88dk_fastcall {
     writeColourToIndex(&white, 224);
 }
 
-byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
+static byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
     if(explodingBombCount==0) {
         return 0;
     }
@@ -292,7 +292,7 @@ byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
     return 0;
 }
 
-void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
+static void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
     byte newPattern = ++(j->sprite.pattern);
     byte direction = j->direction;
     setJeffPos(&(j->sprite), direction);
@@ -339,7 +339,7 @@ void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
     }
 }
 
-void jeffStandStep(struct jeff *j) __z88dk_fastcall {
+static void jeffStandStep(struct jeff *j) __z88dk_fastcall {
     switch(j->direction) {
         case JEFF_LEFT:
             j->sprite.pattern = JEFF_SIDE_STAND;
@@ -373,7 +373,7 @@ void jeffStandStep(struct jeff *j) __z88dk_fastcall {
     }
 }
 
-void jeffAppearStep(struct jeff *j) __z88dk_fastcall {
+static void jeffAppearStep(struct jeff *j) __z88dk_fastcall {
     if(++(j->sprite.pattern) > JEFF_APPEAR_LAST) {
         j->state = JEFF_STATE_STAND;
         j->progress = 0;
@@ -381,7 +381,7 @@ void jeffAppearStep(struct jeff *j) __z88dk_fastcall {
     }
 }
 
-void resetLanding(void) __z88dk_fastcall {
+static void resetLanding(void) __z88dk_fastcall {
     hideSprite(landing.sprite.index);
     landing.active = 0;
 }
@@ -407,7 +407,7 @@ void jeffKillAll(byte retireImmediately) __z88dk_fastcall {
     }
 }
 
-void holdStep(void) __z88dk_fastcall {
+static void holdStep(void) __z88dk_fastcall {
     word v = currentStats.holdCount--;
     if(v == 1) {
         status(NULL);

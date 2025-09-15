@@ -26,7 +26,7 @@ static const struct LevelInfo endGameInfo = FAKE_LEVEL(endGame);
 
 #define center 160
 
-void waitForClick(void) __z88dk_fastcall {
+static void waitForClick(void) __z88dk_fastcall {
   while(1) {
     intrinsic_halt();
     updateMouse();
@@ -37,7 +37,7 @@ void waitForClick(void) __z88dk_fastcall {
   }
 }
 
-void displayStats(word top, word x, byte level, word color, byte twoColumns) {
+static void displayStats(word top, word x, byte level, word color, byte twoColumns) {
   word originalTop = top;
 
   applyHudPalette();
@@ -85,13 +85,13 @@ void displayStats(word top, word x, byte level, word color, byte twoColumns) {
   printNoBackground(textBuf, x, top, color);
 }
 
-void wait(byte time) __z88dk_fastcall {
+static void wait(byte time) __z88dk_fastcall {
   for(byte f=0;f!=time;f++) {
     intrinsic_halt();
   }
 }
 
-void endOfLevelSequence(const struct LevelInfo levelInfo) {
+static void endOfLevelSequence(const struct LevelInfo levelInfo) {
   stopDma();
   dmaResetStatus(); // so we can track playback below
   effectSting();
