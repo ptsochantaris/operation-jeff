@@ -6,6 +6,8 @@ extern byte keyboardSymbolShiftPressed;
 
 byte readKeyboardLetter(void) __preserves_regs(iyh,iyl) __z88dk_fastcall;
 
+void setHudBackground(word color) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;
+
 void decompressZX0(byte *src, byte *dst) __z88dk_callee __smallc;
 void writeNextReg(byte reg, const char *bytes, byte len) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
 int random16(void) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;

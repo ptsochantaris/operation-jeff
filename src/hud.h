@@ -18,7 +18,6 @@
 extern byte textBuf[];
 
 void initHud(byte level) __z88dk_fastcall;
-void setHudBackground(word color) __z88dk_fastcall;
 void applyHudPalette(void) __z88dk_fastcall;
 void updateStatsIfNeeded(void) __z88dk_fastcall;
 

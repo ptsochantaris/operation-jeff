@@ -91,6 +91,23 @@ _readColourFromIndex:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+PUBLIC _setHudBackground
+_setHudBackground:
+    nextreg $43, $11  ; // select palette 0001 0001 and enable ulanext flag
+
+    nextreg 64, 249 ; REG_PALETTE_INDEX <- HUD_BLACK
+
+    ld a, l
+    nextreg 68, a ; REG_PALETTE_VALUE_16
+
+    ld a, h
+    and 1
+    nextreg 68, a ; REG_PALETTE_VALUE_16
+
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _writeColourToIndex
 _writeColourToIndex:
     pop hl ; address
