@@ -53,7 +53,7 @@ _readKeyboardLetter:
     jp nz, notSymbolShifted
     ld (_keyboardSymbolShiftPressed), a
 .notSymbolShifted:
-    cp 48
+    cp 12
     jp c, notLetter
     ld l, a
 .notLetter:

@@ -202,14 +202,14 @@ setPaletteCommit:
     ; stack: [green][red][address]
 
 .setPaletteCommitGreen:
-    ld a, 0
+    ld a, 0 ; placeholder
     rlca
     rlca ; 000GGG00
     or h ; 000GGGBB
     ld h, a
 
 .setPaletteCommitRed:
-    ld a, 0
+    ld a, 0 ; placeholder
     rrca
     rrca
     rrca ; RRR00000

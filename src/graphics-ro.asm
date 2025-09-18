@@ -1,6 +1,6 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL _paletteBuffer, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, _font_data, layer2SlicePlot, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg
+GLOBAL _paletteBuffer, _font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2SlicePlot, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg
 
 PUBLIC _setPaletteCeiling
 _setPaletteCeiling:
