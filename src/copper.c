@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 const static word prog[] = {
     CU_WAIT(20,0),  

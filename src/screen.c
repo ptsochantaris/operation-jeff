@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 // used in places where we define clipping boundaries
 const byte clipBytes[] = {0,159,0,255};

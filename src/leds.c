@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 static const byte ulaPalette[] = {
   COLOR9(1, 1, 1),

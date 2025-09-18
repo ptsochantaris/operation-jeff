@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 #define BOMB_FIRST 25
 #define BOMB_LAST 29

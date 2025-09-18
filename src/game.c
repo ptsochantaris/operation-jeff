@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 static void nextLevel(byte gameStart) __z88dk_fastcall {
   byte previousLevel = currentStats.level;

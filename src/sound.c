@@ -1,5 +1,4 @@
-#include <z80.h>
-#include "sound.h"
+#include "base.h"
 
 // Precalc'ed AY pitches for 3.5 MHz (218750 / note drequency)
 static const word notePitches[] = {

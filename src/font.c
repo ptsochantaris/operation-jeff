@@ -1,6 +1,6 @@
 // Created from bdf2c Version 4, (c) 2009, 2010 by Lutz Sammer
 
-#include "resources.h"
+#include "base.h"
 
 #define ________ 0x00
 #define _______X 0x01

@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 void playSample(struct ResourceInfo *restrict info, byte speed, byte loop) __z88dk_callee {
   ZXN_WRITE_MMU1(info->page);

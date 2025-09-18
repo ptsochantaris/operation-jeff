@@ -1,19 +1,7 @@
-#ifndef _ASM_BACKED_H_
-#define _ASM_BACKED_H_
+#ifndef _GRAPHICS_H_
+#define _GRAPHICS_H_
 
-extern byte keyboardShiftPressed;
-extern byte keyboardSymbolShiftPressed;
-
-byte readKeyboardLetter(void) __preserves_regs(iyh,iyl) __z88dk_fastcall;
-
-void setHudBackground(word color) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;
-
-void decompressZX0(byte *src, byte *dst) __z88dk_callee __smallc;
-void writeNextReg(byte reg, const char *bytes, byte len) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
-int random16(void) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;
-
-void updateSprite(struct sprite_info *restrict s) __preserves_regs(iyh,iyl) __z88dk_fastcall;
-void hideSprite(byte index) __preserves_regs(b,c,d,e,h,iyh,iyl) __z88dk_fastcall;
+#include "types.h"
 
 void selectPalette(byte paletteMask) __preserves_regs(b,c,d,e,h,iyh,iyl) __z88dk_fastcall;
 void layer2Plot(word x, byte y, byte color) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
@@ -27,9 +15,12 @@ void writeColourToIndex(const byte *colour, byte index) __preserves_regs(d,e,iyh
 void zeroPalette(byte palette) __preserves_regs(c,d,h,iyh,iyl) __z88dk_fastcall;
 void scrollLayer2(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee __smallc;
 
+void updateSprite(struct sprite_info *restrict s) __preserves_regs(iyh,iyl) __z88dk_fastcall;
+void hideSprite(byte index) __preserves_regs(b,c,d,e,h,iyh,iyl) __z88dk_fastcall;
+
 void scrollTilemap(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee __smallc;
 
-void stackClear(byte *base, word len) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
+void setHudBackground(word color) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;
 
 void print(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
 void printNoBackground(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;

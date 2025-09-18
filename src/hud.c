@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 #define RATE_X 8
 #define ENERGY_X 34

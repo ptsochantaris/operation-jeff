@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 /* Song isn't nice enough - prefer to overlay with ambiance effect instead, but keeping code here for future use
 static const struct Note openingSong[] = {

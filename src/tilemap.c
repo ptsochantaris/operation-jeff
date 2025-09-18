@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 static const byte tilemapPalette[] = {
   COLOR9(0, 0, 0), // 0 All black

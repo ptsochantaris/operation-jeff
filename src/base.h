@@ -1,5 +1,5 @@
-#ifndef _RESOURCES_H_
-#define _RESOURCES_H_
+#ifndef _BASE_H_
+#define _BASE_H_
 
 #include <errno.h>
 #include <stdint.h>
@@ -42,7 +42,11 @@
 #include "copper.h"
 #include "music.h"
 #include "files.h"
-#include "asm-backed.h"
+#include "utility.h"
+#include "graphics.h"
+#include "keyboard.h"
+#include "zx0.h"
+#include "audio.h"
 
 // z88dk index: https://github.com/z88dk/z88dk/blob/master/doc/ZXSpectrumZSDCCnewlib_GettingStartedGuide.md
 

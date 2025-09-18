@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 __at(tilemapDefinitionsAddress) const byte tiles[] = { 
     // 0

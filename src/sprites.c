@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 void setSpriteGameClipping(void) __z88dk_fastcall {
   const byte gameClipBytes[] = {8,159,16,255};

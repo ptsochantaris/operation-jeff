@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 #define starCount 40
 

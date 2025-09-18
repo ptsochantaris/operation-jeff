@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 #define DAMAGE 25
 

@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base.h"
 
 static void gameOverEffect(void) __z88dk_fastcall {
   ayChipSelect(0);
