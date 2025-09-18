@@ -18,7 +18,7 @@ static void gameOverEffect(void) __z88dk_fastcall {
 
 static const struct LevelInfo gameOverInfo = FAKE_LEVEL(gameOver);
 static void loadGameOverScreen(void) __z88dk_fastcall {
-  fadePaletteDown(1);
+  fadePaletteDown(1, 1, 0);
   loadScreen(&gameOverInfo);
   fadePaletteUp(&gameOverInfo.paletteAsset, 256, 1);
 }

@@ -14,7 +14,7 @@ static void nextLevel(byte gameStart) __z88dk_fastcall {
     endOfLeveLoop(newLevel);
   }
 
-  fadePaletteDown(1);
+  fadePaletteDown(1, 1, 0);
 
   gameMode();
 

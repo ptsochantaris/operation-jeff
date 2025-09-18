@@ -102,7 +102,7 @@ static void endOfLevelSequence(const struct LevelInfo levelInfo) {
   bombsFlashAll();
 
   wait(20);
-  fadePaletteDownSlow(1);
+  fadePaletteDown(1, 4, 1);
 
   resetAllBombs();
   jeffKillAll(1);

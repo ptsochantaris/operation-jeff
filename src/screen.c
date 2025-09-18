@@ -97,7 +97,7 @@ void flashPaletteDown(void) __z88dk_fastcall {
   }
 }
 
-void _fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette) __z88dk_callee {
+void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette) __z88dk_callee {
   stashPalette(paletteMask);
 
   for(byte shift=8; shift > 0; --shift) {
@@ -112,14 +112,6 @@ void _fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette
       intrinsic_halt();
     }
   }
-}
-
-void fadePaletteDown(byte paletteMask) __z88dk_fastcall {
-  _fadePaletteDown(paletteMask, 1, 0);
-}
-
-void fadePaletteDownSlow(byte paletteMask) __z88dk_fastcall {
-  _fadePaletteDown(paletteMask, 4, 1);
 }
 
 void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word numColours, byte paletteMask) __z88dk_callee {
