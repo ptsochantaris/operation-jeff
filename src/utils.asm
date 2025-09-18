@@ -1,5 +1,8 @@
 SECTION code_compiler
 
+PUBLIC _textBuf
+_textBuf: DS 100
+
 PUBLIC _mouseX
 _mouseX: DW 0
 
