@@ -8,22 +8,22 @@ static byte shouldFadeTitle = 0;
 static const struct LevelInfo titleInfo = FAKE_LEVEL(title);
 void loadTitleScreen(void) __z88dk_fastcall {
   if(shouldFadeTitle) {
-    fadePaletteDown(1, 512);
+    fadePaletteDown(1);
   } else {
     zeroPalette(1);
   }
   loadScreen(&titleInfo);
   if(shouldFadeTitle) {
-    fadePaletteUp(&titleInfo.paletteAsset, 512, 1);
+    fadePaletteUp(&titleInfo.paletteAsset, 256, 1);
   } else {
-    uploadPalette(&titleInfo.paletteAsset, 512, 1);
+    uploadPalette(&titleInfo.paletteAsset, 256, 1);
     shouldFadeTitle = 1;
   }
 }
 
 static const struct LevelInfo infoInfo = FAKE_LEVEL(info);
 void loadInfoScreen(void) __z88dk_fastcall {
-  fadePaletteDown(1, 512);
+  fadePaletteDown(1);
   loadScreen(&infoInfo);
   fadePaletteUp(&infoInfo.paletteAsset, 512, 1);
 }

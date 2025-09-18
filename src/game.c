@@ -14,7 +14,7 @@ static void nextLevel(byte gameStart) __z88dk_fastcall {
     endOfLeveLoop(newLevel);
   }
 
-  fadePaletteDown(1, 512);
+  fadePaletteDown(1);
 
   gameMode();
 
@@ -27,7 +27,7 @@ static void nextLevel(byte gameStart) __z88dk_fastcall {
 
   effectSiren();
 
-  fadePaletteUp(&(info.paletteAsset), nonHudPaletteByteCount, 1);
+  fadePaletteUp(&(info.paletteAsset), nonHudPaletteColourCount, 1);
 
   selectPalette(2);
   writeColourToIndex(info.jeffDark, 128);

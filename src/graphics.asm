@@ -714,3 +714,166 @@ _printAttributes:
     inc bc ; next char
     add de, 4 ; move X to the right
     jp printAttributesLoop
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+GLOBAL _paletteBuffer
+
+PUBLIC _setPaletteCeiling
+_setPaletteCeiling:
+    pop bc ; address
+    pop hl ; ceiling in L
+    pop de ; colour count in DE (2 bytes per colour)
+    push bc ; return address
+
+    ld iy, _paletteBuffer
+
+    nextreg 64, 0 ; REG_PALETTE_INDEX
+
+    ld b, e ; 8 bit loop, we keep D for later
+    
+.setPaletteCeilingLoop:
+    ld c, (iy)
+    inc iy
+
+    ld a, c     ; RRRGGGBB
+    rlca
+    rlca
+    rlca        ; GGGBBRRR
+    and 7       ; 00000RRR
+
+    cp l
+    jr c, setPaletteCeilingRedBelowCeiling
+    ld a, l
+.setPaletteCeilingRedBelowCeiling:
+    ld (setPaletteCommitRed+1), a
+
+    ld a, c     ; RRRGGGBB
+    rrca
+    rrca        ; BBRRRGGG
+    and 7       ; 00000GGG
+
+    cp l
+    jr c, setPaletteCeilingGreenBelowCeiling
+    ld a, l
+.setPaletteCeilingGreenBelowCeiling:
+    ld (setPaletteCommitGreen+1), a
+
+    ld a, c     ; RRRGGGBB
+    rlca        ; RRGGGBBR
+    and 6       ; 00000BB0
+    ld c, a
+
+    ld a, (iy)  ; XXXXXXXB
+    inc iy
+    and 1       ; 0000000B
+    or c        ; 00000BBB
+
+    cp l
+    jr c, setPaletteCeilingBlueBelowCeiling
+    ld a, l
+.setPaletteCeilingBlueBelowCeiling:
+
+    call setPaletteCommit
+    djnz setPaletteCeilingLoop
+
+    halt
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _setPaletteFloor
+_setPaletteFloor:
+    pop bc ; address
+    pop hl ; ceiling in L
+    pop de ; colour count in DE (2 bytes per colour)
+    push bc ; return address
+
+    ld iy, _paletteBuffer
+
+    nextreg 64, 0 ; REG_PALETTE_INDEX
+
+    ld b, e ; 8 bit loop, we keep D for later
+    
+.setPaletteFloorLoop:
+    ld c, (iy)
+    inc iy
+
+    ld a, c     ; RRRGGGBB
+    rlca
+    rlca
+    rlca        ; GGGBBRRR
+    and 7       ; 00000RRR
+
+    cp l
+    jr nc, setPaletteFloorRedAboveFloor
+    ld a, l
+.setPaletteFloorRedAboveFloor:
+    ld (setPaletteCommitRed+1), a
+
+    ld a, c     ; RRRGGGBB
+    rrca
+    rrca        ; BBRRRGGG
+    and 7       ; 00000GGG
+
+    cp l
+    jr nc, setPaletteFloorGreenAboveFloor
+    ld a, l
+.setPaletteFloorGreenAboveFloor:
+    ld (setPaletteCommitGreen+1), a
+
+    ld a, c     ; RRRGGGBB
+    rlca        ; RRGGGBBR
+    and 6       ; 00000BB0
+    ld c, a
+
+    ld a, (iy)  ; XXXXXXXB
+    inc iy
+    and 1       ; 0000000B
+    or c        ; 00000BBB
+
+    cp l
+    jr nc, setPaletteFloorBlueAboveFloor
+    ld a, l
+.setPaletteFloorBlueAboveFloor:
+
+    call setPaletteCommit
+    djnz setPaletteFloorLoop
+
+    halt
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+setPaletteCommit:
+    ld h, a ; 00000BBB - blue expected in A
+
+    and 1
+    ld d, a ; 0000000B
+
+    ld a, h ; 00000BBB
+    rrca    ; B00000BB
+    and 3   ; 000000BB
+    ld h, a
+
+    ; d = 0000000B, h = 000000BB
+    ; stack: [green][red][address]
+
+.setPaletteCommitGreen:
+    ld a, 0
+    rlca
+    rlca ; 000GGG00
+    or h ; 000GGGBB
+    ld h, a
+
+.setPaletteCommitRed:
+    ld a, 0
+    rrca
+    rrca
+    rrca ; RRR00000
+    or h ; RRRGGGBB
+
+    nextreg 68, a ; REG_PALETTE_VALUE_16 ; RRRGGGBB
+    ld a, d
+    nextreg 68, a ; REG_PALETTE_VALUE_16 ; 0000000B
+    ret

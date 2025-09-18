@@ -102,7 +102,7 @@ static void endOfLevelSequence(const struct LevelInfo levelInfo) {
   bombsFlashAll();
 
   wait(20);
-  fadePaletteDownSlow(1, 512);
+  fadePaletteDownSlow(1);
 
   resetAllBombs();
   jeffKillAll(1);
@@ -117,7 +117,7 @@ static void endOfLevelSequence(const struct LevelInfo levelInfo) {
   endOfLeveDrone();
   status(NULL);
 
-  fadePaletteUp(&levelInfo.paletteAsset, 512, 1);
+  fadePaletteUp(&levelInfo.paletteAsset, 256, 1);
 }
 
 void endOfLeveLoop(byte level) __z88dk_fastcall {
