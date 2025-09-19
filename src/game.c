@@ -105,7 +105,12 @@ byte gameLoop(byte startLevel) __z88dk_fastcall {
         --inputDelay;
 
       } else if(pressed) {
-        if(pressed=='P') {
+        if(pause) {
+          inputDelay = SMALL_INPUT_DELAY;
+          pause = 0;
+          pauseKeys(pressed);
+          
+        } else if(pressed=='P') {
           inputDelay = SMALL_INPUT_DELAY;
           pause = 1;
           status("PAUSE");
@@ -113,11 +118,6 @@ byte gameLoop(byte startLevel) __z88dk_fastcall {
         } else if(pressed=='Q') {
           inputDelay = SMALL_INPUT_DELAY;
           return 0; // game over
-
-        } else if(pause) {
-          inputDelay = SMALL_INPUT_DELAY;
-          pause = 0;
-          pauseKeys(pressed);
         }
       }
 
