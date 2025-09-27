@@ -14,6 +14,9 @@ _mouseHwB: DW 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+PUBLIC joystickButtons
+joystickButtons: DB 0
+
 lastMouseDirectionX: DB 0 ; (!0)=left 0=right
 lastMouseDirectionY: DB 0 ; (!0)=up 0=down
 
@@ -95,7 +98,7 @@ mouseHandler:
     ; potential spike
     ld a, (lastMouseDirectionY)
     or a ; was previous direction up (non-zero)?
-    ret z ; if not, it's a phase spike
+    jp z, joystickHorizontal ; if not, it's a phase spike
     ld a, 255 ; correct for wrap spike
     sub l ; restore 255-dy
 
@@ -105,7 +108,7 @@ mouseHandler:
     add hl, a ; Y + dy
     ld (_mouseY), hl
     ld (lastMouseDirectionY), a ; a will be non zero here
-    RET
+    jp joystickHorizontal
 
 .mousePositiveY:
     cp 99
@@ -114,7 +117,7 @@ mouseHandler:
     ; potential spike
     ld a, (lastMouseDirectionY)
     or a ; was previous direction down (zero)?
-    ret nz; if not, it's a phase spike
+    jp nz, joystickHorizontal; if not, it's a phase spike
     ld a, 255 ; correct for wrap spike
     sub l ; restore 255-dy
 
@@ -125,6 +128,50 @@ mouseHandler:
     ld (lastMouseDirectionY), a
     sbc hl, de ; currentY - dy
     ld (_mouseY), hl
+
+.joystickHorizontal:
+    ld bc, $001F
+    in a, (c)
+    rra
+    jr c, joystickRight
+    rra
+    jp nc, joystickVertical
+.joystickLeft:
+    ld de, (_mouseX)
+    add de, -4
+    ld (_mouseX), de
+    jp joystickVertical
+.joystickRight:
+    ld de, (_mouseX)
+    add de, 4
+    ld (_mouseX), de
+    rra ; no check for left
+
+.joystickVertical:
+    rra
+    jr c, joystickDown
+    rra
+    jp nc, joystickFire
+.joystickUp:
+    ld de, (_mouseY)
+    add de, -4
+    ld (_mouseY), de
+    jp joystickFire
+.joystickDown:
+    ld de, (_mouseY)
+    add de, 4
+    ld (_mouseY), de
+    rra ; no check for up
+
+.joystickFire:
+    ld(joystickButtons), a
+    and 7   ; 00000FFF
+    ret z
+
+    ; one of the fire buttons was pressed
+    ld a, (_mouseHwB)
+    and $FD ; xxxxxx0x - pretend left button pressed
+    ld (_mouseHwB), a
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

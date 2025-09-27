@@ -1,6 +1,6 @@
 SECTION code_compiler
 
-GLOBAL keyboardLookup
+GLOBAL keyboardLookup, joystickButtons
 
 PUBLIC _keyboardShiftPressed
 _keyboardShiftPressed: 
@@ -10,11 +10,19 @@ PUBLIC _keyboardSymbolShiftPressed
 _keyboardSymbolShiftPressed:
     DB 0
 
+.readKeyboardStart:
+    ld l, 'P'
+    ret
+
 PUBLIC _readKeyboardLetter
 _readKeyboardLetter:
+    ld a, (joystickButtons)
+    and 8
+    jr nz, readKeyboardStart
+
     ld de, keyboardLookup
 
-    xor a
+    ; a = 0
     ld l, a
     ld (_keyboardShiftPressed), a
     ld (_keyboardSymbolShiftPressed), a
