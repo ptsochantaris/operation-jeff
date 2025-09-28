@@ -11,18 +11,16 @@ keyboardLookup:
 
     DS 15
 
-GLOBAL mouseHandler
+GLOBAL inputHandler
 
 isr:
     push af
     push bc
     push de
     push hl
-    push iy
 
-    call mouseHandler
+    call inputHandler
 
-    pop iy
     pop hl
     pop de
     pop bc

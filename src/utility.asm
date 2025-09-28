@@ -17,11 +17,13 @@ _mouseHwB: DW 2
 PUBLIC joystickButtons
 joystickButtons: DB 0
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 lastMouseDirectionX: DB 0 ; (!0)=left 0=right
 lastMouseDirectionY: DB 0 ; (!0)=up 0=down
 
-PUBLIC mouseHandler
-mouseHandler:
+PUBLIC inputHandler
+inputHandler:
     ; buttons
     ld bc, $fadf
     in a, (c)
@@ -121,7 +123,7 @@ mouseHandler:
     ld a, 255 ; correct for wrap spike
     sub l ; restore 255-dy
 
-.mousePositiveYSane:    
+.mousePositiveYSane:
     ld hl, (_mouseY)
     ld e, a ; dx in E for subtracting
     xor a ; zero and clear carry
@@ -130,49 +132,114 @@ mouseHandler:
     ld (_mouseY), hl
 
 .joystickHorizontal:
+    ld hl, (joystickXSpeed+2) ; prepare for X speed
+
     ld bc, $001F
     in a, (c)
     rra
     jr c, joystickRight
     rra
-    jp nc, joystickVertical
+    jr c, joystickLeft
+    call joystickSpeedSlow
+    jp joystickVertical
 .joystickLeft:
-    ld de, (_mouseX)
-    add de, -4
-    ld (_mouseX), de
+    call joystickSpeedDown
     jp joystickVertical
 .joystickRight:
-    ld de, (_mouseX)
-    add de, 4
-    ld (_mouseX), de
+    call joystickSpeedUp
     rra ; no check for left
 
 .joystickVertical:
+    ld (joystickXSpeed+2), hl ; commit X speed
+    ld hl, (joystickYSpeed+2) ; prepare for Y speed
+
     rra
     jr c, joystickDown
     rra
-    jp nc, joystickFire
+    jr c, joystickUp
+    call joystickSpeedSlow
+    jp joystickFire
 .joystickUp:
-    ld de, (_mouseY)
-    add de, -4
-    ld (_mouseY), de
+    call joystickSpeedDown
     jp joystickFire
 .joystickDown:
-    ld de, (_mouseY)
-    add de, 4
-    ld (_mouseY), de
+    call joystickSpeedUp
     rra ; no check for up
 
 .joystickFire:
+    ld (joystickYSpeed+2), hl ; commit Y speed
+
     ld(joystickButtons), a
     and 7   ; 00000FFF
-    ret z
+    jr z, joystickCommit
 
     ; one of the fire buttons was pressed
     ld a, (_mouseHwB)
     and $FD ; xxxxxx0x - pretend left button pressed
     ld (_mouseHwB), a
+
+.joystickCommit:
+    ld de, (_mouseX)
+.joystickXSpeed:
+    add de, 0 ; placeholder
+    ld (_mouseX), de
+
+    ld de, (_mouseY)
+.joystickYSpeed:
+    add de, 0 ; placeholder
+    ld (_mouseY), de
+
     RET
+
+.joystickSpeedUp:
+    ex af, af'
+    ld a, l
+    ; falltgrough to joystickSpeedUpNoSwap
+
+.joystickSpeedUpNoSwap:
+    inc a
+    jp m, joystickSpeedCommitNeg
+    cp 5
+    jp nc, joystickSpeedDone
+    ; fallthrough to joystickSpeedCommitPos
+
+.joystickSpeedCommitPos:
+    ld h, 0
+    ld l, a
+    ex af, af'
+    RET
+
+.joystickSpeedDown:
+    ex af, af'
+    ld a, l
+    ; falltgrough to joystickSpeedDownNoSwap
+
+.joystickSpeedDownNoSwap:
+    dec a
+    jp m, joystickSpeedDownFromNegative
+    jp joystickSpeedCommitPos
+
+.joystickSpeedDownFromNegative:
+    cp -5
+    jp c, joystickSpeedDone
+    ; falltgrough to joystickSpeedCommitNeg
+    
+.joystickSpeedCommitNeg:
+    ld h, $FF
+    ld l, a
+    ; falltgrough to joystickSpeedDone
+
+.joystickSpeedDone:
+    ex af, af'
+    RET
+
+.joystickSpeedSlow:
+    ex af, af'
+    ld a, l
+    or a
+    jp z, joystickSpeedDone
+    jp m, joystickSpeedUpNoSwap
+    jp joystickSpeedDownNoSwap
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
