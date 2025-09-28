@@ -194,7 +194,7 @@ inputHandler:
 .joystickSpeedUp:
     ex af, af'
     ld a, l
-    ; falltgrough to joystickSpeedUpNoSwap
+    ; fallthrough to joystickSpeedUpNoSwap
 
 .joystickSpeedUpNoSwap:
     inc a
@@ -212,7 +212,7 @@ inputHandler:
 .joystickSpeedDown:
     ex af, af'
     ld a, l
-    ; falltgrough to joystickSpeedDownNoSwap
+    ; fallthrough to joystickSpeedDownNoSwap
 
 .joystickSpeedDownNoSwap:
     dec a
@@ -222,12 +222,12 @@ inputHandler:
 .joystickSpeedDownFromNegative:
     cp -5
     jp c, joystickSpeedDone
-    ; falltgrough to joystickSpeedCommitNeg
+    ; fallthrough to joystickSpeedCommitNeg
     
 .joystickSpeedCommitNeg:
     ld h, $FF
     ld l, a
-    ; falltgrough to joystickSpeedDone
+    ; fallthrough to joystickSpeedDone
 
 .joystickSpeedDone:
     ex af, af'
