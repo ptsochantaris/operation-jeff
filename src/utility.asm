@@ -39,6 +39,7 @@ inputHandler:
     xor a ; clear carry and zero
     ld h, a
     sbc hl, de ; X - previous = dx in L
+    jp z, mouseKempstonY ; no change, move to next check
     ld a, l ; dx in A for range check
     jp nc, mousePositiveX
 
@@ -90,6 +91,7 @@ inputHandler:
     xor a ; clear carry and zero
     ld h, a
     sbc hl, de ; Y - previousY = dy in HL
+    jp z, joystickHorizontal ; no change, move to next check
     ld a, l ; dy in A for later
     jp nc, mousePositiveY
 
@@ -140,11 +142,13 @@ inputHandler:
     jr c, joystickRight
     rra
     jr c, joystickLeft
-    call joystickSpeedSlow
+    call joystickSpeedSlow ; no left or right, move HL back towards zero
     jp joystickVertical
+
 .joystickLeft:
     call joystickSpeedDown
     jp joystickVertical
+
 .joystickRight:
     call joystickSpeedUp
     rra ; no check for left
@@ -157,11 +161,13 @@ inputHandler:
     jr c, joystickDown
     rra
     jr c, joystickUp
-    call joystickSpeedSlow
+    call joystickSpeedSlow ; no up or down, move HL back to zero
     jp joystickFire
+
 .joystickUp:
     call joystickSpeedDown
     jp joystickFire
+
 .joystickDown:
     call joystickSpeedUp
     rra ; no check for up
@@ -177,6 +183,7 @@ inputHandler:
     ld a, (_mouseHwB)
     and $FD ; xxxxxx0x - pretend left button pressed
     ld (_mouseHwB), a
+    ; fallthrough to joystickCommit
 
 .joystickCommit:
     ld de, (_mouseX)
@@ -188,22 +195,21 @@ inputHandler:
 .joystickYSpeed:
     add de, 0 ; placeholder
     ld (_mouseY), de
-
     RET
 
 .joystickSpeedUp:
     ex af, af'
     ld a, l
-    ; fallthrough to joystickSpeedUpNoSwap
+    ; fallthrough to joystickSpeedUpNoSetup
 
-.joystickSpeedUpNoSwap:
+.joystickSpeedUpNoSetup:
     inc a
-    jp m, joystickSpeedCommitNeg
+    jp m, joystickSpeedCommitNegative
     cp 5
     jp nc, joystickSpeedDone
-    ; fallthrough to joystickSpeedCommitPos
+    ; fallthrough to joystickSpeedCommitPositive
 
-.joystickSpeedCommitPos:
+.joystickSpeedCommitPositive:
     ld h, 0
     ld l, a
     ex af, af'
@@ -212,19 +218,19 @@ inputHandler:
 .joystickSpeedDown:
     ex af, af'
     ld a, l
-    ; fallthrough to joystickSpeedDownNoSwap
+    ; fallthrough to joystickSpeedDownNoSetup
 
-.joystickSpeedDownNoSwap:
+.joystickSpeedDownNoSetup:
     dec a
     jp m, joystickSpeedDownFromNegative
-    jp joystickSpeedCommitPos
+    jp joystickSpeedCommitPositive
 
 .joystickSpeedDownFromNegative:
     cp -5
     jp c, joystickSpeedDone
-    ; fallthrough to joystickSpeedCommitNeg
-    
-.joystickSpeedCommitNeg:
+    ; fallthrough to joystickSpeedCommitNegative
+
+.joystickSpeedCommitNegative:
     ld h, $FF
     ld l, a
     ; fallthrough to joystickSpeedDone
@@ -238,8 +244,8 @@ inputHandler:
     ld a, l
     or a
     jp z, joystickSpeedDone
-    jp m, joystickSpeedUpNoSwap
-    jp joystickSpeedDownNoSwap
+    jp m, joystickSpeedUpNoSetup
+    jp joystickSpeedDownNoSetup
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
