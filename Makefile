@@ -51,6 +51,7 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	zx0.o \
 	graphics-ro.o \
 	graphics-rw.o \
+	control.o \
 	utility.o \
 	audio.o \
 )

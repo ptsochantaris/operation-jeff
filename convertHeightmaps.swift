@@ -1,5 +1,5 @@
-import Foundation
 import CoreGraphics
+import Foundation
 import ImageIO
 
 func convert(imagePath: String) -> Data {
@@ -19,13 +19,13 @@ func convert(imagePath: String) -> Data {
     let colorSpace = CGColorSpaceCreateDeviceRGB()
     let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
 
-    guard let context = CGContext(data: nil, 
-                                width: width, 
-                                height: height, 
-                                bitsPerComponent: bitsPerComponent,
-                                bytesPerRow: bytesPerRow, 
-                                space: colorSpace,
-                                bitmapInfo: bitmapInfo.rawValue) 
+    guard let context = CGContext(data: nil,
+                                  width: width,
+                                  height: height,
+                                  bitsPerComponent: bitsPerComponent,
+                                  bytesPerRow: bytesPerRow,
+                                  space: colorSpace,
+                                  bitmapInfo: bitmapInfo.rawValue)
     else {
         fatalError("Could not create CGContext")
     }
@@ -40,8 +40,8 @@ func convert(imagePath: String) -> Data {
 
     var brightnessBytes = Data()
 
-    for y in 0..<height {
-        for x in 0..<width {
+    for y in 0 ..< height {
+        for x in 0 ..< width {
             let byteIndex = 4 * (y * width + x) // 4 bytes per pixel (R, G, B, A)
             let r = buffer[byteIndex]
             brightnessBytes.append(r / 8)

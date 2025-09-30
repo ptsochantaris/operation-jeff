@@ -1,5 +1,7 @@
 SECTION code_compiler
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _aySetAmplitude
 _aySetAmplitude:
     pop hl ; address
