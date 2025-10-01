@@ -5,10 +5,6 @@ SECTION code_compiler
 PUBLIC _selectLayer2Page
 _selectLayer2Page:
     ld a, l
-    jp selectLayer2PageInternal
-
-.selectLayer2PageInternalE:
-    ld a, e
 
 .selectLayer2PageInternal:
     cp 100       ; placeholder
@@ -43,19 +39,28 @@ _layer2Plot:
     and $3F         ; keep in-page bits of x
     ld h, a         ; in-page x (h) + y (l)
 
-    ; destination page
-    ld a, b
-    ld b, 6
-    push de
-    BSRL DE, B      ; x >> 6 to get L2 page in E
-    ld b, a
-    call selectLayer2PageInternalE
-    pop de
+    call selectPageForXInDE
 
 .layer2Set:
     ld (hl), 0       ; set (hl) to colour value
     pop hl
     ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+selectPageForXInDE:
+    ; x >> 6 to get L2 page in E
+    ld a, e ; EExxxxxx
+    and $c0 ; EE000000
+    ld (selectPageForXInDESet+1), a
+
+    ld a, d ; 00DDDDDD
+.selectPageForXInDESet
+    or 0    ; EEDDDDDD
+    rlca    ; EDDDDDDE
+    rlca    ; DDDDDDEE
+
+    jp selectLayer2PageInternal
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -77,10 +82,7 @@ _layer2VerticalLine:
     and $3F         ; keep in-page bits of x
     ld h, a         ; l already has y, h is now in-page x
 
-    ; destination page
-    ld b, 6
-    BSRL DE, B      ; x >> 6 to get L2 page in E
-    call selectLayer2PageInternalE
+    call selectPageForXInDE
 
     ; number of loops
     ld a, l
@@ -109,14 +111,7 @@ _layer2HorizonalLine:
     pop DE          ; start x
     push iy         ; put return back on stack
 
-    ; destination page, initial
-    push de
-    ld a, b
-    ld b, 6
-    BSRL DE, B      ; x >> 6 to get L2 page in E
-    ld b, a
-    call selectLayer2PageInternalE
-    pop de
+    call selectPageForXInDE
 
 .layer2HorizontalLineLoop:
     ; offset in page
@@ -125,14 +120,7 @@ _layer2HorizonalLine:
     ld h, a         ; l already has y
 
     ; destination page needs update if in-page x is zero
-    jp nz, layer2HorizontalLineLoopSet ; or skip
-    push de
-    ld a, b
-    ld b, 6
-    BSRL DE, B      ; x >> 6 to get L2 page in E
-    ld b, a
-    call selectLayer2PageInternalE
-    pop de
+    call z, selectPageForXInDE
 
 .layer2HorizontalLineLoopSet:
     ld (hl), 0       ; set (hl) to colour value
@@ -148,9 +136,9 @@ _layer2HorizonalLine:
 
 PUBLIC layer2Char, layer2PlotSliceBg, layer2PlotSliceFg
 layer2Char:
-    ;pop HL          ; y
-    ;pop DE          ; x
-    ;pop iy          ; address of first slice
+    ; HL - y
+    ; DE - x
+    ; iy - address of first slice
 
     ld c, (iy)
     call layer2PlotSlice
@@ -188,13 +176,13 @@ layer2Char:
 PUBLIC setPaletteCommitGreen, setPaletteCommitRed, setPaletteCommit
 
 setPaletteCommit:
-    ld h, a ; 00000BBB - blue expected in A
+    ld h, a ; xxxxxBBB - blue expected in A
 
     and 1
     ld d, a ; 0000000B
 
-    ld a, h ; 00000BBB
-    rrca    ; B00000BB
+    ld a, h ; xxxxxBBB
+    rrca    ; BxxxxxBB
     and 3   ; 000000BB
     ld h, a
 
@@ -202,14 +190,14 @@ setPaletteCommit:
     ; stack: [green][red][address]
 
 .setPaletteCommitGreen:
-    ld a, 0 ; placeholder
+    ld a, 0 ; placeholder  00000GGG
     rlca
     rlca ; 000GGG00
     or h ; 000GGGBB
     ld h, a
 
 .setPaletteCommitRed:
-    ld a, 0 ; placeholder
+    ld a, 0 ; placeholder 00000RRR
     rrca
     rrca
     rrca ; RRR00000

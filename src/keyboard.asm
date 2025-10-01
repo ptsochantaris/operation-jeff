@@ -2,13 +2,9 @@ SECTION code_compiler
 
 GLOBAL keyboardLookup, joystickButtons
 
-PUBLIC _keyboardShiftPressed
-_keyboardShiftPressed: 
-    DB 0
-
-PUBLIC _keyboardSymbolShiftPressed
-_keyboardSymbolShiftPressed:
-    DB 0
+PUBLIC _keyboardShiftPressed, _keyboardSymbolShiftPressed
+_keyboardShiftPressed: DB 0
+_keyboardSymbolShiftPressed: DB 0
 
 .readKeyboardStart:
     ld l, 'P'
