@@ -49,7 +49,7 @@ _layer2Plot:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 selectPageForXInDE:
-    ; x >> 6 to get L2 page in E
+    ; DE >> 6 to get L2 page in A
     ld a, e ; EExxxxxx
     and $c0 ; EE000000
     ld (selectPageForXInDESet+1), a

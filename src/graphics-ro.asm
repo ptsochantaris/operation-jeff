@@ -240,9 +240,7 @@ layer2CharSidewaysNoBackground:
     ld b, 3         ; loops in b
 .layer2PlotSliceSidewaysNoBackgroundLoop:
     bit 5, c
-    jp z, layer2PlotSliceSidewaysSkip
-    call layer2SlicePlot
-.layer2PlotSliceSidewaysSkip:
+    call nz, layer2SlicePlot
     inc l
     srl c
     djnz layer2PlotSliceSidewaysNoBackgroundLoop
@@ -272,9 +270,7 @@ layer2CharNoBackground:
     ld b, 3         ; loops in b
 .layer2PlotSliceNoBackgroundLoop:
     bit 5, c
-    jp z, layer2PlotSliceSkip
-    call layer2SlicePlot
-.layer2PlotSliceSkip:
+    call nz, layer2SlicePlot
     dec de
     srl c
     djnz layer2PlotSliceNoBackgroundLoop
@@ -600,7 +596,7 @@ _printSidewaysNoBackground:
     call layer2CharSidewaysNoBackground
     pop bc
 
-    add de, $FFFB ; add -4
+    add de, -5
 
     inc bc ; next char
     
