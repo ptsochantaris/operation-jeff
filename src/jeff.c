@@ -98,7 +98,8 @@ void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_fastcall {
     decompressZX0((byte *)(info->heightmapAsset.resource), heightMap);
 }
 
-static void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_callee {
+static void setJeffPos(struct jeff *restrict j, byte direction) __z88dk_callee {
+    struct sprite_info *s = &(j->sprite);
     int vertical, horizontal;
 
     switch(direction) {
@@ -130,8 +131,9 @@ static void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_c
     int lookupX = (s->pos.x + horizontal) >> 2;
     int lookupY = (s->pos.y + vertical) >> 2;
     int targetZ = *(heightMap + lookupX + lookupY * HEIGHTMAP_WIDTH);
+    int currentZ = s->pos.z;
 
-    if(s->pos.z == targetZ) {
+    if(currentZ == targetZ) {
         return;
     }
 
@@ -140,7 +142,7 @@ static void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_c
         return;
     }
 
-    int diff = (targetZ - s->pos.z);
+    int diff = (targetZ - currentZ);
     if(diff > 2) {
         s->pos.z += 2;
     } else if(diff < -2) {
@@ -183,7 +185,7 @@ static void growJeff(struct jeff *restrict j) __z88dk_fastcall {
             break;
     }
 
-    setJeffPos(&(j->sprite), 255);
+    setJeffPos(j, 255);
 
     landing.sprite.pos = j->sprite.pos;
     landing.sprite.pos.y = 0;
@@ -301,7 +303,7 @@ static byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
 static void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
     byte newPattern = ++(j->sprite.pattern);
     byte direction = j->direction;
-    setJeffPos(&(j->sprite), direction);
+    setJeffPos(j, direction);
     switch(direction) {
         case JEFF_UP:
             if((j->sprite.pos.y - j->sprite.pos.z) < 1) {
