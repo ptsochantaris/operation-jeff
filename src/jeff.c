@@ -99,27 +99,30 @@ void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_fastcall {
 }
 
 static void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_callee {
-    int vertical = 14;
-    int horizontal = 8;
+    int vertical, horizontal;
 
     switch(direction) {
         case JEFF_UP:
         --(s->pos.y);
         vertical = 10;
+        horizontal = 8;
         break;
 
         case JEFF_DOWN:
         ++(s->pos.y);
         vertical = 18;
+        horizontal = 8;
         break;
 
         case JEFF_LEFT:
         s->pos.x -= 2;
+        vertical = 14;
         horizontal = 6;
         break;
 
         case JEFF_RIGHT:
         s->pos.x += 2;
+        vertical = 14;
         horizontal = 6;
         break;
     }
@@ -128,19 +131,22 @@ static void setJeffPos(struct sprite_info *restrict s, byte direction) __z88dk_c
     int lookupY = (s->pos.y + vertical) >> 2;
     int targetZ = *(heightMap + lookupX + lookupY * HEIGHTMAP_WIDTH);
 
-    if(s->pos.z != targetZ) {
-        if(direction == 255) {
-            s->pos.z = targetZ;
-        } else {
-            int diff = (targetZ - s->pos.z);
-            if(diff > 1) {
-                s->pos.z += 2;
-            } else if(diff < -1) {
-                s->pos.z -= 2;
-            } else {
-                s->pos.z = targetZ;
-            }
-        }
+    if(s->pos.z == targetZ) {
+        return;
+    }
+
+    if(direction == 255) {
+        s->pos.z = targetZ;
+        return;
+    }
+
+    int diff = (targetZ - s->pos.z);
+    if(diff > 2) {
+        s->pos.z += 2;
+    } else if(diff < -2) {
+        s->pos.z -= 2;
+    } else {
+        s->pos.z = targetZ;
     }
 }
 
