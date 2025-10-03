@@ -37,7 +37,6 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	leds.o \
 	mouse.o \
 	gameover.o \
-	font.o \
 	menu.o \
 	game.o \
 	levelinfo.o \
@@ -49,6 +48,7 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	assets.o \
 	base.o \
 	zx0.o \
+	font.o \
 	graphics-ro.o \
 	graphics-rw.o \
 	control-ro.o \

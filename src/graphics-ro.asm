@@ -1,6 +1,6 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL _paletteBuffer, _font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2SlicePlot, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg
+GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2SlicePlot, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg
 
 PUBLIC _setPaletteCeiling
 _setPaletteCeiling:
@@ -153,7 +153,7 @@ _printAttributes:
     ld d, a
     ld e, 6
     mul d, e
-    add de, _font_data
+    add de, font_data
     ld iy, de
     exx
 
@@ -172,26 +172,23 @@ ulaAttributeChar:
     ; de          ; x + ula attributes
     ; iy          ; address of first slice
 
-    ld a, 1
+    xor a
     ld c, (iy)
     call ulaAttributeCharPlotSlice
 
-    inc a
     ld c, (iy+1)
     call ulaAttributeCharPlotSlice
 
-    inc a
     ld c, (iy+2)
     call ulaAttributeCharPlotSlice
 
-    inc a
     ld c, (iy+3)
     call ulaAttributeCharPlotSlice
 
-    inc a
     ld c, (iy+4)    ; fallthrough to ulaAttributeCharPlotSlice
 
 .ulaAttributeCharPlotSlice:
+    inc a
     ld b, 3         ; loops in b
 .ulaAttributeCharPlotSliceLoop:
     bit 5, c
@@ -253,8 +250,8 @@ layer2CharSidewaysNoBackground:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 layer2CharNoBackground:
-    ;pop HL          ; y
-    ;pop DE          ; x
+    ; HL y
+    ; DE x
 
     ld c, (iy)
     call layer2PlotSliceNoBackground
@@ -307,7 +304,7 @@ _printNoBackground:
     ld d, a
     ld e, 6
     mul d, e
-    add de, _font_data
+    add de, font_data
     ld iy, de
     exx
 
@@ -321,8 +318,6 @@ _printNoBackground:
     inc bc ; next char
     add de, 4 ; move X to the right
     jp printNoBackgroundLoop
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -588,7 +583,7 @@ _printSidewaysNoBackground:
     ld d, a
     ld e, 6
     mul d, e
-    add de, _font_data
+    add de, font_data
     ld iy, de
     exx
 
@@ -638,7 +633,7 @@ _print:
     ld d, a
     ld e, 6
     mul d, e
-    add de, _font_data
+    add de, font_data
     ld iy, de
     exx
 
