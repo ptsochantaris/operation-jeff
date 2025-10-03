@@ -217,7 +217,6 @@ ulaAttributeChar:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC layer2CharSidewaysNoBackground
 layer2CharSidewaysNoBackground:
     ; HL          ; y
     ; DE          ; x
