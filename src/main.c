@@ -16,14 +16,7 @@ int main(void) {
 
   while(1) {
     byte startLevel = menuLoop();
-
-    if(gameLoop(startLevel)) {
-      break;
-    }
-
+    gameLoop(startLevel);
     gameOverLoop();
   }
-
-  ZXN_NEXTREG(REG_RESET, RR_SOFT_RESET);
-  return 0;
 }

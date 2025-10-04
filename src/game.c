@@ -66,7 +66,7 @@ static void pauseKeys(byte key) __z88dk_fastcall {
   }
 }
 
-byte gameLoop(byte startLevel) __z88dk_fastcall {
+void gameLoop(byte startLevel) __z88dk_fastcall {
   srand(14 + startLevel);
   gameMode();
   setupGameStats();
@@ -117,7 +117,7 @@ byte gameLoop(byte startLevel) __z88dk_fastcall {
 
         } else if(pressed=='Q') {
           inputDelay = SMALL_INPUT_DELAY;
-          return 0; // game over
+          return; // game over
         }
       }
 
@@ -133,7 +133,7 @@ byte gameLoop(byte startLevel) __z88dk_fastcall {
     switch(statResults) {
       case 1:
         // game over
-        return 0;
+        return;
 
       case 2:
         // level complete
