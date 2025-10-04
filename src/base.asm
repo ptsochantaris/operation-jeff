@@ -32,3 +32,7 @@ isrEnd:
 
 SECTION PAGE_28_POSTISR
 org isrEnd
+
+PUBLIC _bombRadii1, _bombRadii2
+_bombRadii1: DW 7, 8, 9, 10, 9, 8, 8, 8
+_bombRadii2: DW 14, 16, 18, 20, 18, 16, 16, 16

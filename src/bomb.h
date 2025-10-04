@@ -26,6 +26,7 @@ extern struct bomb bombs[];
 
 extern struct bomb* explodingBombs[];
 extern byte explodingBombCount;
+extern int bombRadii1, bombRadii2;
 
 void initBombs(void) __z88dk_fastcall;
 void updateBombs(void) __z88dk_fastcall;

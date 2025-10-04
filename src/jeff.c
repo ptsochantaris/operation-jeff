@@ -90,9 +90,6 @@ static const word jeffMoveMasks[] = {
     JEFF_SPEED_MASK_8
 };
 
-static const int bombRadii1[] = {7, 8, 9, 10, 9, 8, 8, 8};
-static const int bombRadii2[] = {14, 16, 18, 20, 18, 16, 16, 16};
-
 void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_fastcall {
     ZXN_WRITE_MMU1(info->heightmapAsset.page);
     decompressZX0((byte *)(info->heightmapAsset.resource), heightMap);
@@ -256,20 +253,19 @@ static byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
         return 0;
     }
 
-    int C;
     struct coord spos = j->sprite.pos;
     int jx = spos.x;
     int jy = spos.y - spos.z;
     if(jy<0) jy = 0;
 
+    const int *lookup = currentStats.extraRangeBombs ? &bombRadii2 : &bombRadii1;
+
     for(byte count=0; count<explodingBombCount; ++count) {
         struct bomb *b = explodingBombs[count];
-
         const byte radiusIndex = b->sprite.pattern - BOMB_EXPLOSION_FIRST;
-        const int *lookup = currentStats.extraRangeBombs ? bombRadii2 : bombRadii1;
         const int radius = *(lookup+radiusIndex);
 
-        C = b->sprite.pos.x - radius;
+        int C = b->sprite.pos.x - radius;
         if(jx < C) continue;
         C += (radius << 1);
         if(jx >= C) continue;
