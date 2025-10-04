@@ -84,8 +84,9 @@ void updateBonuses(void) __z88dk_fastcall {
         int centerY = (currentY << 3) - 4;
         const int *lookup = currentStats.extraRangeBombs ? &bombRadii2 : &bombRadii1;
 
-        for(byte count=0; count<explodingBombCount; ++count) {
-            struct bomb *b = explodingBombs[count];
+        struct bomb **E = explodingBombs+explodingBombCount;
+        for(struct bomb **B = explodingBombs; B != E; ++B) {
+            struct bomb *b = *B;
             const byte radiusIndex = b->sprite.pattern - BOMB_EXPLOSION_FIRST;
             const int radius = *(lookup+radiusIndex);
 
