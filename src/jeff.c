@@ -260,8 +260,8 @@ static byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
 
     const int *lookup = currentStats.extraRangeBombs ? &bombRadii2 : &bombRadii1;
 
-    struct bomb **E = explodingBombs+explodingBombCount;
-    for(struct bomb **B = explodingBombs; B != E; ++B) {
+    struct bomb **B = explodingBombs;
+    for(const struct bomb **E = explodingBombs+explodingBombCount; B != E; ++B) {
         struct bomb *b = *B;
         const byte radiusIndex = b->sprite.pattern - BOMB_EXPLOSION_FIRST;
         const int radius = *(lookup+radiusIndex);
