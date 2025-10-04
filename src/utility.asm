@@ -57,6 +57,11 @@ _stackClear:
     DI
 
     pop hl ; return address
+
+    pop de ; pattern in E
+    ld d, e
+    ld (stackClearSet+1), de
+
     pop de ; len
     ex (sp), hl ; base, return address back on stack
 
@@ -73,6 +78,7 @@ _stackClear:
     dec de     ; B = (length/2) MOD 256, so 0 = a 512-byte block
     inc d      ; D = the number of 512-byte blocks to write, or just = 1 if the length is <512
 
+.stackClearSet:
     ld hl, 0 ; byte to push
 
 .stackClearLoop:

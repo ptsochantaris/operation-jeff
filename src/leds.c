@@ -15,7 +15,7 @@ static const byte ulaPalette[] = {
 static byte gray_offset = 2;
 
 void ulaAttributeClear(void) __z88dk_fastcall {
-    stackClear((byte *)(ulaAttributes), 0x300);
+    stackClear(ulaAttributes, 0x300, 0);
 }
 
 void setupTitleLeds(void) __z88dk_fastcall {
@@ -24,10 +24,11 @@ void setupTitleLeds(void) __z88dk_fastcall {
     resetGrayPalette();
 
     // grayscale ULA attributes
-    for(byte f=1;f!=9;++f) {
-        word offset = ulaAttributes + (f-1) * 32;
-        fillWithDma(offset, 32, 9 - f);
-        fillWithDmaRepeat(offset + 256, 32, f, 2, 256);
+    for(byte f=1; f != 9; ++f) {
+        const word offset = ulaAttributes + (f-1) * 32;
+        stackClear(offset, 32, 9 - f);
+        stackClear(offset + 256, 32, f);
+        stackClear(offset + 512, 32, f);
     }
 
     // leds on ULA
@@ -61,7 +62,7 @@ void resetGrayPalette(void) __z88dk_fastcall {
 static byte statusCount = 0;
 
 void clearStatus(void) __z88dk_fastcall {
-    stackClear((byte *)(ulaAttributes + 320), 160);
+    stackClear(ulaAttributes + 320, 160, 0);
 }
 
 void status(byte *text) __z88dk_fastcall {
