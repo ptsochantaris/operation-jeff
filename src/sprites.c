@@ -1,7 +1,8 @@
 #include "base.h"
 
+static const byte gameClipBytes[] = {8,159,16,255};
+
 void setSpriteGameClipping(void) __z88dk_fastcall {
-  const byte gameClipBytes[] = {8,159,16,255};
   writeNextReg(0x19, gameClipBytes, 4);
 }
 
@@ -17,6 +18,7 @@ static const struct ResourceInfo rR = R_sprites_spr;
 static const struct ResourceInfo rP = R_default_nxp_zx0;
 
 void loadSprites(void) __z88dk_fastcall {  
+  ZXN_NEXTREG(0x34, 0); // start from sprite slot 0
   ZXN_NEXTREG(REG_SPRITE_TRANSPARENCY_INDEX, 0); // sprite palette index 0 is transparent
 
   ZXN_WRITE_MMU1(rR.page);
