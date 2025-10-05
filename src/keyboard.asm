@@ -25,19 +25,19 @@ _readKeyboardLetter:
 
     ld bc, $f7fe
     call readRow
-    ld bc, $effe
+    ld b, $ef
     call readRow
-    ld bc, $fbfe
+    ld b, $fb
     call readRow
-    ld bc, $dffe
+    ld b, $df
     call readRow
-    ld bc, $fdfe
+    ld b, $fd
     call readRow
-    ld bc, $bffe
+    ld b, $bf
     call readRow
-    ld bc, $fefe
+    ld b, $fe
     call readRow
-    ld bc, $7ffe
+    ld b, $7f
 
 .readRow:
     in a, (c)
