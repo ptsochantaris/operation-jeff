@@ -12,7 +12,11 @@ static const byte tilemapPalette[] = {
   COLOR9(1, 2, 7), // 8 Lilac
   COLOR9(7, 4, 1), // 9 Orange
   COLOR9(7, 7, 1), // A Off yellow
-  COLOR9(4, 0, 4), // B
+  COLOR9(4, 0, 4), // B Pink
+  COLOR9(0, 0, 0), // C (pending)
+  COLOR9(0, 0, 0), // D (pending)
+  COLOR9(0, 0, 0)  // E (pending)
+                   // F Transparent
 };
 
 void initTilemap(void) __z88dk_fastcall {
@@ -20,7 +24,7 @@ void initTilemap(void) __z88dk_fastcall {
   ZXN_NEXTREG(0x6C, 0x01); // 0000 0001, no palette offset, no x mirror, no y mirror, no rotation, ula over tilemap
   ZXN_NEXTREG(0x4C, 0x0F); // index F as transparent
   ZXN_NEXTREGA(0x6E, tilemapAddress >> 8);
-  ZXN_NEXTREGA(0x6F, tilemapDefinitionsAddress >> 8);
+  ZXN_NEXTREGA(0x6F, 0x60); // MSB of tilemap definitions, at 0x6000
 
   writeNextReg(0x1B, clipBytes, CLIPBYTES_LEN);
 
@@ -33,7 +37,7 @@ void initTilemap(void) __z88dk_fastcall {
   ZXN_WRITE_MMU3(11);
   fillWithDma(tilemapAddress, tilemapLength, 0);
 
-  // Map page 10 to 0x6000 instead of 0x4000
+  // Map ULA (page 10) to 0x6000 instead of 0x4000
   ZXN_WRITE_MMU3(10);
   scrollTilemap(0, 0);
 }
