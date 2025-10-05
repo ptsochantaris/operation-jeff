@@ -140,6 +140,7 @@ void updateBonuses(void) __z88dk_fastcall {
                 default:
                     break;
             }
+            return;
 
         case BONUS_SCORE:
         case BONUS_HEALTH:
