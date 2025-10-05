@@ -125,10 +125,10 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_HEALTH:
                 case BONUS_CHARGE:
                     setBase(BONUS_MAX + 1 + transitionOffset);
-                    return;
+                    break;
                 case BONUS_SMARTBOMB:
                     setBase(BONUS_MAX + 2 + transitionOffset);
-                    return;
+                    break;
                 case BONUS_FREEZE:
                 case BONUS_UMBRELLA:
                 case BONUS_SLOW:
@@ -136,21 +136,22 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_RANGE:
                 case BONUS_RATE:
                     setBase(BONUS_MAX + 3 + transitionOffset);
-                    return;
+                    break;
+                default:
+                    break;
             }
-            return;
 
         case BONUS_SCORE:
         case BONUS_HEALTH:
         case BONUS_CHARGE:
             scrollTilemap(0, transition << 1);
             setBase(BONUS_MAX + 7 - transitionOffset);
-            return;
+            break;
 
         case BONUS_SMARTBOMB:
             scrollTilemap(0, transition << 1);
             setBase(BONUS_MAX + 8 - transitionOffset);
-            return;
+            break;
 
         case BONUS_FREEZE:
         case BONUS_UMBRELLA:
@@ -160,6 +161,6 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_RATE:
             scrollTilemap(0, transition << 1);
             setBase(BONUS_MAX + 9 - transitionOffset);
-            return;
+            break;
     }
 }

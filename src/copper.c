@@ -1,29 +1,46 @@
 #include "base.h"
 
-const static word prog[] = {
-    CU_WAIT(20,0),  
-    CU_MOVE(REG_PALETTE_INDEX, 1), 
-    CU_MOVE(REG_PALETTE_VALUE_8, 0xff),
-    
-    CU_WAIT(100,0), 
-    CU_MOVE(REG_PALETTE_INDEX, 1), 
-    CU_MOVE(REG_PALETTE_VALUE_8, 0),
-
-    CU_WAIT(400,0)
-};
-
-void initCopper(void) __z88dk_fastcall {
-    word copperProgLen = 7;
-    const byte *e = prog + (copperProgLen * 2);
-    for (const byte *b = prog; b < e; ++b) {
-        ZXN_NEXTREGA(REG_COPPER_DATA, *b);
-    }
-
-    ZXN_NEXTREG(REG_COPPER_CONTROL_H, 0xB0);
+static void copperControl(byte code) __z88dk_fastcall {
+    ZXN_NEXTREGA(REG_COPPER_CONTROL_H, code);
     ZXN_NEXTREG(REG_COPPER_CONTROL_L, 0);
 }
 
+static void copperBar(byte y, byte step) __z88dk_callee {
+        byte shades[] = {
+        0,
+        0b01001001,
+        0b01101101,
+        0b10010010,
+        0b10110110,
+        0b11011011,
+        0b11111111,
+        0b11011011,
+        0b10010010,
+        0b01101101,
+        0b01001001,
+        0
+    };
+
+    for(byte shadeIndex=0; shadeIndex != 12; ++shadeIndex) {
+        ZXN_NEXTREG(REG_COPPER_DATA, 0x80);
+        ZXN_NEXTREGA(REG_COPPER_DATA, y); // wait
+
+        ZXN_NEXTREG(REG_COPPER_DATA, 0x4A);
+        ZXN_NEXTREGA(REG_COPPER_DATA, shades[shadeIndex]); // move
+
+        y += step;
+    }
+    ZXN_NEXTREG(REG_COPPER_DATA, 0x81);
+    ZXN_NEXTREG(REG_COPPER_DATA, 0xFF); // wait
+}
+
+void initCopper(void) __z88dk_fastcall {
+    copperControl(0); // stop copper
+    copperBar(0, 4);
+    copperControl(0xC0); // start copper from index 0
+}
+
+// https://wiki.specnext.dev/Copper_Control_High_Byte
 void haltCopper(void) __z88dk_fastcall {
-    ZXN_NEXTREG(REG_COPPER_CONTROL_H, 0);
-    ZXN_NEXTREG(REG_COPPER_CONTROL_L, 0);
+    copperControl(0);
 }
