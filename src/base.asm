@@ -36,3 +36,28 @@ org isrEnd
 PUBLIC _bombRadii1, _bombRadii2
 _bombRadii1: DW 7, 8, 9, 10, 9, 8, 8, 8
 _bombRadii2: DW 14, 16, 18, 20, 18, 16, 16, 16
+
+PUBLIC outLoop16, outLoop11, outLoop10, outLoop7, outLoop5
+
+outLoop16:
+    outinb
+    outinb
+    outinb
+    outinb
+    outinb
+outLoop11:
+    outinb
+outLoop10:
+    outinb
+    outinb
+    outinb
+outLoop7:
+    outinb
+    outinb
+outLoop5:
+    outinb
+    outinb
+    outinb
+    outinb
+    outinb
+    ret

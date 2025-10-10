@@ -30,7 +30,6 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	end_of_level.o \
 	hud.o \
 	keyboard.o \
-	dma.o \
 	files.o \
 	sprites.o \
 	copper.o \
@@ -49,6 +48,7 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	base.o \
 	zx0.o \
 	font.o \
+	dma.o \
 	graphics-ro.o \
 	graphics-rw.o \
 	control-ro.o \
