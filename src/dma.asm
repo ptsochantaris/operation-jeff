@@ -5,30 +5,28 @@ GLOBAL outLoop16, outLoop11, outLoop10, outLoop7, outLoop5
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 dmaHeader: ; 7 bytes
-.Dr6a:          DB $c3      ; 11000011 ; R6 reset dma
-.Dr0:           DB $7e      ; 01111101 ; R0-Transfer mode, A -> B, will provide address and length
-.Dsource:       DW 0        ; source address 
-.Dlength:       DW 0        ; transfer length
-.Dr5:           DB $82      ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
+.Dr6a:              DB $c3      ; 11000011 ; R6 reset dma
+.Dr0:               DB $7e      ; 01111101 ; R0-Transfer mode, A -> B, will provide address and length
+.Dsource:           DW 0        ; source address 
+.Dlength:           DW 0        ; transfer length
+.Dr5:               DB $82      ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
 ; dma payload - 9 bytes
-.Dr1:           DB 0        ; R1 - from config
-.Dr1t:          DB 2        ; 0000 0010 - 2t timing for R1
-.Dr2:           DB 0        ; R2 - to config
-.Dr2t:          DB 2        ; 0000 0010 - 2t timing for R2
-.Dr4:           DB $ad      ; 1010 1101 ; R4 Continuous mode, will provide destination
-.Ddestination:  DW 0        ; destination post/address,
-.Dr6b:          DB $cf, $87 ; (R6 load, R6 enable DMA)
+.Dr1:               DB 0        ; R1 - from config
+.Dr1t:              DB 2        ; 0000 0010 - 2t timing for R1
+.Dr2:               DB 0        ; R2 - to config
+.Dr2t:              DB 2        ; 0000 0010 - 2t timing for R2
+.Dr4:               DB $ad      ; 1010 1101 ; R4 Continuous mode, will provide destination
+.Ddestination:      DW 0        ; destination post/address,
+.Dr6b:              DB $cf, $87 ; (R6 load, R6 enable DMA)
 
-dmaAudioBuf:
-    DB $54              ; 0101 0100 ; R1 increment, from memory
-    DB $02              ; 0000 0010 ; no prescalar, 2t cycle
-    DB $68              ; 0110 1000 ; R2 do not increment, to port
-    DB $22              ; 0010 0010 ; want prescalar, use 2t cycle
-.dmaAudioBufPrescalar:
-    DB $37              ; $37 is supposed to be ~16 Khz prescalar, but isn't
-    DB $cd              ; 1100 1101 ; R4 burst mode, dest value follows
-    DB $df, $ff         ; Dest covox port L, H
-    DB $cf, $87         ; (R6 load, R6 enable DMA)
+dmaAudioBuf:        DB $54      ; 0101 0100 ; R1 increment, from memory
+                    DB $02      ; 0000 0010 ; no prescalar, 2t cycle
+                    DB $68      ; 0110 1000 ; R2 do not increment, to port
+                    DB $22      ; 0010 0010 ; want prescalar, use 2t cycle
+.audioPrescalar:    DB $37      ; $37 is supposed to be ~16 Khz prescalar, but isn't
+                    DB $cd      ; 1100 1101 ; R4 burst mode, dest value follows
+                    DB $df, $ff ; Dest covox port L, H
+                    DB $cf, $87 ; (R6 load, R6 enable DMA)
 
 PUBLIC _dmaResetStatus
 _dmaResetStatus:
@@ -52,7 +50,7 @@ _playWithDma:
     ld (Dr5), a
 
     ld a, e ; prescalar
-    ld (dmaAudioBufPrescalar), a
+    ld (audioPrescalar), a
 
     pop de ; length
     ld (Dlength), de
