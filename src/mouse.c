@@ -2,21 +2,17 @@
 
 #define MOUSE_PATTERN 9
 
-struct MouseState mouseState = { {0, 0, 0}, 1 ,0 };
+struct MouseState mouseState = { 1, 0, 0 };
 
 static struct sprite_info mouseSprite;
 static int currentWheel = 0;
 static struct coord mouseTopLeft = { 0, 0, 0 };
 
-extern int mouseX, mouseY, mouseHwB;
-
 void mouseInit(void) __z88dk_fastcall {
     mouseReset();
     mouseX = 159;
     mouseY = 127;
-    mouseState.pos.x = 159;
     mouseSprite.pos.x = 159;
-    mouseState.pos.y = 127;
     mouseSprite.pos.y = 127;
     updateSprite(&mouseSprite);
 }
@@ -52,7 +48,6 @@ void updateMouse(void) __z88dk_fastcall {
         mouseX = 304;
     }
     mouseSprite.pos.x = mouseX;
-    mouseState.pos.x = mouseX;
 
     if(mouseY < mouseTopLeft.y) {
         mouseY = mouseTopLeft.y;
@@ -60,7 +55,6 @@ void updateMouse(void) __z88dk_fastcall {
         mouseY = 240;
     }
     mouseSprite.pos.y = mouseY;
-    mouseState.pos.y = mouseY;
 
     updateSprite(&mouseSprite);
 

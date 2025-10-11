@@ -73,8 +73,9 @@ static void fireIfPossible(void) __z88dk_fastcall {
             cooldown = 1;
         }
         b->countdown = 22;
-        b->target = mouseState.pos;
-        b->sprite.pos.x = mouseState.pos.x;
+        b->target.x = mouseX;
+        b->target.y = mouseY;
+        b->sprite.pos.x = mouseX;
         b->sprite.pos.y = 255;
         b->state = BOMB_STATE_TICKING;
         b->outcome = BOMB_OUTCOME_NONE;

@@ -2,11 +2,12 @@
 #define __MOUSE_H__
 
 typedef struct MouseState {
-    struct coord pos;
     byte handled;
     byte ongoing;
     int wheel;
 };
+
+extern int mouseX, mouseY, mouseHwB;
 
 extern struct MouseState mouseState;
 
