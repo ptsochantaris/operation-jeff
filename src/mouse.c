@@ -6,7 +6,6 @@ struct MouseState mouseState = { 1, 0, 0 };
 
 static struct sprite_info mouseSprite;
 static int currentWheel = 0;
-static struct coord mouseTopLeft = { 0, 0, 0 };
 
 void mouseInit(void) __z88dk_fastcall {
     mouseReset();
@@ -29,6 +28,8 @@ void mouseReset(void) __z88dk_fastcall {
     mouseState.wheel = 0;
 }
 
+extern struct coord mouseTopLeft;
+
 void setGameMouse(void) __z88dk_fastcall {
     mouseReset();
     mouseTopLeft.x = 16;
@@ -42,18 +43,7 @@ void setMenuMouse(void) __z88dk_fastcall {
 }
 
 void updateMouse(void) __z88dk_fastcall {
-    if(mouseX < mouseTopLeft.x) {
-        mouseX = mouseTopLeft.x;
-    } else if(mouseX > 304) {
-        mouseX = 304;
-    }
     mouseSprite.pos.x = mouseX;
-
-    if(mouseY < mouseTopLeft.y) {
-        mouseY = mouseTopLeft.y;
-    } else if(mouseY > 240) {
-        mouseY = 240;
-    }
     mouseSprite.pos.y = mouseY;
 
     updateSprite(&mouseSprite);

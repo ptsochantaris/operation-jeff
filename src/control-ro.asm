@@ -57,3 +57,45 @@ joystickSpeedDown:
 .joystickSpeedDone:
     ex af, af'
     RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+GLOBAL _mouseX, _mouseY, _mouseTopLeft
+
+PUBLIC clampMouseX ; expects mouseX in HL, trashes HL, DE
+clampMouseX:
+    ld de, (_mouseTopLeft) ; mouseTopLeft.x
+    sbc hl, de
+    jp p, clampMouseAboveMinLeft
+    ld (_mouseX), de
+    ret
+.clampMouseAboveMinLeft:
+    add hl, de ; restore HL
+    ld de, 303
+    sbc hl, de
+    jp c, noXClamp
+    ld (_mouseX), de
+    ret
+.noXClamp:
+    add hl, de ; restore HL
+    ld (_mouseX), hl
+    ret
+
+PUBLIC clampMouseY ; expects mouseY in HL, trashes HL, DE
+clampMouseY:
+    ld de, (_mouseTopLeft+2) ; mouseTopLeft.y
+    sbc hl, de
+    jp p, clampMouseAboveMinTop
+    ld (_mouseY), de
+    ret
+.clampMouseAboveMinTop:
+    add hl, de ; restore HL
+    ld de, 240
+    sbc hl, de
+    jp c, noYClamp
+    ld (_mouseY), de
+    ret
+.noYClamp:
+    add hl, de ; restore HL
+    ld (_mouseY), hl
+    ret

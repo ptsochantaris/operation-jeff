@@ -2,15 +2,17 @@ SECTION code_compiler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _mouseX, _mouseY, _mouseHwB, joystickButtons
+PUBLIC _mouseX, _mouseY, _mouseHwB, _mouseWheel, _mouseTopLeft, joystickButtons
 _mouseX: DW 0
 _mouseY: DW 0
+_mouseWheel: DW 0
 _mouseHwB: DW 2
+_mouseTopLeft: DW 0, 0, 0
 joystickButtons: DB 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-GLOBAL joystickSpeedUp, joystickSpeedDown, joystickSpeedSlow
+GLOBAL joystickSpeedUp, joystickSpeedDown, joystickSpeedSlow, clampMouseX, clampMouseY
 
 PUBLIC inputHandler
 inputHandler:
@@ -52,7 +54,9 @@ inputHandler:
     neg ; also clears carry
     ld e, a ; dx in E for subtracting
     sbc hl, de ; X - dx
-    ld (_mouseX), hl
+    push de
+    call clampMouseX
+    pop de
     ld (lastMouseDirectionX+1), a ; a will be non-zero here
     jp mouseKempstonY
 
@@ -70,7 +74,9 @@ inputHandler:
 .mousePositiveXSane
     ld hl, (_mouseX)
     add hl, a ; X + dx
-    ld (_mouseX), hl
+    push de
+    call clampMouseX
+    pop de
     xor a
     ld (lastMouseDirectionX+1), a
 
@@ -106,7 +112,7 @@ inputHandler:
     ld hl, (_mouseY)
     neg ; flip a for addition
     add hl, a ; Y + dy
-    ld (_mouseY), hl
+    call clampMouseY ; ok for DE to get trashed
     ld (lastMouseDirectionY+1), a ; a will be non zero here
     jp joystickXSpeed
 
@@ -127,7 +133,7 @@ inputHandler:
     xor a ; zero and clear carry
     ld (lastMouseDirectionY+1), a
     sbc hl, de ; currentY - dy
-    ld (_mouseY), hl
+    call clampMouseY ; ok for DE to get trashed
 
 .joystickXSpeed:
     ld hl, 0 ; placeholder, load last X speed
@@ -153,7 +159,7 @@ inputHandler:
     ld (joystickXSpeed+1), hl ; commit X speed for next loop
     ld de, (_mouseX)
     adc hl, de
-    ld (_mouseX), hl
+    call clampMouseX ; updated mouse X using this speed, ok for DE to get trashed
 
 .joystickYSpeed:
     ld hl, 0 ; placeholder, load last Y speed
@@ -178,7 +184,7 @@ inputHandler:
     ld (joystickYSpeed+1), hl ; store this Y speed for next loop
     ld de, (_mouseY)
     adc hl, de
-    ld (_mouseY), hl ; updated mouse Y using this speed
+    call clampMouseY ; updated mouse Y using this speed, ok for DE to get trashed
     ; fallthrough to joystickFire
 
 .joystickFire:
