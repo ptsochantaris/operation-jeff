@@ -54,9 +54,7 @@ inputHandler:
     neg ; also clears carry
     ld e, a ; dx in E for subtracting
     sbc hl, de ; X - dx
-    push de
-    call clampMouseX
-    pop de
+    ld (_mouseX), hl
     ld (lastMouseDirectionX+1), a ; a will be non-zero here
     jp mouseKempstonY
 
@@ -74,9 +72,7 @@ inputHandler:
 .mousePositiveXSane
     ld hl, (_mouseX)
     add hl, a ; X + dx
-    push de
-    call clampMouseX
-    pop de
+    ld (_mouseX), hl
     xor a
     ld (lastMouseDirectionX+1), a
 
@@ -112,7 +108,7 @@ inputHandler:
     ld hl, (_mouseY)
     neg ; flip a for addition
     add hl, a ; Y + dy
-    call clampMouseY ; ok for DE to get trashed
+    ld (_mouseY), hl
     ld (lastMouseDirectionY+1), a ; a will be non zero here
     jp joystickXSpeed
 
@@ -133,7 +129,7 @@ inputHandler:
     xor a ; zero and clear carry
     ld (lastMouseDirectionY+1), a
     sbc hl, de ; currentY - dy
-    call clampMouseY ; ok for DE to get trashed
+    ld (_mouseY), hl
 
 .joystickXSpeed:
     ld hl, 0 ; placeholder, load last X speed
@@ -159,7 +155,7 @@ inputHandler:
     ld (joystickXSpeed+1), hl ; commit X speed for next loop
     ld de, (_mouseX)
     adc hl, de
-    call clampMouseX ; updated mouse X using this speed, ok for DE to get trashed
+    call clampMouseX ; updated mouse X using this speed, ok for HL and DE to get trashed
 
 .joystickYSpeed:
     ld hl, 0 ; placeholder, load last Y speed
@@ -184,7 +180,7 @@ inputHandler:
     ld (joystickYSpeed+1), hl ; store this Y speed for next loop
     ld de, (_mouseY)
     adc hl, de
-    call clampMouseY ; updated mouse Y using this speed, ok for DE to get trashed
+    call clampMouseY ; updated mouse Y using this speed, ok for HL and DE to get trashed
     ; fallthrough to joystickFire
 
 .joystickFire:

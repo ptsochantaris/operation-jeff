@@ -66,17 +66,17 @@ PUBLIC clampMouseX ; expects mouseX in HL, trashes HL, DE
 clampMouseX:
     ld de, (_mouseTopLeft) ; mouseTopLeft.x
     sbc hl, de
-    jp p, clampMouseAboveMinLeft
+    jp p, clampMouseAboveLeading
     ld (_mouseX), de
     ret
-.clampMouseAboveMinLeft:
+.clampMouseAboveLeading:
     add hl, de ; restore HL
     ld de, 303
     sbc hl, de
-    jp c, noXClamp
+    jp c, clampMouseBelowTrailing
     ld (_mouseX), de
     ret
-.noXClamp:
+.clampMouseBelowTrailing:
     add hl, de ; restore HL
     ld (_mouseX), hl
     ret
@@ -85,17 +85,17 @@ PUBLIC clampMouseY ; expects mouseY in HL, trashes HL, DE
 clampMouseY:
     ld de, (_mouseTopLeft+2) ; mouseTopLeft.y
     sbc hl, de
-    jp p, clampMouseAboveMinTop
+    jp p, clampMouseBelowTop
     ld (_mouseY), de
     ret
-.clampMouseAboveMinTop:
+.clampMouseBelowTop:
     add hl, de ; restore HL
     ld de, 240
     sbc hl, de
-    jp c, noYClamp
+    jp c, clampMouseAboveBottom
     ld (_mouseY), de
     ret
-.noYClamp:
+.clampMouseAboveBottom:
     add hl, de ; restore HL
     ld (_mouseY), hl
     ret
