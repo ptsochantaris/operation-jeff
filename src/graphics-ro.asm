@@ -216,6 +216,7 @@ layer2CharSidewaysNoBackground:
     ; DE          ; x
     ; iy          ; address of first slice
 
+    ld h, l
     ld c, (iy)
     call layer2PlotSliceSidewaysNoBackground
     ld c, (iy+1)
@@ -235,9 +236,7 @@ layer2CharSidewaysNoBackground:
     srl c
     djnz layer2PlotSliceSidewaysNoBackgroundLoop
     inc de ; next x
-    dec l
-    dec l
-    dec l
+    ld l, h
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
