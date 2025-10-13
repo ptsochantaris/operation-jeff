@@ -1,6 +1,6 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2SlicePlot, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg
+GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2SlicePlot, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground
 
 PUBLIC _setPaletteCeiling
 _setPaletteCeiling:
@@ -148,12 +148,12 @@ _printAttributes:
     ret z ; exit if char is zero
 
     ; put first slice of font in IY
-    sub 32
+    sub 32 ; index = ascii - 32
     exx
     ld d, a
     ld e, 6
-    mul d, e
-    add de, font_data
+    mul d, e ; offset = index * 6 (bytes per char)
+    add de, font_data ; font data + offset
     ld iy, de
     exx
 
@@ -190,29 +190,23 @@ ulaAttributeChar:
 .ulaAttributeCharPlotSlice:
     inc a
     ld b, 3         ; loops in b
-.ulaAttributeCharPlotSliceLoop:
-    bit 5, c
-    jp z, ulaAttributeCharPlotSliceSkip
 
     push hl
-
     add hl, a ; y + current row from A
-
     ex de, hl
     mul d, e
     ex de, hl
-
     add hl, de ; y+x
+
+.ulaAttributeCharPlotSliceLoop:
+    bit 5, c
+    jp z, ulaAttributeCharPlotSliceSkip
     ld (hl), a
-
-    pop hl
-
 .ulaAttributeCharPlotSliceSkip:
-    dec de
+    dec hl
     srl c
     djnz ulaAttributeCharPlotSliceLoop
-
-    add de, 3 ; reset x
+    pop hl
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -244,34 +238,6 @@ layer2CharSidewaysNoBackground:
     dec l
     dec l
     dec l
-    RET
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-layer2CharNoBackground:
-    ; HL y
-    ; DE x
-
-    ld c, (iy)
-    call layer2PlotSliceNoBackground
-    ld c, (iy+1)
-    call layer2PlotSliceNoBackground
-    ld c, (iy+2)
-    call layer2PlotSliceNoBackground
-    ld c, (iy+3)
-    call layer2PlotSliceNoBackground
-    ld c, (iy+4)    ; fallthrough to layer2PlotSliceNoBackground
-
-.layer2PlotSliceNoBackground:
-    ld b, 3         ; loops in b
-.layer2PlotSliceNoBackgroundLoop:
-    bit 5, c
-    call nz, layer2SlicePlot
-    dec de
-    srl c
-    djnz layer2PlotSliceNoBackgroundLoop
-    inc l ; next y
-    add de, 3 ; reset de
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

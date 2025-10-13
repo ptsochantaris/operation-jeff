@@ -140,6 +140,8 @@ layer2Char:
     ; DE - x
     ; iy - address of first slice
 
+    ld (layer2PlotSliceSet+1), de
+
     ld c, (iy)
     call layer2PlotSlice
     ld c, (iy+1)
@@ -168,7 +170,8 @@ layer2Char:
     srl c
     djnz layer2PlotSliceLoop
     inc l ; next y
-    add de, 3 ; reset DE
+.layer2PlotSliceSet:
+    ld de, 0 ; placeholder
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -207,3 +210,37 @@ setPaletteCommit:
     ld a, d
     nextreg 68, a ; REG_PALETTE_VALUE_16 ; 0000000B
     ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC layer2CharNoBackground
+layer2CharNoBackground:
+    ; HL y
+    ; DE x
+
+    ld (layer2PlotSliceNoBackgroundSet+1), de
+
+    ld c, (iy)
+    call layer2PlotSliceNoBackground
+    ld c, (iy+1)
+    call layer2PlotSliceNoBackground
+    ld c, (iy+2)
+    call layer2PlotSliceNoBackground
+    ld c, (iy+3)
+    call layer2PlotSliceNoBackground
+    ld c, (iy+4)    ; fallthrough to layer2PlotSliceNoBackground
+
+.layer2PlotSliceNoBackground:
+    ld b, 3         ; loops in b
+.layer2PlotSliceNoBackgroundLoop:
+    bit 5, c
+    call nz, layer2SlicePlot
+    dec de
+    srl c
+    djnz layer2PlotSliceNoBackgroundLoop
+    inc l ; next y
+.layer2PlotSliceNoBackgroundSet:
+    ld de, 0 ; placeholder
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
