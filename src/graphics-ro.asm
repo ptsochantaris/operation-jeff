@@ -1,6 +1,6 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2PlotInternal, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground, selectLayer2PageInternal
+GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2PlotInternal, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground, selectLayer2PageInternal, ulaAttributeChar
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -172,50 +172,6 @@ _printAttributes:
     inc bc ; next char
     add de, 4 ; move X to the right
     jp printAttributesLoop
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-ulaAttributeChar:
-    ; l           ; y
-    ; de          ; x + ula attributes
-    ; iy          ; address of first slice
-
-    xor a
-    ld c, (iy)
-    call ulaAttributeCharPlotSlice
-
-    ld c, (iy+1)
-    call ulaAttributeCharPlotSlice
-
-    ld c, (iy+2)
-    call ulaAttributeCharPlotSlice
-
-    ld c, (iy+3)
-    call ulaAttributeCharPlotSlice
-
-    ld c, (iy+4)    ; fallthrough to ulaAttributeCharPlotSlice
-
-.ulaAttributeCharPlotSlice:
-    inc a
-    ld b, 3         ; loops in b
-
-    push hl
-    add hl, a ; y + current row from A
-    ex de, hl
-    mul d, e
-    ex de, hl
-    add hl, de ; y+x
-
-.ulaAttributeCharPlotSliceLoop:
-    bit 5, c
-    jp z, ulaAttributeCharPlotSliceSkip
-    ld (hl), a
-.ulaAttributeCharPlotSliceSkip:
-    dec hl
-    srl c
-    djnz ulaAttributeCharPlotSliceLoop
-    pop hl
-    RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

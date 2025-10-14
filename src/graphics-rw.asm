@@ -208,6 +208,53 @@ setPaletteCommit:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+PUBLIC ulaAttributeChar
+ulaAttributeChar:
+    ; l           ; y
+    ; de          ; x + ula attributes
+    ; iy          ; address of first slice
+
+    ld (ulaAttributeCharPlotSliceLoopReset+1), hl
+
+    xor a
+    ld c, (iy)
+    call ulaAttributeCharPlotSlice
+
+    ld c, (iy+1)
+    call ulaAttributeCharPlotSlice
+
+    ld c, (iy+2)
+    call ulaAttributeCharPlotSlice
+
+    ld c, (iy+3)
+    call ulaAttributeCharPlotSlice
+
+    ld c, (iy+4)    ; fallthrough to ulaAttributeCharPlotSlice
+
+.ulaAttributeCharPlotSlice:
+    inc a
+    ld b, 3         ; loops in b
+
+    add hl, a ; y + current row from A
+    ex de, hl
+    mul d, e
+    ex de, hl
+    add hl, de ; y+x
+
+.ulaAttributeCharPlotSliceLoop:
+    bit 5, c
+    jp z, ulaAttributeCharPlotSliceSkip
+    ld (hl), a
+.ulaAttributeCharPlotSliceSkip:
+    dec hl
+    srl c
+    djnz ulaAttributeCharPlotSliceLoop
+.ulaAttributeCharPlotSliceLoopReset:
+    ld hl, 0 ; placeholder
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC layer2CharNoBackground
 layer2CharNoBackground:
     ; HL y
