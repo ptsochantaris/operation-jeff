@@ -1,6 +1,15 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2SlicePlot, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground
+GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2SlicePlot, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground, selectLayer2PageInternal
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _selectLayer2Page
+_selectLayer2Page:
+    ld a, l
+    jp selectLayer2PageInternal
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _setPaletteCeiling
 _setPaletteCeiling:
@@ -130,7 +139,7 @@ _setPaletteFloor:
 
 PUBLIC _printAttributes
 _printAttributes:
-    pop bc          ; return address
+    pop iy          ; return address
 
     pop HL          ; y
     ld h, 32        ; will be using for multiplication
@@ -138,9 +147,8 @@ _printAttributes:
     pop DE          ; x
     add de, $77E3   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 (one row) + 3 (initial char width)
 
-    pop iy          ; address of first char
-    push bc         ; put return back on stack
-    ld bc, iy
+    pop bc          ; address of first char
+    push iy         ; put return back on stack
 
 .printAttributesLoop:
     ld a, (bc)
@@ -458,42 +466,30 @@ _layer2StashPalette:
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;415
 PUBLIC _updateSprite
 _updateSprite:
     ld a, (hl) ; index byte
     nextreg $34, a
-    inc hl
 
-    ld bc, (hl) ; targetX
-    inc hl
-    inc hl
-
-    ld de, (hl) ; y
-    inc hl
-    inc hl
-
-    push bc
-    ld bc, (hl) ; z
-    inc hl
-    inc hl
-
-    ex de, hl ; swap y into HL to subtract
+    ld iy, hl
+    exx
+    ld bc, (iy+1) ; targetX
+    ld hl, (iy+3) ; y
+    ld de, (iy+5) ; z
+    
     or a ; clear C
-    sbc hl, bc  ; targetY (y - z)
-    ex de, hl ; put y back into DE
-    pop bc
+    sbc hl, de  ; targetY (y - z)
 
     jp nc, updateSpriteScaleNegativeDone
-    ld de, 0
+    ld hl, 0
 .updateSpriteScaleNegativeDone:
 
-    ld a, (hl)  ; scale up
-    inc hl
+    ld a, (iy+7)  ; scale up
     or a
     jp z, updateSpriteScaleDone
     add bc, -8
-    add de, -8
+    add hl, -8
     ld a, $a
 .updateSpriteScaleDone:
     nextreg $39, a
@@ -501,22 +497,22 @@ _updateSprite:
     ld a, c
     nextreg $35, a  ; x low
 
-    ld a, e
+    ld a, l
     nextreg $36, a  ; y low, y high is always 0
 
-    ld a, (hl) ; mirrored?
-    inc hl
+    ld a, (iy+8) ; mirrored?
     or a
     jp z, updateSpriteMirrorDone
     ld a, 8
 .updateSpriteMirrorDone:
-    or b    ; targetX high
+    or b    ; x high
     nextreg $37, a
 
-    ld a, (hl) ; pattern byte
+    ld a, (iy+9) ; pattern byte
     or $c0  ; // 1'0'PPPPPP ; sprite visible, using pattern
     nextreg $38, a
 
+    exx
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

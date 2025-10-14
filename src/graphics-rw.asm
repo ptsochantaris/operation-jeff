@@ -2,23 +2,6 @@ SECTION code_compiler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _selectLayer2Page
-_selectLayer2Page:
-    ld a, l
-
-.selectLayer2PageInternal:
-    cp 100       ; placeholder
-    ret z
-    ld (selectLayer2PageInternal+1), a
-    or $10          ; add other L2 flag
-    push bc
-    ld bc, $123b
-    out (c), a
-    pop bc
-    ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 PUBLIC _layer2Plot, layer2SlicePlot, layer2Set
 _layer2Plot:
     pop bc          ; return address
@@ -59,8 +42,19 @@ selectPageForXInDE:
     or 0    ; EEDDDDDD
     rlca    ; EDDDDDDE
     rlca    ; DDDDDDEE
+    ; fallthrough to selectLayer2PageInternal
 
-    jp selectLayer2PageInternal
+PUBLIC selectLayer2PageInternal
+selectLayer2PageInternal:
+    cp 0    ; placeholder
+    ret z
+    ld (selectLayer2PageInternal+1), a
+    or $10  ; add other L2 flag
+    exx
+    ld bc, $123b
+    out (c), a
+    exx
+    ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -140,7 +134,7 @@ layer2Char:
     ; DE - x
     ; iy - address of first slice
 
-    ld (layer2PlotSliceSet+1), de
+    ld (layer2PlotSliceSet+1), de ; baseline X
 
     ld c, (iy)
     call layer2PlotSlice
