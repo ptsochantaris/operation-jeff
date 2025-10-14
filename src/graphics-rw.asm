@@ -2,7 +2,7 @@ SECTION code_compiler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _layer2Plot, layer2SlicePlot, layer2Set
+PUBLIC _layer2Plot, layer2PlotInternal, layer2Set
 _layer2Plot:
     pop bc          ; return address
 
@@ -13,16 +13,17 @@ _layer2Plot:
     pop HL          ; y
     pop DE          ; x
     push bc         ; put return back on stack
+    ; fallthrough to layer2PlotInternal
 
-.layer2SlicePlot:
+layer2PlotInternal:
+    call selectPageForXInDE
+
     push hl
 
     ; offset in page
     ld a, e
     and $3F         ; keep in-page bits of x
     ld h, a         ; in-page x (h) + y (l)
-
-    call selectPageForXInDE
 
 .layer2Set:
     ld (hl), 0       ; set (hl) to colour value
@@ -158,7 +159,7 @@ layer2Char:
     ld a, 0
 .layer2PlotSliceGo:
     ld (layer2Set+1), a
-    call layer2SlicePlot
+    call layer2PlotInternal
 
     dec de
     srl c
@@ -228,7 +229,7 @@ layer2CharNoBackground:
     ld b, 3         ; loops in b
 .layer2PlotSliceNoBackgroundLoop:
     bit 5, c
-    call nz, layer2SlicePlot
+    call nz, layer2PlotInternal
     dec de
     srl c
     djnz layer2PlotSliceNoBackgroundLoop

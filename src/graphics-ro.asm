@@ -1,6 +1,6 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2SlicePlot, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground, selectLayer2PageInternal
+GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2PlotInternal, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground, selectLayer2PageInternal
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -239,7 +239,7 @@ layer2CharSidewaysNoBackground:
     ld b, 3         ; loops in b
 .layer2PlotSliceSidewaysNoBackgroundLoop:
     bit 5, c
-    call nz, layer2SlicePlot
+    call nz, layer2PlotInternal
     inc l
     srl c
     djnz layer2PlotSliceSidewaysNoBackgroundLoop
