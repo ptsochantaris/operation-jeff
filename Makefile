@@ -6,13 +6,10 @@ SUBTYPE=nex
 TARGET=+zxn
 CLIB=sdcc_iy
 VERBOSITY=-vn
-LIBS=-lm --math16
 PRAGMA_FILE=zpragma.inc
-APPMAKE_ARGS=-Cz"--nex-border 0" -Cz"--nex-loadbar 19" -Cz"--nex-screen resources/loadingScreen.nxi" -Cz"--clean"
-C_OPT_FLAGS=-SO3 --max-allocs-per-node200000 --math16 --fomit-frame-pointer #--opt-code-size
 INCLUDES=-I${ZCCCFG}/../../libsrc/_DEVELOPMENT/target/zxn
-CFLAGS=$(TARGET) $(VERBOSITY) -c $(C_OPT_FLAGS) --constsegPAGE_28_POSTISR -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) $(INCLUDES)
-LDFLAGS=$(TARGET) $(VERBOSITY) -clib=$(CLIB) $(APPMAKE_ARGS) -pragma-include=$(PRAGMA_FILE) $(LIBS)
+CFLAGS=$(TARGET) $(VERBOSITY) -c -SO3 --max-allocs-per-node200000 --math16 --fomit-frame-pointer --constsegPAGE_28_POSTISR -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) $(INCLUDES)
+LDFLAGS=$(TARGET) $(VERBOSITY) -Cz"--nex-border 0" -Cz"--nex-loadbar 19" -Cz"--nex-screen resources/loadingScreen.nxi" -Cz"--clean" -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) -lm --math16
 ASFLAGS=$(TARGET) $(VERBOSITY) -c -float=ieee16
 EXEC=OperationJeff
 EXEC_OUTPUT=$(EXEC).nex
