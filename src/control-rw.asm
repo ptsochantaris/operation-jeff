@@ -16,6 +16,11 @@ GLOBAL joystickSpeedUp, joystickSpeedDown, joystickSpeedSlow, clampMouseX, clamp
 
 PUBLIC inputHandler
 inputHandler:
+    push af
+    push bc
+    push de
+    push hl
+
     ; buttons
     ld bc, $fadf
     in a, (c)
@@ -186,10 +191,17 @@ inputHandler:
 .joystickFire:
     ld(joystickButtons), a  ; xxxxxFFF
     and 7                   ; 00000FFF
-    ret z
+    jp z, allDone
 
     ; one of the fire buttons was pressed
     ld a, (_mouseHwB)
     and $FD ; xxxxxx0x - pretend left button pressed
     ld (_mouseHwB), a
+
+.allDone
+    pop hl
+    pop de
+    pop bc
+    pop af
+    ei
     ret

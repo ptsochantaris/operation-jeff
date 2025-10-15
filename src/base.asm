@@ -7,31 +7,16 @@ keyboardLookup:
     DB 'Q', 'W', 'E', 'R', 'T', 'P', 'O', 'I', 'U', 'Y'
     DB 'A', 'S', 'D', 'F', 'G',  13, 'L', 'K', 'J', 'H'
     DB   1, 'Z', 'X', 'C', 'V', ' ',   2, 'M', 'N', 'B'
-    DB 0
-
-    DS 15
+    DB   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
+    DB   0,   0,   0,   0,   0,   0
 
 GLOBAL inputHandler
 
 isr:
-    push af
-    push bc
-    push de
-    push hl
-
-    call inputHandler
-
-    pop hl
-    pop de
-    pop bc
-    pop af
-    
-    ei
-    ret
-isrEnd:
+    jp inputHandler
 
 SECTION PAGE_28_POSTISR
-org isrEnd
+org isr+3
 
 PUBLIC _bombRadii1, _bombRadii2
 _bombRadii1: DW 7, 8, 9, 10, 9, 8, 8, 8
