@@ -11,10 +11,9 @@ _aySetAmplitude:
     ld a, l
     add a, 8 ; reg
     ld bc, $fffd
-    out(c), a ; reg index
-    ld a, e
+    out (c), a ; reg index
     ld b, $bf
-    out(c), a ; volume
+    out (c), e ; volume
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -29,7 +28,7 @@ _aySetMixer:
     push bc
     ld a, 7
     ld bc, $fffd
-    out(c), a ; b = current AY7 register
+    out (c), a ; b = current AY7 register
 
     ld a, l ; channel number in L
     or a
@@ -94,7 +93,7 @@ _aySetMixer:
 
 .aySetMixerNoiseDone:
     ld bc, $bffd
-    out(c), a ; a = updated 00NN NTTT (one of N is now set or cleared)
+    out (c), a ; a = updated 00NN NTTT (one of N is now set or cleared)
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -121,8 +120,7 @@ _aySetEnvelope:
     out (c), a
 
     ld b, $bf
-    ld a, e ; duration low
-    out(c), a
+    out (c), e ; duration low
 
     ; ay register 12
     ld b, $ff
@@ -130,8 +128,7 @@ _aySetEnvelope:
     out (c), a
 
     ld b, $bf
-    ld a, d ; duration high
-    out(c), a
+    out (c), d ; duration high
 
     ; ay register 13
     ld b, $ff
@@ -139,8 +136,7 @@ _aySetEnvelope:
     out (c), a
 
     ld b, $bf
-    ld a, l ; type
-    out(c), a
+    out (c), l ; type
 
     RET
 
@@ -155,7 +151,7 @@ _aySetNoise:
     ld b, $bf
     ld a, l
     and $1f
-    out(c), a
+    out (c), a
 
     RET
 
@@ -172,7 +168,7 @@ _ayChipSelect:
     cpl
 
     ld bc, $fffd
-    out(c), a
+    out (c), a
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -185,22 +181,19 @@ _aySetPitch:
 
     sla l ; reg1 = channel x 2
 
-    ld a, l
     ld bc, $fffd
-    out(c), a ; reg1 index
+    out (c), l ; reg1 index
 
-    ld a, e
     ld b, $bf
-    out(c), a ; pitch low byte
+    out (c), e ; pitch low byte
 
 
-    ld a, l
-    inc a ; reg 2
+    inc l ; reg 2
     ld b, $ff
-    out(c), a ; reg 2 index
+    out (c), l ; reg 2 index
 
     ld a, d
     and $F
     ld b, $bf
-    out(c), a ; pitch high byte
+    out (c), a ; pitch high byte
     RET
