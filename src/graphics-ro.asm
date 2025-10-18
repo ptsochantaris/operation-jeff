@@ -1,6 +1,8 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2PlotInternal, layer2Set, layer2Char, layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground, selectLayer2PageInternal, ulaAttributeChar
+GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
+GLOBAL layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground, selectLayer2PageInternal, ulaAttributeChar
+GLOBAL layer2PlotSliceNoBackgroundInk, selectPageForXInDE, layer2CharSidewaysNoBackground, layer2PlotSliceSidewaysNoBackgroundInk
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -8,6 +10,31 @@ PUBLIC _selectLayer2Page
 _selectLayer2Page:
     ld a, l
     jp selectLayer2PageInternal
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _layer2Plot
+_layer2Plot:
+    pop bc          ; return address
+
+    pop HL          ; colour
+    ld a, l
+    ex af, af'      ; stash colour
+
+    pop HL          ; y
+    pop DE          ; x
+    push bc         ; put return back on stack
+
+    call selectPageForXInDE
+
+    ; offset in page
+    ld a, e
+    and $3F         ; keep in-page bits of x
+    ld h, a         ; in-page x (h) + y (l)
+
+    ex af, af'      ; unstash colour
+    ld (hl), a      ; set (hl) to colour value
+    ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -152,11 +179,10 @@ _printAttributes:
 
 .printAttributesLoop:
     ld a, (bc)
-    or a
-    ret z ; exit if char is zero
+    sub 32 ; index = ascii - 32
+    ret c ; exit if char is below 32
 
     ; put first slice of font in IY
-    sub 32 ; index = ascii - 32
     exx
     ld d, a
     ld e, 6
@@ -175,43 +201,13 @@ _printAttributes:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-layer2CharSidewaysNoBackground:
-    ; HL          ; y
-    ; DE          ; x
-    ; iy          ; address of first slice
-
-    ld h, l
-    ld c, (iy)
-    call layer2PlotSliceSidewaysNoBackground
-    ld c, (iy+1)
-    call layer2PlotSliceSidewaysNoBackground
-    ld c, (iy+2)
-    call layer2PlotSliceSidewaysNoBackground
-    ld c, (iy+3)
-    call layer2PlotSliceSidewaysNoBackground
-    ld c, (iy+4)    ; fallthrough to layer2PlotSliceSidewaysNoBackground
-
-.layer2PlotSliceSidewaysNoBackground:
-    ld b, 3         ; loops in b
-.layer2PlotSliceSidewaysNoBackgroundLoop:
-    bit 5, c
-    call nz, layer2PlotInternal
-    inc l
-    srl c
-    djnz layer2PlotSliceSidewaysNoBackgroundLoop
-    inc de ; next x
-    ld l, h
-    RET
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 PUBLIC _printNoBackground
 _printNoBackground:
     pop bc          ; return address
 
     pop HL          ; colour
     ld a, l
-    ld (layer2Set+1), a
+    ld (layer2PlotSliceNoBackgroundInk+1), a
 
     pop HL          ; y
     pop DE          ; x
@@ -223,11 +219,10 @@ _printNoBackground:
 
 .printNoBackgroundLoop:
     ld a, (bc)
-    or a
-    ret z ; exit if char is zero
+    sub 32 ; index = ascii - 32
+    ret c ; exit if char is below 32
 
     ; put first slice of font in IY
-    sub 32
     exx
     ld d, a
     ld e, 6
@@ -479,7 +474,7 @@ _printSidewaysNoBackground:
 
     pop HL          ; colour
     ld a, l
-    ld (layer2Set+1), a
+    ld (layer2PlotSliceSidewaysNoBackgroundInk+1), a
 
     pop HL          ; y
     pop DE          ; x
@@ -490,11 +485,10 @@ _printSidewaysNoBackground:
 
 .printSidewaysNoBackgroundLoop:
     ld a, (bc)
-    or a
-    ret z ; exit if char is zero
+    sub 32 ; index = ascii - 32
+    ret c ; exit if char is below 32
 
     ; put first slice of font in IY
-    sub 32
     exx
     ld d, a
     ld e, 6
@@ -540,11 +534,10 @@ _print:
 
 .printLoop:
     ld a, (bc)
-    or a
-    ret z ; exit if char is zero
+    sub 32 ; index = ascii - 32
+    ret c ; exit if char is below 32
 
     ; put first slice of font in IY
-    sub 32
     exx
     ld d, a
     ld e, 6

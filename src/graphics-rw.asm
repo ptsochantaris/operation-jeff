@@ -2,52 +2,19 @@ SECTION code_compiler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _layer2Plot, layer2PlotInternal, layer2Set
-_layer2Plot:
-    pop bc          ; return address
-
-    pop HL          ; colour
-    ld a, l
-    ld (layer2Set+1), a
-
-    pop HL          ; y
-    pop DE          ; x
-    push bc         ; put return back on stack
-    ; fallthrough to layer2PlotInternal
-
-layer2PlotInternal:
-    call selectPageForXInDE
-
-    push hl
-
-    ; offset in page
-    ld a, e
-    and $3F         ; keep in-page bits of x
-    ld h, a         ; in-page x (h) + y (l)
-
-.layer2Set:
-    ld (hl), 0       ; set (hl) to colour value
-    pop hl
-    ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+PUBLIC selectPageForXInDE
 selectPageForXInDE:
     ; DE >> 6 to get L2 page in A
     ld a, e ; EExxxxxx
     and $c0 ; EE000000
-    ld (selectPageForXInDESet+1), a
-
-    ld a, d ; 00DDDDDD
-.selectPageForXInDESet
-    or 0    ; EEDDDDDD
+    or d    ; EEDDDDDD
     rlca    ; EDDDDDDE
     rlca    ; DDDDDDEE
     ; fallthrough to selectLayer2PageInternal
 
 PUBLIC selectLayer2PageInternal
 selectLayer2PageInternal:
-    cp 0    ; placeholder
+    cp 99    ; placeholder, intentionally not zero
     ret z
     ld (selectLayer2PageInternal+1), a
     or $10  ; add other L2 flag
@@ -150,16 +117,20 @@ layer2Char:
 .layer2PlotSlice:
     ld b, 3         ; loops in b
 .layer2PlotSliceLoop:
+    call selectPageForXInDE
+    ; offset in page
+    ld a, e
+    and $3F         ; keep in-page bits of x
+    ld h, a         ; in-page x (h) + y (l)
+
     bit 5, c        
     jp z, layer2PlotSliceBg
 .layer2PlotSliceFg:
-    ld a, 0
-    jp layer2PlotSliceGo
+    ld (hl), 0      ; set (hl) to colour value
+    jp layer2PlotSliceNext
 .layer2PlotSliceBg:
-    ld a, 0
-.layer2PlotSliceGo:
-    ld (layer2Set+1), a
-    call layer2PlotInternal
+    ld (hl), 0      ; set (hl) to colour value
+.layer2PlotSliceNext:
 
     dec de
     srl c
@@ -255,7 +226,7 @@ ulaAttributeChar:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC layer2CharNoBackground
+PUBLIC layer2CharNoBackground, layer2PlotSliceNoBackgroundInk
 layer2CharNoBackground:
     ; HL y
     ; DE x
@@ -276,13 +247,69 @@ layer2CharNoBackground:
     ld b, 3         ; loops in b
 .layer2PlotSliceNoBackgroundLoop:
     bit 5, c
-    call nz, layer2PlotInternal
+    jp z, layer2PlotSliceNoBackgroundNext
+
+    call selectPageForXInDE
+    ; offset in page
+    ld a, e
+    and $3F         ; keep in-page bits of x
+    ld h, a         ; in-page x (h) + y (l)    
+layer2PlotSliceNoBackgroundInk:
+    ld (hl), 0      ; set (hl) to colour value
+
+.layer2PlotSliceNoBackgroundNext:
     dec de
     srl c
     djnz layer2PlotSliceNoBackgroundLoop
     inc l ; next y
 .layer2PlotSliceNoBackgroundSet:
     ld de, 0 ; placeholder
+    RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC layer2CharSidewaysNoBackground, layer2PlotSliceSidewaysNoBackgroundInk
+layer2CharSidewaysNoBackground:
+    ; HL          ; y
+    ; DE          ; x
+    ; iy          ; address of first slice
+
+    ld h, l
+    ld c, (iy)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+1)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+2)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+3)
+    call layer2PlotSliceSidewaysNoBackground
+    ld c, (iy+4)    ; fallthrough to layer2PlotSliceSidewaysNoBackground
+
+.layer2PlotSliceSidewaysNoBackground:
+    ld b, 3         ; loops in b
+.layer2PlotSliceSidewaysNoBackgroundLoop:
+    bit 5, c
+    jp z, layer2PlotSliceSidewaysNoBackgroundNext
+
+    call selectPageForXInDE
+
+    ld a, h         ; save H
+    ex af, af'
+    ; offset in page
+    ld a, e
+    and $3F         ; keep in-page bits of x
+    ld h, a         ; in-page x (h) + y (l)
+.layer2PlotSliceSidewaysNoBackgroundInk:
+    ld (hl), 0      ; set (hl) to colour value
+    ex af, af'
+    ld h, a         ; restore H
+
+.layer2PlotSliceSidewaysNoBackgroundNext:
+    inc l
+    srl c
+    djnz layer2PlotSliceSidewaysNoBackgroundLoop
+    inc de ; next x
+    ld l, h
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
