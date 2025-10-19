@@ -39,9 +39,8 @@ PUBLIC _playWithDma
 _playWithDma:
     pop hl ; address
 
-    pop de ; loop / prescalar
-
-    ld a, d ; loop
+    pop de ; loop flag
+    ld a, e
     or a
     ld a, $82
     jr z, playWithDmaNonLoop
@@ -49,7 +48,8 @@ _playWithDma:
 .playWithDmaNonLoop:
     ld (Dr5), a
 
-    ld a, e ; prescalar
+    pop de ; prescalar
+    ld a, e
     ld (audioPrescalar), a
 
     pop de ; length
