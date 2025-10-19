@@ -3,21 +3,28 @@ SECTION code_compiler
 GLOBAL outLoop16, outLoop11, outLoop10, outLoop7, outLoop5
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Dma setup - 7 bytes
 
-dmaHeader: ; 7 bytes
-.Dr6a:              DB $c3      ; 11000011 ; R6 reset dma
-.Dr0:               DB $7e      ; 01111101 ; R0-Transfer mode, A -> B, will provide address and length
+dmaHeader:          DB $c3      ; 11000011 ; R6 reset dma
+                    DB $7e      ; 01111101 ; R0-Transfer mode, A -> B, will provide address and length
 .Dsource:           DW 0        ; source address 
 .Dlength:           DW 0        ; transfer length
 .Dr5:               DB $82      ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-; dma payload - 9 bytes
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; transfer payload - 9 bytes
+
 .Dr1:               DB 0        ; R1 - from config
-.Dr1t:              DB 2        ; 0000 0010 - 2t timing for R1
+                    DB 2        ; 0000 0010 - 2t timing for R1
 .Dr2:               DB 0        ; R2 - to config
-.Dr2t:              DB 2        ; 0000 0010 - 2t timing for R2
+                    DB 2        ; 0000 0010 - 2t timing for R2
 .Dr4:               DB $ad      ; 1010 1101 ; R4 Continuous mode, will provide destination
-.Ddestination:      DW 0        ; destination post/address,
-.Dr6b:              DB $cf, $87 ; (R6 load, R6 enable DMA)
+.Ddestination:      DW 0        ; destination post/address
+                    DB $cf      ; R6 load
+                    DB $87      ; R6 enable DMA
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; stream payload (i.e. audio) - 10 bytes
 
 dmaAudioBuf:        DB $54      ; 0101 0100 ; R1 increment, from memory
                     DB $02      ; 0000 0010 ; no prescalar, 2t cycle
@@ -25,8 +32,12 @@ dmaAudioBuf:        DB $54      ; 0101 0100 ; R1 increment, from memory
                     DB $22      ; 0010 0010 ; want prescalar, use 2t cycle
 .audioPrescalar:    DB $37      ; $37 is supposed to be ~16 Khz prescalar, but isn't
                     DB $cd      ; 1100 1101 ; R4 burst mode, dest value follows
-                    DB $df, $ff ; Dest covox port L, H
-                    DB $cf, $87 ; (R6 load, R6 enable DMA)
+                    DB $df      ; Dest covox port H
+                    DB $ff      ; Dest covox port L
+                    DB $cf      ; R6 load
+                    DB $87      ; R6 enable DMA
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _dmaResetStatus
 _dmaResetStatus:
@@ -35,6 +46,8 @@ _dmaResetStatus:
     out (c), a
     RET
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _playWithDma
 _playWithDma:
     pop hl ; address
@@ -42,9 +55,9 @@ _playWithDma:
     pop de ; loop flag
     ld a, e
     or a
-    ld a, $82
+    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
     jr z, playWithDmaNonLoop
-    add $20 ; loop
+    add $20     ; loop 1010 0010 ; R5-Loop on end of block, RDY active LOW
 .playWithDmaNonLoop:
     ld (Dr5), a
 
@@ -64,6 +77,8 @@ _playWithDma:
     ld hl, dmaAudioBuf
     jp outLoop10
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _dmaMemoryToMemory
 _dmaMemoryToMemory:
     pop hl ; call address
@@ -81,10 +96,14 @@ _dmaMemoryToMemory:
     ld (Dr1), a
     ld a, $50; ; 0101 0000 ; R2 - increment, to memory, bitmask
     ld (Dr2), a
+    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
+    ld (Dr5), a
 
     ld bc, $6b
     ld hl, dmaHeader
     jp outLoop16
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _dmaMemoryToPort
 _dmaMemoryToPort:
@@ -103,10 +122,14 @@ _dmaMemoryToPort:
     ld (Dr1), a
     ld a, $68; ; 0110 1000 ; R2 - do not increment, to port, bitmask
     ld (Dr2), a
+    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
+    ld (Dr5), a
 
     ld bc, $6b
     ld hl, dmaHeader
     jp outLoop16
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _fillWithDma
 _fillWithDma:
@@ -115,8 +138,8 @@ _fillWithDma:
     pop de      ; value
     ld a, e
     ld (fillValue), a
-    ld de, fillValue
-    ld (Dsource), de
+    ld de, fillValue    ; Address of the fill value byte
+    ld (Dsource), de    ; as the DMA source
 
     pop de      ; length
     ld (Dlength), de
@@ -124,64 +147,70 @@ _fillWithDma:
     ex (sp), hl ; destination / call address back on stack
     ld (Ddestination), hl
 
-    ld a, 0x64   ; 0110 0100 ; R1 no increment, from memory, bitmask
+    ld a, $64   ; 0110 0100 ; R1 no increment, from memory, bitmask
     ld (Dr1), a
     ld a, $50;  ; 0101 0000 ; R2 - increment, to memory, bitmask
     ld (Dr2), a
+    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
+    ld (Dr5), a
 
     ld bc, $6b
     ld hl, dmaHeader
-    jp outLoop16
+    jp outLoop16 ; also RETs
 
 .fillValue:
     DB 0
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _fillWithDmaRepeat
 _fillWithDmaRepeat:
     pop hl      ; call address
 
     pop de      ; step
-    ld (fillWithDmaRepeatStep+1), de
+    ld (fillWithDmaRepeatStep+2), de
 
     pop de      ; times
-    ld a, e
-    ld (fillWithDmaRepeatTimes+1), a
 
-    pop de      ; value
-    ld a, e
+    pop bc      ; value
+    ld a, c
     ld (fillValue), a
-    ld de, fillValue
-    ld (Dsource), de
+    ld bc, fillValue    ; Address of the fill value byte
+    ld (Dsource), bc    ; as the DMA source
 
-    pop de      ; length
-    ld (Dlength), de
+    pop bc      ; length
+    ld (Dlength), bc
 
     ex (sp), hl ; destination / call address back on stack
     ld (Ddestination), hl
 
-    ld a, 0x64   ; 0110 0100 ; R1 no increment, from memory, bitmask
+    ld a, $64   ; 0110 0100 ; R1 no increment, from memory, bitmask
     ld (Dr1), a
     ld a, $50;  ; 0101 0000 ; R2 - increment, to memory, bitmask
     ld (Dr2), a
+    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
+    ld (Dr5), a
 
-    ld bc, $6b  ; write first 11 bytes to DMA port
+    ld bc, $6b
     ld hl, dmaHeader
-.fillWithDmaRepeatTimes:
-    ld a, 0
-    call outLoop11
+    call outLoop16
 
 .fillWithDmaRepeatLoop:
-    call outLoop5
-
-.fillWithDmaRepeatStep:
-    ld de, 0     ; placeholder
-    ld hl, (Ddestination)
-    add hl, de
-    ld (Ddestination), hl
-    dec a
+    dec de
+    ld a, e
+    or d
     ret z
-    ld hl, Dr4 ; 5 last bytes of dma program
+
+    ld hl, (Ddestination)
+.fillWithDmaRepeatStep:    
+    add hl, 0 ; placeholder for step
+    ld (Ddestination), hl ; increment destination
+
+    ld hl, Dr4 ; rewind back to Dr4
+    call outLoop5 ; write last 5 bytes to DMA port, from Dr4 onwards
     jp fillWithDmaRepeatLoop
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _dmaWaitForEnd
 _dmaWaitForEnd:
@@ -200,3 +229,5 @@ _stopDma:
     ld a, $c3
     out (c), a  ; 11000011 ; R6 reset dma
     ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1,6 +1,6 @@
 #include "base.h"
 
-void playSample(struct ResourceInfo *restrict info, byte speed, byte loop) __z88dk_callee {
+void playSample(struct ResourceInfo *restrict info, byte speed, byte loop) __z88dk_callee __smallc {
   ZXN_WRITE_MMU1(info->page);
   ZXN_WRITE_MMU2((info->page)+1);
   playWithDma((word)info->resource, info->length, speed, loop);

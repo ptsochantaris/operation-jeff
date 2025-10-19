@@ -107,7 +107,7 @@ static const word notePitches[] = {
     55
 };
 
-void ayPlayNote(byte channel, enum NoteIndex note) __z88dk_callee { // 0 - 4095
+void ayPlayNote(byte channel, enum NoteIndex note) __z88dk_callee __smallc { // 0 - 4095
     aySetPitch(channel, notePitches[note]);
 }
 

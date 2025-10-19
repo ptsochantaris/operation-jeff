@@ -8,7 +8,7 @@ const byte clipBytes[] = {0,159,0,255};
 // https://github.com/benbaker76/Gfx2Next
 // build/gfx2next ~/spacer.png -pal-std -pal-none -bitmap-y -bank-16k spacerTitle.nxi
 
-void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee {
+void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
   if(height == 0 || width == 0) return;
   word ex = x + width;
   word ey = y + height;
@@ -17,7 +17,10 @@ void layer2fill(word x, word y, word width, word height, byte color) __z88dk_cal
   }
 }
 
-void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee {
+void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
+  if(width<=0) return;
+  if(height<=0) return;
+
   word ex = x + width;
   byte endPage = ex >> 6;
   byte xInPage = x & 0x3F;
@@ -26,7 +29,7 @@ void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_
 
   selectLayer2Page(page);
   if(page >= endPage) {
-   fillWithDmaRepeat(bottomLeft, height, color, width, 256);
+    fillWithDmaRepeat(bottomLeft, height, color, width, 256);
   } else {
     fillWithDmaRepeat(bottomLeft, height, color, 64-xInPage, 256);
     --endPage;
@@ -43,7 +46,7 @@ void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_
   }
 }
 
-void layer2box(word x, word y, word width, word height, byte color) __z88dk_callee {
+void layer2box(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
   word ey = y + height;
   layer2HorizonalLine(x, y, width, color);
   layer2HorizonalLine(x, ey, width, color);
@@ -52,7 +55,7 @@ void layer2box(word x, word y, word width, word height, byte color) __z88dk_call
   layer2VerticalLine(x + width, y, ey, color);
 }
 
-void layer2roundedBox(word x, word y, word width, word height, byte color) __z88dk_callee {
+void layer2roundedBox(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
   word ey = y + height;
   layer2VerticalLine(x, y+1, ey, color);
   layer2VerticalLine(x+width, y+1, ey, color);
@@ -97,7 +100,7 @@ void flashPaletteDown(void) __z88dk_fastcall {
   }
 }
 
-void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette) __z88dk_callee {
+void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette) __z88dk_callee __smallc {
   stashPalette(paletteMask);
 
   for(byte shift=8; shift > 0; --shift) {
@@ -114,7 +117,7 @@ void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette)
   }
 }
 
-void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word numColours, byte paletteMask) __z88dk_callee {
+void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word numColours, byte paletteMask) __z88dk_callee __smallc {
   selectPalette(paletteMask);
   loadPaletteBuffer(compressedPalette);
 
@@ -124,7 +127,7 @@ void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word n
   }
 }
 
-void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte palette) __z88dk_callee {
+void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte palette) __z88dk_callee __smallc {
   selectPalette(palette);
   loadPaletteBuffer(compressedPalette);
   
@@ -186,7 +189,7 @@ static const byte *corners[] = {
   corner8px
 };
 
-void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) __z88dk_callee {
+void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) __z88dk_callee __smallc {
   const byte *widths = corners[radius-1];
   word mid = x + radius;
   word ey = y + (radius << 1);

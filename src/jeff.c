@@ -95,7 +95,7 @@ void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_fastcall {
     decompressZX0((byte *)(info->heightmapAsset.resource), heightMap);
 }
 
-static void setJeffPos(struct jeff *restrict j, byte direction) __z88dk_callee {
+static void setJeffPos(struct jeff *restrict j, byte direction) __z88dk_callee __smallc {
     struct sprite_info *s = &(j->sprite);
     int vertical, horizontal;
 

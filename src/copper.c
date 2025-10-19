@@ -5,7 +5,7 @@ static void copperControl(byte code) __z88dk_fastcall {
     ZXN_NEXTREG(REG_COPPER_CONTROL_L, 0);
 }
 
-static void copperBar(byte y, byte step) __z88dk_callee {
+static void copperBar(byte y, byte step) __z88dk_callee __smallc {
         byte shades[] = {
         0,
         0b01001001,

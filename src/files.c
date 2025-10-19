@@ -34,7 +34,7 @@ void esxDosRomSetup(void) __z88dk_fastcall {
     ZXN_WRITE_MMU0(28);
 }
 
-void persistData(void *src, int len, const char *restrict filename) __z88dk_callee {
+void persistData(void *src, int len, const char *restrict filename) __z88dk_callee __smallc {
     if(len <= 0) return;
 
     prepareForEsxCall();
@@ -46,7 +46,7 @@ void persistData(void *src, int len, const char *restrict filename) __z88dk_call
     completedEsxCall();
 }
 
-void fetchData(void *dst, int len, const char *restrict filename) __z88dk_callee {
+void fetchData(void *dst, int len, const char *restrict filename) __z88dk_callee __smallc {
     if(len <= 0) return;
 
     prepareForEsxCall();
