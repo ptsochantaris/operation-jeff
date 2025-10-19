@@ -216,10 +216,10 @@ PUBLIC _dmaWaitForEnd
 _dmaWaitForEnd:
     ld bc, $6b
 dmaWaitForEndLoop:
-    ld a, $bf // 1011 1011 - read status byte
+    ld a, $bf ; 1011 1011 - ask for DMA controller status byte
     out (c), a
-    in a, (c) // 00E1101T
-    and $10
+    in a, (c) ; read response: 00E1101T
+    and $20 ; check "E" bit is zero
     ret z
     jp dmaWaitForEndLoop
 
