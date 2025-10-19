@@ -45,7 +45,8 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	base.o \
 	zx0.o \
 	font.o \
-	dma.o \
+	dma-ro.o \
+	dma-rw.o \
 	graphics-ro.o \
 	graphics-rw.o \
 	control-ro.o \
