@@ -1,6 +1,7 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL dmaFillValue, outLoop7, outLoop10, outLoop16, dmaHeader, dmaAudioBuf, Dsource, Dlength, Dr5, Dr1, Dr2, Dr4, Ddestination, audioPrescalar
+GLOBAL dmaFillValue, outLoop7, outLoop10, outLoop16
+GLOBAL dmaAudioBuf, dmaSource, dmaLength, DmaR5, dmaR1, dmaR2, dmaR5, dmaDestination, dmaPrescalar, dmaHeader
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -46,17 +47,17 @@ _playWithDma:
     jr z, playWithDmaNonLoop
     add $20     ; loop 1010 0010 ; R5-Loop on end of block, RDY active LOW
 .playWithDmaNonLoop:
-    ld (Dr5), a
+    ld (dmaR5), a
 
     pop de ; prescalar
     ld a, e
-    ld (audioPrescalar), a
+    ld (dmaPrescalar), a
 
     pop de ; length
-    ld (Dlength), de
+    ld (dmaLength), de
 
     ex (sp), hl ; source / call address back on stack
-    ld (Dsource), hl
+    ld (dmaSource), hl
 
     ld bc, $6b
     ld hl, dmaHeader ; just the header
@@ -71,20 +72,20 @@ _dmaMemoryToMemory:
     pop hl ; call address
     
     pop de ; length
-    ld (Dlength), de
+    ld (dmaLength), de
 
     pop de ; destination
-    ld (Ddestination), de
+    ld (dmaDestination), de
 
     ex (sp), hl ; source / call address back on stack
-    ld (Dsource), hl
+    ld (dmaSource), hl
 
     ld a, $54; ; 0101 0100 ; R1 - increment, from memory, bitmask
-    ld (Dr1), a
+    ld (dmaR1), a
     ld a, $50; ; 0101 0000 ; R2 - increment, to memory, bitmask
-    ld (Dr2), a
+    ld (dmaR2), a
     ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-    ld (Dr5), a
+    ld (dmaR5), a
 
     ld bc, $6b
     ld hl, dmaHeader
@@ -97,20 +98,20 @@ _dmaMemoryToPort:
     pop hl ; call address
     
     pop de ; length
-    ld (Dlength), de
+    ld (dmaLength), de
 
     pop de ; port
-    ld (Ddestination), de
+    ld (dmaDestination), de
 
     ex (sp), hl ; source / call address back on stack
-    ld (Dsource), hl
+    ld (dmaSource), hl
 
     ld a, $54; ; 0101 0100 ; R1 - increment, from memory, bitmask
-    ld (Dr1), a
+    ld (dmaR1), a
     ld a, $68; ; 0110 1000 ; R2 - do not increment, to port, bitmask
-    ld (Dr2), a
+    ld (dmaR2), a
     ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-    ld (Dr5), a
+    ld (dmaR5), a
 
     ld bc, $6b
     ld hl, dmaHeader
@@ -126,20 +127,20 @@ _fillWithDma:
     ld a, e
     ld (dmaFillValue), a
     ld de, dmaFillValue    ; Address of the fill value byte
-    ld (Dsource), de    ; as the DMA source
+    ld (dmaSource), de    ; as the DMA source
 
     pop de      ; length
-    ld (Dlength), de
+    ld (dmaLength), de
 
     ex (sp), hl ; destination / call address back on stack
-    ld (Ddestination), hl
+    ld (dmaDestination), hl
 
     ld a, $64   ; 0110 0100 ; R1 no increment, from memory, bitmask
-    ld (Dr1), a
+    ld (dmaR1), a
     ld a, $50;  ; 0101 0000 ; R2 - increment, to memory, bitmask
-    ld (Dr2), a
+    ld (dmaR2), a
     ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-    ld (Dr5), a
+    ld (dmaR5), a
 
     ld bc, $6b
     ld hl, dmaHeader
