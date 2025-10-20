@@ -40,57 +40,56 @@ _layer2Plot:
 
 PUBLIC _setPaletteCeiling
 _setPaletteCeiling:
-    pop bc ; address
-    pop hl ; ceiling in L
-    pop de ; colour count in DE (2 bytes per colour)
-    push bc ; return address
+    pop hl      ; address
+    pop bc      ; ceiling in C
+    ex (sp), hl ; colour count in HL (2 bytes per colour), place return address back
 
-    ld iy, _paletteBuffer
+    ld de, _paletteBuffer
 
     nextreg 64, 0 ; REG_PALETTE_INDEX
 
-    ld b, e ; 8 bit loop, we keep D for later
+    ld b, l ; 8 bit loop, we keep H for later
     
 .setPaletteCeilingLoop:
-    ld c, (iy)
-    inc iy
+    ld h, (de)
+    inc de
 
-    ld a, c     ; RRRGGGBB
+    ld a, h     ; RRRGGGBB
     rlca
     rlca
     rlca        ; GGGBBRRR
     and 7       ; 00000RRR
 
-    cp l
+    cp c
     jr c, setPaletteCeilingRedBelowCeiling
-    ld a, l
+    ld a, c
 .setPaletteCeilingRedBelowCeiling:
     ld (setPaletteCommitRed+1), a
 
-    ld a, c     ; RRRGGGBB
+    ld a, h     ; RRRGGGBB
     rrca
     rrca        ; BBRRRGGG
     and 7       ; 00000GGG
 
-    cp l
+    cp c
     jr c, setPaletteCeilingGreenBelowCeiling
-    ld a, l
+    ld a, c
 .setPaletteCeilingGreenBelowCeiling:
     ld (setPaletteCommitGreen+1), a
 
-    ld a, c     ; RRRGGGBB
+    ld a, h     ; RRRGGGBB
     rlca        ; RRGGGBBR
     and 6       ; 00000BB0
-    ld c, a
+    ld h, a
 
-    ld a, (iy)  ; XXXXXXXB
-    inc iy
+    ld a, (de)  ; XXXXXXXB
+    inc de
     and 1       ; 0000000B
-    or c        ; 00000BBB
+    or h        ; 00000BBB
 
-    cp l
+    cp c
     jr c, setPaletteCeilingBlueBelowCeiling
-    ld a, l
+    ld a, c
 .setPaletteCeilingBlueBelowCeiling:
 
     call setPaletteCommit
@@ -103,57 +102,56 @@ _setPaletteCeiling:
 
 PUBLIC _setPaletteFloor
 _setPaletteFloor:
-    pop bc ; address
-    pop hl ; ceiling in L
-    pop de ; colour count in DE (2 bytes per colour)
-    push bc ; return address
+    pop hl      ; address
+    pop bc      ; floor in C
+    ex (sp), hl ; colour count in HL (2 bytes per colour), address back on stack
 
-    ld iy, _paletteBuffer
+    ld de, _paletteBuffer
 
     nextreg 64, 0 ; REG_PALETTE_INDEX
 
-    ld b, e ; 8 bit loop, we keep D for later
+    ld b, l ; 8 bit loop, we keep H for later
     
 .setPaletteFloorLoop:
-    ld c, (iy)
-    inc iy
+    ld h, (de)
+    inc de
 
-    ld a, c     ; RRRGGGBB
+    ld a, h     ; RRRGGGBB
     rlca
     rlca
     rlca        ; GGGBBRRR
     and 7       ; 00000RRR
 
-    cp l
+    cp c
     jr nc, setPaletteFloorRedAboveFloor
-    ld a, l
+    ld a, c
 .setPaletteFloorRedAboveFloor:
     ld (setPaletteCommitRed+1), a
 
-    ld a, c     ; RRRGGGBB
+    ld a, h     ; RRRGGGBB
     rrca
     rrca        ; BBRRRGGG
     and 7       ; 00000GGG
 
-    cp l
+    cp c
     jr nc, setPaletteFloorGreenAboveFloor
-    ld a, l
+    ld a, c
 .setPaletteFloorGreenAboveFloor:
     ld (setPaletteCommitGreen+1), a
 
-    ld a, c     ; RRRGGGBB
+    ld a, h     ; RRRGGGBB
     rlca        ; RRGGGBBR
     and 6       ; 00000BB0
-    ld c, a
+    ld h, a
 
-    ld a, (iy)  ; XXXXXXXB
-    inc iy
+    ld a, (de)  ; XXXXXXXB
+    inc de
     and 1       ; 0000000B
-    or c        ; 00000BBB
+    or h        ; 00000BBB
 
-    cp l
+    cp c
     jr nc, setPaletteFloorBlueAboveFloor
-    ld a, l
+    ld a, c
 .setPaletteFloorBlueAboveFloor:
 
     call setPaletteCommit

@@ -84,8 +84,8 @@ void stashPalette(byte paletteMask) __z88dk_fastcall {
   layer2StashPalette(paletteBuffer);
 }
 
-void setPaletteCeiling(word numColors, byte shift) __z88dk_callee __smallc;
-void setPaletteFloor(word numColors, byte shift) __z88dk_callee __smallc;
+void setPaletteCeiling(word numColors, byte shift) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
+void setPaletteFloor(word numColors, byte shift) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
 
 void flashPaletteUp(void) __z88dk_fastcall {
   stashPalette(1);
@@ -117,14 +117,17 @@ void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette)
   }
 }
 
-void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word numColours, byte paletteMask) __z88dk_callee __smallc {
-  selectPalette(paletteMask);
-  loadPaletteBuffer(compressedPalette);
-
+void fadeExistingPaletteUp(void) __z88dk_fastcall {
   for(byte shift=0; shift != 8; ++shift) {
-    setPaletteCeiling(numColours, shift);
+    setPaletteCeiling(256, shift);
     intrinsic_halt(); // extra delay
   }
+}
+
+void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, byte paletteMask) __z88dk_callee __smallc {
+  selectPalette(paletteMask);
+  loadPaletteBuffer(compressedPalette);
+  fadeExistingPaletteUp();
 }
 
 void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte palette) __z88dk_callee __smallc {

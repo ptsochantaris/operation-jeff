@@ -145,18 +145,18 @@ layer2Char:
 PUBLIC setPaletteCommitGreen, setPaletteCommitRed, setPaletteCommit
 
 setPaletteCommit:
+    exx
     ld h, a ; xxxxxBBB - blue expected in A
 
     and 1
-    ld d, a ; 0000000B
+    ld l, a ; 0000000B
 
     ld a, h ; xxxxxBBB
     rrca    ; BxxxxxBB
     and 3   ; 000000BB
     ld h, a
 
-    ; d = 0000000B, h = 000000BB
-    ; stack: [green][red][address]
+    ; l = 0000000B, h = 000000BB
 
 .setPaletteCommitGreen:
     ld a, 0 ; placeholder  00000GGG
@@ -165,16 +165,19 @@ setPaletteCommit:
     or h ; 000GGGBB
     ld h, a
 
+    ; l = 0000000B, h = 000GGGBB
+
 .setPaletteCommitRed:
     ld a, 0 ; placeholder 00000RRR
     rrca
     rrca
     rrca ; RRR00000
     or h ; RRRGGGBB
-
     nextreg 68, a ; REG_PALETTE_VALUE_16 ; RRRGGGBB
-    ld a, d
+
+    ld a, l
     nextreg 68, a ; REG_PALETTE_VALUE_16 ; 0000000B
+    exx
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

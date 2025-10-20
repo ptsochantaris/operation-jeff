@@ -22,12 +22,14 @@ static void nextLevel(byte gameStart) __z88dk_fastcall {
   loadScreen(&info);
   loadHeightmap(&info);
 
-  statsInitLevel();
-  initHud(newLevel);
-
   effectSiren();
 
-  fadePaletteUp(&(info.paletteAsset), nonHudPaletteColourCount, 1);
+  statsInitLevel();
+
+  selectPalette(1);
+  loadPaletteBuffer(&(info.paletteAsset));
+  initHud(newLevel); // also stashes it own palette entries
+  fadeExistingPaletteUp();
 
   selectPalette(2);
   writeColourToIndex(info.jeffDark, 128);

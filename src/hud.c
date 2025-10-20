@@ -75,6 +75,28 @@ static const byte hudPalette[] = {
   COLOR9(7, 7, 7)
 };
 
+extern byte paletteBuffer[];
+
+void stashHudPalette(byte level) __z88dk_fastcall {
+  byte *data = paletteBuffer+(HUD_BLACK*2);
+  for(byte index=0; index !=14; ++index, ++data) {
+    *data = hudPalette[index];
+  }
+
+  const struct LevelInfo info = levelInfo[level];
+  data = paletteBuffer + (2*HUD_FILL_TEXT);
+  *data++ = info.fontDark[0];
+  *data = info.fontDark[1];
+
+  data = paletteBuffer + (2*HUD_FILL_DARK);
+  *data++ = info.jeffDark[0];
+  *data = info.jeffDark[1];
+
+  data = paletteBuffer + (2*HUD_FILL_LIGHT);
+  *data++ = info.jeffBright[0];
+  *data = info.jeffBright[1];
+}
+
 void applyHudPalette(void) __z88dk_fastcall {
   selectPalette(1); // L2 first palette
   ZXN_NEXTREG(REG_PALETTE_INDEX, HUD_BLACK);
@@ -125,16 +147,6 @@ void updateStatsIfNeeded(void) __z88dk_fastcall {
 }
 
 void initHud(byte level) __z88dk_fastcall {
-  applyHudPalette();
-
-  const struct LevelInfo info = levelInfo[level];
-  writeColourToIndex(info.fontDark, HUD_FILL_TEXT);
-  writeColourToIndex(info.jeffDark, HUD_FILL_DARK);
-  writeColourToIndex(info.jeffBright, HUD_FILL_LIGHT);
-
-  layer2DmaFill(0, 0, 16, 256, HUD_BLACK);
-  layer2DmaFill(16, 0, 320, 15, HUD_BLACK);
-
   printNoBackground("CHARGE", ENERGY_X + 22, 1, HUD_WHITE);
   printNoBackground("SCORE", SCORE_X, 1, HUD_WHITE);
   printNoBackground("HIGH", HISCORE_X + 2, 1, HUD_WHITE);
@@ -156,4 +168,6 @@ void initHud(byte level) __z88dk_fastcall {
   hudEnergyDraw();
   hudKillsDraw();
   hudBorderDraw();
+
+  stashHudPalette(level);
 }

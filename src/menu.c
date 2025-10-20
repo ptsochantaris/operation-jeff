@@ -14,7 +14,7 @@ void loadTitleScreen(void) __z88dk_fastcall {
   }
   loadScreen(&titleInfo);
   if(shouldFadeTitle) {
-    fadePaletteUp(&titleInfo.paletteAsset, 256, 1);
+    fadePaletteUp(&titleInfo.paletteAsset, 1);
   } else {
     uploadPalette(&titleInfo.paletteAsset, 256, 1);
     shouldFadeTitle = 1;
@@ -25,7 +25,7 @@ static const struct LevelInfo infoInfo = FAKE_LEVEL(info);
 void loadInfoScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 1, 0);
   loadScreen(&infoInfo);
-  fadePaletteUp(&infoInfo.paletteAsset, 512, 1);
+  fadePaletteUp(&infoInfo.paletteAsset, 1);
 }
 
 void setupTitle(void) __z88dk_fastcall {

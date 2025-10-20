@@ -117,7 +117,7 @@ static void endOfLevelSequence(const struct LevelInfo levelInfo) {
   endOfLeveDrone();
   status(NULL);
 
-  fadePaletteUp(&levelInfo.paletteAsset, 256, 1);
+  fadePaletteUp(&levelInfo.paletteAsset, 1);
 }
 
 void endOfLeveLoop(byte level) __z88dk_fastcall {

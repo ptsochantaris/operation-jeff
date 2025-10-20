@@ -24,9 +24,12 @@ void layer2fill(word x, word y, word width, word height, byte color) __z88dk_cal
 void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) __z88dk_callee __smallc;
 void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc;
 
+void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_fastcall;
+void stashPalette(byte paletteMask) __z88dk_fastcall;
 void flashPaletteUp(void) __z88dk_fastcall;
 void flashPaletteDown(void) __z88dk_fastcall;
-void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, word numColours, byte paletteMask) __z88dk_callee __smallc;
+void fadeExistingPaletteUp(void) __z88dk_fastcall;
+void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, byte paletteMask) __z88dk_callee __smallc;
 void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette) __z88dk_callee __smallc;
 
 void loadScreen(const struct LevelInfo *restrict info) __z88dk_fastcall;
