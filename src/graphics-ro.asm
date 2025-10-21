@@ -180,16 +180,15 @@ _printAttributes:
     sub 32 ; index = ascii - 32
     ret c ; exit if char is below 32
 
-    ; put first slice of font in IY
-    exx
-    ld d, a
-    ld e, 6
-    mul d, e ; offset = index * 6 (bytes per char)
-    add de, font_data ; font data + offset
-    ld iy, de
-    exx
-
+    ; put first slice of font in IY -- bc = font_data + (a * 6)
     push bc
+    ld bc, font_data
+    rla
+    add bc, a
+    rla
+    add bc, a
+    ld iy, bc
+
     call ulaAttributeChar
     pop bc
 
@@ -220,18 +219,19 @@ _printNoBackground:
     sub 32 ; index = ascii - 32
     ret c ; exit if char is below 32
 
-    ; put first slice of font in IY
-    exx
-    ld d, a
-    ld e, 6
-    mul d, e
-    add de, font_data
-    ld iy, de
-    exx
-
+    ; put first slice of font in IY -- bc = font_data + (a * 6)
     push bc
+    ld bc, font_data
+    rla
+    add bc, a
+    rla
+    add bc, a
+    ld iy, bc
+
     call layer2CharNoBackground
     pop bc
+
+    ; reset Y
     ld a, l
     sub 5
     ld l, a
@@ -486,16 +486,15 @@ _printSidewaysNoBackground:
     sub 32 ; index = ascii - 32
     ret c ; exit if char is below 32
 
-    ; put first slice of font in IY
-    exx
-    ld d, a
-    ld e, 6
-    mul d, e
-    add de, font_data
-    ld iy, de
-    exx
-
+    ; put first slice of font in IY -- bc = font_data + (a * 6)
     push bc
+    ld bc, font_data
+    rla
+    add bc, a
+    rla
+    add bc, a
+    ld iy, bc
+
     call layer2CharSidewaysNoBackground
     pop bc
 
@@ -535,18 +534,18 @@ _print:
     sub 32 ; index = ascii - 32
     ret c ; exit if char is below 32
 
-    ; put first slice of font in IY
-    exx
-    ld d, a
-    ld e, 6
-    mul d, e
-    add de, font_data
-    ld iy, de
-    exx
-
+    ; put first slice of font in IY -- bc = font_data + (a * 6)
     push bc
+    ld bc, font_data
+    rla
+    add bc, a
+    rla
+    add bc, a
+    ld iy, bc
+
     call layer2Char
     pop bc
+
     ld a, l
     sub 5
     ld l, a

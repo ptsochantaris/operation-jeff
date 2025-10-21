@@ -111,16 +111,12 @@ void ayPlayNote(byte channel, enum NoteIndex note) __z88dk_callee __smallc { // 
     aySetPitch(channel, notePitches[note]);
 }
 
-void ayStopSoundOnChip(byte ayChip) __z88dk_fastcall {
-    ayChipSelect(ayChip);
-    for(byte channel=0; channel!=3; ++channel) {
-        aySetAmplitude(channel, 0x0);
-        aySetMixer(channel, 0, 0);
-    }
-}
-
 void ayStopAllSound(void) __z88dk_fastcall {
     for(byte ayChip=0; ayChip!=3; ++ayChip) {
-        ayStopSoundOnChip(ayChip);
+        ayChipSelect(ayChip);
+        for(byte channel=0; channel!=3; ++channel) {
+            aySetAmplitude(channel, 0x0);
+            aySetMixer(channel, 0, 0);
+        }
     }
 }
