@@ -172,16 +172,17 @@ _printAttributes:
     pop DE          ; x
     add de, $77E3   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 (one row) + 3 (initial char width)
 
-    pop bc          ; address of first char
+    exx
+    pop bc          ; address of first char in BC'
     push iy         ; put return back on stack
 
 .printAttributesLoop:
-    ld a, (bc)
+    ld a, (bc) ; actually bc'
+    exx
     sub h ; index = ascii - 32 (using H since it is 32 for performance)
     ret c ; exit if char is below 32
 
     ; put first slice of font in IY, offset from font_data
-    push bc
     ld bc, font_data
     ; offset is a * 6, split out for performance
     rla
@@ -191,17 +192,17 @@ _printAttributes:
     ld iy, bc
 
     call ulaAttributeChar
-    pop bc
 
-    inc bc ; next char
     add de, 4 ; move X to the right
+    exx
+    inc bc ; next char in BC'
     jp printAttributesLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _printNoBackground
 _printNoBackground:
-    pop bc          ; return address
+    pop iy          ; return address
 
     pop HL          ; colour
     ld a, l
@@ -211,9 +212,8 @@ _printNoBackground:
     pop DE          ; x
     add de, 2
 
-    pop iy          ; address of first char
-    push bc         ; put return back on stack
-    ld bc, iy
+    pop bc          ; address of first char
+    push iy         ; put return back on stack
 
 .printNoBackgroundLoop:
     ld a, (bc)
@@ -416,7 +416,7 @@ _layer2StashPalette:
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;415
+
 PUBLIC _updateSprite
 _updateSprite:
     ld a, (hl) ; index byte
@@ -469,7 +469,7 @@ _updateSprite:
 
 PUBLIC _printSidewaysNoBackground
 _printSidewaysNoBackground:
-    pop bc          ; return address
+    pop iy          ; return address
 
     pop HL          ; colour
     ld a, l
@@ -478,9 +478,8 @@ _printSidewaysNoBackground:
     pop HL          ; y
     pop DE          ; x
 
-    pop iy          ; address of first char
-    push bc         ; put return back on stack
-    ld bc, iy
+    pop bc          ; address of first char
+    push iy         ; put return back on stack
 
 .printSidewaysNoBackgroundLoop:
     ld a, (bc)
@@ -512,7 +511,7 @@ _printSidewaysNoBackground:
 
 PUBLIC _print
 _print:
-    pop bc          ; return address
+    pop iy          ; return address
 
     pop HL          ; bgColor
     ld a, l
@@ -526,9 +525,8 @@ _print:
     pop DE          ; x
     add de, 2
 
-    pop iy          ; address of first char
-    push bc         ; put return back on stack
-    ld bc, iy
+    pop bc          ; address of first char
+    push iy         ; put return back on stack
 
 .printLoop:
     ld a, (bc)
