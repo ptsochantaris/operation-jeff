@@ -167,7 +167,7 @@ _printAttributes:
     pop iy          ; return address
 
     pop HL          ; y
-    ld h, 32        ; will be using for multiplication
+    ld h, 32        ; will be using as a constant
 
     pop DE          ; x
     add de, $77E3   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 (one row) + 3 (initial char width)
@@ -177,16 +177,17 @@ _printAttributes:
 
 .printAttributesLoop:
     ld a, (bc)
-    sub 32 ; index = ascii - 32
+    sub h ; index = ascii - 32 (using H since it is 32 for performance)
     ret c ; exit if char is below 32
 
-    ; put first slice of font in IY -- bc = font_data + (a * 6)
+    ; put first slice of font in IY, offset from font_data
     push bc
     ld bc, font_data
+    ; offset is a * 6, split out for performance
     rla
-    add bc, a
+    add bc, a   ; bc += (a * 2)
     rla
-    add bc, a
+    add bc, a   ; bc += (a * 4)
     ld iy, bc
 
     call ulaAttributeChar

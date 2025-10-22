@@ -209,11 +209,13 @@ ulaAttributeChar:
     inc a
     ld b, 3         ; loops in b
 
-    add hl, a ; y + current row from A
-    ex de, hl
+    add hl, a       ; y + current row from A
+
+    ex de, hl       ; offset = H(row width, 32) * L(y)
     mul d, e
     ex de, hl
-    add hl, de ; y+x
+
+    add hl, de      ; HL(attribute address) = offset + x
 
 .ulaAttributeCharPlotSliceLoop:
     bit 5, c
