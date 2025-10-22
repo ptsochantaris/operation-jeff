@@ -173,11 +173,11 @@ _printAttributes:
     add de, $77E3   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 (one row) + 3 (initial char width)
 
     exx
-    pop bc          ; address of first char in BC'
+    pop hl          ; address of first char in HL'
     push iy         ; put return back on stack
 
 .printAttributesLoop:
-    ld a, (bc) ; actually bc'
+    ld a, (hl) ; actually HL'
     exx
     sub h ; index = ascii - 32 (using H since it is 32 for performance)
     ret c ; exit if char is below 32
@@ -195,7 +195,7 @@ _printAttributes:
 
     add de, 4 ; move X to the right
     exx
-    inc bc ; next char in BC'
+    inc hl ; next char in HL'
     jp printAttributesLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -212,15 +212,16 @@ _printNoBackground:
     pop DE          ; x
     add de, 2
 
-    pop bc          ; address of first char
+    exx
+    pop hl          ; address of first char in HL'
     push iy         ; put return back on stack
 
 .printNoBackgroundLoop:
-    ld a, (bc)
+    ld a, (hl) ; read from HL'
+    exx
     sub 32 ; index = ascii - 32
     ret c ; exit if char is below 32
 
-    push bc
     ; put first slice of font in IY, offset from font_data
     ld bc, font_data
     ; offset is a * 6, split out for performance
@@ -231,7 +232,6 @@ _printNoBackground:
     ld iy, bc
 
     call layer2CharNoBackground
-    pop bc
 
     ; reset Y
     ld a, l
@@ -239,7 +239,8 @@ _printNoBackground:
     ld l, a
 
     add de, 4 ; move X to the right
-    inc bc ; next char
+    exx
+    inc hl ; next char in HL'
     jp printNoBackgroundLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -479,15 +480,16 @@ _printSidewaysNoBackground:
     pop HL          ; y
     pop DE          ; x
 
-    pop bc          ; address of first char
+    exx
+    pop hl          ; address of first char in HL'
     push iy         ; put return back on stack
 
 .printSidewaysNoBackgroundLoop:
-    ld a, (bc)
+    ld a, (hl) ; read from HL'
+    exx
     sub 32 ; index = ascii - 32
     ret c ; exit if char is below 32
 
-    push bc
     ; put first slice of font in IY, offset from font_data
     ld bc, font_data
     ; offset is a * 6, split out for performance
@@ -498,7 +500,6 @@ _printSidewaysNoBackground:
     ld iy, bc
 
     call layer2CharSidewaysNoBackground
-    pop bc
 
     add de, -5
 
@@ -506,7 +507,8 @@ _printSidewaysNoBackground:
     sub 4 ; move Y up
     ld l, a
 
-    inc bc ; next char    
+    exx
+    inc hl ; next char in HL'
     jp printSidewaysNoBackgroundLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -527,15 +529,16 @@ _print:
     pop DE          ; x
     add de, 2
 
-    pop bc          ; address of first char
+    exx
+    pop hl          ; address of first char in HL'
     push iy         ; put return back on stack
 
 .printLoop:
-    ld a, (bc)
+    ld a, (hl) ; read from HL'
+    exx
     sub 32 ; index = ascii - 32
     ret c ; exit if char is below 32
 
-    push bc
     ; put first slice of font in IY, offset from font_data
     ld bc, font_data
     ; offset is a * 6, split out for performance
@@ -546,14 +549,14 @@ _print:
     ld iy, bc
 
     call layer2Char
-    pop bc
 
     ld a, l
     sub 5
     ld l, a
 
     add de, 4 ; move X to the right
-    inc bc ; next char
+    exx
+    inc hl ; next char in HL'
     jp printLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

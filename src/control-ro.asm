@@ -4,7 +4,7 @@ SECTION PAGE_28_POSTISR
 
 PUBLIC joystickSpeedSlow
 joystickSpeedSlow:
-    ex af, af'
+    push af
     ld a, l
     or a
     jp z, joystickSpeedDone
@@ -15,7 +15,7 @@ joystickSpeedSlow:
 
 PUBLIC joystickSpeedUp
 joystickSpeedUp:
-    ex af, af'
+    push af
     ld a, l
     ; fallthrough to joystickSpeedUpNoSetup
 .joystickSpeedUpNoSetup:
@@ -30,7 +30,7 @@ joystickSpeedUp:
 
 PUBLIC joystickSpeedDown
 joystickSpeedDown:
-    ex af, af'
+    push af
     ld a, l
     ; fallthrough to joystickSpeedDownNoSetup
 .joystickSpeedDownNoSetup:
@@ -55,7 +55,7 @@ joystickSpeedDown:
     ; fallthrough to joystickSpeedDone
 
 .joystickSpeedDone:
-    ex af, af'
+    pop af
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
