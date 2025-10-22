@@ -220,13 +220,14 @@ _printNoBackground:
     sub 32 ; index = ascii - 32
     ret c ; exit if char is below 32
 
-    ; put first slice of font in IY -- bc = font_data + (a * 6)
     push bc
+    ; put first slice of font in IY, offset from font_data
     ld bc, font_data
+    ; offset is a * 6, split out for performance
     rla
-    add bc, a
+    add bc, a   ; bc += (a * 2)
     rla
-    add bc, a
+    add bc, a   ; bc += (a * 4)
     ld iy, bc
 
     call layer2CharNoBackground
@@ -237,8 +238,8 @@ _printNoBackground:
     sub 5
     ld l, a
 
-    inc bc ; next char
     add de, 4 ; move X to the right
+    inc bc ; next char
     jp printNoBackgroundLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -486,13 +487,14 @@ _printSidewaysNoBackground:
     sub 32 ; index = ascii - 32
     ret c ; exit if char is below 32
 
-    ; put first slice of font in IY -- bc = font_data + (a * 6)
     push bc
+    ; put first slice of font in IY, offset from font_data
     ld bc, font_data
+    ; offset is a * 6, split out for performance
     rla
-    add bc, a
+    add bc, a   ; bc += (a * 2)
     rla
-    add bc, a
+    add bc, a   ; bc += (a * 4)
     ld iy, bc
 
     call layer2CharSidewaysNoBackground
@@ -500,11 +502,11 @@ _printSidewaysNoBackground:
 
     add de, -5
 
-    inc bc ; next char
-    
     ld a, l
     sub 4 ; move Y up
     ld l, a
+
+    inc bc ; next char    
     jp printSidewaysNoBackgroundLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -533,13 +535,14 @@ _print:
     sub 32 ; index = ascii - 32
     ret c ; exit if char is below 32
 
-    ; put first slice of font in IY -- bc = font_data + (a * 6)
     push bc
+    ; put first slice of font in IY, offset from font_data
     ld bc, font_data
+    ; offset is a * 6, split out for performance
     rla
-    add bc, a
+    add bc, a   ; bc += (a * 2)
     rla
-    add bc, a
+    add bc, a   ; bc += (a * 4)
     ld iy, bc
 
     call layer2Char
@@ -549,8 +552,8 @@ _print:
     sub 5
     ld l, a
 
-    inc bc ; next char
     add de, 4 ; move X to the right
+    inc bc ; next char
     jp printLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
