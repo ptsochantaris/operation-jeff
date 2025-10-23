@@ -2,7 +2,13 @@ SECTION code_compiler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC selectPageForXInDE
+PUBLIC selectPageForXInDeAndSetupH, selectPageForXInDE
+selectPageForXInDeAndSetupH:
+    ld a, e         ; e has X
+    and $3F         ; keep in-page x distance
+    ld h, a         ; l already has y, h is now in-page x
+    ; fallthrough to selectPageForXInDE
+
 selectPageForXInDE:
     ; DE >> 6 to get L2 page in A
     ld a, e ; EExxxxxx
@@ -39,12 +45,7 @@ _layer2VerticalLine:
     pop DE          ; x
     push iy         ; put return back on stack
 
-    ; offset in page
-    ld a, e
-    and $3F         ; keep in-page bits of x
-    ld h, a         ; l already has y, h is now in-page x
-
-    call selectPageForXInDE
+    call selectPageForXInDeAndSetupH
 
     ; number of loops
     ld a, l
@@ -117,12 +118,7 @@ layer2Char:
 .layer2PlotSlice:
     ld b, 3         ; loops in b
 .layer2PlotSliceLoop:
-    call selectPageForXInDE
-    ; offset in page
-    ld a, e
-    and $3F         ; keep in-page bits of x
-    ld h, a         ; in-page x (h) + y (l)
-
+    call selectPageForXInDeAndSetupH
     bit 5, c        
     jp z, layer2PlotSliceBg
 .layer2PlotSliceFg:
@@ -253,12 +249,7 @@ layer2CharNoBackground:
 .layer2PlotSliceNoBackgroundLoop:
     bit 5, c
     jp z, layer2PlotSliceNoBackgroundNext
-
-    call selectPageForXInDE
-    ; offset in page
-    ld a, e
-    and $3F         ; keep in-page bits of x
-    ld h, a         ; in-page x (h) + y (l)    
+    call selectPageForXInDeAndSetupH
 layer2PlotSliceNoBackgroundInk:
     ld (hl), 0      ; set (hl) to colour value
 
@@ -296,14 +287,9 @@ layer2CharSidewaysNoBackground:
     bit 5, c
     jp z, layer2PlotSliceSidewaysNoBackgroundNext
 
-    call selectPageForXInDE
-
     ld a, h         ; save H
     ex af, af'
-    ; offset in page
-    ld a, e
-    and $3F         ; keep in-page bits of x
-    ld h, a         ; in-page x (h) + y (l)
+    call selectPageForXInDeAndSetupH
 .layer2PlotSliceSidewaysNoBackgroundInk:
     ld (hl), 0      ; set (hl) to colour value
     ex af, af'

@@ -2,7 +2,7 @@ SECTION PAGE_28_POSTISR
 
 GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
 GLOBAL layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground, selectLayer2PageInternal, ulaAttributeChar
-GLOBAL layer2PlotSliceNoBackgroundInk, selectPageForXInDE, layer2CharSidewaysNoBackground, layer2PlotSliceSidewaysNoBackgroundInk
+GLOBAL layer2PlotSliceNoBackgroundInk, selectPageForXInDeAndSetupH, layer2CharSidewaysNoBackground, layer2PlotSliceSidewaysNoBackgroundInk
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -25,12 +25,7 @@ _layer2Plot:
     pop DE          ; x
     push bc         ; put return back on stack
 
-    call selectPageForXInDE
-
-    ; offset in page
-    ld a, e
-    and $3F         ; keep in-page bits of x
-    ld h, a         ; in-page x (h) + y (l)
+    call selectPageForXInDeAndSetupH
 
     ex af, af'      ; unstash colour
     ld (hl), a      ; set (hl) to colour value
