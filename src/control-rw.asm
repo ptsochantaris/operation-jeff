@@ -27,16 +27,15 @@ inputHandler:
     ld (_mouseHwB), a
 
 .mouseKempstonX:
-    ld de, 0 ; d always stays zero
+    ld e, 0 ; placeholder
 
     ld b, $fb
     in a, (c) ; X
     ld (mouseKempstonX+1), a ; store x for next time
-    ld l, a; X in HL
-    xor a ; clear carry and zero
-    ld h, a ; fast zero for H
-    sbc hl, de ; X - previous = dx in L
+    sub e ; subtract previousX
+    ld l, a ; X - previousX = dx in L
     jp z, mouseKempstonY ; no change, move to next check
+
 .lastMouseDirectionX: ; (!0)=left 0=right
     ld a, 0 ; placeholder
     ld e, a ; last mouse direction in E
@@ -87,11 +86,10 @@ inputHandler:
     ld b, $ff
     in a, (c) ; Y
     ld (mouseKempstonY+1), a ; store Y for next time
-    ld l, a; Y in HL
-    xor a ; clear carry and zero
-    ld h, a
-    sbc hl, de ; Y - previousY = dy in HL
+    sub e ; subtract previousY
+    ld l, a ; Y - previousY = dy in HL
     jp z, joystickXSpeed ; no change, move to next check
+
 .lastMouseDirectionY: ; (!0)=up 0=down
     ld a, 0 ; placeholder
     ld e, a ; last mouse direction in E
