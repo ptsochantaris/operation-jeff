@@ -27,7 +27,7 @@ inputHandler:
     ld (_mouseHwB), a
 
 .mouseKempstonX:
-    ld e, 0 ; placeholder
+    ld de, 0 ; placeholder, also ensures D=0
 
     ld b, $fb
     in a, (c) ; X
@@ -81,7 +81,7 @@ inputHandler:
     ld (lastMouseDirectionX+1), a
 
 .mouseKempstonY:
-    ld e, 0 ; placeholder
+    ld de, 0 ; placeholder, also ensures D=0
 
     ld b, $ff
     in a, (c) ; Y

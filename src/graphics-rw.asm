@@ -119,7 +119,7 @@ layer2Char:
     ld b, 3         ; loops in b
 .layer2PlotSliceLoop:
     call selectPageForXInDeAndSetupH
-    bit 5, c        
+    bit 5, c
     jp z, layer2PlotSliceBg
 .layer2PlotSliceFg:
     ld (hl), 0      ; set (hl) to colour value
