@@ -159,7 +159,7 @@ _setPaletteFloor:
 
 PUBLIC _printAttributes
 _printAttributes:
-    pop iy          ; return address
+    pop af          ; return address
 
     pop HL          ; y
     ld h, 32        ; will be using as a constant
@@ -169,7 +169,7 @@ _printAttributes:
 
     exx
     pop hl          ; address of first char in HL'
-    push iy         ; put return back on stack
+    push af         ; put return back on stack
 
 .printAttributesLoop:
     ld a, (hl) ; actually HL'

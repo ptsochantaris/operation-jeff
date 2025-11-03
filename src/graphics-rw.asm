@@ -64,14 +64,19 @@ PUBLIC _layer2HorizonalLine
 _layer2HorizonalLine:
     pop iy          ; return address
 
-    pop HL          ; colour
+    pop hl          ; colour
     ld a, l
     ld (layer2HorizontalLineLoopSet+1), a
 
-    pop BC          ; width
-    inc bc          ; make inclusive
-    pop HL          ; y
-    pop DE          ; start x
+    pop de          ; width
+    inc de          ; make inclusive
+    ld b, e         ; Mystery fast loop calculus
+    dec de
+    inc d
+    ld c, d         ; BC set for 16bit loop
+
+    pop hl          ; y
+    pop de          ; start x
     push iy         ; put return back on stack
 
     call selectPageForXInDE
@@ -87,11 +92,11 @@ _layer2HorizonalLine:
 
 .layer2HorizontalLineLoopSet:
     ld (hl), 0       ; set (hl) to colour value
-
     inc de
-    dec bc
-    ld a, b
-    or c
+
+    ; 16-bit loop using BC
+    djnz layer2HorizontalLineLoop
+    dec c
     jp nz, layer2HorizontalLineLoop
     ret
 
