@@ -23,7 +23,7 @@ selectLayer2PageInternal:
     cp 99    ; placeholder, intentionally not zero
     ret z
     ld (selectLayer2PageInternal+1), a
-    or $10  ; add other L2 flag
+    or $10  ; bit 4 = on, signifies that this is a bank offset command
     exx
     ld bc, $123b
     out (c), a

@@ -159,8 +159,11 @@ void configLayer2(word writeThroughEnable) __z88dk_fastcall {
 void setupScreen(void) __z88dk_fastcall {
   configLayer2(1);
 
+  // Clear L2 to avoid loading screen flicker
+  layer2Clear(0);
+
   // Set res https://wiki.specnext.dev/Layer_2_Control_Register
-  ZXN_NEXTREG(0x70, 0x10);
+  ZXN_NEXTREG(0x70, 0x10); // 320x256 8bpp
 
   // Clipping https://wiki.specnext.dev/Clip_Window_Layer_2_Register
   writeNextReg(0x18, clipBytes, CLIPBYTES_LEN);
