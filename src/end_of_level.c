@@ -42,7 +42,7 @@ static void displayStats(word top, word x, byte level, word color, byte twoColum
 
   applyHudPalette();
 
-  sprintf(textBuf, " ZONE %03d: CLEAR", level);
+  sprintf(textBuf, " ZONE %02d: CLEAR", level);
   printNoBackground(textBuf, x, top, color);
 
   top += 16;

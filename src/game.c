@@ -35,7 +35,7 @@ static void nextLevel(byte gameStart) __z88dk_fastcall {
   writeColourToIndex(info.jeffDark, 128);
   writeColourToIndex(info.jeffBright, 224);
 
-  sprintf(textBuf, "ZONE %03d", newLevel + 1);
+  sprintf(textBuf, "ZONE %02d", newLevel + 1);
   status(textBuf);
 }
 

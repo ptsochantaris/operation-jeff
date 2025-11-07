@@ -165,7 +165,7 @@ _printAttributes:
     ld h, 32        ; will be using as a constant
 
     pop DE          ; x
-    add de, $77E3   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 (one row) + 3 (initial char width)
+    add de, $77E0   ; ula attributes: 0x6000 + 0x1800 (see tilemap.h) = 0x7800, - 32 (one row)
 
     exx
     pop hl          ; address of first char in HL'
@@ -205,7 +205,6 @@ _printNoBackground:
 
     pop HL          ; y
     pop DE          ; x
-    add de, 2
 
     exx
     pop hl          ; address of first char in HL'
@@ -233,7 +232,7 @@ _printNoBackground:
     sub 5
     ld l, a
 
-    add de, 4 ; move X to the right
+    inc de      ; 1px space
     exx
     inc hl ; next char in HL'
     jp printNoBackgroundLoop
@@ -522,7 +521,6 @@ _print:
 
     pop HL          ; y
     pop DE          ; x
-    add de, 2
 
     exx
     pop hl          ; address of first char in HL'
@@ -549,7 +547,7 @@ _print:
     sub 5
     ld l, a
 
-    add de, 4 ; move X to the right
+    inc de ; 1px spacing
     exx
     inc hl ; next char in HL'
     jp printLoop

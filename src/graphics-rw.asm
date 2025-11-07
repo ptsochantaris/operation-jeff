@@ -122,23 +122,21 @@ layer2Char:
 
 .layer2PlotSlice:
     ld b, 3         ; loops in b
+.layer2PlotSliceSet:
+    ld de, 0 ; placeholder
 .layer2PlotSliceLoop:
     call selectPageForXInDeAndSetupH
-    bit 5, c
-    jp z, layer2PlotSliceBg
+    sll c
+    jp nc, layer2PlotSliceBg
 .layer2PlotSliceFg:
     ld (hl), 0      ; set (hl) to colour value
     jp layer2PlotSliceNext
 .layer2PlotSliceBg:
     ld (hl), 0      ; set (hl) to colour value
 .layer2PlotSliceNext:
-
-    dec de
-    srl c
+    inc de
     djnz layer2PlotSliceLoop
     inc l ; next y
-.layer2PlotSliceSet:
-    ld de, 0 ; placeholder
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -219,12 +217,11 @@ ulaAttributeChar:
     add hl, de      ; HL(attribute address) = offset + x
 
 .ulaAttributeCharPlotSliceLoop:
-    bit 5, c
-    jp z, ulaAttributeCharPlotSliceSkip
+    sll c
+    jp nc, ulaAttributeCharPlotSliceSkip
     ld (hl), a
 .ulaAttributeCharPlotSliceSkip:
-    dec hl
-    srl c
+    inc hl
     djnz ulaAttributeCharPlotSliceLoop
 .ulaAttributeCharPlotSliceLoopReset:
     ld hl, 0 ; placeholder
@@ -251,20 +248,19 @@ layer2CharNoBackground:
 
 .layer2PlotSliceNoBackground:
     ld b, 3         ; loops in b
+.layer2PlotSliceNoBackgroundSet:
+    ld de, 0        ; placeholder
 .layer2PlotSliceNoBackgroundLoop:
-    bit 5, c
-    jp z, layer2PlotSliceNoBackgroundNext
+    sll c
+    jp nc, layer2PlotSliceNoBackgroundNext
     call selectPageForXInDeAndSetupH
 layer2PlotSliceNoBackgroundInk:
     ld (hl), 0      ; set (hl) to colour value
 
 .layer2PlotSliceNoBackgroundNext:
-    dec de
-    srl c
+    inc de
     djnz layer2PlotSliceNoBackgroundLoop
     inc l ; next y
-.layer2PlotSliceNoBackgroundSet:
-    ld de, 0 ; placeholder
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -289,8 +285,8 @@ layer2CharSidewaysNoBackground:
 .layer2PlotSliceSidewaysNoBackground:
     ld b, 3         ; loops in b
 .layer2PlotSliceSidewaysNoBackgroundLoop:
-    bit 5, c
-    jp z, layer2PlotSliceSidewaysNoBackgroundNext
+    sll c
+    jp nc, layer2PlotSliceSidewaysNoBackgroundNext
 
     ld a, h         ; save H
     ex af, af'
@@ -301,8 +297,7 @@ layer2CharSidewaysNoBackground:
     ld h, a         ; restore H
 
 .layer2PlotSliceSidewaysNoBackgroundNext:
-    inc l
-    srl c
+    dec l
     djnz layer2PlotSliceSidewaysNoBackgroundLoop
     inc de ; next x
     ld l, h

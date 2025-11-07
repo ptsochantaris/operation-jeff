@@ -70,7 +70,7 @@ void status(byte *text) __z88dk_fastcall {
     if(text) {
         resetGrayPalette();
 
-        int x = 16 - (strlen(text) << 1);
+        int x = 17 - (strlen(text) << 1);
         if(x<0) x=0;
         printAttributes(text, x, 10);
         statusCount = 16;
