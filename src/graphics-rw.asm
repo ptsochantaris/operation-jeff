@@ -185,37 +185,26 @@ PUBLIC ulaAttributeChar
 ulaAttributeChar:
     ; l           ; y
     ; de          ; x + ula attributes
-    ; iy          ; address of first slice
-
-    ld (ulaAttributeCharPlotSliceLoopReset+1), hl
-
-    xor a
-    ld c, (iy)
-    call ulaAttributeCharPlotSlice
-
-    ld c, (iy+1)
-    call ulaAttributeCharPlotSlice
-
-    ld c, (iy+2)
-    call ulaAttributeCharPlotSlice
-
-    ld c, (iy+3)
-    call ulaAttributeCharPlotSlice
-
-    ld c, (iy+4)    ; fallthrough to ulaAttributeCharPlotSlice
-
-.ulaAttributeCharPlotSlice:
-    inc a
-    ld b, 3         ; loops in b
-
-    add hl, a       ; y + current row from A
+    ; bc          ; address of first slice
 
     ex de, hl       ; offset = H(row width, 32) * L(y)
     mul d, e
     ex de, hl
-
     add hl, de      ; HL(attribute address) = offset + x
 
+    ld de, bc
+
+    xor a
+    call ulaAttributeCharPlotSlice
+    call ulaAttributeCharPlotSlice
+    call ulaAttributeCharPlotSlice
+    call ulaAttributeCharPlotSlice
+    ; fallthrough to ulaAttributeCharPlotSlice
+
+.ulaAttributeCharPlotSlice:
+    ld c, (de)
+    inc a
+    ld b, 3         ; loops in b
 .ulaAttributeCharPlotSliceLoop:
     sll c
     jp nc, ulaAttributeCharPlotSliceSkip
@@ -223,8 +212,8 @@ ulaAttributeChar:
 .ulaAttributeCharPlotSliceSkip:
     inc hl
     djnz ulaAttributeCharPlotSliceLoop
-.ulaAttributeCharPlotSliceLoopReset:
-    ld hl, 0 ; placeholder
+    add hl, 29 ; (32-3)
+    inc de
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

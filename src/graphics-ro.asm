@@ -184,9 +184,12 @@ _printAttributes:
     add bc, a   ; bc += (a * 2)
     rla
     add bc, a   ; bc += (a * 4)
-    ld iy, bc
 
+    push de
+    push hl
     call ulaAttributeChar
+    pop hl
+    pop de
 
     add de, 4 ; move X to the right
     exx
