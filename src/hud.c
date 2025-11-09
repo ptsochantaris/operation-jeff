@@ -31,9 +31,9 @@ static void hudHealthDraw(void) __z88dk_fastcall {
 
 static void hudScoreDraw(void) __z88dk_fastcall {
   sprintf(textBuf, "%07lu", displayedStats.score);
-  print(textBuf, SCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
+  printWithBackground(textBuf, SCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
   sprintf(textBuf, "%07lu", highScores[0].score);
-  print(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
+  printWithBackground(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
 }
 
 static void hudBorderDraw(void) __z88dk_fastcall {
@@ -61,7 +61,7 @@ static void hudKillsDraw(void) __z88dk_fastcall {
   int res = displayedStats.maxKillsInLevel - displayedStats.killsInLevel;
   if(res >= 0) {
     sprintf(textBuf, "%03d", res);
-    printNoBackground(textBuf, 5, 8, HUD_FILL_TEXT);
+    print(textBuf, 5, 8, HUD_FILL_TEXT);
   }
 }
 
@@ -147,13 +147,13 @@ void updateStatsIfNeeded(void) __z88dk_fastcall {
 }
 
 void initHud(byte level) __z88dk_fastcall {
-  printNoBackground("CHARGE", ENERGY_X + 22, 1, HUD_WHITE);
-  printNoBackground("SCORE", SCORE_X, 1, HUD_WHITE);
-  printNoBackground("HIGH", HISCORE_X + 2, 1, HUD_WHITE);
-  printNoBackground("HEALTH", HEALTH_X + 22, 1, HUD_WHITE);
+  print("CHARGE", ENERGY_X + 22, 1, HUD_WHITE);
+  print("SCORE", SCORE_X, 1, HUD_WHITE);
+  print("HIGH", HISCORE_X + 2, 1, HUD_WHITE);
+  print("HEALTH", HEALTH_X + 22, 1, HUD_WHITE);
 
-  printSidewaysNoBackground("CHARGING", 1, 98, HUD_WHITE);
-  printSidewaysNoBackground("FIRE RATE", 1, 196, HUD_WHITE);
+  printSideways("CHARGING", 1, 98, HUD_WHITE);
+  printSideways("FIRE RATE", 1, 196, HUD_WHITE);
 
   layer2box(RATE_X, RATE_Y, 5, 203, HUD_WHITE);
   layer2box(ENERGY_X, 8, 66, 5, HUD_WHITE);

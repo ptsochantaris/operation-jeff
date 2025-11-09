@@ -23,8 +23,8 @@ void scrollTilemap(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee 
 
 void setHudBackground(word color) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;
 
-void printNoBackground(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
-void printSidewaysNoBackground(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
+void print(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
+void printSideways(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
 void printAttributes(byte *text, byte x, byte y) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
 
 #endif

@@ -179,44 +179,44 @@ ulaAttributeChar:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC layer2CharNoBackgroundSlow, layer2CharNoBackgroundFast, layer2PlotSliceNoBackgroundFastInk, layer2PlotSliceNoBackgroundSlowInk
+PUBLIC layer2CharSlow, layer2CharFast, layer2PlotSliceFastInk, layer2PlotSliceSlowInk
 
-layer2CharNoBackgroundSlow:
+layer2CharSlow:
     ; HL y
     ; DE x
     ; IY char
 
-    ld (layer2PlotSliceNoBackgroundSlowSet+1), de
+    ld (layer2PlotSliceSlowSet+1), de
 
     ld c, (iy)
-    call layer2PlotSliceNoBackgroundSlow
+    call layer2PlotSliceSlow
     ld c, (iy+1)
-    call layer2PlotSliceNoBackgroundSlow
+    call layer2PlotSliceSlow
     ld c, (iy+2)
-    call layer2PlotSliceNoBackgroundSlow
+    call layer2PlotSliceSlow
     ld c, (iy+3)
-    call layer2PlotSliceNoBackgroundSlow
-    ld c, (iy+4)    ; fallthrough to layer2PlotSliceNoBackground
+    call layer2PlotSliceSlow
+    ld c, (iy+4)    ; fallthrough to layer2PlotSlice
 
-.layer2PlotSliceNoBackgroundSlow:
+.layer2PlotSliceSlow:
     ld b, 3         ; loops in b
-.layer2PlotSliceNoBackgroundSlowSet:
+.layer2PlotSliceSlowSet:
     ld de, 0        ; placeholder
-.layer2PlotSliceNoBackgroundSlowLoop:
+.layer2PlotSliceSlowLoop:
     sll c
-    jp nc, layer2PlotSliceNoBackgroundSlowNext
+    jp nc, layer2PlotSliceSlowNext
     call selectPageForXInDeAndSetupH
-layer2PlotSliceNoBackgroundSlowInk:
+layer2PlotSliceSlowInk:
     ld (hl), 0      ; set (hl) to colour value
 
-.layer2PlotSliceNoBackgroundSlowNext:
+.layer2PlotSliceSlowNext:
     inc de
-    djnz layer2PlotSliceNoBackgroundSlowLoop
+    djnz layer2PlotSliceSlowLoop
     inc l ; next y
     RET
 
 
-layer2CharNoBackgroundFast:
+layer2CharFast:
     ; HL y
     ; DE x
     ; BC char
@@ -225,64 +225,64 @@ layer2CharNoBackgroundFast:
     ld de, bc
     ld c, h
 
-    call layer2PlotSliceNoBackgroundFast
-    call layer2PlotSliceNoBackgroundFast
-    call layer2PlotSliceNoBackgroundFast
-    call layer2PlotSliceNoBackgroundFast
-    ; fallthrough to layer2PlotSliceNoBackgroundFast
+    call layer2PlotSliceFast
+    call layer2PlotSliceFast
+    call layer2PlotSliceFast
+    call layer2PlotSliceFast
+    ; fallthrough to layer2PlotSliceFast
 
-.layer2PlotSliceNoBackgroundFast:
+.layer2PlotSliceFast:
     ld a, (de)      ; current slice
     inc de          ; next slice
     ld b, 3         ; loops in b
-.layer2PlotSliceNoBackgroundFastLoop:
+.layer2PlotSliceFastLoop:
     rla
-    jp nc, layer2PlotSliceNoBackgroundFastNext
-layer2PlotSliceNoBackgroundFastInk:
+    jp nc, layer2PlotSliceFastNext
+layer2PlotSliceFastInk:
     ld (hl), 0      ; set (hl) to colour value
-.layer2PlotSliceNoBackgroundFastNext:
+.layer2PlotSliceFastNext:
     inc h           ; x++
-    djnz layer2PlotSliceNoBackgroundFastLoop
+    djnz layer2PlotSliceFastLoop
     ld h, c
     inc l           ; y++
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC layer2CharSidewaysNoBackground, layer2PlotSliceSidewaysNoBackgroundInk
-layer2CharSidewaysNoBackground:
+PUBLIC layer2CharSideways, layer2PlotSliceSidewaysInk
+layer2CharSideways:
     ; HL          ; y
     ; DE          ; x
     ; iy          ; address of first slice
 
     ld h, l
     ld c, (iy)
-    call layer2PlotSliceSidewaysNoBackground
+    call layer2PlotSliceSideways
     ld c, (iy+1)
-    call layer2PlotSliceSidewaysNoBackground
+    call layer2PlotSliceSideways
     ld c, (iy+2)
-    call layer2PlotSliceSidewaysNoBackground
+    call layer2PlotSliceSideways
     ld c, (iy+3)
-    call layer2PlotSliceSidewaysNoBackground
-    ld c, (iy+4)    ; fallthrough to layer2PlotSliceSidewaysNoBackground
+    call layer2PlotSliceSideways
+    ld c, (iy+4)    ; fallthrough to layer2PlotSliceSideways
 
-.layer2PlotSliceSidewaysNoBackground:
+.layer2PlotSliceSideways:
     ld b, 3         ; loops in b
-.layer2PlotSliceSidewaysNoBackgroundLoop:
+.layer2PlotSliceSidewaysLoop:
     sll c
-    jp nc, layer2PlotSliceSidewaysNoBackgroundNext
+    jp nc, layer2PlotSliceSidewaysNext
 
     ld a, h         ; save H
     ex af, af'
     call selectPageForXInDeAndSetupH
-.layer2PlotSliceSidewaysNoBackgroundInk:
+.layer2PlotSliceSidewaysInk:
     ld (hl), 0      ; set (hl) to colour value
     ex af, af'
     ld h, a         ; restore H
 
-.layer2PlotSliceSidewaysNoBackgroundNext:
+.layer2PlotSliceSidewaysNext:
     dec l
-    djnz layer2PlotSliceSidewaysNoBackgroundLoop
+    djnz layer2PlotSliceSidewaysLoop
     inc de ; next x
     ld l, h
     RET

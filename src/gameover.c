@@ -50,24 +50,24 @@ void gameOverLoop(void) __z88dk_fastcall {
   byte hiScoreBuf[11] = "          ";
   word top = 53;
 
-  printNoBackground("GAME OVER", x, top, HUD_ORANGE);
+  print("GAME OVER", x, top, HUD_ORANGE);
   top += 20;
 
   if(highScoreSlot == HIGHSCORE_SLOTS) {
     x = center - ((4*5) >> 1);
-    printNoBackground("SCORE", x, top, HUD_ORANGE);
+    print("SCORE", x, top, HUD_ORANGE);
     top += 10;
 
     x = center - ((4*7) >> 1);
     sprintf(textBuf, "%07lu", currentStats.score);
-    printNoBackground(textBuf, x, top, HUD_ORANGE);  
+    print(textBuf, x, top, HUD_ORANGE);  
 
   } else {
     top += 3;
     x = center - ((4*15) >> 1);
-    printNoBackground("NEW HIGH SCORE!", x, top, HUD_WHITE);
+    print("NEW HIGH SCORE!", x, top, HUD_WHITE);
     top += 10;
-    printNoBackground("ENTER YOUR NAME", x, top, HUD_WHITE);
+    print("ENTER YOUR NAME", x, top, HUD_WHITE);
   }
 
   top += 14;
@@ -108,7 +108,7 @@ void gameOverLoop(void) __z88dk_fastcall {
         hiScoreBuf[hiScoreBufPos++] = letter;
       }
 
-      print(hiScoreBuf, x, entryY, HUD_WHITE, HUD_BLACK);
+      printWithBackground(hiScoreBuf, x, entryY, HUD_WHITE, HUD_BLACK);
 
     } else if(!mouseState.handled) {
       return;

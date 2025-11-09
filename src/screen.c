@@ -203,7 +203,7 @@ void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBott
   layer2HorizonalLine(x, Y, radius << 1, (Y>dividerY) ? colorBottom : colorTop);
 }
 
-void print(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc {
+void printWithBackground(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc {
   layer2fill(x, y, strlen(text) * 4 - 1, 5, bgColor);
-  printNoBackground(text, x, y, textColor);
+  print(text, x, y, textColor);
 }

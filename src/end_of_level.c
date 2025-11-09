@@ -43,11 +43,11 @@ static void displayStats(word top, word x, byte level, word color, byte twoColum
   applyHudPalette();
 
   sprintf(textBuf, " ZONE %02d: CLEAR", level);
-  printNoBackground(textBuf, x, top, color);
+  print(textBuf, x, top, color);
 
   top += 16;
   sprintf(textBuf, "     TIME: %lu SEC", currentStats.frames / 50);
-  printNoBackground(textBuf, x, top, color);
+  print(textBuf, x, top, color);
 
   if(twoColumns) {
     top = originalTop;
@@ -58,31 +58,31 @@ static void displayStats(word top, word x, byte level, word color, byte twoColum
 
   long totalShots = 123; //currentStats.shotsHit + currentStats.shotsMiss;
   sprintf(textBuf, "    SHOTS: %lu", totalShots);
-  printNoBackground(textBuf, x, top, color);
+  print(textBuf, x, top, color);
 
   top += 8;
   sprintf(textBuf, "     HITS: %lu", currentStats.shotsHit);
-  printNoBackground(textBuf, x, top, color);
+  print(textBuf, x, top, color);
 
   top += 8;
   sprintf(textBuf, "   MISSES: %lu", currentStats.shotsMiss);
-  printNoBackground(textBuf, x, top, color);
+  print(textBuf, x, top, color);
 
   if(currentStats.shotsMiss) {
     top += 8;
     float ratio = ((currentStats.shotsHit * 100) / totalShots);
     int roundedRatio = (int)ratio;
     sprintf(textBuf, " ACCURACY: %02d%%", roundedRatio);
-    printNoBackground(textBuf, x, top, color);
+    print(textBuf, x, top, color);
   }
 
   top += 16;
   sprintf(textBuf, "  BONUSES: %lu", currentStats.bonusesLanded);
-  printNoBackground(textBuf, x, top, color);
+  print(textBuf, x, top, color);
   top += 8;
 
   sprintf(textBuf, "COLLECTED: %lu", currentStats.bonusesHit);
-  printNoBackground(textBuf, x, top, color);
+  print(textBuf, x, top, color);
 }
 
 static void wait(byte time) __z88dk_fastcall {

@@ -1,8 +1,8 @@
 SECTION PAGE_28_POSTISR
 
 GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
-GLOBAL layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackgroundSlow, layer2CharNoBackgroundFast, selectLayer2PageInternal, ulaAttributeChar
-GLOBAL layer2PlotSliceNoBackgroundSlowInk, layer2PlotSliceNoBackgroundFastInk, selectPageForXInDeAndSetupH, layer2CharSidewaysNoBackground, layer2PlotSliceSidewaysNoBackgroundInk
+GLOBAL layer2CharSlow, layer2CharFast, selectLayer2PageInternal, ulaAttributeChar
+GLOBAL layer2PlotSliceSlowInk, layer2PlotSliceFastInk, selectPageForXInDeAndSetupH, layer2CharSideways, layer2PlotSliceSidewaysInk
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -198,14 +198,14 @@ _printAttributes:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _printNoBackground
-_printNoBackground:
+PUBLIC _print
+_print:
     pop iy          ; return address
 
     pop HL          ; colour
     ld a, l
-    ld (layer2PlotSliceNoBackgroundSlowInk+1), a
-    ld (layer2PlotSliceNoBackgroundFastInk+1), a
+    ld (layer2PlotSliceSlowInk+1), a
+    ld (layer2PlotSliceFastInk+1), a
 
     pop HL          ; y
     pop DE          ; x
@@ -214,7 +214,7 @@ _printNoBackground:
     pop hl          ; address of first char in HL'
     push iy         ; put return back on stack
 
-.printNoBackgroundLoop:
+.printLoop:
     ld a, (hl) ; read from HL'
     exx
     sub 32 ; index = ascii - 32
@@ -235,26 +235,26 @@ _printNoBackground:
     ld a, e
     cpl
     and $30
-    jp nz, printNoBackgroundLoopFast
+    jp nz, printLoopFast
 
     ; if we're in one of those, if E >= 14 (xE or xF) -> bounrary checks needed
     ld a, e
     and $f
     cp $e
-    jp c, printNoBackgroundLoopFast
+    jp c, printLoopFast
 
     ld iy, bc
-    call layer2CharNoBackgroundSlow
+    call layer2CharSlow
     inc de      ; 1px space
-    jp printNoBackgroundLoopNext
+    jp printLoopNext
 
-.printNoBackgroundLoopFast:
+.printLoopFast:
     push de
-    call layer2CharNoBackgroundFast
+    call layer2CharFast
     pop de
     add de, 4
 
-.printNoBackgroundLoopNext:
+.printLoopNext:
     ; reset Y
     ld a, l
     sub 5
@@ -262,7 +262,7 @@ _printNoBackground:
 
     exx
     inc hl ; next char in HL'
-    jp printNoBackgroundLoop
+    jp printLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -490,13 +490,13 @@ _updateSprite:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _printSidewaysNoBackground
-_printSidewaysNoBackground:
+PUBLIC _printSideways
+_printSideways:
     pop iy          ; return address
 
     pop HL          ; colour
     ld a, l
-    ld (layer2PlotSliceSidewaysNoBackgroundInk+1), a
+    ld (layer2PlotSliceSidewaysInk+1), a
 
     pop HL          ; y
     pop DE          ; x
@@ -505,7 +505,7 @@ _printSidewaysNoBackground:
     pop hl          ; address of first char in HL'
     push iy         ; put return back on stack
 
-.printSidewaysNoBackgroundLoop:
+.printSidewaysLoop:
     ld a, (hl) ; read from HL'
     exx
     sub 32 ; index = ascii - 32
@@ -520,7 +520,7 @@ _printSidewaysNoBackground:
     add bc, a   ; bc += (a * 4)
     ld iy, bc
 
-    call layer2CharSidewaysNoBackground
+    call layer2CharSideways
 
     add de, -5
 
@@ -530,6 +530,6 @@ _printSidewaysNoBackground:
 
     exx
     inc hl ; next char in HL'
-    jp printSidewaysNoBackgroundLoop
+    jp printSidewaysLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

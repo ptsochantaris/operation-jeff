@@ -44,12 +44,12 @@ void setupTitle(void) __z88dk_fastcall {
 
   word x = 160 - ((4*18) >> 1);
   sprintf(textBuf, "HIGH SCORE %07lu", highScores[0].score);
-  printNoBackground(textBuf, x, 12, 4);
+  print(textBuf, x, 12, 4);
 
   if(currentStats.highestLevel > 0) {
     x = 160 - ((4*33) >> 1);
     sprintf(textBuf, "PRESS C TO CONTINUE FROM LEVEL %02d", currentStats.highestLevel + 1);
-    printNoBackground(textBuf, x, 241, 18);
+    print(textBuf, x, 241, 18);
   }
 
   ayStopAllSound();

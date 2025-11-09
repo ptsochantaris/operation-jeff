@@ -73,13 +73,13 @@ word displayHighScoreTable(word x, word top, byte newPos) {
             newPos = 255;
         } else {
             struct ScoreRecord record = highScores[row];
-            printNoBackground(record.name, x, top, HUD_ORANGE);    
+            print(record.name, x, top, HUD_ORANGE);    
             color = HUD_ORANGE;      
             score = record.score;
             ++row;
         }
         sprintf(textBuf, "%07lu", score);
-        printNoBackground(textBuf, x + 48, top, color);    
+        print(textBuf, x + 48, top, color);    
     }
     return entryTop;
 }
