@@ -38,7 +38,7 @@ void setupTitle(void) __z88dk_fastcall {
   sprintf(textBuf, "THIS IS A LONG BIT OF TEXT, THAT *SHOULD* TAKE UP MOST OF THE SCREEN WIDTH");
   for(byte c=0;c!=10;c++) {
     for(int f=0;f<250;f+=8) {
-      print(textBuf, 0, f, c, 0);
+      printWithBackground(textBuf, 0, f, c, 0);
     }
   }*/
 

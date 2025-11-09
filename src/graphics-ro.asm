@@ -1,7 +1,7 @@
 SECTION PAGE_28_POSTISR
 
 GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
-GLOBAL layer2CharSlow, layer2CharFast, selectLayer2PageInternal, ulaAttributeChar
+GLOBAL layer2CharSlow, layer2CharFast, selectLayer2PageInternal
 GLOBAL layer2PlotSliceSlowInk, layer2PlotSliceFastInk, selectPageForXInDeAndSetupH, layer2CharSideways, layer2PlotSliceSidewaysInk
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -531,5 +531,41 @@ _printSideways:
     exx
     inc hl ; next char in HL'
     jp printSidewaysLoop
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ulaAttributeChar:
+    ; l           ; y
+    ; de          ; x + ula attributes
+    ; bc          ; address of first slice
+
+    ex de, hl       ; offset = H(row width, 32) * L(y)
+    mul d, e
+    ex de, hl
+    add hl, de      ; HL(attribute address) = offset + x
+
+    ld de, bc
+
+    xor a
+    call ulaAttributeCharPlotSlice
+    call ulaAttributeCharPlotSlice
+    call ulaAttributeCharPlotSlice
+    call ulaAttributeCharPlotSlice
+    ; fallthrough to ulaAttributeCharPlotSlice
+
+.ulaAttributeCharPlotSlice:
+    add hl, 29 ; (32-3)
+    ld c, (de)
+    inc a
+    ld b, 3         ; loops in b
+.ulaAttributeCharPlotSliceLoop:
+    rl c
+    jp nc, ulaAttributeCharPlotSliceSkip
+    ld (hl), a
+.ulaAttributeCharPlotSliceSkip:
+    inc hl
+    djnz ulaAttributeCharPlotSliceLoop
+    inc de
+    RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

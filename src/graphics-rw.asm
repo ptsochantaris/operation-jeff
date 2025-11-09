@@ -142,43 +142,6 @@ setPaletteCommit:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC ulaAttributeChar
-ulaAttributeChar:
-    ; l           ; y
-    ; de          ; x + ula attributes
-    ; bc          ; address of first slice
-
-    ex de, hl       ; offset = H(row width, 32) * L(y)
-    mul d, e
-    ex de, hl
-    add hl, de      ; HL(attribute address) = offset + x
-
-    ld de, bc
-
-    xor a
-    call ulaAttributeCharPlotSlice
-    call ulaAttributeCharPlotSlice
-    call ulaAttributeCharPlotSlice
-    call ulaAttributeCharPlotSlice
-    ; fallthrough to ulaAttributeCharPlotSlice
-
-.ulaAttributeCharPlotSlice:
-    ld c, (de)
-    inc a
-    ld b, 3         ; loops in b
-.ulaAttributeCharPlotSliceLoop:
-    sll c
-    jp nc, ulaAttributeCharPlotSliceSkip
-    ld (hl), a
-.ulaAttributeCharPlotSliceSkip:
-    inc hl
-    djnz ulaAttributeCharPlotSliceLoop
-    add hl, 29 ; (32-3)
-    inc de
-    RET
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 PUBLIC layer2CharSlow, layer2CharFast, layer2PlotSliceFastInk, layer2PlotSliceSlowInk
 
 layer2CharSlow:
