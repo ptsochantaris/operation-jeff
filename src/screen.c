@@ -8,15 +8,6 @@ const byte clipBytes[] = {0,159,0,255};
 // https://github.com/benbaker76/Gfx2Next
 // build/gfx2next ~/spacer.png -pal-std -pal-none -bitmap-y -bank-16k spacerTitle.nxi
 
-void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
-  if(height == 0 || width == 0) return;
-  word ex = x + width;
-  word ey = y + height;
-  for(word X=x; X!=ex; ++X) {
-    layer2VerticalLine(X, y, ey, color);
-  }
-}
-
 void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
   if(width<=0) return;
   if(height<=0) return;
@@ -210,4 +201,9 @@ void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBott
   }
   word Y = y+radius;
   layer2HorizonalLine(x, Y, radius << 1, (Y>dividerY) ? colorBottom : colorTop);
+}
+
+void print(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc {
+  layer2fill(x, y, strlen(text) * 4 - 1, 5, bgColor);
+  printNoBackground(text, x, y, textColor);
 }

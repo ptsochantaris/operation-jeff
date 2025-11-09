@@ -33,26 +33,14 @@ void setupTitle(void) __z88dk_fastcall {
   setupTitleLeds();
   menuInfoMode = 0;
 
-  /* Benchmarking drawing */
-  /*
-  for(byte c=0;c!=15;++c) {
-    //layer2fill(10,10,300,240,c);
-    for(word s=250;s!=1;--s) {
-      layer2box(3, 3, s, s, c);
-    }
-  }
-  */
-
   /* Benchmarking text printing */
   /*
-  sprintf(textBuf, "THIS IS A LONG BIT OF TEXT, THAT *SHOULD* TAKE UP MOST OF THE SCREEN WIDTH!");
+  sprintf(textBuf, "THIS IS A LONG BIT OF TEXT, THAT *SHOULD* TAKE UP MOST OF THE SCREEN WIDTH");
   for(byte c=0;c!=10;c++) {
     for(int f=0;f<250;f+=8) {
-      // printNoBackground(textBuf, 0, f, c);
-      print(textBuf, 0, f, c, 1);
+      print(textBuf, 0, f, c, 0);
     }
-  }
-  */
+  }*/
 
   word x = 160 - ((4*18) >> 1);
   sprintf(textBuf, "HIGH SCORE %07lu", highScores[0].score);

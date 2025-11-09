@@ -20,7 +20,6 @@ void setupLayers(byte mode) __z88dk_fastcall;
 
 void layer2box(word x, word y, word width, word height, byte color) __z88dk_callee __smallc;
 void layer2roundedBox(word x, word y, word width, word height, byte color) __z88dk_callee __smallc;
-void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc;
 void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) __z88dk_callee __smallc;
 void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc;
 
@@ -33,5 +32,6 @@ void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, byte p
 void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette) __z88dk_callee __smallc;
 
 void loadScreen(const struct LevelInfo *restrict info) __z88dk_fastcall;
+void print(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc;
 
 #endif

@@ -1,8 +1,8 @@
 SECTION PAGE_28_POSTISR
 
 GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
-GLOBAL layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackground, selectLayer2PageInternal, ulaAttributeChar
-GLOBAL layer2PlotSliceNoBackgroundInk, selectPageForXInDeAndSetupH, layer2CharSidewaysNoBackground, layer2PlotSliceSidewaysNoBackgroundInk
+GLOBAL layer2PlotSliceBg, layer2PlotSliceFg, layer2CharNoBackgroundSlow, layer2CharNoBackgroundFast, selectLayer2PageInternal, ulaAttributeChar
+GLOBAL layer2PlotSliceNoBackgroundSlowInk, layer2PlotSliceNoBackgroundFastInk, selectPageForXInDeAndSetupH, layer2CharSidewaysNoBackground, layer2PlotSliceSidewaysNoBackgroundInk
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -204,7 +204,8 @@ _printNoBackground:
 
     pop HL          ; colour
     ld a, l
-    ld (layer2PlotSliceNoBackgroundInk+1), a
+    ld (layer2PlotSliceNoBackgroundSlowInk+1), a
+    ld (layer2PlotSliceNoBackgroundFastInk+1), a
 
     pop HL          ; y
     pop DE          ; x
@@ -226,16 +227,39 @@ _printNoBackground:
     add bc, a   ; bc += (a * 2)
     rla
     add bc, a   ; bc += (a * 4)
+
+    ; Optimisation: Go slow if we cross page boundaries
+    ; E = 3E, 3F, 7E, 7F, BE, BF, FE, FF -> will cross layer 2 page boundary in the next 3px
+
+    ; E = 3x, 7x, Bx, Fx -> potential page boundary checks needed (E & 00110000) -> (E & $30)
+    ld a, e
+    cpl
+    and $30
+    jp nz, printNoBackgroundLoopFast
+
+    ; if we're in one of those, if E >= 14 (xE or xF) -> bounrary checks needed
+    ld a, e
+    and $f
+    cp $e
+    jp c, printNoBackgroundLoopFast
+
     ld iy, bc
+    call layer2CharNoBackgroundSlow
+    inc de      ; 1px space
+    jp printNoBackgroundLoopNext
 
-    call layer2CharNoBackground
+.printNoBackgroundLoopFast:
+    push de
+    call layer2CharNoBackgroundFast
+    pop de
+    add de, 4
 
+.printNoBackgroundLoopNext:
     ; reset Y
     ld a, l
     sub 5
     ld l, a
 
-    inc de      ; 1px space
     exx
     inc hl ; next char in HL'
     jp printNoBackgroundLoop
@@ -507,52 +531,5 @@ _printSidewaysNoBackground:
     exx
     inc hl ; next char in HL'
     jp printSidewaysNoBackgroundLoop
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-PUBLIC _print
-_print:
-    pop iy          ; return address
-
-    pop HL          ; bgColor
-    ld a, l
-    ld (layer2PlotSliceBg+1), a
-
-    pop HL          ; textColour
-    ld a, l
-    ld (layer2PlotSliceFg+1), a
-
-    pop HL          ; y
-    pop DE          ; x
-
-    exx
-    pop hl          ; address of first char in HL'
-    push iy         ; put return back on stack
-
-.printLoop:
-    ld a, (hl) ; read from HL'
-    exx
-    sub 32 ; index = ascii - 32
-    ret c ; exit if char is below 32
-
-    ; put first slice of font in IY, offset from font_data
-    ld bc, font_data
-    ; offset is a * 6, split out for performance
-    rla
-    add bc, a   ; bc += (a * 2)
-    rla
-    add bc, a   ; bc += (a * 4)
-    ld iy, bc
-
-    call layer2Char
-
-    ld a, l
-    sub 5
-    ld l, a
-
-    inc de ; 1px spacing
-    exx
-    inc hl ; next char in HL'
-    jp printLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

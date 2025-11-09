@@ -70,7 +70,7 @@ _layer2HorizonalLine:
 
     pop de          ; width
     inc de          ; make inclusive
-    ld b, e         ; Mystery fast loop calculus
+    ld b, e         ; 16bit loop init
     dec de
     inc d
     ld c, d         ; BC set for 16bit loop
@@ -99,45 +99,6 @@ _layer2HorizonalLine:
     dec c
     jp nz, layer2HorizontalLineLoop
     ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-PUBLIC layer2Char, layer2PlotSliceBg, layer2PlotSliceFg
-layer2Char:
-    ; HL - y
-    ; DE - x
-    ; iy - address of first slice
-
-    ld (layer2PlotSliceSet+1), de ; baseline X
-
-    ld c, (iy)
-    call layer2PlotSlice
-    ld c, (iy+1)
-    call layer2PlotSlice
-    ld c, (iy+2)
-    call layer2PlotSlice
-    ld c, (iy+3)
-    call layer2PlotSlice
-    ld c, (iy+4)    ; fallthrough to layer2PlotSlice
-
-.layer2PlotSlice:
-    ld b, 3         ; loops in b
-.layer2PlotSliceSet:
-    ld de, 0 ; placeholder
-.layer2PlotSliceLoop:
-    call selectPageForXInDeAndSetupH
-    sll c
-    jp nc, layer2PlotSliceBg
-.layer2PlotSliceFg:
-    ld (hl), 0      ; set (hl) to colour value
-    jp layer2PlotSliceNext
-.layer2PlotSliceBg:
-    ld (hl), 0      ; set (hl) to colour value
-.layer2PlotSliceNext:
-    inc de
-    djnz layer2PlotSliceLoop
-    inc l ; next y
-    RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -218,38 +179,72 @@ ulaAttributeChar:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC layer2CharNoBackground, layer2PlotSliceNoBackgroundInk
-layer2CharNoBackground:
+PUBLIC layer2CharNoBackgroundSlow, layer2CharNoBackgroundFast, layer2PlotSliceNoBackgroundFastInk, layer2PlotSliceNoBackgroundSlowInk
+
+layer2CharNoBackgroundSlow:
     ; HL y
     ; DE x
+    ; IY char
 
-    ld (layer2PlotSliceNoBackgroundSet+1), de
+    ld (layer2PlotSliceNoBackgroundSlowSet+1), de
 
     ld c, (iy)
-    call layer2PlotSliceNoBackground
+    call layer2PlotSliceNoBackgroundSlow
     ld c, (iy+1)
-    call layer2PlotSliceNoBackground
+    call layer2PlotSliceNoBackgroundSlow
     ld c, (iy+2)
-    call layer2PlotSliceNoBackground
+    call layer2PlotSliceNoBackgroundSlow
     ld c, (iy+3)
-    call layer2PlotSliceNoBackground
+    call layer2PlotSliceNoBackgroundSlow
     ld c, (iy+4)    ; fallthrough to layer2PlotSliceNoBackground
 
-.layer2PlotSliceNoBackground:
+.layer2PlotSliceNoBackgroundSlow:
     ld b, 3         ; loops in b
-.layer2PlotSliceNoBackgroundSet:
+.layer2PlotSliceNoBackgroundSlowSet:
     ld de, 0        ; placeholder
-.layer2PlotSliceNoBackgroundLoop:
+.layer2PlotSliceNoBackgroundSlowLoop:
     sll c
-    jp nc, layer2PlotSliceNoBackgroundNext
+    jp nc, layer2PlotSliceNoBackgroundSlowNext
     call selectPageForXInDeAndSetupH
-layer2PlotSliceNoBackgroundInk:
+layer2PlotSliceNoBackgroundSlowInk:
     ld (hl), 0      ; set (hl) to colour value
 
-.layer2PlotSliceNoBackgroundNext:
+.layer2PlotSliceNoBackgroundSlowNext:
     inc de
-    djnz layer2PlotSliceNoBackgroundLoop
+    djnz layer2PlotSliceNoBackgroundSlowLoop
     inc l ; next y
+    RET
+
+
+layer2CharNoBackgroundFast:
+    ; HL y
+    ; DE x
+    ; BC char
+
+    call selectPageForXInDeAndSetupH
+    ld de, bc
+    ld c, h
+
+    call layer2PlotSliceNoBackgroundFast
+    call layer2PlotSliceNoBackgroundFast
+    call layer2PlotSliceNoBackgroundFast
+    call layer2PlotSliceNoBackgroundFast
+    ; fallthrough to layer2PlotSliceNoBackgroundFast
+
+.layer2PlotSliceNoBackgroundFast:
+    ld a, (de)      ; current slice
+    inc de          ; next slice
+    ld b, 3         ; loops in b
+.layer2PlotSliceNoBackgroundFastLoop:
+    rla
+    jp nc, layer2PlotSliceNoBackgroundFastNext
+layer2PlotSliceNoBackgroundFastInk:
+    ld (hl), 0      ; set (hl) to colour value
+.layer2PlotSliceNoBackgroundFastNext:
+    inc h           ; x++
+    djnz layer2PlotSliceNoBackgroundFastLoop
+    ld h, c
+    inc l           ; y++
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -291,5 +286,59 @@ layer2CharSidewaysNoBackground:
     inc de ; next x
     ld l, h
     RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _layer2fill
+_layer2fill:
+    pop iy          ; return address
+
+    pop HL          ; colour
+    ld a, l
+    ld (layer2fillInk+1), a
+
+    pop de          ; height
+    ld a, e
+    ld (layer2fillVertical+1), a
+
+    pop de          ; width
+    ld b, e         ; 16bit loop init
+    dec de
+    inc d
+    ld c, d         ; BC set for 16bit loop
+
+    pop hl          ; start y
+    pop de          ; start x
+    push iy         ; put return back on stack
+
+    call selectPageForXInDE
+
+.layer2FillLoop:
+    ; offset in page
+    ld a, e
+    and $3F         ; keep in-page bits of x, set Z flag for below
+    ld h, a         ; l already has y
+
+    ; destination page needs update if in-page x is zero
+    call z, selectPageForXInDE
+
+    push bc
+.layer2fillVertical:
+    ld b, 0         ; placeholder for height loop
+    ld c, l         ; stash L
+.layer2fillInk:
+    ld (hl), 0      ; set (hl) to colour value
+    inc l
+    djnz layer2fillInk
+    ld l, c         ; restore L
+    pop bc
+ 
+    inc de          ; x++
+
+    ; 16-bit loop using BC
+    djnz layer2FillLoop
+    dec c
+    jp nz, layer2FillLoop
+    ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
