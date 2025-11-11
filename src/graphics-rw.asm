@@ -166,7 +166,7 @@ layer2CharSlow:
 .layer2PlotSliceSlowSet:
     ld de, 0        ; placeholder
 .layer2PlotSliceSlowLoop:
-    sll c
+    rl c
     jp nc, layer2PlotSliceSlowNext
     call selectPageForXInDeAndSetupH
 layer2PlotSliceSlowInk:
@@ -178,6 +178,7 @@ layer2PlotSliceSlowInk:
     inc l ; next y
     RET
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 layer2CharFast:
     ; HL y
@@ -232,7 +233,7 @@ layer2CharSideways:
 .layer2PlotSliceSideways:
     ld b, 3         ; loops in b
 .layer2PlotSliceSidewaysLoop:
-    sll c
+    rl c
     jp nc, layer2PlotSliceSidewaysNext
 
     ld a, h         ; save H
