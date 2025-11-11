@@ -231,12 +231,14 @@ _print:
     ; Optimisation: Go slow if we cross page boundaries
     ; E = 3E, 3F, 7E, 7F, BE, BF, FE, FF -> will cross layer 2 page boundary in the next 3px
 
-    ; E = 3x, 7x, Bx, Fx -> potential page boundary checks needed (E & 00110000) -> (E & $30)
+    ; Check left nibble of E
+    ; 3x, 7x, Bx, Fx -> potential page boundary checks needed (E & 00110000) -> (E & $30)
     ld a, e
     cpl
     and $30
     jp nz, printLoopFast
 
+    ; Check right nibble of E
     ; if we're in one of those, if E >= 14 (xE or xF) -> bounrary checks needed
     ld a, e
     and $f
