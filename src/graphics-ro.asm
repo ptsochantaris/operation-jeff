@@ -227,25 +227,25 @@ _print:
     add bc, a   ; bc += (a * 2)
     rla
     add bc, a   ; bc += (a * 4)
-
     ld iy, bc
 
-    ; Optimisation: Go slow if we cross page boundaries
-    ; E = 3E, 3F, 7E, 7F, BE, BF, FE, FF -> will cross layer 2 page boundary in the next 3px
+    ; Optimisation: Go slow if we cross page boundaries; reg E holds in-page X.
+    ; X values that mean we will cross layer 2 page boundary in the next 3px are:
+    ; 3E - 00 11111 0
+    ; 3F - 00 11111 1
+    ; 7E - 01 11111 0
+    ; 7F - 01 11111 1
+    ; BE - 10 11111 0
+    ; BF - 10 11111 1
+    ; FE - 11 11111 0
+    ; FF - 11 11111 1
 
-    ; Check left nibble of E
-    ; 3x, 7x, Bx, Fx -> potential page boundary checks needed (E & 00110000) -> (E & $30)
+    ; Check bits 1, 2, 3, 4, and 5 which they have in common
+    ; (~E & 00111110) != 0 -> can use fast char
     ld a, e
     cpl
-    and $30
+    and $3e
     jp nz, printLoopFast
-
-    ; Check right nibble of E
-    ; if we're in one of those, if E >= 14 (xE or xF) -> bounrary checks needed
-    ld a, e
-    and $f
-    cp $e
-    jp c, printLoopFast
 
     call layer2CharSlow
     jp printLoopNext
