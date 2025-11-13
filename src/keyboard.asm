@@ -1,12 +1,8 @@
-SECTION code_compiler
+SECTION PAGE_28_POSTISR
 
-GLOBAL keyboardLookup, joystickButtons
+GLOBAL keyboardLookup, joystickButtons, keyboardPorts, _keyboardShiftPressed, _keyboardSymbolShiftPressed
 
-PUBLIC _keyboardShiftPressed, _keyboardSymbolShiftPressed
-_keyboardShiftPressed: DB 0
-_keyboardSymbolShiftPressed: DB 0
-
-.readKeyboardStart:
+.readKeyboardStartButton:
     ld l, 'P'
     ret
 
@@ -14,7 +10,7 @@ PUBLIC _readKeyboardLetter
 _readKeyboardLetter:
     ld a, (joystickButtons)
     and 8
-    jr nz, readKeyboardStart
+    jr nz, readKeyboardStartButton
 
     ld de, keyboardLookup
 
@@ -23,27 +19,20 @@ _readKeyboardLetter:
     ld (_keyboardShiftPressed), a
     ld (_keyboardSymbolShiftPressed), a
 
-    ld bc, $f7fe
-    call readRow
-    ld b, $ef
-    call readRow
-    ld b, $fb
-    call readRow
-    ld b, $df
-    call readRow
-    ld b, $fd
-    call readRow
-    ld b, $bf
-    call readRow
-    ld b, $fe
-    call readRow
-    ld b, $7f
+    ld c, $fe   ; keyboard port LSB
+    ld iy, keyboardPorts
 
-.readRow:
+.readKeyboardLetterLoop:
+    ld b, (iy)  ; keyboard port MSB
+
+    ld a, b
+    or a
+    ret z ; return if we hit the zero sentinel
+
     in a, (c)
     ld b, 5
 .readRowLoop:
-    srl a
+    rra
     jp c, noPress
 
     ; press
@@ -66,4 +55,6 @@ _readKeyboardLetter:
 .noPress:
     inc de
     djnz readRowLoop
-    RET
+
+    inc iy
+    jp readKeyboardLetterLoop

@@ -7,8 +7,11 @@ keyboardLookup:
     DB 'Q', 'W', 'E', 'R', 'T', 'P', 'O', 'I', 'U', 'Y'
     DB 'A', 'S', 'D', 'F', 'G',  13, 'L', 'K', 'J', 'H'
     DB   1, 'Z', 'X', 'C', 'V', ' ',   2, 'M', 'N', 'B'
-    DB   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
-    DB   0,   0,   0,   0,   0,   0
+    DB   0,   0,   0,   0,   0,   0,   0
+
+PUBLIC keyboardPorts
+keyboardPorts: 
+    DB $f7, $ef, $fb, $df, $fd, $bf, $fe, $7f, 0
 
 GLOBAL inputHandler
 
@@ -23,7 +26,6 @@ _bombRadii1: DW 7, 8, 9, 10, 9, 8, 8, 8
 _bombRadii2: DW 14, 16, 18, 20, 18, 16, 16, 16
 
 PUBLIC outLoop16, outLoop11, outLoop10, outLoop7, outLoop5
-
 outLoop16:
     outinb
     outinb

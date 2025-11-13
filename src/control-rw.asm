@@ -2,6 +2,12 @@ SECTION code_compiler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+PUBLIC _keyboardShiftPressed, _keyboardSymbolShiftPressed
+_keyboardShiftPressed: DB 0
+_keyboardSymbolShiftPressed: DB 0
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _mouseX, _mouseY, _mouseHwB, _mouseWheel, _mouseTopLeft, joystickButtons
 _mouseX: DW 0
 _mouseY: DW 0
