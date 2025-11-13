@@ -147,69 +147,65 @@ PUBLIC layer2CharSlow, layer2CharFast, layer2PlotSliceFastInk, layer2PlotSliceSl
 layer2CharSlow:
     ; HL y
     ; DE x
-    ; IY char
+    ; IY            ; address of first slice
 
-    ld (layer2PlotSliceSlowSet+1), de
+    ld (layer2PlotSliceSlowSet+1), de   ; stash x
+    ld c, 5         ; 5 slices
 
-    ld c, (iy)
-    call layer2PlotSliceSlow
-    ld c, (iy+1)
-    call layer2PlotSliceSlow
-    ld c, (iy+2)
-    call layer2PlotSliceSlow
-    ld c, (iy+3)
-    call layer2PlotSliceSlow
-    ld c, (iy+4)    ; fallthrough to layer2PlotSlice
-
-.layer2PlotSliceSlow:
-    ld b, 3         ; loops in b
-.layer2PlotSliceSlowSet:
-    ld de, 0        ; placeholder
+.layer2PlotSliceSlowOuterLoop:
+    ld b, (iy)
 .layer2PlotSliceSlowLoop:
-    rl c
-    jp nc, layer2PlotSliceSlowNext
+    sll b           ; shift left, add 1 for looping
+    jr nc, layer2PlotSliceSlowNext
+
     call selectPageForXInDeAndSetupH
 layer2PlotSliceSlowInk:
     ld (hl), 0      ; set (hl) to colour value
 
 .layer2PlotSliceSlowNext:
     inc de
+    ; remove 1, loop if there are still 1s in the slice
     djnz layer2PlotSliceSlowLoop
-    inc l ; next y
-    RET
+.layer2PlotSliceSlowSet:
+    ld de, 0        ; restore x
+    inc l           ; next y
+    dec c           ; next loop
+    ret z           ; or done
+
+    inc iy          ; next slice
+    jp layer2PlotSliceSlowOuterLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 layer2CharFast:
     ; HL y
     ; DE x
-    ; BC char
+    ; IY            ; address of first slice
 
     call selectPageForXInDeAndSetupH
-    ld de, bc
-    ld c, h
+    ld c, h         ; stash x
 
-    call layer2PlotSliceFast
-    call layer2PlotSliceFast
-    call layer2PlotSliceFast
-    call layer2PlotSliceFast
-    ; fallthrough to layer2PlotSliceFast
-
-.layer2PlotSliceFast:
-    ld a, (de)      ; current slice
-    inc de          ; next slice
-    ld b, 3         ; loops in b
+    ld a, 5         ; 5 slices
+.layer2PlotSliceFastOuterLoop:
+    ld b, (iy)      ; current slice
 .layer2PlotSliceFastLoop:
-    rla
-    jp nc, layer2PlotSliceFastNext
+    sll b
+    jr nc, layer2PlotSliceFastNext
 layer2PlotSliceFastInk:
     ld (hl), 0      ; set (hl) to colour value
 .layer2PlotSliceFastNext:
     inc h           ; x++
+
+    ; remove 1, loop if there are still 1s in the slice
     djnz layer2PlotSliceFastLoop
-    ld h, c
+
+    ld h, c         ; restore x
     inc l           ; y++
-    RET
+    dec a           ; next loop
+    ret z           ; or done
+
+    inc iy          ; next slice
+    jp layer2PlotSliceFastOuterLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -217,7 +213,7 @@ PUBLIC layer2CharSideways, layer2PlotSliceSidewaysInk
 layer2CharSideways:
     ; HL          ; y
     ; DE          ; x
-    ; iy          ; address of first slice
+    ; IY          ; address of first slice
 
     ld h, l
     ld c, (iy)

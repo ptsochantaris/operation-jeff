@@ -228,6 +228,8 @@ _print:
     rla
     add bc, a   ; bc += (a * 4)
 
+    ld iy, bc
+
     ; Optimisation: Go slow if we cross page boundaries
     ; E = 3E, 3F, 7E, 7F, BE, BF, FE, FF -> will cross layer 2 page boundary in the next 3px
 
@@ -245,18 +247,15 @@ _print:
     cp $e
     jp c, printLoopFast
 
-    ld iy, bc
     call layer2CharSlow
-    inc de      ; 1px space
     jp printLoopNext
 
 .printLoopFast:
-    push de
     call layer2CharFast
-    pop de
-    add de, 4
 
 .printLoopNext:
+    add de, 4
+
     ; reset Y
     ld a, l
     sub 5
