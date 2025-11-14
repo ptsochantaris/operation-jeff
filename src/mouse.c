@@ -2,10 +2,8 @@
 
 #define MOUSE_PATTERN 9
 
-struct MouseState mouseState = { 1, 0, 0 };
-
-static struct sprite_info mouseSprite;
-static int currentWheel = 0;
+extern struct MouseState mouseState;
+extern struct sprite_info mouseSprite;
 
 void mouseInit(void) __z88dk_fastcall {
     mouseReset();
@@ -42,18 +40,18 @@ void setMenuMouse(void) __z88dk_fastcall {
     mouseTopLeft.y = 0;
 }
 
-void updateMouse(void) __z88dk_fastcall {
-    mouseSprite.pos.x = mouseX;
-    mouseSprite.pos.y = mouseY;
+/*
+mouseSprite.pos.x = mouseX;
+mouseSprite.pos.y = mouseY;
 
-    updateSprite(&mouseSprite);
+updateSprite(&mouseSprite);
 
-    int wheel = mouseHwB >> 4; // wheel WWWW0000
-    int wheelDiff = wheel - currentWheel;
-    currentWheel = wheel;
-    if(wheelDiff < 10 && wheelDiff > -10) {
-        mouseState.wheel += wheelDiff;
-    }
+int wheel = mouseHwB >> 4; // wheel WWWW0000
+int wheelDiff = wheel - currentWheel;
+currentWheel = wheel;
+if(wheelDiff < 10 && wheelDiff > -10) {
+    mouseState.wheel += wheelDiff;
+}
     
     word click = mouseHwB & 2; // left click 000000LR
     if(mouseState.ongoing) {
@@ -64,4 +62,4 @@ void updateMouse(void) __z88dk_fastcall {
         mouseState.handled = 0;
         mouseState.ongoing = 1;
     }
-}
+*/
