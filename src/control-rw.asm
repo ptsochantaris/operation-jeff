@@ -234,6 +234,8 @@ GLOBAL _updateSprite
 
 PUBLIC _updateMouse
 _updateMouse:
+    halt                ; wait for frame and ISR
+
     ld hl, _mouseSprite
     call _updateSprite
 

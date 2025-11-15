@@ -86,7 +86,8 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
 
   while(1) {
     do {
-      intrinsic_halt();
+      updateMouse();
+
       ++currentStats.frames;
 
       byte pressed = readKeyboardLetter();
@@ -122,9 +123,6 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
           return; // game over
         }
       }
-
-      updateMouse();
-
     } while(pause);
 
     updateBombs();

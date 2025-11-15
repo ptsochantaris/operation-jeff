@@ -82,7 +82,7 @@ byte menuLoop(void) __z88dk_fastcall {
   byte loopCount = 0;
 
   while(1) {
-    intrinsic_halt();
+    updateMouse();
     
     if(!mouseState.handled) {
       mouseState.handled = 1;
@@ -95,8 +95,6 @@ byte menuLoop(void) __z88dk_fastcall {
         return 0;
       }
     }
-
-    updateMouse();
 
     if(!menuInfoMode) {
       if(++loopCount == 6) {

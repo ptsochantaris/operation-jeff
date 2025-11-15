@@ -77,7 +77,6 @@ void gameOverLoop(void) __z88dk_fastcall {
   byte keyDown = 0;
 
   while(1) {
-    intrinsic_halt();
     updateMouse();
 
     if(entryY) {

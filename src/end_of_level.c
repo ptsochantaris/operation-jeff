@@ -28,7 +28,6 @@ static const struct LevelInfo endGameInfo = FAKE_LEVEL(endGame);
 
 static void waitForClick(void) __z88dk_fastcall {
   while(1) {
-    intrinsic_halt();
     updateMouse();
 
     if(!mouseState.handled) {
