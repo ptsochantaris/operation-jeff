@@ -8,13 +8,31 @@ _keyboardSymbolShiftPressed: DB 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _mouseX, _mouseY, _mouseHwB, _mouseWheel, _mouseTopLeft, joystickButtons
-_mouseX: DW 0
-_mouseY: DW 0
+PUBLIC _mouseHwB, _mouseWheel, _mouseTopLeft, joystickButtons
 _mouseWheel: DW 0
 _mouseHwB: DW 2
 _mouseTopLeft: DW 0, 0, 0
 joystickButtons: DB 0
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _mouseState, stateHandled, stateOngoing, stateWheel
+_mouseState:
+stateHandled: DB 1
+stateOngoing: DB 0
+stateWheel:   DW 0
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PUBLIC _mouseSprite, _mouseX, _mouseY
+_mouseSprite:
+         DB 0 ; index
+_mouseX: DW 0 ; pos(coord.x)
+_mouseY: DW 0 ; pos(coord.y)
+         DW 0 ; pos(coord.z)
+         DB 0 ; scaleUp
+         DB 0 ; horizontalMirror
+         DB 0 ; pattern
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -209,3 +227,71 @@ inputHandler:
     pop af
     ei
     ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+GLOBAL _updateSprite
+
+PUBLIC _updateMouse
+_updateMouse:
+    ld hl, _mouseSprite
+    call _updateSprite
+
+    ld de, (_mouseHwB)  ; wheel
+    ld b, 4
+    bsra de, b          ; wheel >> 4
+
+.updateMouseCurrentWheel:
+    ld bc, 0            ; currentWheel, negated
+    ld (updateMouseCurrentWheel+1), hl ; currentWheel = wheel
+    xor a               ; clear flags
+    sbc hl, bc          ; wheelDiff = wheel - currentWheel
+
+    ; Check if wheel (hl) is between -9 and 9
+    ; 1111 1111 1111 0110 -A -> $F6
+    ; 1111 1111 1111 0111 -9 -> $F7
+    ; 1111 1111 1111 1000 -8 -> $F8
+    ; ...
+    ; 0000 0000 0000 1000 +8 -> $08
+    ; 0000 0000 0000 1001 +9 -> $09
+    ; 0000 0000 0000 1010 +A -> $0A
+
+    ld a, h
+    cp $ff  ; 1111 1111
+    jp nz, updateMouseCurrentWheelOutOfRange
+    or a    ; 0000 0000
+    jp nz, updateMouseCurrentWheelOutOfRange
+
+    ld a, l
+    cp $f7  ; 1111 0111
+    jp c, updateMouseCurrentWheelOutOfRange
+    cp $a   ; 0000 1010
+    jp nc, updateMouseCurrentWheelOutOfRange
+
+    ; mouseState.wheel += wheelDiff
+    ld de, (stateWheel)
+    add hl, de
+    ld (stateWheel), hl
+
+.updateMouseCurrentWheelOutOfRange:
+    ld a, (stateOngoing)
+    or a
+    jp nz, updateMouseOngoing
+
+    ld de, (_mouseHwB)
+    bit 1, e
+    ret nz ; 1 = no click
+
+    xor a
+    ld (stateHandled), a ; 0
+    inc a
+    ld (stateOngoing), a ; 1
+
+.updateMouseOngoing:
+    ld de, (_mouseHwB)
+    bit 1, e
+    ret z   ; 0 = click still going
+
+    xor a   ; clear
+    ld (stateOngoing), a
+    RET
