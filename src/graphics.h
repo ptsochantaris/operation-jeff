@@ -16,7 +16,7 @@ void zeroPalette(byte palette) __preserves_regs(c,d,h,l,iyh,iyl) __z88dk_fastcal
 void scrollLayer2(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee __smallc;
 void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc;
 
-void updateSprite(struct sprite_info *restrict s) __preserves_regs(b,c,d,e,h,l) __z88dk_fastcall;
+void updateSprite(struct sprite_info *restrict s) __z88dk_fastcall;
 void hideSprite(byte index) __preserves_regs(b,c,d,e,h,l,iyh,iyl) __z88dk_fastcall;
 
 void scrollTilemap(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee __smallc;

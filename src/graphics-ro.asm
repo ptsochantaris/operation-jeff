@@ -441,6 +441,14 @@ _layer2StashPalette:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+GLOBAL _mouseSprite
+
+PUBLIC _updateMouse
+_updateMouse:
+    halt                ; wait for frame and ISR
+    ld hl, _mouseSprite
+    ; fallthrough to _updateSprite
+
 PUBLIC _updateSprite
 _updateSprite:
     ld a, (hl) ; index byte

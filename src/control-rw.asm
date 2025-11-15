@@ -213,32 +213,14 @@ inputHandler:
 .joystickFire:
     ld(joystickButtons), a  ; xxxxxFFF
     and 7                   ; 00000FFF
-    jp z, allDone
+    jp z, wheelHandler
 
     ; one of the fire buttons was pressed
     ld a, (_mouseHwB)
     and $FD ; xxxxxx0x - pretend left button pressed
     ld (_mouseHwB), a
 
-.allDone
-    pop hl
-    pop de
-    pop bc
-    pop af
-    ei
-    ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-GLOBAL _updateSprite
-
-PUBLIC _updateMouse
-_updateMouse:
-    halt                ; wait for frame and ISR
-
-    ld hl, _mouseSprite
-    call _updateSprite
-
+.wheelHandler
     ld de, (_mouseHwB)  ; wheel
     ld b, 4
     bsra de, b          ; wheel >> 4
@@ -282,7 +264,7 @@ _updateMouse:
 
     ld de, (_mouseHwB)
     bit 1, e
-    ret nz ; 1 = no click
+    jp nz, finish ; 1 = no click
 
     xor a
     ld (stateHandled), a ; 0
@@ -292,8 +274,15 @@ _updateMouse:
 .updateMouseOngoing:
     ld de, (_mouseHwB)
     bit 1, e
-    ret z   ; 0 = click still going
+    jp z, finish ; 0 = click still going
 
     xor a   ; clear
     ld (stateOngoing), a
-    RET
+
+.finish
+    pop hl
+    pop de
+    pop bc
+    pop af
+    ei
+    ret
