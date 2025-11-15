@@ -8,9 +8,7 @@ _keyboardSymbolShiftPressed: DB 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _mouseX, _mouseY, _mouseHwB, _mouseWheel, _mouseTopLeft, joystickButtons
-_mouseX: DW 0
-_mouseY: DW 0
+PUBLIC _mouseHwB, _mouseWheel, _mouseTopLeft, joystickButtons
 _mouseWheel: DW 0
 _mouseHwB: DW 2
 _mouseTopLeft: DW 0, 0, 0
@@ -26,15 +24,15 @@ stateWheel:   DW 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _mouseSprite, msPosX, msPosY
+PUBLIC _mouseSprite, _mouseX, _mouseY
 _mouseSprite:
-        DB 0 ; index
-msPosX: DW 0 ; pos(coord.x)
-msPosY: DW 0 ; pos(coord.y)
-        DW 0 ; pos(coord.z)
-        DB 0 ; scaleUp
-        DB 0 ; horizontalMirror
-        DB 0 ; pattern
+         DB 0 ; index
+_mouseX: DW 0 ; pos(coord.x)
+_mouseY: DW 0 ; pos(coord.y)
+         DW 0 ; pos(coord.z)
+         DB 0 ; scaleUp
+         DB 0 ; horizontalMirror
+         DB 0 ; pattern
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -236,12 +234,6 @@ GLOBAL _updateSprite
 
 PUBLIC _updateMouse
 _updateMouse:
-    ld hl, _mouseX
-    ld (msPosX), hl
-
-    ld hl, _mouseY
-    ld (msPosY), hl
-
     ld hl, _mouseSprite
     call _updateSprite
 
