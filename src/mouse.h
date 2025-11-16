@@ -7,7 +7,7 @@ typedef struct MouseState {
     int wheel;
 };
 
-extern int mouseX, mouseY, mouseHwB;
+extern int mouseX, mouseY;
 
 extern struct MouseState mouseState;
 

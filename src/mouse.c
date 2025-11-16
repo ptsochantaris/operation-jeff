@@ -11,7 +11,6 @@ void mouseInit(void) __z88dk_fastcall {
     mouseY = 127;
     mouseSprite.pos.x = 159;
     mouseSprite.pos.y = 127;
-    updateSprite(&mouseSprite);
 }
 
 void endMouse(void) __z88dk_fastcall {

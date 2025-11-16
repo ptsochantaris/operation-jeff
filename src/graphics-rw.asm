@@ -271,6 +271,14 @@ _layer2fill:
     pop de          ; start x
     push iy         ; put return back on stack
 
+    ld a, b
+    or c
+    ret z           ; zero with
+
+    ld a, (layer2fillVertical+1)
+    or a
+    ret z           ; zero height
+
     call selectPageForXInDE
 
 .layer2FillLoop:

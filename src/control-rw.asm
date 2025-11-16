@@ -8,15 +8,14 @@ _keyboardSymbolShiftPressed: DB 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _mouseHwB, _mouseWheel, _mouseTopLeft, joystickButtons
-_mouseWheel: DW 0
-_mouseHwB: DW 2
+PUBLIC _mouseTopLeft, joystickButtons
 _mouseTopLeft: DW 0, 0, 0
 joystickButtons: DB 0
+mouseHwB: DW 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _mouseState, stateHandled, stateOngoing, stateWheel
+PUBLIC _mouseState
 _mouseState:
 stateHandled: DB 1
 stateOngoing: DB 0
@@ -48,7 +47,7 @@ inputHandler:
     ; buttons
     ld bc, $fadf
     in a, (c)
-    ld (_mouseHwB), a
+    ld (mouseHwB), a
 
 .mouseKempstonX:
     ld de, 0 ; placeholder, also ensures D=0
@@ -213,57 +212,39 @@ inputHandler:
 .joystickFire:
     ld(joystickButtons), a  ; xxxxxFFF
     and 7                   ; 00000FFF
-    jp z, wheelHandler
+    ld a, (mouseHwB)
+    jp z, wheelHandler      ; flag from AND
 
     ; one of the fire buttons was pressed
-    ld a, (_mouseHwB)
     and $FD ; xxxxxx0x - pretend left button pressed
-    ld (_mouseHwB), a
+    ld (mouseHwB), a
 
 .wheelHandler
-    ld de, (_mouseHwB)  ; wheel
-    ld b, 4
-    bsra de, b          ; wheel >> 4
+    swapnib ; A = xxxxWWWW
+    and $F  ; A = 0000WWWW
 
 .updateMouseCurrentWheel:
-    ld bc, 0            ; currentWheel, negated
-    ld (updateMouseCurrentWheel+1), hl ; currentWheel = wheel
-    xor a               ; clear flags
-    sbc hl, bc          ; wheelDiff = wheel - currentWheel
+    ld e, %00001111                   ; previousWheel, kemptston default is $F
+    ld (updateMouseCurrentWheel+1), a ; previousWheel = wheel in A
+    sub e                             ; wheelDiff = wheel in A - previousWheel in E
 
-    ; Check if wheel (hl) is between -9 and 9
-    ; 1111 1111 1111 0110 -A -> $F6
-    ; 1111 1111 1111 0111 -9 -> $F7
-    ; 1111 1111 1111 1000 -8 -> $F8
-    ; ...
-    ; 0000 0000 0000 1000 +8 -> $08
-    ; 0000 0000 0000 1001 +9 -> $09
-    ; 0000 0000 0000 1010 +A -> $0A
+    or a                              ; set S flag, also clears C flag for addition
+    ld d, 0
+    ld e, a                           ; D = 0, E = A
+    jp p, updateMouseStore
+    dec d                             ; negative A (hence negative E), so let's make D a negative prefix ($FF)
 
-    ld a, h
-    cp $ff  ; 1111 1111
-    jp nz, updateMouseCurrentWheelOutOfRange
-    or a    ; 0000 0000
-    jp nz, updateMouseCurrentWheelOutOfRange
-
-    ld a, l
-    cp $f7  ; 1111 0111
-    jp c, updateMouseCurrentWheelOutOfRange
-    cp $a   ; 0000 1010
-    jp nc, updateMouseCurrentWheelOutOfRange
-
-    ; mouseState.wheel += wheelDiff
-    ld de, (stateWheel)
-    add hl, de
+.updateMouseStore
+    ld hl, (stateWheel)
+    add hl, de                        ; mouseState.wheel += wheelDiff
     ld (stateWheel), hl
 
-.updateMouseCurrentWheelOutOfRange:
     ld a, (stateOngoing)
     or a
     jp nz, updateMouseOngoing
 
-    ld de, (_mouseHwB)
-    bit 1, e
+    ld hl, (mouseHwB)
+    bit 1, l
     jp nz, finish ; 1 = no click
 
     xor a
@@ -272,8 +253,8 @@ inputHandler:
     ld (stateOngoing), a ; 1
 
 .updateMouseOngoing:
-    ld de, (_mouseHwB)
-    bit 1, e
+    ld hl, (mouseHwB)
+    bit 1, l
     jp z, finish ; 0 = click still going
 
     xor a   ; clear

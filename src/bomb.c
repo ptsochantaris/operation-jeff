@@ -179,7 +179,7 @@ void updateBombs(void) __z88dk_fastcall {
 
     bombLoop++;
 
-    if(mouseState.handled == 0) {
+    if(!mouseState.handled) {
         mouseState.handled = 1;
         fireIfPossible();
 
