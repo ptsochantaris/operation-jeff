@@ -23,15 +23,15 @@ stateWheel:   DW 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _mouseSprite, _mouseX, _mouseY
-_mouseSprite:
-         DB 0 ; index
-_mouseX: DW 0 ; pos(coord.x)
-_mouseY: DW 0 ; pos(coord.y)
-         DW 0 ; pos(coord.z)
-         DB 0 ; scaleUp
-         DB 0 ; horizontalMirror
-         DB 0 ; pattern
+PUBLIC mouseSprite, _mouseX, _mouseY
+mouseSprite:
+         DB 127 ; index
+_mouseX: DW 159 ; pos(coord.x)
+_mouseY: DW 127 ; pos(coord.y)
+         DW 0   ; pos(coord.z)
+         DB 0   ; scaleUp
+         DB 0   ; horizontalMirror
+         DB 9   ; pattern
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

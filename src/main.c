@@ -10,7 +10,6 @@ int main(void) {
   initTilemap();
   loadSprites();
   initStats();
-  mouseInit();
 
   intrinsic_ei();
 

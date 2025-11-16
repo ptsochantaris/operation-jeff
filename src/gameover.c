@@ -110,6 +110,7 @@ void gameOverLoop(void) __z88dk_fastcall {
       printWithBackground(hiScoreBuf, x, entryY, HUD_WHITE, HUD_BLACK);
 
     } else if(!mouseState.handled) {
+      mouseState.handled = 1;
       return;
     }
   }

@@ -31,6 +31,7 @@ static void waitForClick(void) __z88dk_fastcall {
     updateMouse();
 
     if(!mouseState.handled) {
+      mouseState.handled = 1;
       return;
     }
   }

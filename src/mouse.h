@@ -11,7 +11,6 @@ extern int mouseX, mouseY;
 
 extern struct MouseState mouseState;
 
-void mouseInit(void) __z88dk_fastcall;
 void updateMouse(void) __z88dk_fastcall;
 void hideMouse(void) __z88dk_fastcall;
 void setGameMouse(void) __z88dk_fastcall;

@@ -441,12 +441,12 @@ _layer2StashPalette:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-GLOBAL _mouseSprite
+GLOBAL mouseSprite
 
 PUBLIC _updateMouse
 _updateMouse:
     halt                ; wait for frame and ISR
-    ld hl, _mouseSprite
+    ld hl, mouseSprite
     ; fallthrough to _updateSprite
 
 PUBLIC _updateSprite
