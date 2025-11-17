@@ -96,31 +96,43 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
         updateStatus();
         loopCount = 0;
 
-      } else if(loopCount==3) {
-        if(pressed=='Z') {
-          mouseState.wheel = 1;
-        } else if(pressed=='X') {
-          mouseState.wheel = -1;
+      } else if(loopCount == 3) {
+        switch(pressed) {
+          case 'Z':
+            mouseState.wheel = 1;
+            break;
+
+          case 'X':
+            mouseState.wheel = -1;
+            break;
         }
       }
 
       if(inputDelay) {
         --inputDelay;
 
-      } else if(pressed) {
-        if(pause) {
-          inputDelay = SMALL_INPUT_DELAY;
-          pause = 0;
-          pauseKeys(pressed);
-          
-        } else if(pressed=='P') {
-          inputDelay = SMALL_INPUT_DELAY;
-          pause = 1;
-          status("PAUSE");
+      } else {
+        switch(pressed) {
+          case 0:
+            break;
 
-        } else if(pressed=='Q') {
-          inputDelay = SMALL_INPUT_DELAY;
-          return; // game over
+          case 'Q':
+            inputDelay = SMALL_INPUT_DELAY;
+            return; // game over
+
+          case 'P':
+            if(!pause) { // else fallthrough
+              inputDelay = SMALL_INPUT_DELAY;
+              pause = 1;
+              status("PAUSE");
+              break;
+            }
+
+          default:
+            inputDelay = SMALL_INPUT_DELAY;
+            pause = 0;
+            pauseKeys(pressed);
+            break;
         }
       }
     } while(pause);
