@@ -129,10 +129,12 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
             }
 
           default:
-            inputDelay = SMALL_INPUT_DELAY;
-            pause = 0;
-            pauseKeys(pressed);
-            break;
+            if(pause) {
+              inputDelay = SMALL_INPUT_DELAY;
+              pause = 0;
+              pauseKeys(pressed);
+              break;
+            }
         }
       }
     } while(pause);

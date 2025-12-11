@@ -11,8 +11,6 @@ INCLUDES=-I${ZCCCFG}/../../libsrc/_DEVELOPMENT/target/zxn
 CFLAGS=$(TARGET) $(VERBOSITY) -c -SO3 --max-allocs-per-node200000 --math16 --fomit-frame-pointer --constsegPAGE_28_POSTISR -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) $(INCLUDES)
 LDFLAGS=$(TARGET) $(VERBOSITY) -Cz"--nex-border 0" -Cz"--nex-loadbar 19" -Cz"--nex-screen resources/loadingScreen.nxi" -Cz"--clean" -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) -lm --math16
 ASFLAGS=$(TARGET) $(VERBOSITY) -c -float=ieee16
-EXEC=OperationJeff
-EXEC_OUTPUT=$(EXEC).nex
 OBJDIR=build
 SRC=src
 
@@ -61,15 +59,16 @@ $(OBJDIR)/%.o: $(SRC)/%.c $(PRAGMA_FILE)
 $(OBJDIR)/%.o: $(SRC)/%.asm
 	$(AS) $(ASFLAGS) -o $@ $<
 
-all: $(EXEC)
+all: OperationJeff
 
-$(EXEC): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $(OBJDIR)/$(EXEC_OUTPUT) -create-app -subtype=$(SUBTYPE)
+makedir:
+	mkdir -p build
+
+OperationJeff: makedir $(OBJECTS)
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $(OBJDIR)/OperationJeff.nex -create-app -subtype=$(SUBTYPE)
 
 install: all
-	cp $(OBJDIR)/$(EXEC_OUTPUT) $(INSTALL_PATH)
+	cp $(OBJDIR)/OperationJeff.nex $(INSTALL_PATH)
 
 clean:
 	rm build/*
-
-.PHONY: clean
