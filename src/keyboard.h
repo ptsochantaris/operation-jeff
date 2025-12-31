@@ -6,6 +6,6 @@
 extern byte keyboardShiftPressed;
 extern byte keyboardSymbolShiftPressed;
 
-byte readKeyboardLetter(void) __preserves_regs(iyh,iyl) __z88dk_fastcall;
+byte readKeyboardLetter(void) __preserves_regs(c,iyh,iyl) __z88dk_fastcall;
 
 #endif

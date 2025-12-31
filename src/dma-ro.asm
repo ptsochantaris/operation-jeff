@@ -8,31 +8,28 @@ GLOBAL dmaAudioBuf, dmaSource, dmaLength, DmaR5, dmaR1, dmaR2, dmaR5, dmaDestina
 PUBLIC _dmaResetStatus
 _dmaResetStatus:
     ld a, $8b ; 1000 1011 - reset status byte
-    ld bc, $6b
-    out (c), a
+    out ($6b), a
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _stopDma
 _stopDma:
-    ld bc, $6b
     ld a, $c3
-    out (c), a  ; 11000011 ; R6 reset dma
+    out ($6b), a  ; 11000011 ; R6 reset dma
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _dmaWaitForEnd
 _dmaWaitForEnd:
-    ld bc, $6b
-dmaWaitForEndLoop:
     ld a, $bf ; 1011 1011 - ask for DMA controller status byte
-    out (c), a
-    in a, (c) ; read response: 00E1101T
+    out ($6b), a
+    xor a ; MSB of port, set to zero
+    in a, ($6b) ; read response: 00E1101T from port $006B
     and $20 ; check "E" bit is zero
     ret z
-    jp dmaWaitForEndLoop
+    jp _dmaWaitForEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -63,7 +60,7 @@ _playWithDma:
     ld hl, dmaHeader ; just the header
     call outLoop7
     ld hl, dmaAudioBuf
-    jp outLoop10
+    jp outLoop10 ; also RETs
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -89,7 +86,7 @@ _dmaMemoryToMemory:
 
     ld bc, $6b
     ld hl, dmaHeader
-    jp outLoop16
+    jp outLoop16 ; also RETs
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -115,7 +112,7 @@ _dmaMemoryToPort:
 
     ld bc, $6b
     ld hl, dmaHeader
-    jp outLoop16
+    jp outLoop16 ; also RETs
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -44,14 +44,13 @@ _aySetMixer:
     ld d, 4 ; d = 0000 0100    
 .ayChannelDone
 
-    ld bc, $fffd
-    in a, (c) ; a = existing
+    ld a, $ff
+    in a, ($fd) ; a = existing from port $fffd
+
     pop bc ; c = tone parameter
     ld b, a ; b = existing
 
-    ; tone
-
-    ld a, c ; tone set?
+    ld a, c ; tone requested?
     or a
     jp nz, aySetMixerToneYes
 

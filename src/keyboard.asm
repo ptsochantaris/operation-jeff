@@ -19,17 +19,14 @@ _readKeyboardLetter:
     ld (_keyboardShiftPressed), a
     ld (_keyboardSymbolShiftPressed), a
 
-    ld c, $fe   ; keyboard port LSB
     ld iy, keyboardPorts
 
 .readKeyboardLetterLoop:
-    ld b, (iy)  ; keyboard port MSB
-
-    ld a, b
+    ld a, (iy)  ; keyboard port MSB
     or a
     ret z ; return if we hit the zero sentinel
 
-    in a, (c)
+    in a, ($fe) ; input from keyboard port $(MSB)FE
     ld b, 5
 .readRowLoop:
     rra

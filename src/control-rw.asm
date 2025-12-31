@@ -40,20 +40,19 @@ GLOBAL joystickSpeedUp, joystickSpeedDown, joystickSpeedSlow, clampMouseX, clamp
 PUBLIC inputHandler
 inputHandler:
     push af
-    push bc
     push de
     push hl
 
     ; buttons
-    ld bc, $fadf
-    in a, (c)
+    ld a, $fa
+    in a, ($df) ; input from port $fadf
     ld (mouseHwB), a
 
 .mouseKempstonX:
     ld de, 0 ; placeholder, also ensures D=0
 
-    ld b, $fb
-    in a, (c) ; X
+    ld a, $fb
+    in a, ($df) ; X from port $fbdf
     ld (mouseKempstonX+1), a ; store x for next time
     sub e ; subtract previousX
     ld l, a ; X - previousX = dx in L
@@ -106,8 +105,8 @@ inputHandler:
 .mouseKempstonY:
     ld de, 0 ; placeholder, also ensures D=0
 
-    ld b, $ff
-    in a, (c) ; Y
+    ld a, $ff
+    in a, ($df) ; Y from port $ffdf
     ld (mouseKempstonY+1), a ; store Y for next time
     sub e ; subtract previousY
     ld l, a ; Y - previousY = dy in HL
@@ -159,8 +158,8 @@ inputHandler:
 
 .joystickXSpeed:
     ld hl, 0 ; placeholder, load last X speed
-    ld bc, $001F
-    in a, (c)
+    xor a
+    in a, ($1f) ; input from port $001f
     rra
     jr c, joystickRight
     rra
@@ -263,7 +262,6 @@ inputHandler:
 .finish
     pop hl
     pop de
-    pop bc
     pop af
     ei
     ret

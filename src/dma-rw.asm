@@ -1,6 +1,6 @@
 SECTION code_compiler
 
-GLOBAL outLoop16, outLoop11, outLoop10, outLoop7, outLoop5
+GLOBAL outLoop16, outLoop5
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Dma setup - 7 bytes

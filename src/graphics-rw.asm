@@ -21,8 +21,8 @@ selectPageForXInDE:
 PUBLIC selectLayer2PageInternal
 selectLayer2PageInternal:
     cp 99    ; placeholder, intentionally not zero
-    ret z
-    ld (selectLayer2PageInternal+1), a
+    ret z    ; done if page in A is same as last time
+    ld (selectLayer2PageInternal+1), a ; store page for next time
     or $10  ; bit 4 = on, signifies that this is a bank offset command
     exx
     ld bc, $123b
