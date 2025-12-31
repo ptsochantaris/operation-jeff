@@ -58,33 +58,38 @@ static void fireIfPossible(void) __z88dk_fastcall {
     }
 
     struct bomb *b = bombs;
-    for(const struct bomb *end = b+bombCount; b != end; ++b) {
-        if(b->state != BOMB_STATE_NONE) {
-            continue;
-        }
+    const struct bomb *end = b+bombCount;
 
-        effectFire();
-
-        if(currentStats.supergun == 0) {
-            currentStats.energy -= FIRE_ENERGY;
-            cooldown = currentStats.fireRate >> 1;
+    while(1) {
+        if(b == end) {
+            return;
+        } else if(b->state == BOMB_STATE_NONE) {
+            break;
         } else {
-            --currentStats.supergun;
-            cooldown = 1;
+            ++b;
         }
-        b->countdown = 22;
-        b->target.x = mouseX;
-        b->target.y = mouseY;
-        b->sprite.pos.x = mouseX;
-        b->sprite.pos.y = 255;
-        b->state = BOMB_STATE_TICKING;
-        b->outcome = BOMB_OUTCOME_NONE;
-        b->sprite.pattern = BOMB_FIRST;
+    }
 
-        if(currentStats.extraRangeBombs > 0) {
-            --currentStats.extraRangeBombs;
-        }
-        return;
+    effectFire();
+
+    if(currentStats.supergun == 0) {
+        currentStats.energy -= FIRE_ENERGY;
+        cooldown = currentStats.fireRate >> 1;
+    } else {
+        --currentStats.supergun;
+        cooldown = 1;
+    }
+    b->countdown = 22;
+    b->target.x = mouseX;
+    b->target.y = mouseY;
+    b->sprite.pos.x = mouseX;
+    b->sprite.pos.y = 255;
+    b->state = BOMB_STATE_TICKING;
+    b->outcome = BOMB_OUTCOME_NONE;
+    b->sprite.pattern = BOMB_FIRST;
+
+    if(currentStats.extraRangeBombs > 0) {
+        --currentStats.extraRangeBombs;
     }
 }
 
@@ -126,10 +131,11 @@ static void endBombExplosion(struct bomb *restrict b) {
     hideSprite(b->sprite.index);
 
     if(explodingBombCount > 1) {
-        for(byte count=0; count<explodingBombCount; ++count) {
+        const byte lastIndex = explodingBombCount - 1;
+        explodingBombCount = lastIndex;
+        for(byte count=0; count<lastIndex; ++count) {
             if(explodingBombs[count]==b) {
-                explodingBombs[count] = explodingBombs[explodingBombCount - 1];
-                --explodingBombCount;
+                explodingBombs[count] = explodingBombs[lastIndex];
                 return;
             }
         }

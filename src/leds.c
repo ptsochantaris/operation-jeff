@@ -20,7 +20,7 @@ void ulaAttributeClear(void) __z88dk_fastcall {
 
 void setupTitleLeds(void) __z88dk_fastcall {
     fillWithDma(ula, 0x1800 + 0x300, 0);
-
+    
     resetGrayPalette();
 
     // grayscale ULA attributes
@@ -32,8 +32,9 @@ void setupTitleLeds(void) __z88dk_fastcall {
     }
 
     // leds on ULA
-    for(word f=0; f!=8; f+=2) {
-        fillWithDmaRepeat(f * 256 + ula, 256, 0x55, 3, 2048);
+    word f = ula;
+    for(const word end = ula + 2048; f != end; f += 512) {
+        fillWithDmaRepeat(f, 256, 0x55, 3, 2048);
     }
 }
 
