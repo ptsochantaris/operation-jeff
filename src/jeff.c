@@ -237,7 +237,7 @@ static void jeffEscape(struct jeff *restrict j) __z88dk_fastcall {
     processJeffHit();
 
     damageFlash = DAMAGE_FLASH_DURATION;
-    setFallbackColour(0x40); // redish
+    copperBackground(0x40); // redish
 }
 
 void jeffFlashAll(void) __z88dk_fastcall {
@@ -426,7 +426,7 @@ void updateJeffs(void) __z88dk_fastcall {
     if(damageFlash) {
         --damageFlash;
         if(damageFlash == 0 && currentStats.invunerableCount == 0) {
-            setFallbackColour(0);
+            copperBackground(0);
         }
         scrollLayer2((damageFlash % 2), 0);
 

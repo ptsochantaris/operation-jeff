@@ -38,11 +38,11 @@ static void hudScoreDraw(void) __z88dk_fastcall {
 
 static void hudBorderDraw(void) __z88dk_fastcall {
   if(displayedStats.invunerableCount) {
-    setFallbackColour(5);
+    copperForeground(5);
   } else if(displayedStats.umbrellaCountdown) {
-    setFallbackColour(65);
+    copperForeground(65);
   } else {
-    setFallbackColour(0);
+    copperForeground(0);
   }
 }
 

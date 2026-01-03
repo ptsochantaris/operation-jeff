@@ -69,7 +69,7 @@ void menuMode(void) __z88dk_fastcall {
   setMenuMouse();
   mouseReset();
   setupLayers(0); // SLU
-  setFallbackColour(0);
+  copperReset();
   ulaAttributeClear();
 }
 
