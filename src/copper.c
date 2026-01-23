@@ -23,6 +23,7 @@ static void stripe(byte colour, byte x, word y) __z88dk_callee {
 static byte foregroundColor = 0xFF;
 static byte backgroundColor = 0xFF;
 static byte running = 1;
+static byte cycle = 0;
 
 static void updateCopper(void) {
     if(running) {
@@ -34,17 +35,38 @@ static void updateCopper(void) {
         return;
     }
 
-    for(word y = 0; y < 208; y += 4) {
-        stripe(foregroundColor, 0, y);
-        stripe(backgroundColor, 0, y + 2);
+    cycle = 0;
+    for(word y = 0; y < 52; ++y) {
+        word top = y*4;
+        stripe(foregroundColor, 0, top);
+        stripe(backgroundColor, 0, top + 2);
     }
-    // max: 247?
 
     ZXN_NEXTREG(REG_COPPER_DATA, 0xFF);
     ZXN_NEXTREG(REG_COPPER_DATA, 0xFF); // wait for vblank
 
     copperControl(0xC0); // start copper from index 0, loop at vblank
     running = 1;
+}
+
+void copperCycle(void) __z88dk_fastcall {
+    if(!running) {
+        return;
+    }
+    
+    word addressIndex = cycle*4;
+
+    // restore stripe
+    ZXN_NEXTREG(REG_COPPER_DATA, foregroundColor);
+
+    if(++cycle > 52) {
+        cycle = 0;
+    }
+
+    addressIndex = cycle*4;
+
+    // new white stripe
+    ZXN_NEXTREG(REG_COPPER_DATA, 0xFF);
 }
 
 void copperForeground(byte color) __z88dk_fastcall {
