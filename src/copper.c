@@ -73,7 +73,7 @@ void copperCycle(void) __z88dk_fastcall {
 
     // new white stripe
     copperAddress(cycle);
-    ZXN_NEXTREG(REG_COPPER_DATA, 0xFF);
+    ZXN_NEXTREG(REG_COPPER_DATA, 0xDB);
 }
 
 void copperForeground(byte color) __z88dk_fastcall {

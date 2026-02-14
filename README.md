@@ -81,4 +81,4 @@ The ROM is configured as `ROM3`, which is the traditional 48k Sinclair ZX Spectr
 - `MMU4` to `MMU7` hold the executable code and read/write variables, buffers, etc.
 - The stack grows back from the end at $FFFF.
 
-*All code (c) 2025 Paul Tsochantaris, published under the MIT license.*
+*All code (c) 2025-2026 Paul Tsochantaris, published under the MIT license.*
