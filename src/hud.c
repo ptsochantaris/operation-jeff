@@ -42,7 +42,7 @@ static void hudBorderDraw(void) __z88dk_fastcall {
   } else if(displayedStats.umbrellaCountdown) {
     copperForeground(65);
   } else {
-    copperForeground(0);
+    copperShutdown();
   }
 }
 

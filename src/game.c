@@ -156,6 +156,7 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
 
       default:
         updateStatsIfNeeded();
+        copperCycle();
         break;
     }
   }
