@@ -57,7 +57,7 @@ void copperCycle(void) __z88dk_fastcall {
     word addressIndex = cycle*4;
 
     // restore stripe
-    ZXN_NEXTREG(REG_COPPER_DATA, foregroundColor);
+    ZXN_NEXTREGA(REG_COPPER_DATA, foregroundColor);
 
     if(++cycle > 52) {
         cycle = 0;
