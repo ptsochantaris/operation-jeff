@@ -57,9 +57,9 @@ static void fireIfPossible(void) __z88dk_fastcall {
         return;
     }
 
+    // get next available bomb from shelf
     struct bomb *b = bombs;
     const struct bomb *end = b+bombCount;
-
     while(1) {
         if(b == end) {
             return;
@@ -195,4 +195,24 @@ void updateBombs(void) __z88dk_fastcall {
     } else if(cooldown) {
         --cooldown;
     }
+}
+
+void bombIfPossible(int x, int y) __z88dk_callee {
+    // get next available bomb from shelf, reverse for speed
+    struct bomb *b = bombs+bombCount;
+    while(1) {
+        if(--b == bombs) {
+            return;
+        } else if(b->state == BOMB_STATE_NONE) {
+            break;
+        }
+    }
+
+    b->countdown = 0;
+    b->target.x = x;
+    b->target.y = y;
+    b->sprite.pos.x = x;
+    b->sprite.pos.y = y;
+    b->outcome = BOMB_OUTCOME_NONE;
+    startBombExplosion(b);
 }

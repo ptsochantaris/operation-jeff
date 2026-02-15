@@ -36,7 +36,7 @@ static const byte bonusIndexes[] = {
     BONUS_SMARTBOMB,
     BONUS_RATE,
     BONUS_SCORE,
-    BONUS_SCORE,
+    BONUS_ZAP,
     BONUS_FREEZE,
     BONUS_FREEZE,
     BONUS_SLOW,
@@ -99,7 +99,7 @@ void updateBonuses(void) __z88dk_fastcall {
             C += (radius << 1);
             if(centerY >= C) continue;
 
-            processBonusHit(targetType);
+            processBonusHit(targetType, centerX + 8, centerY + 8);
             targetType = BONUS_NONE;
             transition = 0;
             b->outcome |= BOMB_OUTCOME_BONUS_HIT;
@@ -127,6 +127,7 @@ void updateBonuses(void) __z88dk_fastcall {
                     setBase(BONUS_MAX + 1 + transitionOffset);
                     break;
                 case BONUS_SMARTBOMB:
+                case BONUS_ZAP:
                     setBase(BONUS_MAX + 2 + transitionOffset);
                     break;
                 case BONUS_FREEZE:
@@ -150,6 +151,7 @@ void updateBonuses(void) __z88dk_fastcall {
             break;
 
         case BONUS_SMARTBOMB:
+        case BONUS_ZAP:
             scrollTilemap(0, transition << 1);
             setBase(BONUS_MAX + 8 - transitionOffset);
             break;

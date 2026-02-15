@@ -111,7 +111,17 @@ ORG $6000
     DB $F7, $99, $99, $7F
     DB $FF, $77, $77, $FF
 
-    ; 11 hollow plus dark
+    ; 11 bomb
+    DB $FF, $F7, $7F, $FF
+    DB $FF, $70, $07, $FF
+    DB $F7, $00, $00, $7F
+    DB $70, $00, $00, $07
+    DB $70, $00, $00, $07
+    DB $F7, $00, $00, $7F
+    DB $FF, $70, $07, $FF
+    DB $FF, $F7, $7F, $FF
+
+    ; 12 hollow plus dark
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
     DB $FF, $F5, $5F, $FF
@@ -121,7 +131,7 @@ ORG $6000
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
 
-    ; 12 hollow diamond dark
+    ; 13 hollow diamond dark
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
     DB $FF, $F5, $5F, $FF
@@ -131,7 +141,7 @@ ORG $6000
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
 
-    ; 13 hollow square dark
+    ; 14 hollow square dark
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
     DB $FF, $F5, $5F, $FF
@@ -141,7 +151,7 @@ ORG $6000
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
 
-    ; 14 hollow plus medium
+    ; 15 hollow plus medium
     DB $FF, $FF, $FF, $FF
     DB $FF, $66, $66, $FF
     DB $F6, $FF, $FF, $6F
@@ -151,7 +161,7 @@ ORG $6000
     DB $FF, $66, $66, $FF
     DB $FF, $FF, $FF, $FF
 
-    ; 15 hollow diamond medium
+    ; 16 hollow diamond medium
     DB $FF, $FF, $FF, $FF
     DB $FF, $F6, $6F, $FF
     DB $FF, $6F, $F6, $FF
@@ -161,7 +171,7 @@ ORG $6000
     DB $FF, $F6, $6F, $FF
     DB $FF, $FF, $FF, $FF
 
-    ; 16 hollow square medium
+    ; 17 hollow square medium
     DB $FF, $FF, $FF, $FF
     DB $FF, $66, $66, $FF
     DB $F6, $FF, $FF, $6F
@@ -171,7 +181,7 @@ ORG $6000
     DB $FF, $66, $66, $FF
     DB $FF, $FF, $FF, $FF
     
-    ; 17 hollow plus bright
+    ; 18 hollow plus bright
     DB $FF, $77, $77, $FF
     DB $FF, $7F, $F7, $FF
     DB $77, $7F, $F7, $77
@@ -181,7 +191,7 @@ ORG $6000
     DB $FF, $7F, $F7, $FF
     DB $FF, $77, $77, $FF
 
-    ; 18 hollow diamond bright
+    ; 19 hollow diamond bright
     DB $FF, $F7, $7F, $FF
     DB $FF, $7F, $F7, $FF
     DB $F7, $FF, $FF, $7F
@@ -191,7 +201,7 @@ ORG $6000
     DB $FF, $7F, $F7, $FF
     DB $FF, $F7, $7F, $FF
 
-    ; 19 hollow square bright
+    ; 20 hollow square bright
     DB $FF, $77, $77, $FF
     DB $F7, $FF, $FF, $7F
     DB $7F, $FF, $FF, $F7

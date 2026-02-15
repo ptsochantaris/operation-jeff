@@ -39,6 +39,8 @@ typedef struct stats {
     word difficultyCountdown;
     word umbrellaCountdown;
 
+    struct coord zapLocation;
+
     byte slowMo;
     byte sloMoHold;
 
@@ -57,7 +59,7 @@ void statsInitLevel(void) __z88dk_fastcall;
 byte processGameStats(void) __z88dk_fastcall;
 void processFireStats(void) __z88dk_fastcall;
 void processJeffKill(byte speed) __z88dk_fastcall;
-void processBonusHit(byte type) __z88dk_fastcall;
+void processBonusHit(byte type, int x, int y) __z88dk_callee;
 void processJeffHit(void) __z88dk_fastcall;
 void newHighScore(byte *name, byte pos);
 word displayHighScoreTable(word x, word top, byte newPos);

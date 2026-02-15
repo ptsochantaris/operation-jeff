@@ -12,7 +12,8 @@
 #define BONUS_UMBRELLA 8
 #define BONUS_INVUNERABLE 9
 #define BONUS_RANGE 10
-#define BONUS_MAX 10
+#define BONUS_ZAP 11
+#define BONUS_MAX 11
 
 void updateBonuses(void) __z88dk_fastcall;
 void resetBonuses(void) __z88dk_fastcall;

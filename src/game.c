@@ -68,6 +68,59 @@ static void pauseKeys(byte key) __z88dk_fastcall {
   }
 }
 
+void randomZap(void) {
+  int r = currentStats.zapLocation.z;
+  int d = r << 1;
+
+  int x = currentStats.zapLocation.x;
+  int low = x - r;
+  int high;
+  if(low < 8) { 
+    low = 8;
+    high = 8 + d;
+  } else {
+    high = x + r;
+    if(high > 311) { 
+      high = 311;
+      low = 311 - d;
+    }
+  }
+  x = low + (random16() % d);
+
+  int y = currentStats.zapLocation.y;
+  low = y - r;
+  if(low < 8) { 
+    low = 8;
+    high = 8 + d;
+  } else {
+    high = y + r;
+    if(high > 246) { 
+      high = 246;
+      low = 246 - d;
+    }
+  }
+  y = low + (random16() % d);
+
+  bombIfPossible(x, y);
+}
+
+void updateZap(void) __z88dk_fastcall {
+  const int radius = currentStats.zapLocation.z;
+  if(radius == 0) {
+    return;
+  }
+
+  if(radius > 100) {
+    currentStats.zapLocation.z = 0;
+    return;
+  }
+
+  randomZap();
+  currentStats.zapLocation.z++;
+  randomZap();
+  effectBombLight();
+}
+
 void gameLoop(byte startLevel) __z88dk_fastcall {
   srand(14 + startLevel);
   gameMode();
@@ -96,7 +149,7 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
         updateStatus();
         loopCount = 0;
 
-      } else if(loopCount == 3) {
+      } else if(loopCount == 2) {
         switch(pressed) {
           case 'Z':
             mouseState.wheel = 1;
@@ -106,6 +159,8 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
             mouseState.wheel = -1;
             break;
         }
+      } else if(loopCount == 4) {
+        updateZap();
       }
 
       if(inputDelay) {

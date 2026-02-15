@@ -33,5 +33,6 @@ void updateBombs(void) __z88dk_fastcall;
 void resetAllBombs(void) __z88dk_fastcall;
 void bombsFlashAll(void) __z88dk_fastcall;
 void bombsRestoreFromFlash(void) __z88dk_fastcall;
+void bombIfPossible(int x, int y) __z88dk_callee;
 
 #endif

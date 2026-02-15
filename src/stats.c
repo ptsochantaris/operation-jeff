@@ -111,6 +111,8 @@ void statsInitLevel(void) __z88dk_fastcall {
     currentStats.slowMo = 0;
     currentStats.sloMoHold = 0;
 
+    currentStats.zapLocation.z = 0;
+
     currentStats.shotsHit = 0;
     currentStats.shotsMiss = 0;
     currentStats.bonusesHit = 0;
@@ -159,7 +161,7 @@ byte processGameStats(void) __z88dk_fastcall {
     return 0;
 }
 
-void processBonusHit(byte type) __z88dk_fastcall {
+void processBonusHit(byte type, int x, int y) __z88dk_callee {
     switch(type) {
         case BONUS_NONE: 
             return;
@@ -170,6 +172,12 @@ void processBonusHit(byte type) __z88dk_fastcall {
             jeffKillAll(0);
             flashPaletteDown();
             return;
+
+        case BONUS_ZAP:
+            currentStats.zapLocation.x = x;
+            currentStats.zapLocation.y = y;
+            currentStats.zapLocation.z = 16; // using z for radius
+            break;
 
         case BONUS_CHARGE: 
             currentStats.energy = 255;
