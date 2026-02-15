@@ -22,8 +22,6 @@ typedef struct bomb {
     struct sprite_info sprite;
 };
 
-extern struct bomb bombs[];
-
 extern struct bomb* explodingBombs[];
 extern byte explodingBombCount;
 extern int bombRadii1, bombRadii2;

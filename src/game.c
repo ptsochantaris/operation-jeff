@@ -112,13 +112,13 @@ void updateZap(void) __z88dk_fastcall {
 
   if(radius > 100) {
     currentStats.zapLocation.z = 0;
+    effectBombLightEnd();
     return;
   }
 
   randomZap();
   currentStats.zapLocation.z++;
   randomZap();
-  effectBombLight();
 }
 
 void gameLoop(byte startLevel) __z88dk_fastcall {

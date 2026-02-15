@@ -177,7 +177,8 @@ void processBonusHit(byte type, int x, int y) __z88dk_callee {
             currentStats.zapLocation.x = x;
             currentStats.zapLocation.y = y;
             currentStats.zapLocation.z = 16; // using z for radius
-            break;
+            effectBombLightStart();
+            return;
 
         case BONUS_CHARGE: 
             currentStats.energy = 255;

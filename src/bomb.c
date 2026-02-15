@@ -4,29 +4,63 @@
 #define BOMB_LAST 29
 #define BOMB_LAUNCHED 41
 
-struct bomb bombs[bombCount];
-
 struct bomb* explodingBombs[bombCount];
 byte explodingBombCount = 0;
+
+static struct bomb* idleBombs[bombCount];
+static byte idleBombCount = 0;
+
+static struct bomb* activeBombs[bombCount];
+static byte activeBombCount = 0;
 
 static byte bombLoop = 0;
 static byte cooldown = 0;
 
-void initBombs(void) __z88dk_fastcall {
-    cooldown = 0;
-    explodingBombCount = 0;
-    struct bomb *b = bombs;
-    for(byte f=0; f!=bombCount; ++f, ++b) {
-        b->sprite.index = f;
-        b->sprite.scaleUp = 0;
-        b->state = BOMB_STATE_NONE;
-        b->outcome = BOMB_OUTCOME_NONE;
+static struct bomb *nextIdleBomb(void) {
+    if(idleBombCount==0) return NULL;
+    struct bomb *b = idleBombs[--idleBombCount];
+    activeBombs[activeBombCount++] = b;
+    return b;
+}
+
+static void retireBomb(struct bomb *b) {
+    hideSprite(b->sprite.index);
+    b->sprite.scaleUp = 0;
+    b->state = BOMB_STATE_NONE;
+    b->outcome = BOMB_OUTCOME_NONE;
+    idleBombs[idleBombCount++] = b;
+
+    if(activeBombCount < 2) {
+        activeBombCount = 0;
+        return;
+    }
+
+    const byte lastIndex = activeBombCount - 1;
+    activeBombCount = lastIndex;
+    for(byte count=0; count<lastIndex; ++count) {
+        if(activeBombs[count]==b) {
+            activeBombs[count] = activeBombs[lastIndex];
+            return;
+        }
     }
 }
 
+static struct bomb bombStore[bombCount];
 static const word bombColorIndex[] = { 240, 245, 249, 254 };
 static const word whiteColor = 0x01ff;
 static word bombStash[] = { 0, 0, 0, 0 };
+
+void initBombs(void) __z88dk_fastcall {
+    cooldown = 0;
+    explodingBombCount = 0;
+    idleBombCount = 0;
+    activeBombCount = 0;
+    struct bomb *b = bombStore;
+    for(byte f = 0; f != bombCount; ++f, ++b) {
+        b->sprite.index = f;
+        retireBomb(b);
+    }
+}
 
 void bombsRestoreFromFlash(void) __z88dk_fastcall {
     selectPalette(2);
@@ -57,18 +91,8 @@ static void fireIfPossible(void) __z88dk_fastcall {
         return;
     }
 
-    // get next available bomb from shelf
-    struct bomb *b = bombs;
-    const struct bomb *end = b+bombCount;
-    while(1) {
-        if(b == end) {
-            return;
-        } else if(b->state == BOMB_STATE_NONE) {
-            break;
-        } else {
-            ++b;
-        }
-    }
+    struct bomb *b = nextIdleBomb();
+    if(!b) return;
 
     effectFire();
 
@@ -85,7 +109,6 @@ static void fireIfPossible(void) __z88dk_fastcall {
     b->sprite.pos.x = mouseX;
     b->sprite.pos.y = 255;
     b->state = BOMB_STATE_TICKING;
-    b->outcome = BOMB_OUTCOME_NONE;
     b->sprite.pattern = BOMB_FIRST;
 
     if(currentStats.extraRangeBombs > 0) {
@@ -95,15 +118,9 @@ static void fireIfPossible(void) __z88dk_fastcall {
 
 void resetAllBombs(void) __z88dk_fastcall {
     explodingBombCount = 0;
-    struct bomb *b = bombs;
-    for(const struct bomb *end = b+bombCount; b != end; ++b) {
-        if(b->state == BOMB_STATE_NONE) {
-            continue;
-        }
-        b->state = BOMB_STATE_NONE;
-        b->outcome = BOMB_OUTCOME_NONE;
-        b->sprite.scaleUp = 0;
-        hideSprite(b->sprite.index);
+    while(activeBombCount > 0) {
+        struct bomb *b = activeBombs[activeBombCount-1];
+        retireBomb(b);
     }
 }
 
@@ -115,8 +132,6 @@ static void startBombExplosion(struct bomb *restrict b) {
 }
 
 static void endBombExplosion(struct bomb *restrict b) {
-    b->state = BOMB_STATE_NONE;
-    b->sprite.scaleUp = 0;
     byte outcome = b->outcome;
     if(outcome) {
         if(outcome & BOMB_OUTCOME_JEFF_KILL) {
@@ -128,7 +143,7 @@ static void endBombExplosion(struct bomb *restrict b) {
     } else {
         ++currentStats.shotsMiss;
     }
-    hideSprite(b->sprite.index);
+    retireBomb(b);
 
     if(explodingBombCount > 1) {
         const byte lastIndex = explodingBombCount - 1;
@@ -146,12 +161,9 @@ static void endBombExplosion(struct bomb *restrict b) {
 
 void updateBombs(void) __z88dk_fastcall {
     if(bombLoop) {
-        struct bomb *b = bombs;
-        for(const struct bomb *end = b+bombCount; b != end; ++b) {
+        for(byte f=0; f < activeBombCount; f++) {
+            struct bomb *b = activeBombs[f];
             switch(b->state) {
-                case BOMB_STATE_NONE:
-                    break;
-
                 case BOMB_STATE_TICKING:
                     b->sprite.pos.y += (b->target.y - b->sprite.pos.y) >> 2;
 
@@ -198,21 +210,13 @@ void updateBombs(void) __z88dk_fastcall {
 }
 
 void bombIfPossible(int x, int y) __z88dk_callee {
-    // get next available bomb from shelf, reverse for speed
-    struct bomb *b = bombs+bombCount;
-    while(1) {
-        if(--b == bombs) {
-            return;
-        } else if(b->state == BOMB_STATE_NONE) {
-            break;
-        }
-    }
+    struct bomb *b = nextIdleBomb();
+    if(!b) return;
 
     b->countdown = 0;
     b->target.x = x;
     b->target.y = y;
     b->sprite.pos.x = x;
     b->sprite.pos.y = y;
-    b->outcome = BOMB_OUTCOME_NONE;
     startBombExplosion(b);
 }
