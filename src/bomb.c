@@ -119,8 +119,7 @@ static void fireIfPossible(void) __z88dk_fastcall {
 void resetAllBombs(void) __z88dk_fastcall {
     explodingBombCount = 0;
     while(activeBombCount > 0) {
-        struct bomb *b = activeBombs[activeBombCount-1];
-        retireBomb(b);
+        retireBomb(activeBombs[0]);
     }
 }
 
@@ -161,8 +160,10 @@ static void endBombExplosion(struct bomb *restrict b) {
 
 void updateBombs(void) __z88dk_fastcall {
     if(bombLoop) {
-        for(byte f=0; f < activeBombCount; f++) {
-            struct bomb *b = activeBombs[f];
+
+        struct bomb **B = activeBombs;
+        for(const struct bomb **E = activeBombs+activeBombCount; B != E; ++B) {
+            struct bomb *b = *B;
             switch(b->state) {
                 case BOMB_STATE_TICKING:
                     b->sprite.pos.y += (b->target.y - b->sprite.pos.y) >> 2;
