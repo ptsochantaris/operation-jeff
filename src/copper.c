@@ -28,17 +28,17 @@ static void stripe(byte colour, byte x, word y) __z88dk_callee {
 static byte foregroundColor = 0;
 static byte backgroundColor = 0;
 static byte running = 0;
-static word cycle = 3;
-static byte direction = 1;
+static word cycle = 11;
+static signed char direction = 8;
 
-#define STRIPECOUNT 52
+#define STRIPECOUNT 60
 #define STRIPESIZE 4
 
 static void setupStripes(void) {
     copperControl(0x00); // stop copper, set prog address to zero
 
     for(word y = 0; y < STRIPECOUNT; ++y) {
-        word top = y*STRIPESIZE;
+        word top = y*STRIPESIZE+22;
         stripe(foregroundColor, 0, top);
         stripe(backgroundColor, 0, top + (STRIPESIZE / 2));
     }
@@ -59,21 +59,18 @@ void copperCycle(void) __z88dk_fastcall {
     copperAddress(cycle);
     ZXN_NEXTREGA(REG_COPPER_DATA, foregroundColor);
 
-    if(cycle == (52 * 8 + 3)) {
-        direction = 0;
-    } else if(cycle == 3) {
-        direction = 1;
+    word lastCycle = ((STRIPECOUNT - 3) * 8 + 3);
+    if(cycle == lastCycle) {
+        direction = -8;
+    } else if(cycle == 11) {
+        direction = 8;
     }
 
-    if(direction) {
-        cycle += 8;
-    } else {
-        cycle -= 8;
-    }
+    cycle += direction;
 
-    // new white stripe
+    // new stripe
     copperAddress(cycle);
-    ZXN_NEXTREG(REG_COPPER_DATA, 0xDB);
+    ZXN_NEXTREG(REG_COPPER_DATA, 0x92);
 }
 
 void copperForeground(byte color) __z88dk_fastcall {
@@ -86,10 +83,6 @@ void copperForeground(byte color) __z88dk_fastcall {
 }
 
 void copperBackground(byte color) __z88dk_fastcall {
-    if(color == backgroundColor) {
-        return;
-    }
-
     setFallbackColour(color);
     backgroundColor = color;
     if(running) {
@@ -104,11 +97,14 @@ void copperShutdown(void) __z88dk_fastcall {
 }
 
 void copperReset(void) __z88dk_fastcall {
-    copperControl(0x00); // stop copper, set prog address to zero
+    copperForeground(0);
     copperBackground(0);
+    copperControl(0x00); // stop copper, set prog address to zero
     
     foregroundColor = 0;
-    cycle = 3;
-    direction = 1;
+    cycle = 11;
+    direction = 8;
     running = 0;
+
+    ZXN_NEXTREG(0x64, 34); // offset copper by 34 pixels up from ULA zero
 }
