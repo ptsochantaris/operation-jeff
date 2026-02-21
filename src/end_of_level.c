@@ -20,26 +20,6 @@ static void endOfLeveDrone(void) __z88dk_fastcall {
   aySetMixer(1, 1, 0);
 }
 
-static struct LevelInfo levelCompleteInfos[] = {
-  FAKE_LEVEL(levelCompleteA),
-  FAKE_LEVEL(levelCompleteO),
-  FAKE_LEVEL(levelCompleteB),
-  FAKE_LEVEL(levelCompleteG),
-  FAKE_LEVEL(levelCompleteD),
-  FAKE_LEVEL(levelCompleteI),
-  FAKE_LEVEL(levelCompleteL),
-  FAKE_LEVEL(levelCompleteE),
-  FAKE_LEVEL(levelCompleteN),
-  FAKE_LEVEL(levelCompleteP),
-  FAKE_LEVEL(levelCompleteJ),
-  FAKE_LEVEL(levelCompleteQ),
-  FAKE_LEVEL(levelCompleteC),
-  FAKE_LEVEL(levelCompleteK),
-  FAKE_LEVEL(levelCompleteM),
-  FAKE_LEVEL(levelCompleteF),
-  FAKE_LEVEL(levelCompleteH)
-};
-
 #define center 160
 
 static void waitForClick(void) __z88dk_fastcall {
@@ -53,12 +33,12 @@ static void waitForClick(void) __z88dk_fastcall {
   }
 }
 
-static void displayStats(word top, word x, byte level, word color, byte twoColumns) {
+static void displayStats(word top, word x, byte oldLevel, word color, byte twoColumns) {
   word originalTop = top;
 
   applyHudPalette();
 
-  sprintf(textBuf, " ZONE %02d: CLEAR", level);
+  sprintf(textBuf, " ZONE %02d: CLEAR", oldLevel + 1);
   print(textBuf, x, top, color);
 
   top += 16;
@@ -72,7 +52,7 @@ static void displayStats(word top, word x, byte level, word color, byte twoColum
     top += 16;
   }
 
-  long totalShots = 123; //currentStats.shotsHit + currentStats.shotsMiss;
+  long totalShots = currentStats.shotsHit + currentStats.shotsMiss;
   sprintf(textBuf, "    SHOTS: %lu", totalShots);
   print(textBuf, x, top, color);
 
@@ -107,7 +87,7 @@ static void wait(byte time) __z88dk_fastcall {
   }
 }
 
-static void endOfLevelSequence(const struct LevelInfo levelInfo) {
+static void endOfLevelSequence(const struct LevelInfo *levelInfo) {
   stopDma();
   dmaResetStatus(); // so we can track playback below
   effectSting();
@@ -129,21 +109,20 @@ static void endOfLevelSequence(const struct LevelInfo levelInfo) {
   dmaWaitForEnd(); // waiting here for sample end
   bombsRestoreFromFlash();
 
-  loadScreen(&levelInfo);
+  loadScreen(&(levelInfo->endOfLevel.screens));
   endOfLeveDrone();
   status(NULL);
 
-  fadePaletteUp(&levelInfo.paletteAsset, 1);
+  fadePaletteUp(&(levelInfo->endOfLevel.palette), 1);
 }
 
-void endOfLeveLoop(byte level) __z88dk_fastcall {
-  endOfLevelSequence(levelCompleteInfos[level-1]);
-  displayStats(54, 127, level, HUD_WHITE, 0);
-  waitForClick();
-}
-
-void endOfGameLoop(byte level) __z88dk_fastcall {
-  endOfLevelSequence(levelCompleteInfos[level-1]);
-  displayStats(28, 42, level, HUD_BLACK, 1);
+void endOfLeveLoop(byte oldLevel) __z88dk_fastcall {
+  const struct LevelInfo info = levelInfo[oldLevel];
+  endOfLevelSequence(&info);
+  if(oldLevel >= LEVEL_COUNT - 1) {
+    displayStats(28, 42, oldLevel, HUD_BLACK, 1);
+  } else {
+    displayStats(54, 127, oldLevel, HUD_WHITE, 0);
+  }
   waitForClick();
 }

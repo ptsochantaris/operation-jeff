@@ -97,9 +97,9 @@ static const word jeffMoveMasks[] = {
     JEFF_SPEED_MASK_8
 };
 
-void loadHeightmap(const struct LevelInfo *restrict info) __z88dk_fastcall {
-    ZXN_WRITE_MMU1(info->heightmapAsset.page);
-    decompressZX0((byte *)(info->heightmapAsset.resource), heightMap);
+void loadHeightmap(const struct ResourceInfo *restrict heightmapAsset) __z88dk_fastcall {
+    ZXN_WRITE_MMU1(heightmapAsset->page);
+    decompressZX0((byte *)(heightmapAsset->resource), heightMap);
 }
 
 static void setJeffPos(struct jeff *restrict j, byte direction) __z88dk_callee __smallc {

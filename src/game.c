@@ -2,32 +2,32 @@
 
 static void nextLevel(byte gameStart) __z88dk_fastcall {
   byte previousLevel = currentStats.level;
+  if(previousLevel == 0xFF) { previousLevel = 0; }
+  else if(previousLevel >= LEVEL_COUNT) { previousLevel = LEVEL_COUNT - 1; }
 
   resetBonuses();
   statsProgressLevel();
   stopDma(); // stop any potential sample, as level loading will use the same buffers
 
-  byte newLevel = currentStats.level;
-  if(previousLevel == LEVEL_COUNT - 1) {
-    endOfGameLoop(LEVEL_COUNT);
-  } else if(!gameStart) {
-    endOfLeveLoop(newLevel);
+  if(!gameStart) {
+    endOfLeveLoop(previousLevel);
   }
 
   fadePaletteDown(1, 1, 0);
 
   gameMode();
 
+  byte newLevel = currentStats.level;
   const struct LevelInfo info = levelInfo[newLevel];
-  loadScreen(&info);
-  loadHeightmap(&info);
+  loadScreen(info.level.screens);
+  loadHeightmap(&info.heightmap);
 
   effectSiren();
 
   statsInitLevel();
 
   selectPalette(1);
-  loadPaletteBuffer(&(info.paletteAsset));
+  loadPaletteBuffer(&(info.level.palette));
   initHud(newLevel); // also stashes it own palette entries
   fadeExistingPaletteUp();
 
@@ -62,9 +62,6 @@ static void pauseKeys(byte key) __z88dk_fastcall {
     }
     if(keyboardShiftPressed) {
       key += 10;
-      if(key >= LEVEL_COUNT) {
-        key = LEVEL_COUNT - 1;
-      }
     }
     currentStats.level = key;
     nextLevel(0);

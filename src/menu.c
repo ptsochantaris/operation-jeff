@@ -5,27 +5,27 @@ static byte menuInfoMode = 0;
 byte inputDelay = 0;
 
 static byte shouldFadeTitle = 0;
-static const struct LevelInfo titleInfo = FAKE_LEVEL(title);
+static const struct ScreenInfo titleInfo = SCREEN_ARRAY(title);
 void loadTitleScreen(void) __z88dk_fastcall {
   if(shouldFadeTitle) {
     fadePaletteDown(1, 1, 0);
   } else {
     zeroPalette(1);
   }
-  loadScreen(&titleInfo);
+  loadScreen(titleInfo.screens);
   if(shouldFadeTitle) {
-    fadePaletteUp(&titleInfo.paletteAsset, 1);
+    fadePaletteUp(&titleInfo.palette, 1);
   } else {
-    uploadPalette(&titleInfo.paletteAsset, 256, 1);
+    uploadPalette(&titleInfo.palette, 256, 1);
     shouldFadeTitle = 1;
   }
 }
 
-static const struct LevelInfo infoInfo = FAKE_LEVEL(info);
+static const struct ScreenInfo infoInfo = SCREEN_ARRAY(info);
 void loadInfoScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 1, 0);
-  loadScreen(&infoInfo);
-  fadePaletteUp(&infoInfo.paletteAsset, 1);
+  loadScreen(infoInfo.screens);
+  fadePaletteUp(&infoInfo.palette, 1);
 }
 
 void setupTitle(void) __z88dk_fastcall {

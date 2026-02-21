@@ -16,11 +16,11 @@ static void gameOverEffect(void) __z88dk_fastcall {
   aySetMixer(2, 1, 1);
 }
 
-static const struct LevelInfo gameOverInfo = FAKE_LEVEL(gameOver);
+static const struct ScreenInfo gameOverInfo = SCREEN_ARRAY(gameOver);
 static void loadGameOverScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 1, 0);
-  loadScreen(&gameOverInfo);
-  fadePaletteUp(&gameOverInfo.paletteAsset, 1);
+  loadScreen(gameOverInfo.screens);
+  fadePaletteUp(&gameOverInfo.palette, 1);
 }
 
 #define center 160

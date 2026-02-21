@@ -87,7 +87,7 @@ word displayHighScoreTable(word x, word top, byte newPos) {
 void statsProgressLevel(void) __z88dk_fastcall {
     ++currentStats.level;
     
-    if(currentStats.level == LEVEL_COUNT) {
+    if(currentStats.level >= LEVEL_COUNT) {
         currentStats.level = 0;
     }
 }

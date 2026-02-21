@@ -4,7 +4,6 @@
 #include <intrinsic.h>
 #include "types.h"
 
-void endOfLeveLoop(byte level) __z88dk_fastcall;
-void endOfGameLoop(byte level) __z88dk_fastcall;
+void endOfLeveLoop(byte oldLevel) __z88dk_fastcall;
 
 #endif
