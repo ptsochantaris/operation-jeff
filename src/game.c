@@ -49,6 +49,11 @@ static void gameMode(void) __z88dk_fastcall {
 }
 
 static void pauseKeys(byte key) __z88dk_fastcall {
+  if(keyboardSymbolShiftPressed && keyboardShiftPressed && key == 'N') {
+    nextLevel(0);
+    return;
+  }
+  
   if(keyboardSymbolShiftPressed && key >= 48 && key < 58) {
     if(key=='0') {
       key = 8;
@@ -63,9 +68,10 @@ static void pauseKeys(byte key) __z88dk_fastcall {
     }
     currentStats.level = key;
     nextLevel(0);
-  } else {
-    status("GO");
+    return;
   }
+
+  status("GO");
 }
 
 void randomZap(void) {

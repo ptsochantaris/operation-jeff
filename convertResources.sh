@@ -22,14 +22,10 @@ bordered_output "Title Screen"
 $CONV "${ORIG}OperationJeffTitle.png" -pal-min -bitmap-y -bank-8k "${DST}title.nxi" > /dev/null 
 bordered_output "Info Screen"
 $CONV "${ORIG}OperationJeffInfo.png" -pal-min -bitmap-y -bank-8k "${DST}info.nxi" > /dev/null 
-bordered_output "Level Complete Screen"
-$CONV "${ORIG}OperationJeffLevelComplete.png" -pal-min -bitmap-y -bank-8k "${DST}levelComplete.nxi" > /dev/null 
 bordered_output "Game Over Screen"
 $CONV "${ORIG}OperationJeffGameOver.png" -pal-min -bitmap-y -bank-8k "${DST}gameOver.nxi" > /dev/null 
-bordered_output "End Game Screen"
-$CONV "${ORIG}OperationJeffEndGame.png" -pal-min -bitmap-y -bank-8k "${DST}endGame.nxi" > /dev/null 
 
-SCREENS=(title info gameOver levelComplete endGame)
+SCREENS=(title info gameOver)
 for SCREEN in "${SCREENS[@]}"; do
     bordered_output "Compression: ${SCREEN}"
     for NUMBER in "${NUMBERS[@]}"; do
@@ -39,7 +35,7 @@ for SCREEN in "${SCREENS[@]}"; do
 done
 
 bordered_output "Compression: Palettes"
-PALETTES=(title info gameOver levelComplete endGame default)
+PALETTES=(title info gameOver default)
 for PALETTE in "${PALETTES[@]}"; do
     $COMPRESS -f "${DST}/${PALETTE}.nxp" "${DST}/${PALETTE}.nxp.zx0" > /dev/null &
 done
@@ -53,12 +49,15 @@ bordered_output "Compression: Level backgrounds"
 for LETTER in "${LETTERS[@]}"; do
     bordered_output "Level ${LETTER}"
     $CONV "${ORIG}OperationJeffLevel${LETTER}.png" -pal-min -bitmap-y -bank-8k "${DST}level${LETTER}.nxi" > /dev/null 
+    $CONV "${ORIG}OperationJeffLevelComplete${LETTER}.png" -pal-min -bitmap-y -bank-8k "${DST}levelComplete${LETTER}.nxi" > /dev/null 
 
     $COMPRESS -f "${DST}level${LETTER}.nxp" "${DST}level${LETTER}.nxp.zx0" > /dev/null &
+    $COMPRESS -f "${DST}levelComplete${LETTER}.nxp" "${DST}levelComplete${LETTER}.nxp.zx0" > /dev/null &
     $COMPRESS -f "${ORIG}OperationJeffHeightmap${LETTER}.hm" "${DST}heightmap${LETTER}.hm.zx0" > /dev/null &
 
     for NUMBER in "${NUMBERS[@]}"; do
         $COMPRESS -f "${DST}level${LETTER}_${NUMBER}.nxi" "${DST}level${LETTER}_${NUMBER}.nxi.zx0" > /dev/null &
+        $COMPRESS -f "${DST}levelComplete${LETTER}_${NUMBER}.nxi" "${DST}levelComplete${LETTER}_${NUMBER}.nxi.zx0" > /dev/null &
     done
     wait
 done

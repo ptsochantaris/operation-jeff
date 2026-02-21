@@ -20,9 +20,25 @@ static void endOfLeveDrone(void) __z88dk_fastcall {
   aySetMixer(1, 1, 0);
 }
 
-static const struct LevelInfo levelCompleteInfo = FAKE_LEVEL(levelComplete);
-
-static const struct LevelInfo endGameInfo = FAKE_LEVEL(endGame);
+static struct LevelInfo levelCompleteInfos[] = {
+  FAKE_LEVEL(levelCompleteA),
+  FAKE_LEVEL(levelCompleteO),
+  FAKE_LEVEL(levelCompleteB),
+  FAKE_LEVEL(levelCompleteG),
+  FAKE_LEVEL(levelCompleteD),
+  FAKE_LEVEL(levelCompleteI),
+  FAKE_LEVEL(levelCompleteL),
+  FAKE_LEVEL(levelCompleteE),
+  FAKE_LEVEL(levelCompleteN),
+  FAKE_LEVEL(levelCompleteP),
+  FAKE_LEVEL(levelCompleteJ),
+  FAKE_LEVEL(levelCompleteQ),
+  FAKE_LEVEL(levelCompleteC),
+  FAKE_LEVEL(levelCompleteK),
+  FAKE_LEVEL(levelCompleteM),
+  FAKE_LEVEL(levelCompleteF),
+  FAKE_LEVEL(levelCompleteH)
+};
 
 #define center 160
 
@@ -121,13 +137,13 @@ static void endOfLevelSequence(const struct LevelInfo levelInfo) {
 }
 
 void endOfLeveLoop(byte level) __z88dk_fastcall {
-  endOfLevelSequence(levelCompleteInfo);
+  endOfLevelSequence(levelCompleteInfos[level-1]);
   displayStats(54, 127, level, HUD_WHITE, 0);
   waitForClick();
 }
 
 void endOfGameLoop(byte level) __z88dk_fastcall {
-  endOfLevelSequence(endGameInfo);
+  endOfLevelSequence(levelCompleteInfos[level-1]);
   displayStats(28, 42, level, HUD_BLACK, 1);
   waitForClick();
 }
