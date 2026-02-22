@@ -65,14 +65,14 @@ void setupInfo(void) __z88dk_fastcall {
 }
 
 void menuMode(void) __z88dk_fastcall {
-  copperReset();
+  copperShutdown();
   setSpriteMenuClipping();
   setMenuMouse();
   mouseReset();
   setupLayers(0); // SLU
   ulaAttributeClear();
 
-  // teting
+  // testing
   // copperForeground(0x0F);
 }
 
@@ -87,7 +87,7 @@ byte menuLoop(void) __z88dk_fastcall {
   while(1) {
     updateMouse();
     
-    // teting
+    // testing
     // copperCycle();
 
     if(!mouseState.handled) {
