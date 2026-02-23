@@ -57,8 +57,8 @@ void copperCycle(void) __z88dk_fastcall {
             break;
         case 2:
             word c = random16() % (STRIPECOUNT-2);
-            cycle = (c * 8 - 1);
-            color = 0xFF;
+            cycle = (c * 8) - 1;
+            color = 0xFC + (random16() % 4);
             break;
     }
 
