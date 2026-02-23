@@ -38,6 +38,7 @@ typedef struct stats {
     word invunerableCount;
     word difficultyCountdown;
     word umbrellaCountdown;
+    word damageFlash;
 
     struct coord zapLocation;
 

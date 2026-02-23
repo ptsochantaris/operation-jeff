@@ -107,6 +107,7 @@ void statsInitLevel(void) __z88dk_fastcall {
     currentStats.invunerableCount = 0;
     currentStats.extraRangeBombs = 0;
     currentStats.umbrellaCountdown = 0;
+    currentStats.damageFlash = 0;
 
     currentStats.slowMo = 0;
     currentStats.sloMoHold = 0;

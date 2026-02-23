@@ -63,7 +63,6 @@ static word logicLoop = 1;
 static byte heightMap[HEIGHTMAP_WIDTH * HEIGHTMAP_HEIGHT];
 
 #define DAMAGE_FLASH_DURATION 12
-static byte damageFlash;
 
 // 0000 0100 0000 0100
 #define JEFF_SPEED_MASK_0 0x0404
@@ -231,7 +230,6 @@ static void retireJeff(struct jeff *restrict j) __z88dk_fastcall {
 }
 
 void initJeffs(void) __z88dk_fastcall {
-    damageFlash = 0;
     landing.active = 0;
     landing.sprite.index = 126;
     idleJeffCount = 0;
@@ -266,8 +264,7 @@ static void jeffEscape(struct jeff *restrict j) __z88dk_fastcall {
     effectDamage();
     processJeffHit();
 
-    damageFlash = DAMAGE_FLASH_DURATION;
-    setFallbackColour(0x40); // redish
+    currentStats.damageFlash = DAMAGE_FLASH_DURATION;
 }
 
 void jeffFlashAll(void) __z88dk_fastcall {
@@ -454,12 +451,9 @@ static void holdStep(void) __z88dk_fastcall {
 }
 
 void updateJeffs(void) __z88dk_fastcall {
-    if(damageFlash) {
-        --damageFlash;
-        if(damageFlash == 0 && currentStats.invunerableCount == 0) {
-            setFallbackColour(0);
-        }
-        scrollLayer2((damageFlash % 2), 0);
+    if(currentStats.damageFlash) {
+        --currentStats.damageFlash;
+        scrollLayer2((currentStats.damageFlash % 2), 0);
 
     } else if(++currentStats.difficultyCountdown == currentStats.difficultyStepInLevel) {
         currentStats.difficultyCountdown = 0;

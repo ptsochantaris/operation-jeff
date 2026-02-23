@@ -331,14 +331,6 @@ _writeColourToIndex:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _setFallbackColour
-_setFallbackColour:
-    ld a, l
-    nextreg $4a, a
-    RET
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 PUBLIC _zeroPalette
 _zeroPalette:
     call _selectPalette ; index is in L, passed through to this

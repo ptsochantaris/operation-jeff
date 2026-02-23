@@ -38,9 +38,11 @@ static void hudScoreDraw(void) __z88dk_fastcall {
 
 static void hudBorderDraw(void) __z88dk_fastcall {
   if(displayedStats.invunerableCount) {
-    copperForeground(5);
+    copperForeground(5, 1);
+  } else if(displayedStats.damageFlash) {
+    copperForeground(0x40, 2);
   } else if(displayedStats.umbrellaCountdown) {
-    copperForeground(65);
+    copperForeground(0x41, 1);
   } else {
     copperShutdown();
   }
@@ -125,23 +127,38 @@ void updateStatsIfNeeded(void) __z88dk_fastcall {
     hudKillsDraw();
   }
 
-  if(currentStats.invunerableCount > 0) {
-    if(displayedStats.invunerableCount == 0) {
-      displayedStats.invunerableCount = 1;
-      hudBorderDraw();
+  byte needsBorderDraw = 0;
+  if(currentStats.damageFlash) {
+    if(!displayedStats.damageFlash) {
+      displayedStats.damageFlash = 1;
+      needsBorderDraw = 1;
     }
-  } else if(displayedStats.invunerableCount > 0) {
+  } else if(displayedStats.damageFlash) {
+    displayedStats.damageFlash = 0;
+    needsBorderDraw = 1;
+  }
+
+  if(currentStats.invunerableCount) {
+    if(!displayedStats.invunerableCount) {
+      displayedStats.invunerableCount = 1;
+      needsBorderDraw = 1;
+    }
+  } else if(displayedStats.invunerableCount) {
     displayedStats.invunerableCount = 0;
-    hudBorderDraw();
+    needsBorderDraw = 1;
   }
   
-  if(currentStats.umbrellaCountdown > 0) {
-    if(displayedStats.umbrellaCountdown == 0) {
+  if(currentStats.umbrellaCountdown) {
+    if(!displayedStats.umbrellaCountdown) {
       displayedStats.umbrellaCountdown = 1;
-      hudBorderDraw();
+      needsBorderDraw = 1;
     }
-  } else if(displayedStats.umbrellaCountdown > 0) {
+  } else if(displayedStats.umbrellaCountdown) {
     displayedStats.umbrellaCountdown = 0;
+    needsBorderDraw = 1;
+  }
+
+  if(needsBorderDraw) {
     hudBorderDraw();
   }
 }

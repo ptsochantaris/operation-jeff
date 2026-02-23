@@ -7,6 +7,11 @@ _textBuf: DS 100
 
 ; from the brilliant guide here: http://www.retroprogramming.com/2017/07/xorshift-pseudorandom-numbers-in-z80.html
 
+PUBLIC _srand16
+_srand16:
+    ld (_random16+1), hl
+    ret
+
 PUBLIC _random16
 _random16:
     ld hl,1       ; seed must not be 0

@@ -26,6 +26,7 @@ static void stripe(byte colour, byte x, word y) __z88dk_callee {
 }
 
 static byte foregroundColor = 0;
+static byte effect = 0;
 static byte running = 0;
 static word cycle = 7;
 static signed char direction = 8;
@@ -37,53 +38,58 @@ void copperCycle(void) __z88dk_fastcall {
     if(!running) {
         return;
     }
-    
+
     // restore stripe
     copperAddress(cycle);
     ZXN_NEXTREGA(REG_COPPER_DATA, 0);
 
-    word lastCycle = ((STRIPECOUNT - 2) * 8 - 1);
-    if(cycle == lastCycle) {
-        direction = -8;
-    } else if(cycle == 7) {
-        direction = 8;
+    byte color;
+    switch(effect) {
+        case 1:
+            word lastCycle = ((STRIPECOUNT - 2) * 8 - 1);
+            if(cycle == lastCycle) {
+                direction = -8;
+            } else if(cycle == 7) {
+                direction = 8;
+            }
+            cycle += direction;
+            color = 0x92;
+            break;
+        case 2:
+            word c = random16() % (STRIPECOUNT-2);
+            cycle = (c * 8 - 1);
+            color = 0xFF;
+            break;
     }
-
-    cycle += direction;
 
     // new stripe
     copperAddress(cycle);
-    ZXN_NEXTREG(REG_COPPER_DATA, 0x92);
+    ZXN_NEXTREGA(REG_COPPER_DATA, color);
 }
 
-void copperForeground(byte color) __z88dk_fastcall {
-    if(foregroundColor == color) {
+void copperForeground(byte colour, byte effectType) __z88dk_callee {
+    if(foregroundColor == colour) {
         return;
     }
 
-    foregroundColor = color;
+    effect = effectType;
+    foregroundColor = colour;
     copperControl(0x00); // stop copper, set prog address to zero
-
     for(word y = 0; y < STRIPECOUNT; ++y) {
-        word top = y*STRIPESIZE+22;
-        stripe(foregroundColor, 0, top);
-        stripe(0, 0, top + (STRIPESIZE / 2));
+        copperAddress(3 + (y << 3));
+        ZXN_NEXTREGA(REG_COPPER_DATA, colour);
     }
-
-    ZXN_NEXTREG(REG_COPPER_DATA, 0xFF);
-    ZXN_NEXTREG(REG_COPPER_DATA, 0xFF); // wait for vblank
-
     copperControl(0xC0); // start copper from index 0, loop at vblank
     running = 1;
 }
 
 void copperShutdown(void) __z88dk_fastcall {
-    if(running) {
-        copperInit();
-    }
-}
+    if(!running) return;
 
-void copperInit(void) __z88dk_fastcall {
+    // restore stripe
+    copperAddress(cycle);
+    ZXN_NEXTREGA(REG_COPPER_DATA, 0);
+
     copperControl(0x00); // stop copper, set prog address to zero
     
     foregroundColor = 0;
@@ -91,6 +97,20 @@ void copperInit(void) __z88dk_fastcall {
     direction = 8;
     running = 0;
 
+    ZXN_NEXTREG(0x4a, 0);
+}
+
+void copperInit(void) __z88dk_fastcall {
+    copperControl(0x00); // stop copper, set prog address to zero
+
     ZXN_NEXTREG(0x64, 34); // offset copper by 34 pixels up from ULA zero
-    setFallbackColour(0);
+
+    for(word y = 0; y < STRIPECOUNT; ++y) {
+        word top = y*STRIPESIZE+22;
+        stripe(0, 0, top);
+        stripe(0, 0, top + (STRIPESIZE / 2));
+    }
+
+    ZXN_NEXTREG(REG_COPPER_DATA, 0xFF);
+    ZXN_NEXTREG(REG_COPPER_DATA, 0xFF); // wait for vblank
 }
