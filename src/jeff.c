@@ -101,19 +101,21 @@ void loadHeightmap(const struct ResourceInfo *restrict heightmapAsset) __z88dk_f
     decompressZX0((byte *)(heightmapAsset->resource), heightMap);
 }
 
-static void magnetJeff(struct jeff *restrict j) __z88dk_fastcall {
+static void magnetJeff(struct sprite_info *restrict s) __z88dk_fastcall {
     int x = currentStats.magnetLocation.x;
-    if(j->sprite.pos.x > x) {
-        --j->sprite.pos.x;
-    } else {
-        ++j->sprite.pos.x;
+    int sx = s->pos.x;
+    if(s->pos.x > x) {
+        --(s->pos.x);
+    } else if(sx < x) {
+        ++(s->pos.x);
     }
 
     int y = currentStats.magnetLocation.y;
-    if(j->sprite.pos.y > y) {
-        --j->sprite.pos.y;
-    } else {
-        ++j->sprite.pos.y;
+    int sy = s->pos.y;
+    if(sy > y) {
+        --(s->pos.y);
+    } else if(sy < y) {
+        ++(s->pos.y);
     }
 }
 
@@ -123,41 +125,25 @@ static void setJeffPos(struct jeff *restrict j, byte direction) __z88dk_callee _
 
     switch(direction) {
         case JEFF_UP:
-        if(currentStats.magnetLocation.z) {
-            magnetJeff(j);
-        } else {
-            --(s->pos.y);
-        }
+        --(s->pos.y);
         vertical = 10;
         horizontal = 8;
         break;
 
         case JEFF_DOWN:
-        if(currentStats.magnetLocation.z) {
-            magnetJeff(j);
-        } else {
-            ++(s->pos.y);
-        }
+        ++(s->pos.y);
         vertical = 18;
         horizontal = 8;
         break;
 
         case JEFF_LEFT:
-        if(currentStats.magnetLocation.z) {
-            magnetJeff(j);
-        } else {
-            s->pos.x -= 2;
-        }
+        s->pos.x -= 2;
         vertical = 14;
         horizontal = 6;
         break;
 
         case JEFF_RIGHT:
-        if(currentStats.magnetLocation.z) {
-            magnetJeff(j);
-        } else {
-            s->pos.x += 2;
-        }
+        s->pos.x += 2;
         vertical = 14;
         horizontal = 6;
         break;
@@ -357,46 +343,52 @@ static byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
 }
 
 static void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
-    byte newPattern = ++(j->sprite.pattern);
+    struct sprite_info *js = &(j->sprite);
+    byte newPattern = ++(js->pattern);
+    if(currentStats.magnetLocation.z) {
+        magnetJeff(js);
+    }
+    
     byte direction = j->direction;
     setJeffPos(j, direction);
+
     switch(direction) {
         case JEFF_UP:
-            if((j->sprite.pos.y - j->sprite.pos.z) < 1) {
+            if((js->pos.y - js->pos.z) < 1) {
                 jeffEscape(j);
             } else {
                 if(newPattern > JEFF_BACK_LAST) {
-                    j->sprite.pattern = JEFF_BACK_FIRST;
+                    js->pattern = JEFF_BACK_FIRST;
                 }
             }
             break;
 
         case JEFF_DOWN:
-            if((j->sprite.pos.y - j->sprite.pos.z) > 254) {
+            if((js->pos.y - js->pos.z) > 254) {
                 jeffEscape(j);
             } else {
                 if(newPattern > JEFF_FRONT_LAST) {
-                    j->sprite.pattern = JEFF_FRONT_FIRST;
+                    js->pattern = JEFF_FRONT_FIRST;
                 }
             }
             break;
 
         case JEFF_LEFT:
-            if(j->sprite.pos.x == 0) {
+            if(js->pos.x == 0) {
                 jeffEscape(j);
             } else {
                 if(newPattern > JEFF_SIDE_LAST) {
-                    j->sprite.pattern = JEFF_SIDE_FIRST;
+                    js->pattern = JEFF_SIDE_FIRST;
                 }
             }
             break;
 
         case JEFF_RIGHT:
-            if(j->sprite.pos.x == 320) {
+            if(js->pos.x == 320) {
                 jeffEscape(j);
             } else {
                 if(newPattern > JEFF_SIDE_LAST) {
-                    j->sprite.pattern = JEFF_SIDE_FIRST;
+                    js->pattern = JEFF_SIDE_FIRST;
                 }
             }
             break;
