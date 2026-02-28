@@ -101,7 +101,8 @@ void loadHeightmap(const struct ResourceInfo *restrict heightmapAsset) __z88dk_f
     decompressZX0((byte *)(heightmapAsset->resource), heightMap);
 }
 
-static void magnetJeff(struct sprite_info *restrict s) __z88dk_fastcall {
+static void magnetJeff(struct jeff *restrict j) __z88dk_fastcall {
+    struct sprite_info *s = &(j->sprite);
     int x = currentStats.magnetLocation.x;
     int sx = s->pos.x;
     if(s->pos.x > x) {
@@ -342,17 +343,11 @@ static byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
     return 0;
 }
 
-static void jeffWalkStep(struct jeff *restrict j) __z88dk_fastcall {
+static void jeffAnimate(struct jeff *restrict j) __z88dk_fastcall {
     struct sprite_info *js = &(j->sprite);
     byte newPattern = ++(js->pattern);
-    if(currentStats.magnetLocation.z) {
-        magnetJeff(js);
-    }
-    
-    byte direction = j->direction;
-    setJeffPos(j, direction);
 
-    switch(direction) {
+    switch(j->direction) {
         case JEFF_UP:
             if((js->pos.y - js->pos.z) < 1) {
                 jeffEscape(j);
@@ -573,7 +568,14 @@ void updateJeffs(void) __z88dk_fastcall {
 
             case JEFF_STATE_WALK:
                 if(canMove && (j->moveMask & logicLoop)) {
-                    jeffWalkStep(j);
+                    if(currentStats.magnetLocation.z) {
+                        magnetJeff(j);
+                        setJeffPos(j, 255);
+                    } else {
+                        setJeffPos(j, j->direction);
+                    }
+                    jeffAnimate(j);
+
                     if(j->state != JEFF_STATE_NONE) {
                         jeffCheckBombs(j);
                         updateSprite(&j->sprite);

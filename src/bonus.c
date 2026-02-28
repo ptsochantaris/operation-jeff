@@ -48,7 +48,7 @@ static const byte bonusIndexes[] = {
 #define BONUS_INDEX_COUNT 14
 
 static void newRandomTargetType(void) {
-    do {
+   do {
         byte i = random16() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];
     } while(lastTargetType == targetType);
@@ -115,7 +115,7 @@ void updateBonuses(void) __z88dk_fastcall {
         return;
     }
 
-    byte transitionOffset = 3 * (transition >> 2);
+    byte transitionOffset = 4 * (transition >> 2);
     ++transition;
     switch(presentedType) {
         case BONUS_NONE:
@@ -135,9 +135,11 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_SLOW:
                 case BONUS_INVUNERABLE:
                 case BONUS_RANGE:
-                case BONUS_MAGNET:
                 case BONUS_RATE:
                     setBase(BONUS_MAX + 3 + transitionOffset);
+                    break;
+                case BONUS_MAGNET:
+                    setBase(BONUS_MAX + 4 + transitionOffset);
                     break;
                 default:
                     break;
@@ -162,10 +164,14 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_SLOW:
         case BONUS_INVUNERABLE:
         case BONUS_RANGE:
-        case BONUS_MAGNET:
         case BONUS_RATE:
             scrollTilemap(0, transition << 1);
             setBase(BONUS_MAX + 9 - transitionOffset);
+            break;
+
+        case BONUS_MAGNET:
+            scrollTilemap(0, transition << 1);
+            setBase(BONUS_MAX + 10 - transitionOffset);
             break;
     }
 }
