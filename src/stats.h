@@ -41,6 +41,7 @@ typedef struct stats {
     word damageFlash;
 
     struct coord zapLocation;
+    struct coord magnetLocation;
 
     byte slowMo;
     byte sloMoHold;

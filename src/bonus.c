@@ -39,7 +39,7 @@ static const byte bonusIndexes[] = {
     BONUS_ZAP,
     BONUS_FREEZE,
     BONUS_FREEZE,
-    BONUS_SLOW,
+    BONUS_MAGNET,
     BONUS_SLOW,
     BONUS_INVUNERABLE,
     BONUS_RANGE,
@@ -135,6 +135,7 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_SLOW:
                 case BONUS_INVUNERABLE:
                 case BONUS_RANGE:
+                case BONUS_MAGNET:
                 case BONUS_RATE:
                     setBase(BONUS_MAX + 3 + transitionOffset);
                     break;
@@ -161,6 +162,7 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_SLOW:
         case BONUS_INVUNERABLE:
         case BONUS_RANGE:
+        case BONUS_MAGNET:
         case BONUS_RATE:
             scrollTilemap(0, transition << 1);
             setBase(BONUS_MAX + 9 - transitionOffset);

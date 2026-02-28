@@ -101,31 +101,63 @@ void loadHeightmap(const struct ResourceInfo *restrict heightmapAsset) __z88dk_f
     decompressZX0((byte *)(heightmapAsset->resource), heightMap);
 }
 
+static void magnetJeff(struct jeff *restrict j) __z88dk_fastcall {
+    int x = currentStats.magnetLocation.x;
+    if(j->sprite.pos.x > x) {
+        --j->sprite.pos.x;
+    } else {
+        ++j->sprite.pos.x;
+    }
+
+    int y = currentStats.magnetLocation.y;
+    if(j->sprite.pos.y > y) {
+        --j->sprite.pos.y;
+    } else {
+        ++j->sprite.pos.y;
+    }
+}
+
 static void setJeffPos(struct jeff *restrict j, byte direction) __z88dk_callee __smallc {
     struct sprite_info *s = &(j->sprite);
     int vertical, horizontal;
 
     switch(direction) {
         case JEFF_UP:
-        --(s->pos.y);
+        if(currentStats.magnetLocation.z) {
+            magnetJeff(j);
+        } else {
+            --(s->pos.y);
+        }
         vertical = 10;
         horizontal = 8;
         break;
 
         case JEFF_DOWN:
-        ++(s->pos.y);
+        if(currentStats.magnetLocation.z) {
+            magnetJeff(j);
+        } else {
+            ++(s->pos.y);
+        }
         vertical = 18;
         horizontal = 8;
         break;
 
         case JEFF_LEFT:
-        s->pos.x -= 2;
+        if(currentStats.magnetLocation.z) {
+            magnetJeff(j);
+        } else {
+            s->pos.x -= 2;
+        }
         vertical = 14;
         horizontal = 6;
         break;
 
         case JEFF_RIGHT:
-        s->pos.x += 2;
+        if(currentStats.magnetLocation.z) {
+            magnetJeff(j);
+        } else {
+            s->pos.x += 2;
+        }
         vertical = 14;
         horizontal = 6;
         break;
@@ -451,6 +483,10 @@ static void holdStep(void) __z88dk_fastcall {
 }
 
 void updateJeffs(void) __z88dk_fastcall {
+    if(currentStats.magnetLocation.z) {
+        --currentStats.magnetLocation.z;
+    }
+
     if(currentStats.damageFlash) {
         --currentStats.damageFlash;
         scrollLayer2((currentStats.damageFlash % 2), 0);

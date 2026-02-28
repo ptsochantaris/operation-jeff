@@ -113,6 +113,7 @@ void statsInitLevel(void) __z88dk_fastcall {
     currentStats.sloMoHold = 0;
 
     currentStats.zapLocation.z = 0;
+    currentStats.magnetLocation.z = 0;
 
     currentStats.shotsHit = 0;
     currentStats.shotsMiss = 0;
@@ -204,6 +205,13 @@ void processBonusHit(byte type, int x, int y) __z88dk_callee {
         case BONUS_FREEZE:
             currentStats.holdCount = 199;
             status("FREEZE");
+            break;
+
+        case BONUS_MAGNET:
+            currentStats.magnetLocation.x = x - 8;
+            currentStats.magnetLocation.y = y - 8;
+            currentStats.magnetLocation.z = 300; // using z as switch
+            status("MAGNET");
             break;
 
         case BONUS_INVUNERABLE:
