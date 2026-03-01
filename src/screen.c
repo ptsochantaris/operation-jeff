@@ -85,6 +85,15 @@ void flashPaletteUp(void) __z88dk_fastcall {
   setPaletteFloor(nonHudPaletteColourCount, 6);
 }
 
+void fadeToWhite(void) __z88dk_fastcall {
+  stashPalette(1);
+  for(byte shift=0; shift < 7; ++shift) {
+    setPaletteFloor(nonHudPaletteColourCount, shift);
+    intrinsic_halt();
+    intrinsic_halt();
+  }
+}
+
 void flashPaletteDown(void) __z88dk_fastcall {
   for(byte shift=8; shift > 0; --shift) {
     setPaletteFloor(nonHudPaletteColourCount, shift-1);

@@ -3,7 +3,7 @@
 static void gameOverEffect(void) __z88dk_fastcall {
   ayChipSelect(0);
 
-  aySetEnvelope(0, 0x8000);
+  aySetEnvelope(0, 0xA000);
   aySetNoise(31);
 
   aySetPitch(0, 0x500);  
@@ -18,7 +18,9 @@ static void gameOverEffect(void) __z88dk_fastcall {
 
 static const struct ScreenInfo gameOverInfo = SCREEN_ARRAY(gameOver);
 static void loadGameOverScreen(void) __z88dk_fastcall {
-  fadePaletteDown(1, 1, 0);
+  fadeToWhite();
+  layer2Clear(0);
+  fadePaletteDown(1,3,0);
   loadScreen(gameOverInfo.screens);
   fadePaletteUp(&gameOverInfo.palette, 1);
 }

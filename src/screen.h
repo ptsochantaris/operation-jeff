@@ -26,6 +26,7 @@ void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_
 void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_fastcall;
 void stashPalette(byte paletteMask) __z88dk_fastcall;
 void flashPaletteUp(void) __z88dk_fastcall;
+void fadeToWhite(void) __z88dk_fastcall;
 void flashPaletteDown(void) __z88dk_fastcall;
 void fadeExistingPaletteUp(void) __z88dk_fastcall;
 void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, byte paletteMask) __z88dk_callee __smallc;
