@@ -29,8 +29,8 @@ BINARY "resources/levelD.nxp.zx0"
 BINARY "resources/levelCompleteQ.nxp.zx0"
 BINARY "resources/levelC.nxp.zx0"
 BINARY "resources/levelL.nxp.zx0"
-BINARY "resources/info.nxp.zx0"
 BINARY "resources/levelQ.nxp.zx0"
+BINARY "resources/info.nxp.zx0"
 BINARY "resources/levelG.nxp.zx0"
 BINARY "resources/levelA.nxp.zx0"
 BINARY "resources/levelB.nxp.zx0"
@@ -296,7 +296,7 @@ BINARY "resources/levelO_2.nxi.zx0"
 SECTION PAGE_74
 BINARY "resources/levelCompleteJ_8.nxi.zx0"
 BINARY "resources/levelCompleteH_5.nxi.zx0"
-BINARY "resources/gameOver_9.nxi.zx0"
+BINARY "resources/info_9.nxi.zx0"
 
 ;-------------------------------------------------     
 
@@ -324,7 +324,7 @@ BINARY "resources/levelQ_4.nxi.zx0"
 SECTION PAGE_78
 BINARY "resources/levelCompleteP_0.nxi.zx0"
 BINARY "resources/levelCompleteO_8.nxi.zx0"
-BINARY "resources/gameOver_7.nxi.zx0"
+BINARY "resources/gameOver_9.nxi.zx0"
 
 ;-------------------------------------------------     
 
@@ -415,7 +415,7 @@ BINARY "resources/levelP_3.nxi.zx0"
 SECTION PAGE_91
 BINARY "resources/levelCompleteL_9.nxi.zx0"
 BINARY "resources/levelI_3.nxi.zx0"
-BINARY "resources/info_9.nxi.zx0"
+BINARY "resources/info_0.nxi.zx0"
 
 ;-------------------------------------------------     
 
@@ -520,7 +520,7 @@ BINARY "resources/levelQ_3.nxi.zx0"
 SECTION PAGE_106
 BINARY "resources/levelI_6.nxi.zx0"
 BINARY "resources/levelG_9.nxi.zx0"
-BINARY "resources/info_7.nxi.zx0"
+BINARY "resources/levelQ_1.nxi.zx0"
 
 ;-------------------------------------------------     
 
@@ -562,28 +562,28 @@ BINARY "resources/info_4.nxi.zx0"
 SECTION PAGE_112
 BINARY "resources/levelCompleteI_7.nxi.zx0"
 BINARY "resources/levelCompleteE_8.nxi.zx0"
-BINARY "resources/levelO_9.nxi.zx0"
+BINARY "resources/info_6.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_113
 BINARY "resources/levelCompleteI_9.nxi.zx0"
 BINARY "resources/levelM_7.nxi.zx0"
-BINARY "resources/levelQ_2.nxi.zx0"
+BINARY "resources/info_5.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_114
 BINARY "resources/levelCompleteH_1.nxi.zx0"
 BINARY "resources/levelCompleteQ_9.nxi.zx0"
-BINARY "resources/info_5.nxi.zx0"
+BINARY "resources/levelO_9.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_115
 BINARY "resources/levelCompleteD_9.nxi.zx0"
 BINARY "resources/levelCompleteG_9.nxi.zx0"
-BINARY "resources/info_1.nxi.zx0"
+BINARY "resources/info_3.nxi.zx0"
 
 ;-------------------------------------------------     
 
@@ -604,7 +604,7 @@ BINARY "resources/levelCompleteD_6.nxi.zx0"
 SECTION PAGE_118
 BINARY "resources/levelCompleteC_9.nxi.zx0"
 BINARY "resources/levelCompleteH_2.nxi.zx0"
-BINARY "resources/levelCompleteB_6.nxi.zx0"
+BINARY "resources/info_2.nxi.zx0"
 
 ;-------------------------------------------------     
 
@@ -846,82 +846,82 @@ BINARY "resources/levelQ_6.nxi.zx0"
 ;-------------------------------------------------     
 
 SECTION PAGE_150
+BINARY "resources/info_1.nxi.zx0"
+BINARY "resources/info_8.nxi.zx0"
 BINARY "resources/levelCompleteA_6.nxi.zx0"
-BINARY "resources/levelCompleteM_6.nxi.zx0"
-BINARY "resources/levelJ_6.nxi.zx0"
 BINARY "resources/levelN_8.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_151
+BINARY "resources/levelCompleteM_6.nxi.zx0"
+BINARY "resources/levelJ_6.nxi.zx0"
 BINARY "resources/levelCompleteA_7.nxi.zx0"
-BINARY "resources/levelCompleteK_6.nxi.zx0"
-BINARY "resources/levelCompleteP_6.nxi.zx0"
-BINARY "resources/levelN_2.nxi.zx0"
+BINARY "resources/levelN_6.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_152
+BINARY "resources/levelCompleteK_6.nxi.zx0"
+BINARY "resources/levelCompleteP_6.nxi.zx0"
 BINARY "resources/levelCompleteG_6.nxi.zx0"
-BINARY "resources/levelCompleteM_7.nxi.zx0"
-BINARY "resources/levelCompleteQ_6.nxi.zx0"
-BINARY "resources/gameOver_0.nxi.zx0"
+BINARY "resources/levelN_2.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_153
+BINARY "resources/levelCompleteM_7.nxi.zx0"
+BINARY "resources/levelCompleteQ_6.nxi.zx0"
 BINARY "resources/levelCompleteL_6.nxi.zx0"
-BINARY "resources/levelCompleteF_6.nxi.zx0"
-BINARY "resources/levelCompleteN_6.nxi.zx0"
-BINARY "resources/levelN_4.nxi.zx0"
+BINARY "resources/gameOver_0.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_154
+BINARY "resources/levelCompleteF_6.nxi.zx0"
+BINARY "resources/levelCompleteN_6.nxi.zx0"
 BINARY "resources/levelCompleteO_6.nxi.zx0"
-BINARY "resources/levelCompleteI_6.nxi.zx0"
-BINARY "resources/levelJ_7.nxi.zx0"
 BINARY "resources/levelO_4.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_155
-BINARY "resources/info_8.nxi.zx0"
-BINARY "resources/levelCompleteK_7.nxi.zx0"
-BINARY "resources/levelK_0.nxi.zx0"
-BINARY "resources/levelN_3.nxi.zx0"
+BINARY "resources/levelCompleteB_6.nxi.zx0"
+BINARY "resources/levelCompleteI_6.nxi.zx0"
+BINARY "resources/levelJ_7.nxi.zx0"
+BINARY "resources/gameOver_7.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_156
+BINARY "resources/levelCompleteK_7.nxi.zx0"
+BINARY "resources/levelK_0.nxi.zx0"
 BINARY "resources/levelCompleteG_7.nxi.zx0"
-BINARY "resources/info_2.nxi.zx0"
-BINARY "resources/levelCompleteD_7.nxi.zx0"
-BINARY "resources/levelO_1.nxi.zx0"
+BINARY "resources/levelN_3.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_157
+BINARY "resources/levelCompleteD_7.nxi.zx0"
 BINARY "resources/levelJ_2.nxi.zx0"
-BINARY "resources/info_3.nxi.zx0"
 BINARY "resources/levelA_0.nxi.zx0"
-BINARY "resources/info_0.nxi.zx0"
+BINARY "resources/levelO_1.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_158
 BINARY "resources/levelCompleteF_7.nxi.zx0"
 BINARY "resources/levelCompleteE_7.nxi.zx0"
-BINARY "resources/levelQ_8.nxi.zx0"
+BINARY "resources/levelQ_2.nxi.zx0"
 BINARY "resources/levelP_2.nxi.zx0"
 
 ;-------------------------------------------------     
 
 SECTION PAGE_159
-BINARY "resources/info_6.nxi.zx0"
+BINARY "resources/info_7.nxi.zx0"
+BINARY "resources/levelQ_8.nxi.zx0"
 BINARY "resources/levelCompleteQ_7.nxi.zx0"
 BINARY "resources/levelL_0.nxi.zx0"
-BINARY "resources/levelQ_1.nxi.zx0"
 
 ;-------------------------------------------------     
 
@@ -929,7 +929,7 @@ SECTION PAGE_160
 BINARY "resources/levelQ_9.nxi.zx0"
 BINARY "resources/levelO_8.nxi.zx0"
 BINARY "resources/levelP_5.nxi.zx0"
-BINARY "resources/levelN_6.nxi.zx0"
+BINARY "resources/levelN_4.nxi.zx0"
 BINARY "resources/heightmapP.hm.zx0"
 
 ;-------------------------------------------------     
