@@ -25,7 +25,7 @@ static void loadGameOverScreen(void) __z88dk_fastcall {
   fadePaletteUp(&gameOverInfo.palette, 1);
 }
 
-#define center 160
+#define center 159
 
 void gameOverLoop(void) __z88dk_fastcall {
   resetBonuses();
@@ -50,7 +50,7 @@ void gameOverLoop(void) __z88dk_fastcall {
   word x = center - ((4*9) >> 1);
   byte hiScoreBufPos = 0;
   byte hiScoreBuf[11] = "          ";
-  word top = 53;
+  word top = 64;
 
   print("GAME OVER", x, top, HUD_ORANGE);
   top += 20;
