@@ -8,15 +8,23 @@ static byte transition;
 
 #define bonusTime 600
 
-static void setBase(byte value) __z88dk_fastcall {
+// Addresses into tilemap
+extern word hollowPlusTiles;
+extern word hollowDiamondTiles;
+extern word hollowSquareTiles;
+extern word hollowMagnetTiles;
+extern word tilesBase;
+extern word tilesEnd;
+
+static void setTileBase(word *categoryBase, int offset) __z88dk_callee {
     byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
     ZXN_WRITE_MMU3(11);
-    *base = value;
+    *base = ((categoryBase - &tilesBase) >> 4) + offset;
     ZXN_WRITE_MMU3(10);
 }
 
 void resetBonuses(void) __z88dk_fastcall {
-    setBase(BONUS_NONE);
+    setTileBase(&tilesBase, BONUS_NONE);
 
     targetType = BONUS_NONE;
     presentedType = BONUS_NONE;
@@ -60,7 +68,7 @@ void updateBonuses(void) __z88dk_fastcall {
 
         // time to add new bonus, if none exists
         if(targetType==BONUS_NONE) {
-            setBase(0); // in case a previous bonus is in the process of transitioning out
+            setTileBase(&tilesBase, 0); // in case a previous bonus is in the process of transitioning out
             newRandomTargetType();
             currentX = 3 + random16() % 36;
             currentY = 3 + random16() % 28;
@@ -108,49 +116,53 @@ void updateBonuses(void) __z88dk_fastcall {
 
     if(transition==24) {
         presentedType = targetType;
-        setBase(targetType);
+        setTileBase(&tilesBase, targetType);
         return;
     }
 
-    byte transitionOffset = 4 * (transition >> 3);
-    ++transition;
+    byte transitionOffset = transition++ >> 3;
+
     switch(presentedType) {
         case BONUS_NONE:
             switch(targetType) {
                 case BONUS_SCORE:
                 case BONUS_HEALTH:
                 case BONUS_CHARGE:
-                    setBase(BONUS_MAX + 1 + transitionOffset);
+                    setTileBase(&hollowPlusTiles, transitionOffset);
                     break;
+
                 case BONUS_SMARTBOMB:
                 case BONUS_ZAP:
-                    setBase(BONUS_MAX + 2 + transitionOffset);
+                    setTileBase(&hollowDiamondTiles, transitionOffset);
                     break;
+
                 case BONUS_FREEZE:
                 case BONUS_UMBRELLA:
                 case BONUS_SLOW:
                 case BONUS_INVUNERABLE:
                 case BONUS_RANGE:
                 case BONUS_RATE:
-                    setBase(BONUS_MAX + 3 + transitionOffset);
+                    setTileBase(&hollowSquareTiles, transitionOffset);
                     break;
+
                 case BONUS_MAGNET:
-                    setBase(BONUS_MAX + 4 + transitionOffset);
+                    setTileBase(&hollowMagnetTiles, transitionOffset);
                     break;
+
                 default:
                     break;
             }
-            return;
+            break;
 
         case BONUS_SCORE:
         case BONUS_HEALTH:
         case BONUS_CHARGE:
-            setBase(BONUS_MAX + 9 - transitionOffset);
+            setTileBase(&hollowDiamondTiles, -transitionOffset);
             break;
 
         case BONUS_SMARTBOMB:
         case BONUS_ZAP:
-            setBase(BONUS_MAX + 10 - transitionOffset);
+            setTileBase(&hollowSquareTiles, -transitionOffset);
             break;
 
         case BONUS_FREEZE:
@@ -159,11 +171,14 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_INVUNERABLE:
         case BONUS_RANGE:
         case BONUS_RATE:
-            setBase(BONUS_MAX + 11 - transitionOffset);
+            setTileBase(&hollowMagnetTiles, -transitionOffset);
             break;
 
         case BONUS_MAGNET:
-            setBase(BONUS_MAX + 12 - transitionOffset);
+            setTileBase(&tilesEnd, -transitionOffset);
+            break;
+
+        default:
             break;
     }
 }
