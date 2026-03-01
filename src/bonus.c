@@ -18,8 +18,6 @@ static void setBase(byte value) __z88dk_fastcall {
 void resetBonuses(void) __z88dk_fastcall {
     setBase(BONUS_NONE);
 
-    scrollTilemap(0, 0);
-
     targetType = BONUS_NONE;
     presentedType = BONUS_NONE;
     lastTargetType = BONUS_FREEZE;
@@ -108,18 +106,16 @@ void updateBonuses(void) __z88dk_fastcall {
         return;
     }
 
-    if(transition==12) {
-        scrollTilemap(0, 0);
+    if(transition==24) {
         presentedType = targetType;
         setBase(targetType);
         return;
     }
 
-    byte transitionOffset = 4 * (transition >> 2);
+    byte transitionOffset = 4 * (transition >> 3);
     ++transition;
     switch(presentedType) {
         case BONUS_NONE:
-            scrollTilemap(0, 24 - (transition << 1));
             switch(targetType) {
                 case BONUS_SCORE:
                 case BONUS_HEALTH:
@@ -149,14 +145,12 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_SCORE:
         case BONUS_HEALTH:
         case BONUS_CHARGE:
-            scrollTilemap(0, transition << 1);
-            setBase(BONUS_MAX + 7 - transitionOffset);
+            setBase(BONUS_MAX + 9 - transitionOffset);
             break;
 
         case BONUS_SMARTBOMB:
         case BONUS_ZAP:
-            scrollTilemap(0, transition << 1);
-            setBase(BONUS_MAX + 8 - transitionOffset);
+            setBase(BONUS_MAX + 10 - transitionOffset);
             break;
 
         case BONUS_FREEZE:
@@ -165,13 +159,11 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_INVUNERABLE:
         case BONUS_RANGE:
         case BONUS_RATE:
-            scrollTilemap(0, transition << 1);
-            setBase(BONUS_MAX + 9 - transitionOffset);
+            setBase(BONUS_MAX + 11 - transitionOffset);
             break;
 
         case BONUS_MAGNET:
-            scrollTilemap(0, transition << 1);
-            setBase(BONUS_MAX + 10 - transitionOffset);
+            setBase(BONUS_MAX + 12 - transitionOffset);
             break;
     }
 }

@@ -133,9 +133,16 @@ void updateStatsIfNeeded(void) __z88dk_fastcall {
       displayedStats.damageFlash = 1;
       needsBorderDraw = 1;
     }
+
+    word offset = currentStats.damageFlash % 2;
+    scrollLayer2(offset, 0);
+    scrollTilemap(offset, 0);
+
   } else if(displayedStats.damageFlash) {
     displayedStats.damageFlash = 0;
     needsBorderDraw = 1;
+    scrollLayer2(0, 0);
+    scrollTilemap(0, 0);
   }
 
   if(currentStats.invunerableCount) {

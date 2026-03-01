@@ -476,7 +476,6 @@ void updateJeffs(void) __z88dk_fastcall {
 
     if(currentStats.damageFlash) {
         --currentStats.damageFlash;
-        scrollLayer2((currentStats.damageFlash % 2), 0);
 
     } else if(++currentStats.difficultyCountdown == currentStats.difficultyStepInLevel) {
         currentStats.difficultyCountdown = 0;

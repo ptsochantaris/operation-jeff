@@ -135,8 +135,8 @@ ORG $6000
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
     DB $FF, $F5, $5F, $FF
-    DB $FF, $5F, $F5, $FF
-    DB $FF, $5F, $F5, $FF
+    DB $FF, $55, $55, $FF
+    DB $FF, $55, $55, $FF
     DB $FF, $F5, $5F, $FF
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
@@ -145,8 +145,8 @@ ORG $6000
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
     DB $FF, $F5, $5F, $FF
-    DB $FF, $5F, $F5, $FF
-    DB $FF, $5F, $F5, $FF
+    DB $FF, $55, $55, $FF
+    DB $FF, $55, $55, $FF
     DB $FF, $F5, $5F, $FF
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
@@ -154,92 +154,92 @@ ORG $6000
     ; 15 hollow square dark
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
-    DB $FF, $F5, $5F, $FF
-    DB $FF, $5F, $F5, $FF
-    DB $FF, $5F, $F5, $FF
-    DB $FF, $F5, $5F, $FF
+    DB $FF, $55, $55, $FF
+    DB $FF, $55, $55, $FF
+    DB $FF, $55, $55, $FF
+    DB $FF, $55, $55, $FF
     DB $FF, $FF, $FF, $FF
     DB $FF, $FF, $FF, $FF
 
     ; 16 hollow magnet dark
-    DB $FF, $77, $77, $FF
-    DB $F7, $FF, $FF, $7F
-    DB $7F, $FF, $FF, $57
-    DB $7F, $F7, $7F, $57
-    DB $7F, $F7, $7F, $57
-    DB $7F, $F7, $7F, $57
-    DB $71, $F7, $7F, $17
-    DB $F7, $77, $77, $7F
+    DB $FF, $55, $55, $FF
+    DB $F5, $FF, $FF, $5F
+    DB $5F, $FF, $FF, $F5
+    DB $5F, $F5, $5F, $F5
+    DB $5F, $F5, $5F, $F5
+    DB $5F, $F5, $5F, $F5
+    DB $5F, $F5, $5F, $F5
+    DB $F5, $55, $55, $5F
 
     ; 17 hollow plus medium
     DB $FF, $FF, $FF, $FF
     DB $FF, $66, $66, $FF
-    DB $F6, $FF, $FF, $6F
-    DB $F6, $FF, $FF, $6F
-    DB $F6, $FF, $FF, $6F
-    DB $F6, $FF, $FF, $6F
+    DB $F6, $66, $66, $6F
+    DB $F6, $66, $66, $6F
+    DB $F6, $66, $66, $6F
+    DB $F6, $66, $66, $6F
     DB $FF, $66, $66, $FF
     DB $FF, $FF, $FF, $FF
 
     ; 18 hollow diamond medium
     DB $FF, $FF, $FF, $FF
     DB $FF, $F6, $6F, $FF
-    DB $FF, $6F, $F6, $FF
-    DB $F6, $FF, $FF, $6F
-    DB $F6, $FF, $FF, $6F
-    DB $FF, $6F, $F6, $FF
+    DB $FF, $66, $66, $FF
+    DB $F6, $66, $66, $6F
+    DB $F6, $66, $66, $6F
+    DB $FF, $66, $66, $FF
     DB $FF, $F6, $6F, $FF
     DB $FF, $FF, $FF, $FF
 
     ; 19 hollow square medium
     DB $FF, $FF, $FF, $FF
     DB $FF, $66, $66, $FF
-    DB $F6, $FF, $FF, $6F
-    DB $F6, $FF, $FF, $6F
-    DB $F6, $FF, $FF, $6F
-    DB $F6, $FF, $FF, $6F
+    DB $F6, $66, $66, $6F
+    DB $F6, $66, $66, $6F
+    DB $F6, $66, $66, $6F
+    DB $F6, $66, $66, $6F
     DB $FF, $66, $66, $FF
     DB $FF, $FF, $FF, $FF
     
     ; 20 hollow magnet medium
-    DB $FF, $77, $77, $FF
-    DB $F7, $FF, $FF, $7F
-    DB $7F, $FF, $FF, $57
-    DB $7F, $F7, $7F, $57
-    DB $7F, $F7, $7F, $57
-    DB $7F, $F7, $7F, $57
-    DB $71, $F7, $7F, $17
-    DB $F7, $77, $77, $7F
+    DB $FF, $66, $66, $FF
+    DB $F6, $FF, $FF, $6F
+    DB $6F, $FF, $FF, $F6
+    DB $6F, $F6, $6F, $F6
+    DB $6F, $F6, $6F, $F6
+    DB $6F, $F6, $6F, $F6
+    DB $6F, $F6, $6F, $F6
+    DB $F6, $66, $66, $6F
 
     ; 21 hollow plus bright
     DB $FF, $77, $77, $FF
-    DB $FF, $7F, $F7, $FF
-    DB $77, $7F, $F7, $77
-    DB $7F, $FF, $FF, $F7
-    DB $7F, $FF, $FF, $F7
-    DB $77, $7F, $F7, $77
-    DB $FF, $7F, $F7, $FF
+    DB $FF, $77, $77, $FF
+    DB $77, $77, $77, $77
+    DB $77, $77, $77, $77
+    DB $77, $77, $77, $77
+    DB $77, $77, $77, $77
+    DB $FF, $77, $77, $FF
     DB $FF, $77, $77, $FF
 
     ; 22 hollow diamond bright
     DB $FF, $F7, $7F, $FF
-    DB $FF, $7F, $F7, $FF
-    DB $F7, $FF, $FF, $7F
-    DB $7F, $FF, $FF, $F7
-    DB $7F, $FF, $FF, $F7
-    DB $F7, $FF, $FF, $7F
-    DB $FF, $7F, $F7, $FF
+    DB $FF, $77, $77, $FF
+    DB $F7, $77, $77, $7F
+    DB $77, $77, $77, $77
+    DB $77, $77, $77, $77
+    DB $F7, $77, $77, $7F
+    DB $FF, $77, $77, $FF
     DB $FF, $F7, $7F, $FF
 
     ; 23 hollow square bright
-    DB $FF, $77, $77, $FF
-    DB $F7, $FF, $FF, $7F
-    DB $7F, $FF, $FF, $F7
-    DB $7F, $FF, $FF, $F7
-    DB $7F, $FF, $FF, $F7
-    DB $7F, $FF, $FF, $F7
-    DB $F7, $FF, $FF, $7F
-    DB $FF, $77, $77, $FF
+    DB $F7, $77, $77, $7F
+    DB $77, $77, $77, $77
+    DB $77, $77, $77, $77
+    DB $77, $77, $77, $77
+    DB $77, $77, $77, $77
+    DB $77, $77, $77, $77
+    DB $77, $77, $77, $77
+    DB $F7, $77, $77, $7F
 
     ; 24 hollow magnet bright
     DB $FF, $77, $77, $FF
@@ -248,5 +248,5 @@ ORG $6000
     DB $7F, $F7, $7F, $57
     DB $7F, $F7, $7F, $57
     DB $7F, $F7, $7F, $57
-    DB $71, $F7, $7F, $17
+    DB $7F, $F7, $7F, $F7
     DB $F7, $77, $77, $7F
