@@ -259,12 +259,42 @@ _hollowMagnetTiles:
     ; 2 hollow magnet bright
     DB $FF, $77, $77, $FF
     DB $F7, $FF, $FF, $7F
-    DB $7F, $FF, $FF, $57
-    DB $7F, $F7, $7F, $57
-    DB $7F, $F7, $7F, $57
-    DB $7F, $F7, $7F, $57
+    DB $7F, $FF, $FF, $F7
+    DB $7F, $F7, $7F, $F7
+    DB $7F, $F7, $7F, $F7
+    DB $7F, $F7, $7F, $F7
     DB $7F, $F7, $7F, $F7
     DB $F7, $77, $77, $7F
 
-PUBLIC _tilesEnd
-_tilesEnd:
+PUBLIC _activeMagnetTiles
+_activeMagnetTiles:
+
+    ; 0 active magnet A
+    DB $FF, $FF, $FF, $FF
+    DB $FF, $11, $11, $FF
+    DB $F1, $11, $11, $1F
+    DB $F1, $1F, $F1, $1F
+    DB $F1, $1F, $F1, $1F
+    DB $F1, $1F, $F1, $1F
+    DB $F1, $1F, $F1, $1F
+    DB $FF, $FF, $FF, $FF
+
+    ; 1 active magnet B
+    DB $FF, $FF, $FF, $FF
+    DB $FF, $77, $77, $FF
+    DB $F7, $77, $77, $7F
+    DB $F7, $7F, $F7, $7F
+    DB $F7, $7F, $F7, $7F
+    DB $F7, $7F, $F7, $7F
+    DB $F7, $7F, $F7, $7F
+    DB $FF, $FF, $FF, $FF
+
+    ; 2 active magnet C
+    DB $FF, $FF, $FF, $FF
+    DB $FF, $55, $55, $FF
+    DB $F5, $55, $55, $5F
+    DB $F5, $5F, $F5, $5F
+    DB $F5, $5F, $F5, $5F
+    DB $F5, $5F, $F5, $5F
+    DB $F5, $5F, $F5, $5F
+    DB $FF, $FF, $FF, $FF

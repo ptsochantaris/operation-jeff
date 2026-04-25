@@ -5,6 +5,7 @@ static word currentX;
 static word currentY;
 static word bonusLoop;
 static byte transition;
+static byte magnetActive;
 
 #define bonusTime 600
 
@@ -13,8 +14,8 @@ extern word hollowPlusTiles;
 extern word hollowDiamondTiles;
 extern word hollowSquareTiles;
 extern word hollowMagnetTiles;
+extern word activeMagnetTiles;
 extern word tilesBase;
-extern word tilesEnd;
 
 static void setTileBase(word *categoryBase, int offset) __z88dk_callee {
     byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
@@ -33,6 +34,7 @@ void resetBonuses(void) __z88dk_fastcall {
     currentY = 0;
     bonusLoop = 450;
     transition = 0;
+    magnetActive = 0;
 }
 
 static const byte bonusIndexes[] = {
@@ -58,7 +60,7 @@ static void newRandomTargetType(void) {
         byte i = random16() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];
     } while(lastTargetType == targetType);
-    //targetType = BONUS_MAGNET;
+    targetType = BONUS_MAGNET;
     lastTargetType = targetType;
 }
 
@@ -82,6 +84,16 @@ void updateBonuses(void) __z88dk_fastcall {
     }
 
     if(targetType == presentedType) {
+        if(currentStats.magnetLocation.z) {
+            magnetActive += 1;
+            if(magnetActive>(3<<2)) magnetActive = 1;
+            setTileBase(&activeMagnetTiles, magnetActive >> 2);
+            return;
+        } else if (magnetActive) {
+            setTileBase(&tilesBase, 0);
+            magnetActive = 0;
+        }
+
         if(targetType == BONUS_NONE || explodingBombCount == 0) {
             return;
         }
@@ -175,7 +187,7 @@ void updateBonuses(void) __z88dk_fastcall {
             break;
 
         case BONUS_MAGNET:
-            setTileBase(&tilesEnd, -transitionOffset);
+            setTileBase(&activeMagnetTiles, -transitionOffset);
             break;
 
         default:
