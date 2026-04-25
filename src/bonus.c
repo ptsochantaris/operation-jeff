@@ -54,11 +54,11 @@ static const byte bonusIndexes[] = {
 #define BONUS_INDEX_COUNT 14
 
 static void newRandomTargetType(void) {
-   do {
+    do {
         byte i = random16() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];
     } while(lastTargetType == targetType);
-
+    //targetType = BONUS_MAGNET;
     lastTargetType = targetType;
 }
 

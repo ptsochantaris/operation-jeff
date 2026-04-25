@@ -2,8 +2,6 @@
 #define _BASE_H_
 
 #include <errno.h>
-#include <stdint.h>
-#include <string.h>
 #include <strings.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,9 +9,6 @@
 #include <z80.h>
 #include <intrinsic.h>
 #include <arch/zxn.h>
-#include <arch/zxn/copper.h>
-#include <config_zxn.h>
-#include <compress/zx0.h>
 #include <arch/zxn/esxdos.h>
 
 #include "types.h"
@@ -23,7 +18,6 @@
 #include "tilemap.h"
 #include "copper.h"
 #include "levelinfo.h"
-
 #include "effects.h"
 #include "sprites.h"
 #include "hud.h"

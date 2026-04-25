@@ -2,6 +2,7 @@
     "C_Cpp.default.compilerPath": "../z88dk/bin/zcc",
     "C_Cpp.default.includePath": [
         "${env:ZCCCFG}/../../include",
+        "${env:ZCCCFG}/../../include/arch",
         "${env:ZCCCFG}/../../include/_DEVELOPMENT/sdcc",
         "${env:ZCCCFG}/../../libsrc/_DEVELOPMENT/target/zxn",
     ],

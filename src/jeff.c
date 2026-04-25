@@ -105,18 +105,18 @@ static void magnetJeff(struct jeff *restrict j) __z88dk_fastcall {
     struct sprite_info *s = &(j->sprite);
     int x = currentStats.magnetLocation.x;
     int sx = s->pos.x;
-    if(s->pos.x > x) {
-        --(s->pos.x);
-    } else if(sx < x) {
-        ++(s->pos.x);
+    if(s->pos.x > x+1) {
+        s->pos.x -= 2;
+    } else if(sx < x-1) {
+        s->pos.x += 2;
     }
 
     int y = currentStats.magnetLocation.y;
     int sy = s->pos.y;
-    if(sy > y) {
-        --(s->pos.y);
-    } else if(sy < y) {
-        ++(s->pos.y);
+    if(sy > y+1) {
+        s->pos.y -= 2;
+    } else if(sy < y-1) {
+        s->pos.y += 2;
     }
 }
 
