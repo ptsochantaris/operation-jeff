@@ -60,7 +60,6 @@ static void newRandomTargetType(void) {
         byte i = random16() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];
     } while(lastTargetType == targetType);
-    targetType = BONUS_MAGNET;
     lastTargetType = targetType;
 }
 
