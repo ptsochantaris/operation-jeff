@@ -160,7 +160,6 @@ static void endBombExplosion(struct bomb *restrict b) {
 
 void updateBombs(void) __z88dk_fastcall {
     if(bombLoop) {
-
         struct bomb **B = activeBombs;
         for(const struct bomb **E = activeBombs+activeBombCount; B != E; ++B) {
             struct bomb *b = *B;
@@ -193,20 +192,20 @@ void updateBombs(void) __z88dk_fastcall {
             }
         }
         bombLoop = 0;
-        return;
-    }
 
-    bombLoop++;
+    } else {
+        bombLoop = 1;
 
-    if(!mouseState.handled) {
-        mouseState.handled = 1;
-        fireIfPossible();
+        if(!mouseState.handled) {
+            mouseState.handled = 1;
+            fireIfPossible();
 
-    } else if(mouseState.ongoing) {
-        fireIfPossible();
+        } else if(mouseState.ongoing) {
+            fireIfPossible();
 
-    } else if(cooldown) {
-        --cooldown;
+        } else if(cooldown) {
+            --cooldown;
+        }
     }
 }
 
