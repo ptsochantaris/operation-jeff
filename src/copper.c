@@ -6,11 +6,6 @@ static void copperControl(byte code) __z88dk_fastcall {
     ZXN_NEXTREG(REG_COPPER_CONTROL_L, 0);
 }
 
-static void copperAddress(word address) __z88dk_fastcall {
-    ZXN_NEXTREGA(REG_COPPER_CONTROL_H, 0xC0 | (address >> 8));
-    ZXN_NEXTREGA(REG_COPPER_CONTROL_L, address & 0xFF);
-}
-
 static void stripe(byte colour, byte x, word y) __z88dk_callee {
     byte X = (x & 63) << 1;
     byte Y1 = y >> 15;

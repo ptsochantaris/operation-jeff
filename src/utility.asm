@@ -34,6 +34,17 @@ _random16:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+PUBLIC _copperAddress
+_copperAddress:
+    ld a, h
+    or $C0
+    nextreg	98, a ; REG_COPPER_CONTROL_H
+    ld a, l
+    nextreg	97, a ; REG_COPPER_CONTROL_L
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PUBLIC _writeNextReg
 _writeNextReg:
     pop hl ; return address
