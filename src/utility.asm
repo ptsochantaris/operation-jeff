@@ -43,6 +43,12 @@ _copperAddress:
     nextreg	97, a ; REG_COPPER_CONTROL_L
     ret
 
+PUBLIC _copperStop
+_copperStop:
+    nextreg	98, 0 ; REG_COPPER_CONTROL_H
+    nextreg	97, 0 ; REG_COPPER_CONTROL_L
+    ret
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _writeNextReg

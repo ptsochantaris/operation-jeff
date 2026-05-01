@@ -1,11 +1,5 @@
 #include "base.h"
 
-static void copperControl(byte code) __z88dk_fastcall {
-    // https://wiki.specnext.dev/Copper_Control_High_Byte
-    ZXN_NEXTREGA(REG_COPPER_CONTROL_H, code);
-    ZXN_NEXTREG(REG_COPPER_CONTROL_L, 0);
-}
-
 static void stripe(byte colour, byte x, word y) __z88dk_callee {
     byte X = (x & 63) << 1;
     byte Y1 = y >> 15;
@@ -69,12 +63,16 @@ void copperForeground(byte colour, byte effectType) __z88dk_callee {
 
     effect = effectType;
     foregroundColor = colour;
-    copperControl(0x00); // stop copper, set prog address to zero
+    copperStop();
     for(word y = 0; y < STRIPECOUNT; ++y) {
         copperAddress(3 + (y << 3));
         ZXN_NEXTREGA(REG_COPPER_DATA, colour);
     }
-    copperControl(0xC0); // start copper from index 0, loop at vblank
+    
+    // start copper from index 0, loop at vblank
+    ZXN_NEXTREGA(REG_COPPER_CONTROL_H, 0xC0); // https://wiki.specnext.dev/Copper_Control_High_Byte
+    ZXN_NEXTREG(REG_COPPER_CONTROL_L, 0);
+
     running = 1;
 }
 
@@ -85,7 +83,7 @@ void copperShutdown(void) __z88dk_fastcall {
     copperAddress(cycle);
     ZXN_NEXTREGA(REG_COPPER_DATA, 0);
 
-    copperControl(0x00); // stop copper, set prog address to zero
+    copperStop();
     
     foregroundColor = 0;
     cycle = 7;
@@ -96,7 +94,7 @@ void copperShutdown(void) __z88dk_fastcall {
 }
 
 void copperInit(void) __z88dk_fastcall {
-    copperControl(0x00); // stop copper, set prog address to zero
+    copperStop();
 
     ZXN_NEXTREG(0x64, 34); // offset copper by 34 pixels up from ULA zero
 
