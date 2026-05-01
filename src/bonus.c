@@ -17,7 +17,7 @@ extern word hollowMagnetTiles;
 extern word activeMagnetTiles;
 extern word tilesBase;
 
-static void setTileBase(word *categoryBase, int offset) __z88dk_callee {
+static void placeTile(word *categoryBase, int offset) __z88dk_callee {
     byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
     ZXN_WRITE_MMU3(11);
     *base = ((categoryBase - &tilesBase) >> 4) + offset;
@@ -25,7 +25,7 @@ static void setTileBase(word *categoryBase, int offset) __z88dk_callee {
 }
 
 void resetBonuses(void) __z88dk_fastcall {
-    setTileBase(&tilesBase, BONUS_NONE);
+    placeTile(&tilesBase, BONUS_NONE);
 
     targetType = BONUS_NONE;
     presentedType = BONUS_NONE;
@@ -69,7 +69,7 @@ void updateBonuses(void) __z88dk_fastcall {
 
         // time to add new bonus, if none exists
         if(targetType==BONUS_NONE) {
-            setTileBase(&tilesBase, 0); // in case a previous bonus is in the process of transitioning out
+            placeTile(&tilesBase, 0); // in case a previous bonus is in the process of transitioning out
             newRandomTargetType();
             currentX = 3 + random16() % 36;
             currentY = 3 + random16() % 28;
@@ -86,10 +86,10 @@ void updateBonuses(void) __z88dk_fastcall {
         if(currentStats.magnetLocation.z) {
             magnetActive += 1;
             if(magnetActive>(3<<2)) magnetActive = 1;
-            setTileBase(&activeMagnetTiles, magnetActive >> 2);
+            placeTile(&activeMagnetTiles, magnetActive >> 2);
             return;
         } else if (magnetActive) {
-            setTileBase(&tilesBase, 0);
+            placeTile(&tilesBase, 0);
             magnetActive = 0;
         }
 
@@ -127,7 +127,7 @@ void updateBonuses(void) __z88dk_fastcall {
 
     if(transition==24) {
         presentedType = targetType;
-        setTileBase(&tilesBase, targetType);
+        placeTile(&tilesBase, targetType);
         return;
     }
 
@@ -139,12 +139,12 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_SCORE:
                 case BONUS_HEALTH:
                 case BONUS_CHARGE:
-                    setTileBase(&hollowPlusTiles, transitionOffset);
+                    placeTile(&hollowPlusTiles, transitionOffset);
                     break;
 
                 case BONUS_SMARTBOMB:
                 case BONUS_ZAP:
-                    setTileBase(&hollowDiamondTiles, transitionOffset);
+                    placeTile(&hollowDiamondTiles, transitionOffset);
                     break;
 
                 case BONUS_FREEZE:
@@ -153,11 +153,11 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_INVUNERABLE:
                 case BONUS_RANGE:
                 case BONUS_RATE:
-                    setTileBase(&hollowSquareTiles, transitionOffset);
+                    placeTile(&hollowSquareTiles, transitionOffset);
                     break;
 
                 case BONUS_MAGNET:
-                    setTileBase(&hollowMagnetTiles, transitionOffset);
+                    placeTile(&hollowMagnetTiles, transitionOffset);
                     break;
 
                 default:
@@ -168,12 +168,12 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_SCORE:
         case BONUS_HEALTH:
         case BONUS_CHARGE:
-            setTileBase(&hollowDiamondTiles, -transitionOffset);
+            placeTile(&hollowDiamondTiles, -transitionOffset);
             break;
 
         case BONUS_SMARTBOMB:
         case BONUS_ZAP:
-            setTileBase(&hollowSquareTiles, -transitionOffset);
+            placeTile(&hollowSquareTiles, -transitionOffset);
             break;
 
         case BONUS_FREEZE:
@@ -182,11 +182,11 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_INVUNERABLE:
         case BONUS_RANGE:
         case BONUS_RATE:
-            setTileBase(&hollowMagnetTiles, -transitionOffset);
+            placeTile(&hollowMagnetTiles, -transitionOffset);
             break;
 
         case BONUS_MAGNET:
-            setTileBase(&activeMagnetTiles, -transitionOffset);
+            placeTile(&activeMagnetTiles, -transitionOffset);
             break;
 
         default:
