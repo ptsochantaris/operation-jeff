@@ -73,7 +73,7 @@ void menuMode(void) __z88dk_fastcall {
   ulaAttributeClear();
 
   // testing
-  // copperForeground(0x0F);
+  // copperForeground(0x27, 0x26, 0x25, 1);
 }
 
 byte menuLoop(void) __z88dk_fastcall {

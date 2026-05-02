@@ -38,11 +38,11 @@ static void hudScoreDraw(void) __z88dk_fastcall {
 
 static void hudBorderDraw(void) __z88dk_fastcall {
   if(displayedStats.invunerableCount) {
-    copperForeground(5, 1);
+    copperForeground(0x07, 0x05, 0x00, 1);
   } else if(displayedStats.damageFlash) {
-    copperForeground(0x40, 2);
+    copperForeground(0x40, 0xFC, 0x60, 2);
   } else if(displayedStats.umbrellaCountdown) {
-    copperForeground(0x41, 1);
+    copperForeground(0x8B, 0x62, 0x00, 1);
   } else {
     copperShutdown();
   }

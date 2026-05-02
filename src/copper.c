@@ -14,7 +14,9 @@ static void stripe(byte colour, byte x, word y) __z88dk_callee {
     ZXN_NEXTREGA(REG_COPPER_DATA, colour);
 }
 
-static byte foregroundColor = 0;
+static byte foreground1 = 0;
+static byte foreground2 = 0;
+static byte foreground3 = 0;
 static byte effect = 0;
 static byte running = 0;
 static word cycle = 7;
@@ -32,7 +34,6 @@ void copperCycle(void) __z88dk_fastcall {
     copperAddress(cycle);
     ZXN_NEXTREGA(REG_COPPER_DATA, 0);
 
-    byte color;
     switch(effect) {
         case 1:
             word lastCycle = ((STRIPECOUNT - 2) * 8 - 1);
@@ -41,32 +42,44 @@ void copperCycle(void) __z88dk_fastcall {
             } else if(cycle == 7) {
                 direction = 8;
             }
-            cycle += direction;
-            color = 0x92;
-            break;
-        case 2:
-            word c = random16() % (STRIPECOUNT-2);
-            cycle = (c * 8) - 1;
-            color = 0xFC + (random16() % 4);
-            break;
-    }
 
-    // new stripe
-    copperAddress(cycle);
-    ZXN_NEXTREGA(REG_COPPER_DATA, color);
+            // new stripes
+            cycle += direction;
+            copperAddress(cycle);
+            ZXN_NEXTREGA(REG_COPPER_DATA, foreground2);
+
+            copperAddress(cycle + direction);
+            ZXN_NEXTREGA(REG_COPPER_DATA, foreground1);
+
+            copperAddress(cycle + direction + direction);
+            ZXN_NEXTREGA(REG_COPPER_DATA, foreground2);
+            return;
+
+        case 2:
+            word c = random16() % (STRIPECOUNT - 2);
+            cycle = (c * 8) - 1;
+            byte color = foreground2 + (random16() % 4);
+            // new stripe
+            copperAddress(cycle);
+            ZXN_NEXTREGA(REG_COPPER_DATA, color);
+            return;
+    }
 }
 
-void copperForeground(byte colour, byte effectType) __z88dk_callee {
-    if(foregroundColor == colour) {
+void copperForeground(byte colour1, byte colour2, byte colour3, byte effectType) __z88dk_callee {
+    if(foreground1 == colour1 && foreground2 == colour2 && foreground3 == colour3) {
         return;
     }
 
     effect = effectType;
-    foregroundColor = colour;
+    foreground1 = colour1;
+    foreground2 = colour2;
+    foreground3 = colour3;
+    
     copperStop();
     for(word y = 0; y < STRIPECOUNT; ++y) {
         copperAddress(3 + (y << 3));
-        ZXN_NEXTREGA(REG_COPPER_DATA, colour);
+        ZXN_NEXTREGA(REG_COPPER_DATA, foreground3);
     }
     
     // start copper from index 0, loop at vblank
@@ -85,7 +98,9 @@ void copperShutdown(void) __z88dk_fastcall {
 
     copperStop();
     
-    foregroundColor = 0;
+    foreground1 = 0;
+    foreground2 = 0;
+    foreground3 = 0;
     cycle = 7;
     direction = 8;
     running = 0;
