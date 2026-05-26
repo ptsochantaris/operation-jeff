@@ -67,7 +67,7 @@ void copperCycle(void) __z88dk_fastcall {
 }
 
 void copperForeground(byte colour1, byte colour2, byte colour3, byte effectType) __z88dk_callee {
-    if(foreground1 == colour1 && foreground2 == colour2 && foreground3 == colour3) {
+    if(foreground1 == colour1 && foreground2 == colour2 && foreground3 == colour3 && effectType == effect) {
         return;
     }
 
@@ -77,8 +77,12 @@ void copperForeground(byte colour1, byte colour2, byte colour3, byte effectType)
     foreground3 = colour3;
     
     copperStop();
+
     for(word y = 0; y < STRIPECOUNT; ++y) {
-        copperAddress(3 + (y << 3));
+        word address = 3 + (y << 3);
+        copperAddress(address);
+        ZXN_NEXTREGA(REG_COPPER_DATA, foreground3);
+        copperAddress(address+4);
         ZXN_NEXTREGA(REG_COPPER_DATA, foreground3);
     }
     

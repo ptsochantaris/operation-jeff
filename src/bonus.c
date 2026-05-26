@@ -64,7 +64,7 @@ static void newRandomTargetType(void) {
 }
 
 void updateBonuses(void) __z88dk_fastcall {
-    if(++bonusLoop == bonusTime) {
+    if(!magnetActive && ++bonusLoop == bonusTime) {
         bonusLoop = 0;
 
         // time to add new bonus, if none exists
