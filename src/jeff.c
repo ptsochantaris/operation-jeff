@@ -60,7 +60,8 @@ static byte activeJeffCount = 0;
 
 static word logicLoop = 1;
 
-static byte heightMap[HEIGHTMAP_WIDTH * HEIGHTMAP_HEIGHT];
+// not static: _setJeffPos (jeffpos.asm) reads this directly
+byte heightMap[HEIGHTMAP_WIDTH * HEIGHTMAP_HEIGHT];
 
 #define DAMAGE_FLASH_DURATION 12
 
@@ -120,59 +121,8 @@ static void magnetJeff(struct jeff *restrict j) __z88dk_fastcall {
     }
 }
 
-static void setJeffPos(struct jeff *restrict j, byte direction) __z88dk_callee __smallc {
-    struct sprite_info *s = &(j->sprite);
-    byte vertical, horizontal;
-
-    switch(direction) {
-        case JEFF_UP:
-        --(s->pos.y);
-        vertical = 10;
-        horizontal = 8;
-        break;
-
-        case JEFF_DOWN:
-        ++(s->pos.y);
-        vertical = 18;
-        horizontal = 8;
-        break;
-
-        case JEFF_LEFT:
-        s->pos.x -= 2;
-        vertical = 14;
-        horizontal = 6;
-        break;
-
-        case JEFF_RIGHT:
-        s->pos.x += 2;
-        vertical = 14;
-        horizontal = 6;
-        break;
-    }
-
-    int lookupX = (s->pos.x + horizontal) >> 2;
-    int lookupY = (s->pos.y + vertical) >> 2;
-    int targetZ = *(heightMap + lookupX + lookupY * HEIGHTMAP_WIDTH);
-    int currentZ = s->pos.z;
-
-    if(currentZ == targetZ) {
-        return;
-    }
-
-    if(direction == 255) {
-        s->pos.z = targetZ;
-        return;
-    }
-
-    int diff = (targetZ - currentZ);
-    if(diff > 2) {
-        s->pos.z += 2;
-    } else if(diff < -2) {
-        s->pos.z -= 2;
-    } else {
-        s->pos.z = targetZ;
-    }
-}
+// implemented in jeffpos.asm
+void setJeffPos(struct jeff *restrict j, byte direction) __z88dk_callee __smallc;
 
 static void growJeff(struct jeff *restrict j) __z88dk_fastcall {
     j->state = JEFF_STATE_LANDING;

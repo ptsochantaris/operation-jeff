@@ -16,6 +16,7 @@ SRC=src
 
 OBJECTS = $(addprefix $(OBJDIR)/, \
 	jeff.o \
+	jeffpos.o \
 	screen.o \
 	bomb.o \
 	stars.o \
