@@ -249,9 +249,8 @@ static byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
         return 0;
     }
 
-    struct coord spos = j->sprite.pos;
-    int jx = spos.x;
-    int jy = spos.y - spos.z;
+    int jx = j->sprite.pos.x;
+    int jy = j->sprite.pos.y - j->sprite.pos.z;
     if(jy<0) jy = 0;
 
     const int *lookup = currentStats.extraRangeBombs ? &bombRadii2 : &bombRadii1;
@@ -261,28 +260,20 @@ static byte jeffCheckBombs(struct jeff *restrict j) __z88dk_fastcall {
         struct bomb *b = *B;
         const byte radiusIndex = b->sprite.pattern - BOMB_EXPLOSION_FIRST;
         const int radius = *(lookup+radiusIndex);
+        const word diameter = radius << 1;
 
-        int C = b->sprite.pos.x - radius;
-        if(jx < C) continue;
-        C += (radius << 1);
-        if(jx >= C) continue;
-        C = b->sprite.pos.y - radius - 4;
-        if(jy < C) continue;
-        C += (radius << 1);
-        if(jy >= C) continue;
+        // overlap on an axis is (lo <= v < lo+2r), i.e. unsigned (v - lo) < 2r,
+        // which folds each axis's two signed bounds checks into one unsigned compare
+        if((word)(jx - (b->sprite.pos.x - radius)) >= diameter) continue;
+        if((word)(jy - (b->sprite.pos.y - radius - 4)) >= diameter) continue;
 
         b->outcome |= BOMB_OUTCOME_JEFF_KILL;
         killJeff(j);
         effectExplosion();
 
-        C = b->sprite.pos.x - (BOMB_CLOSE>>1);
-        if(jx < C) return 1;
-        C += BOMB_CLOSE;
-        if(jx >= C) return 1;
-        C = b->sprite.pos.y - (BOMB_CLOSE>>1) - 4;
-        if(jy < C) return 1;
-        C += BOMB_CLOSE;
-        if(jy >= C) return 1;
+        // points only for a near-centre hit: same unsigned-range test, width BOMB_CLOSE
+        if((word)(jx - (b->sprite.pos.x - (BOMB_CLOSE>>1))) >= BOMB_CLOSE) return 1;
+        if((word)(jy - (b->sprite.pos.y - (BOMB_CLOSE>>1) - 4)) >= BOMB_CLOSE) return 1;
 
         status("+10 PTS");
         effectZap();
