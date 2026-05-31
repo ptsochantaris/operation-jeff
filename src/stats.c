@@ -123,7 +123,7 @@ void statsInitLevel(void) __z88dk_fastcall {
 }
 
 static byte energyLoop = 0;
-static byte healthLoop = 0;
+static word healthLoop = 0;
 
 byte processGameStats(void) __z88dk_fastcall {
     byte chargePoint = FIRE_RATE_MAX - currentStats.fireRate;
@@ -135,7 +135,7 @@ byte processGameStats(void) __z88dk_fastcall {
         }
     }
 
-    byte healthPoint = 80 + chargePoint * 20;
+    word healthPoint = 80 + chargePoint * 20;
     if(++healthLoop > healthPoint) {
         healthLoop = 0;
         if(currentStats.health < 255) {

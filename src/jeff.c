@@ -122,7 +122,7 @@ static void magnetJeff(struct jeff *restrict j) __z88dk_fastcall {
 
 static void setJeffPos(struct jeff *restrict j, byte direction) __z88dk_callee __smallc {
     struct sprite_info *s = &(j->sprite);
-    int vertical, horizontal;
+    byte vertical, horizontal;
 
     switch(direction) {
         case JEFF_UP:
@@ -526,7 +526,7 @@ void updateJeffs(void) __z88dk_fastcall {
         }
 
         if(currentStats.invunerableCount > 0) {
-            --currentStats.invunerableCount == 0;
+            --currentStats.invunerableCount;
         }
 
     } else {

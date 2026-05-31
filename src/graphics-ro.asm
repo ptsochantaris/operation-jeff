@@ -336,7 +336,7 @@ _zeroPalette:
     call _selectPalette ; index is in L, passed through to this
     
     xor a
-    ld b, $FF
+    ld b, 0 ; djnz treats 0 as 256, so all 256 palette entries are cleared
 .zeroPaletteLoop:
     nextreg 68, a ; REG_PALETTE_VALUE_16
     nextreg 68, a ; REG_PALETTE_VALUE_16
