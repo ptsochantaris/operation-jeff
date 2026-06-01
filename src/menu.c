@@ -73,7 +73,7 @@ void menuMode(void) __z88dk_fastcall {
   ulaAttributeClear();
 
   // testing
-  // copperForeground(0x27, 0x26, 0x25, 1);
+  // copperForeground(0x07, 0x05, 0x00, 1);
 }
 
 byte menuLoop(void) __z88dk_fastcall {
@@ -84,12 +84,12 @@ byte menuLoop(void) __z88dk_fastcall {
 
   byte loopCount = 0;
 
+  // testing
+  // copperCycle();
+
   while(1) {
     updateMouse();
     
-    // testing
-    // copperCycle();
-
     if(!mouseState.handled) {
       mouseState.handled = 1;
 

@@ -1,12 +1,15 @@
 #include "base.h"
 
-static void stripe(byte colour, byte x, word y) __z88dk_callee {
-    byte X = (x & 63) << 1;
-    byte Y1 = y >> 15;
-    byte Y2 = y & 0xFF;
+#define stripeX ((46 & 0x3F) << 1)
+
+static void stripe(byte colour, word y) __z88dk_callee {
+    // Set the colour up during the blanking of the line above `y`.
+    word waitY = y - 1;
+    byte Y1 = (waitY >> 8) & 1;
+    byte Y2 = waitY & 0xFF;
 
     // wait
-    ZXN_NEXTREGA(REG_COPPER_DATA, 0x80 | X | Y1);
+    ZXN_NEXTREGA(REG_COPPER_DATA, 0x80 | stripeX | Y1);
     ZXN_NEXTREGA(REG_COPPER_DATA, Y2);
 
     // move
@@ -119,8 +122,8 @@ void copperInit(void) __z88dk_fastcall {
 
     for(word y = 0; y < STRIPECOUNT; ++y) {
         word top = y*STRIPESIZE+22;
-        stripe(0, 0, top);
-        stripe(0, 0, top + (STRIPESIZE / 2));
+        stripe(0, top);
+        stripe(0, top + (STRIPESIZE / 2));
     }
 
     ZXN_NEXTREG(REG_COPPER_DATA, 0xFF);
