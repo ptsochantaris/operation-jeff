@@ -39,9 +39,14 @@ void copperCycle(void) __z88dk_fastcall {
 
     switch(effect) {
         case 1:
-            word lastCycle = ((STRIPECOUNT - 2) * 8 - 1);
+            word lastCycle = ((STRIPECOUNT - 3) * 8 - 1);
             if(cycle == lastCycle) {
                 direction = -8;
+                copperAddress(cycle+8);
+                ZXN_NEXTREGA(REG_COPPER_DATA, 0);
+                copperAddress(cycle+16);
+                ZXN_NEXTREGA(REG_COPPER_DATA, 0);
+
             } else if(cycle == 7) {
                 direction = 8;
             }
