@@ -52,7 +52,7 @@ void cycleGrayPalette(void) __z88dk_fastcall {
     writeNextReg(REG_PALETTE_VALUE_16, ulaPalette, gray_offset);
 }
 
-void resetGrayPalette(void) __z88dk_fastcall {
+static void resetGrayPalette(void) __z88dk_fastcall {
     selectPalette(0);
     ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
     ZXN_NEXTREG(REG_PALETTE_VALUE_16, 0);
@@ -62,7 +62,7 @@ void resetGrayPalette(void) __z88dk_fastcall {
 
 static byte statusCount = 0;
 
-void clearStatus(void) __z88dk_fastcall {
+static void clearStatus(void) __z88dk_fastcall {
     stackClear(ulaAttributes + 320, 160, 0);
 }
 

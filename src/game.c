@@ -71,7 +71,7 @@ static void pauseKeys(byte key) __z88dk_fastcall {
   status("GO");
 }
 
-void randomZap(void) {
+static void randomZap(void) {
   int r = currentStats.zapLocation.z;
   int d = r << 1;
 
@@ -107,7 +107,7 @@ void randomZap(void) {
   bombIfPossible(x, y);
 }
 
-void updateZap(void) __z88dk_fastcall {
+static void updateZap(void) __z88dk_fastcall {
   const int radius = currentStats.zapLocation.z;
   if(radius == 0) {
     return;

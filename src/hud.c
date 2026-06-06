@@ -79,7 +79,7 @@ static const byte hudPalette[] = {
 
 extern byte paletteBuffer[];
 
-void stashHudPalette(byte level) __z88dk_fastcall {
+static void stashHudPalette(byte level) __z88dk_fastcall {
   byte *data = paletteBuffer+(HUD_BLACK*2);
   for(byte index=0; index !=14; ++index, ++data) {
     *data = hudPalette[index];

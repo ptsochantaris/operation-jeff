@@ -6,7 +6,7 @@ byte inputDelay = 0;
 
 static byte shouldFadeTitle = 0;
 static const struct ScreenInfo titleInfo = SCREEN_ARRAY(title);
-void loadTitleScreen(void) __z88dk_fastcall {
+static void loadTitleScreen(void) __z88dk_fastcall {
   if(shouldFadeTitle) {
     fadePaletteDown(1, 1, 0);
   } else {
@@ -22,25 +22,16 @@ void loadTitleScreen(void) __z88dk_fastcall {
 }
 
 static const struct ScreenInfo infoInfo = SCREEN_ARRAY(info);
-void loadInfoScreen(void) __z88dk_fastcall {
+static void loadInfoScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 1, 0);
   loadScreen(infoInfo.screens);
   fadePaletteUp(&infoInfo.palette, 1);
 }
 
-void setupTitle(void) __z88dk_fastcall {
+static void setupTitle(void) __z88dk_fastcall {
   loadTitleScreen();
   setupTitleLeds();
   menuInfoMode = 0;
-
-  /* Benchmarking text printing */
-  /*
-  sprintf(textBuf, "THIS IS A LONG BIT OF TEXT, THAT *SHOULD* TAKE UP MOST OF THE SCREEN WIDTH");
-  for(byte c=0;c!=10;c++) {
-    for(int f=0;f<250;f+=8) {
-      printWithBackground(textBuf, 0, f, c, 0);
-    }
-  }*/
 
   word x = 160 - ((4*18) >> 1);
   sprintf(textBuf, "HIGH SCORE %07lu", highScores[0].score);
@@ -56,7 +47,7 @@ void setupTitle(void) __z88dk_fastcall {
   effectMenuLoop();
 }
 
-void setupInfo(void) __z88dk_fastcall {
+static void setupInfo(void) __z88dk_fastcall {
   stopDma();
   ayStopAllSound();
   ulaAttributeClear();
@@ -84,12 +75,12 @@ byte menuLoop(void) __z88dk_fastcall {
 
   byte loopCount = 0;
 
-  // testing
-  // copperCycle();
-
   while(1) {
     updateMouse();
-    
+
+    // testing
+    // copperCycle();
+
     if(!mouseState.handled) {
       mouseState.handled = 1;
 

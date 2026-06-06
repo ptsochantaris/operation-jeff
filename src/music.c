@@ -134,7 +134,7 @@ static const struct Note openingSong[] = {
 };
 
 static float time;
-const struct Note *nextNote;
+static const struct Note *nextNote;
 
 void playTitleSong(void) __z88dk_fastcall {
     time = 0;
@@ -159,8 +159,6 @@ void playTitleSong(void) __z88dk_fastcall {
         aySetMixer(c, 1, 0);
     }
 }
-
-char debugBuf[20];
 
 void updateTitleSong(void) __z88dk_fastcall {
     long start = nextNote->start;

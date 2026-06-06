@@ -2,10 +2,6 @@
 
 extern struct MouseState mouseState;
 
-void endMouse(void) __z88dk_fastcall {
-    hideSprite(127);
-}
-
 void mouseReset(void) __z88dk_fastcall {
     mouseState.handled = 1;
     mouseState.wheel = 0;
