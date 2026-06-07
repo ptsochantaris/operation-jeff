@@ -1,5 +1,7 @@
 #include "base.h"
 
+volatile byte sampleActive = 0;
+
 // C-side entry to the CTC sample player: page the sample's banks into the
 // MMU1/MMU2 window (Option A: audio owns those banks while playing) and kick
 // off the timer-driven streaming in ctc-rw.asm.

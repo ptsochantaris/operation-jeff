@@ -25,7 +25,6 @@ GLOBAL samplePtr, sampleStart, sampleEnd, sampleLoop, sampleTC, _sampleActive
 CTC_AUDIO_CHANNEL equ 0x183b
 COVOX_PORT        equ 0xffdf      ; SpecDrum/covox DAC (same port the DMA used)
 
-; void startSample(word source, word length, byte tc, byte loop) __z88dk_callee __smallc
 PUBLIC _startSample
 _startSample:
     pop hl                ; return address
@@ -64,7 +63,7 @@ _stopAudioTimer:
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; CTC channel 0 ISR (~16kHz): stream one PCM byte to the DAC, advance, loop or
+; CTC channel 0 ISR: stream one PCM byte to the DAC, advance, loop or
 ; stop at the end. Replaces what the DMA used to do, but off the DMA controller.
 ; Wired into IM2 vector slot 3 by _setupInterrupts (interrupts.asm).
 
