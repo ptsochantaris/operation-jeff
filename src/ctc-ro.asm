@@ -7,7 +7,7 @@ SECTION PAGE_28_POSTISR
 ; run with interrupts disabled and restore bank 28 before re-enabling them, so
 ; no CTC interrupt is ever serviced while this code is unmapped.
 ;
-; CTC channel 0 timer recipe (see interrupts.asm for the IM2 wiring):
+; CTC channel 0 timer recipe (see interrupts-ro.asm for the IM2 wiring):
 ; CTC clock is a constant 28 MHz (unaffected by NextReg 0x07 / turbo). Timer
 ; mode, /16 prescaler -> rate = 28e6 / 16 / TC. Channel 0 (port 0x183B),
 ; interrupt = NextReg 0xC5 bit0, IM2 vector slot 3. Matches em00k/playwav32.
@@ -65,7 +65,7 @@ _stopAudioTimer:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; CTC channel 0 ISR: stream one PCM byte to the DAC, advance, loop or
 ; stop at the end. Replaces what the DMA used to do, but off the DMA controller.
-; Wired into IM2 vector slot 3 by _setupInterrupts (interrupts.asm).
+; Wired into IM2 vector slot 3 by _setupInterrupts (interrupts-ro.asm).
 
 PUBLIC ctcAudioHandler
 ctcAudioHandler:

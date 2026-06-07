@@ -36,7 +36,7 @@ _mouseY: DW 127 ; pos(coord.y)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 GLOBAL joystickSpeedUp, joystickSpeedDown, joystickSpeedSlow, clampMouseX, clampMouseY
-GLOBAL frameFlag ; defined in interrupts.asm; bumped here each ULA frame
+GLOBAL frameFlag ; defined in interrupts-rw.asm; bumped here each ULA frame
 
 PUBLIC inputHandler
 inputHandler:

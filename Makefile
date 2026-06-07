@@ -53,7 +53,8 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	control-rw.o \
 	ctc-ro.o \
 	ctc-rw.o \
-	interrupts.o \
+	interrupts-ro.o \
+	interrupts-rw.o \
 	utility.o \
 	audio.o \
 )

@@ -3,7 +3,7 @@ SECTION PAGE_28_POSTISR
 GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
 GLOBAL layer2CharSlow, layer2CharFast, selectLayer2PageInternal
 GLOBAL layer2PlotSliceSlowInk, layer2PlotSliceFastInk, selectPageForXInDeAndSetupH, layer2CharSideways, layer2PlotSliceSidewaysInk
-GLOBAL waitFrame
+GLOBAL _waitFrame
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -91,7 +91,7 @@ _setPaletteCeiling:
     call setPaletteCommit
     djnz setPaletteCeilingLoop
 
-    call waitFrame
+    call _waitFrame
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -153,7 +153,7 @@ _setPaletteFloor:
     call setPaletteCommit
     djnz setPaletteFloorLoop
 
-    call waitFrame
+    call _waitFrame
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -438,7 +438,7 @@ GLOBAL mouseSprite
 
 PUBLIC _updateMouse
 _updateMouse:
-    call waitFrame      ; wait for the ULA frame (CTC-safe), then update sprite
+    call _waitFrame      ; wait for the ULA frame (CTC-safe), then update sprite
     ld hl, mouseSprite
     ; fallthrough to _updateSprite
 

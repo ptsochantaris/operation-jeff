@@ -11,7 +11,7 @@ int main(void) {
   loadSprites();
   initStats();
 
-  setupInterrupts(); // switch from legacy IM1 to hardware IM2 (ULA only for now)
+  setupInterrupts(); // switch from legacy IM1 to hardware IM2 (ULA frame + CTC audio)
   intrinsic_ei();
 
   while(1) {
