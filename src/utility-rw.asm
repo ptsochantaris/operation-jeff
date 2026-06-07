@@ -1,5 +1,10 @@
 SECTION code_compiler
 
+; Always-mapped half of the utility module: the text buffer plus the helpers
+; that rely on self-modifying code (random16 stashes its seed in its own
+; operand; writeNextReg and stackClear patch their inner loops), so they must
+; live in writable RAM. The pure copper helpers live in utility-ro.asm (bank 28).
+
 PUBLIC _textBuf
 _textBuf: DS 100
 
@@ -34,30 +39,13 @@ _random16:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _copperAddress
-_copperAddress:
-    ld a, h
-    or $C0
-    nextreg	98, a ; REG_COPPER_CONTROL_H
-    ld a, l
-    nextreg	97, a ; REG_COPPER_CONTROL_L
-    ret
-
-PUBLIC _copperStop
-_copperStop:
-    nextreg	98, 0 ; REG_COPPER_CONTROL_H
-    nextreg	97, 0 ; REG_COPPER_CONTROL_L
-    ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 PUBLIC _writeNextReg
 _writeNextReg:
     pop hl ; return address
-    
+
     pop bc ; len in c
     ld b, c ; will use b to loop for length
-    
+
     pop de ; pointer
 
     ex (sp), hl ; register in l, return address back on stack

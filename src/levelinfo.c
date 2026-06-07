@@ -4,7 +4,7 @@
 //      jeffBright           jeffDark             fontDark           killsRequired screens+palette.      heightmapAsset,      endOfLevelScreen+palette
 //                                                                        difficultyStep
 //                                                                             initialGenerationPeriod
-struct LevelInfo levelInfo[] = {
+const struct LevelInfo levelInfo[] = {
     { { COLOR9(7, 1, 1) }, { COLOR9(3, 1, 1) }, { COLOR9(7, 7, 7) },  40, 150, 90, SCREEN_ARRAY(levelA), R_heightmapA_hm_zx0, SCREEN_ARRAY(levelCompleteA) }, // 1
     { { COLOR9(7, 7, 7) }, { COLOR9(5, 5, 5) }, { COLOR9(2, 2, 2) },  45, 150, 86, SCREEN_ARRAY(levelO), R_heightmapO_hm_zx0, SCREEN_ARRAY(levelCompleteO) }, // 2
     { { COLOR9(4, 7, 4) }, { COLOR9(0, 6, 0) }, { COLOR9(7, 7, 7) },  50, 150, 82, SCREEN_ARRAY(levelB), R_heightmapB_hm_zx0, SCREEN_ARRAY(levelCompleteB) }, // 3

@@ -41,6 +41,6 @@ typedef struct LevelInfo {
     struct ScreenInfo endOfLevel;
 };
 
-extern struct LevelInfo levelInfo[];
+extern const struct LevelInfo levelInfo[];
 
 #endif
