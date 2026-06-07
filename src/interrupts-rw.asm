@@ -12,17 +12,6 @@ PUBLIC frameFlag
 frameFlag: DB 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; im2buf - 512-byte buffer holding the live IM2 vector table. _setupInterrupts
-; copies the template onto a genuine 256-byte boundary inside it at runtime (low
-; byte forced to 0), so the IM2 base is simply I<<8 with NextReg 0xC0 bits 7-5
-; = 0. The hardware reads this table on EVERY interrupt, so it must never be
-; paged out - hence it lives here in code_compiler, not bank 28.
-
-PUBLIC im2buf
-im2buf:
-    defs 512
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Disable interrupts for a critical section (e.g. esxdos calls page ROM over
 ; bank 28, which the ULA ISR calls into). Returns the prior IFF state so it can
 ; be restored without clobbering boot-time (interrupts-off) callers. Kept in the
