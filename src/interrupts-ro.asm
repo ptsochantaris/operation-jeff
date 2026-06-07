@@ -36,4 +36,5 @@ _setupInterrupts:
     nextreg 0xCD, 0
     nextreg 0xCE, 0
     im 2
+    ei
     ret
