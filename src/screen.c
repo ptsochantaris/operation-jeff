@@ -4,7 +4,7 @@
 const byte clipBytes[] = {0,159,0,255};
 
 /*
-void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
+void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee {
   if(width<=0) return;
   if(height<=0) return;
 
@@ -34,7 +34,7 @@ void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_
 }
 */
 
-void layer2box(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
+void layer2box(word x, word y, word width, word height, byte color) __z88dk_callee {
   word ey = y + height;
   layer2HorizonalLine(x, y, width, color);
   layer2HorizonalLine(x, ey, width, color);
@@ -43,7 +43,7 @@ void layer2box(word x, word y, word width, word height, byte color) __z88dk_call
   layer2VerticalLine(x + width, y, ey, color);
 }
 
-void layer2roundedBox(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
+void layer2roundedBox(word x, word y, word width, word height, byte color) __z88dk_callee {
   word ey = y + height;
   layer2VerticalLine(x, y+1, ey, color);
   layer2VerticalLine(x+width, y+1, ey, color);
@@ -97,7 +97,7 @@ void flashPaletteDown(void) __z88dk_fastcall {
   }
 }
 
-void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette) __z88dk_callee __smallc {
+void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette) __z88dk_callee {
   stashPalette(paletteMask);
 
   for(byte shift=8; shift > 0; --shift) {
@@ -121,13 +121,13 @@ void fadeExistingPaletteUp(void) __z88dk_fastcall {
   }
 }
 
-void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, byte paletteMask) __z88dk_callee __smallc {
+void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, byte paletteMask) __z88dk_callee {
   selectPalette(paletteMask);
   loadPaletteBuffer(compressedPalette);
   fadeExistingPaletteUp();
 }
 
-void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte palette) __z88dk_callee __smallc {
+void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word numBytes, byte palette) __z88dk_callee {
   selectPalette(palette);
   loadPaletteBuffer(compressedPalette);
   
@@ -139,7 +139,7 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void loadScreen(const struct ResourceInfo *restrict slice) __z88dk_callee __smallc {
+void loadScreen(const struct ResourceInfo *restrict slice) __z88dk_fastcall {
   for(byte page=18; page!=28; ++page, ++slice) {
     ZXN_WRITE_MMU2(page);
     ZXN_WRITE_MMU1(slice->page);
@@ -204,7 +204,7 @@ static const byte *corners[] = {
   corner8px
 };
 
-void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) __z88dk_callee __smallc {
+void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) __z88dk_callee {
   const byte *widths = corners[radius-1];
   word mid = x + radius;
   word ey = y + (radius << 1);
@@ -221,7 +221,7 @@ void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBott
   layer2HorizonalLine(x, Y, radius << 1, (Y>dividerY) ? colorBottom : colorTop);
 }
 
-void printWithBackground(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee __smallc {
+void printWithBackground(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee {
   layer2fill(x, y, strlen(text) * 4 - 1, 5, bgColor);
   print(text, x, y, textColor);
 }

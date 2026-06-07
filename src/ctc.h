@@ -11,7 +11,7 @@
 struct ResourceInfo; // defined in assets.h; only used here by pointer
 
 // Page in the sample's MMU1/MMU2 banks and start CTC-driven playback.
-void playSample(struct ResourceInfo *restrict info, byte tc, byte loop) __z88dk_callee __smallc;
+void playSample(struct ResourceInfo *restrict info, byte tc, byte loop) __z88dk_callee;
 
 // Low-level CTC sample player (ctc-rw.asm).
 void startSample(word source, word length, byte tc, byte loop) __z88dk_callee __smallc; // tc = 28MHz/16/rate
