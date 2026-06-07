@@ -72,7 +72,7 @@ byte menuLoop(void) __z88dk_fastcall {
 
   byte loopCount = 0;
 
-  // copperEffectCloud(SHIELD_CLOUD);
+  // copperEffectCloud(SLOW_CLOUD);
 
   while(1) {
     updateMouse();

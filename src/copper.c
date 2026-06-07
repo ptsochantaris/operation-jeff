@@ -2,6 +2,10 @@
 
 #define stripeX ((46 & 0x3F) << 1)
 
+static byte copperImage[1200];
+
+// --------------------------------------------------------------- Flash
+
 static void stripe(byte colour, word y) __z88dk_callee {
     // Set the colour up during the blanking of the line above `y`.
     word waitY = y - 1;
@@ -53,18 +57,19 @@ static void flashCycle(void) {
     ZXN_NEXTREGA(REG_COPPER_DATA, color);
 }
 
-// ---------------------------------------------------------------------------
-// Plasma / cloud background effect (phase 1: standalone test harness)
-//
-// Full-height horizontal bands: one change to the global fallback colour
-// (reg 0x4A) per scanline, giving a solid colour across the whole width that
-// varies (and animates) down the screen. The colour comes from a 1D summed-sine
-// plasma each frame, and the whole program is streamed into copper memory via
-// DMA at frame start - the same pattern uploadPalette() uses for the palette
-// nextreg (screen.c).
-//
-// Driven through the effect controller at the bottom of this file.
-// ---------------------------------------------------------------------------
+static void uploadCopperImage(word len) {
+    copperAddress(0);
+    z80_outp(0x243b, REG_COPPER_DATA);
+    if (copperDmaResident) {
+        z80_outp(0x6b, 0xcf); // R6 LOAD  - reload the resident transfer's counters
+        z80_outp(0x6b, 0x87); // R6 ENABLE - re-run it
+    } else {
+        dmaMemoryToPort(copperImage, 0x253b, len); // full setup (clears the flag)...
+        copperDmaResident = 1;                      // ...now resident
+    }
+}
+
+// --------------------------------------------------------------- Plasma
 
 #define PLASMA_TOP_LINE   1     // first raster line of the effect region
 #define PLASMA_LINES      288    // full-height bands (one transition each)
@@ -81,49 +86,6 @@ static void flashCycle(void) {
 #define PLASMA_BUFFER_LEN  ((PLASMA_LINES + 2) * 4 + 2)
 #define PLASMA_FIRST_COLOUR 7    // first band colour slot (after the leading black transition)
 
-// Fire drives the artwork's border palette entry (HUD_MASK) instead of the
-// transparency fallback, so the flames render on the opaque border pixels inside the
-// image - no overscan, and the horizontal shape is defined by the artwork. Each band
-// is WAIT + MOVE index + MOVE value = 6 bytes; the index is re-set every line so the
-// palette auto-increment can stay enabled (no global side effect on other uploads).
-#define FIRE_BAND_BYTES    6
-#define FIRE_FIRST_COLOUR  5     // value byte within the first band
-#define FIRE_BAND_HEIGHT   2     // scanlines per fire band (vertical resolution)
-#define FIRE_TOP_LINE      1     // first raster line of the fire
-#define FIRE_LINES         288   // cover the layer 2 area only (no hardware border)
-#define FIRE_BANDS         (FIRE_LINES / FIRE_BAND_HEIGHT)
-#define FIRE_BUFFER_LEN    (FIRE_BANDS * FIRE_BAND_BYTES + 2)
-
-static byte copperImage[PLASMA_BUFFER_LEN]; // cloud layout is the larger of the two
-static byte plasmaPalette[PLASMA_PAL_SIZE];
-
-// precomputed (sin(i * 2pi/256) + 1) * 15.5, range 0..31 (was built at boot)
-static const byte sineTab[256] = {
-    15, 15, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 19, 20, 20, 21,
-    21, 21, 22, 22, 22, 23, 23, 23, 24, 24, 24, 25, 25, 25, 25, 26,
-    26, 26, 26, 27, 27, 27, 27, 28, 28, 28, 28, 28, 29, 29, 29, 29,
-    29, 29, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
-    31, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 29,
-    29, 29, 29, 29, 29, 28, 28, 28, 28, 28, 27, 27, 27, 27, 26, 26,
-    26, 26, 25, 25, 25, 25, 24, 24, 24, 23, 23, 23, 22, 22, 22, 21,
-    21, 21, 20, 20, 19, 19, 19, 18, 18, 18, 17, 17, 17, 16, 16, 15,
-    15, 15, 14, 14, 13, 13, 13, 12, 12, 12, 11, 11, 11, 10, 10,  9,
-     9,  9,  8,  8,  8,  7,  7,  7,  6,  6,  6,  5,  5,  5,  5,  4,
-     4,  4,  4,  3,  3,  3,  3,  2,  2,  2,  2,  2,  1,  1,  1,  1,
-     1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,
-     1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  3,  3,  3,  3,  4,  4,
-     4,  4,  5,  5,  5,  5,  6,  6,  6,  7,  7,  7,  8,  8,  8,  9,
-     9,  9, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 15,
-};
-static byte plasmaTimeA = 0;
-static byte plasmaTimeB = 0;
-
-// fire variant: same band pipeline, different per-line colour source
-static byte firePalette[PLASMA_PAL_SIZE];
-static byte fireBuf[FIRE_BANDS];
-
-#define FIRE_SEED_ROWS 2   // bottom bands reseeded hot each frame (~4px base at 2px/band)
 
 static byte lerpChannel(byte from, byte to, byte t, byte tmax) {
     return (byte)((int)from + (((int)to - (int)from) * (int)t) / (int)tmax);
@@ -136,6 +98,8 @@ static byte lerpColour(byte from, byte to, byte t, byte tmax) {
     byte b = lerpChannel(from & 3, to & 3, t, tmax);
     return RGB332(r, g, b);
 }
+
+static byte plasmaPalette[PLASMA_PAL_SIZE];
 
 // Build the 64-entry cloud palette by interpolating low -> mid across the lower
 // half and mid -> high across the upper half. Anchors are 8-bit RRRGGGBB; pass
@@ -179,31 +143,33 @@ static void buildPlasmaSkeleton(void) {
     copperDmaResident = 0; // layout/length changed -> force a full re-prime next upload
 }
 
-// Stream the program into copper memory (write index 0, copper running). The
-// source/length/dest never change frame to frame, so once the DMA controller
-// holds this transfer we just re-LOAD+ENABLE it (it re-reads the in-place updated
-// copperImage) instead of re-sending the whole 16-byte header. Any other DMA op
-// clears copperDmaResident (outLoop16), forcing a full re-prime next time.
-static void uploadCopperImage(word len) {
-    copperAddress(0);
-    z80_outp(0x243b, REG_COPPER_DATA);
-    if (copperDmaResident) {
-        z80_outp(0x6b, 0xcf); // R6 LOAD  - reload the resident transfer's counters
-        z80_outp(0x6b, 0x87); // R6 ENABLE - re-run it
-    } else {
-        dmaMemoryToPort(copperImage, 0x253b, len); // full setup (clears the flag)...
-        copperDmaResident = 1;                      // ...now resident
-    }
-}
+// precomputed (sin(i * 2pi/256) + 1) * 15.5, range 0..31 (was built at boot)
+static const byte sineTab[256] = {
+    15, 15, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 19, 20, 20, 21,
+    21, 21, 22, 22, 22, 23, 23, 23, 24, 24, 24, 25, 25, 25, 25, 26,
+    26, 26, 26, 27, 27, 27, 27, 28, 28, 28, 28, 28, 29, 29, 29, 29,
+    29, 29, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+    31, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 29,
+    29, 29, 29, 29, 29, 28, 28, 28, 28, 28, 27, 27, 27, 27, 26, 26,
+    26, 26, 25, 25, 25, 25, 24, 24, 24, 23, 23, 23, 22, 22, 22, 21,
+    21, 21, 20, 20, 19, 19, 19, 18, 18, 18, 17, 17, 17, 16, 16, 15,
+    15, 15, 14, 14, 13, 13, 13, 12, 12, 12, 11, 11, 11, 10, 10,  9,
+     9,  9,  8,  8,  8,  7,  7,  7,  6,  6,  6,  5,  5,  5,  5,  4,
+     4,  4,  4,  3,  3,  3,  3,  2,  2,  2,  2,  2,  1,  1,  1,  1,
+     1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,
+     1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  3,  3,  3,  3,  4,  4,
+     4,  4,  5,  5,  5,  5,  6,  6,  6,  7,  7,  7,  8,  8,  8,  9,
+     9,  9, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 15,
+};
+
+static byte plasmaTimeA = 0;
+static byte plasmaTimeB = 0;
 
 static void copperPlasmaUpdate(void) {
     plasmaTimeA += 1;
     plasmaTimeB += 3;
 
-    // plasma() inlined: the two sine indices are gy*GY_A+timeA and gy*GY_B-timeB.
-    // gy increments by 1 each band, so strength-reduce the multiplies to running
-    // byte accumulators (they wrap mod 256 exactly as (byte)(gy*k) did). This also
-    // drops the per-band call + ix-frame overhead that dominated this loop.
     byte ia = plasmaTimeA;          // gy*GY_A + timeA, gy = 0
     byte ib = (byte)(-plasmaTimeB); // gy*GY_B - timeB, gy = 0
 
@@ -218,11 +184,25 @@ static void copperPlasmaUpdate(void) {
     uploadCopperImage(PLASMA_BUFFER_LEN);
 }
 
-// ---------------------------------------------------------------------------
-// Fire variant - same full-height band pipeline, driven by a 1D fire sim.
-// Heat is seeded at the bottom (high line index) each frame and propagates
-// upward; the result reads as flames rising up the screen.
-// ---------------------------------------------------------------------------
+// --------------------------------------------------------------- Fire
+
+// Fire drives the artwork's border palette entry (HUD_MASK) instead of the
+// transparency fallback, so the flames render on the opaque border pixels inside the
+// image - no overscan, and the horizontal shape is defined by the artwork. Each band
+// is WAIT + MOVE index + MOVE value = 6 bytes; the index is re-set every line so the
+// palette auto-increment can stay enabled (no global side effect on other uploads).
+#define FIRE_BAND_BYTES    6
+#define FIRE_FIRST_COLOUR  5     // value byte within the first band
+#define FIRE_BAND_HEIGHT   2     // scanlines per fire band (vertical resolution)
+#define FIRE_TOP_LINE      1     // first raster line of the fire
+#define FIRE_LINES         288   // cover the layer 2 area only (no hardware border)
+#define FIRE_BANDS         (FIRE_LINES / FIRE_BAND_HEIGHT)
+#define FIRE_BUFFER_LEN    (FIRE_BANDS * FIRE_BAND_BYTES + 2)
+#define FIRE_SEED_ROWS      2   // bottom bands reseeded hot each frame (~4px base at 2px/band)
+
+// fire variant: same band pipeline, different per-line colour source
+static byte firePalette[PLASMA_PAL_SIZE];
+static byte fireBuf[FIRE_BANDS];
 
 static void buildFirePalette(void) {
     // Black -> red -> orange -> yellow -> white (RRRGGGBB). Tunable.
@@ -234,10 +214,6 @@ static void buildFirePalette(void) {
     }
 }
 
-// Heat is stored in the full 0..255 range and mapped to the 64-entry palette via
-// (heat >> 2). This decouples the per-row cooling amount from the palette
-// resolution, so gentle cooling can span the whole screen and flames can reach
-// the top (heat 0..255 / ~0.5 cooling per row covers far more than 64 rows).
 static void fireStep(void) {
     // reseed the bottom rows hot, with a wide range (128..255) so flame heights vary:
     // the hottest seeds climb to the top, weaker ones fade around mid-screen
@@ -261,9 +237,6 @@ static void fireStep(void) {
     }
 }
 
-// Fire skeleton: one band every FIRE_BAND_HEIGHT scanlines that points the palette
-// index at the artwork's border slot and sets its colour (filled per frame). The value
-// persists for the band's height, so each WAIT + two MOVEs covers multiple lines.
 static void buildFireSkeleton(void) {
     byte *p = copperImage;
     for (word i = 0; i < FIRE_BANDS; ++i) {
@@ -293,11 +266,7 @@ static void copperFireUpdate(void) {
     uploadCopperImage(FIRE_BUFFER_LEN);
 }
 
-// ---------------------------------------------------------------------------
-// Background effect controller. Owns the copper: one effect active at a time,
-// and each activation rebuilds the copper program it needs (cloud/fire stream a
-// band program via DMA; the flash uses its own stripe skeleton).
-// ---------------------------------------------------------------------------
+// --------------------------------------------------------------- Public functions
 
 #define FX_NONE  0
 #define FX_CLOUD 1
