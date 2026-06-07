@@ -13,4 +13,6 @@ void dmaWaitForEnd(void) __preserves_regs(b,c,d,e,h,l,iyl,iyh) __z88dk_fastcall;
 void dmaResetStatus(void) __preserves_regs(b,c,d,e,h,l,iyl,iyh) __z88dk_fastcall;
 void stopDma(void) __preserves_regs(b,c,d,e,h,l,iyl,iyh) __z88dk_fastcall;
 
+extern volatile byte copperDmaResident; // 1 = controller still holds the copper transfer
+
 #endif

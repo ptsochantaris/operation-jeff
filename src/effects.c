@@ -1,29 +1,34 @@
 #include "base.h"
 
-static void playSample(struct ResourceInfo *restrict info, byte speed, byte loop) __z88dk_callee __smallc {
+// CTC time constants (28MHz/16/TC) per effect, matching the old per-sample DMA
+// prescalers: zap/siren were 0x74, sting was 0x3A (half = double rate), menu 109.
+#define SAMPLE_TC_8K  219  // ~8kHz  (zap, siren, menu loop)
+#define SAMPLE_TC_16K 110  // ~16kHz (sting)
+
+static void playSample(struct ResourceInfo *restrict info, byte tc, byte loop) __z88dk_callee __smallc {
   ZXN_WRITE_MMU1(info->page);
   ZXN_WRITE_MMU2((info->page)+1);
-  playWithDma((word)info->resource, info->length, speed, loop);
+  startSample((word)info->resource, info->length, tc, loop);
 }
 
 static const struct ResourceInfo zapEffect = R_zzzap_pcm;
 void effectZap(void) __z88dk_fastcall {
-  playSample(&zapEffect, 0x74, 0);
+  playSample(&zapEffect, SAMPLE_TC_8K, 0);
 }
 
 static const struct ResourceInfo sirenEffect = R_siren_pcm;
 void effectSiren(void) __z88dk_fastcall {
-  playSample(&sirenEffect, 0x74, 0);
+  playSample(&sirenEffect, SAMPLE_TC_8K, 0);
 }
 
 static const struct ResourceInfo stingEffect = R_sting_pcm;
 void effectSting(void) __z88dk_fastcall {
-  playSample(&stingEffect, 0x3A, 0);
+  playSample(&stingEffect, SAMPLE_TC_16K, 0);
 }
 
 static const struct ResourceInfo menuLoopEffect = R_menu_pcm;
 void effectMenuLoop(void) __z88dk_fastcall {
-  playSample(&menuLoopEffect, 109, 1);
+  playSample(&menuLoopEffect, SAMPLE_TC_8K, 1);
 
   for(byte chip=0; chip != 3; ++chip) {
     ayChipSelect(chip);

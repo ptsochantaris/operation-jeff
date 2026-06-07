@@ -86,8 +86,8 @@ void fadeToWhite(void) __z88dk_fastcall {
   stashPalette(1);
   for(byte shift=0; shift < 7; ++shift) {
     setPaletteFloor(nonHudPaletteColourCount, shift);
-    intrinsic_halt();
-    intrinsic_halt();
+    waitFrame();
+    waitFrame();
   }
 }
 
@@ -109,7 +109,7 @@ void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette)
     }
 
     for(byte i=0; i!=framesPerFade; ++i) {
-      intrinsic_halt();
+      waitFrame();
     }
   }
 }
@@ -117,7 +117,7 @@ void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette)
 void fadeExistingPaletteUp(void) __z88dk_fastcall {
   for(byte shift=0; shift != 8; ++shift) {
     setPaletteCeiling(256, shift);
-    intrinsic_halt(); // extra delay
+    waitFrame(); // extra delay
   }
 }
 

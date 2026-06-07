@@ -83,13 +83,12 @@ static void displayStats(word top, word x, byte oldLevel, word color, byte twoCo
 
 static void wait(byte time) __z88dk_fastcall {
   for(byte f=0;f!=time;f++) {
-    intrinsic_halt();
+    waitFrame();
   }
 }
 
 static void endOfLevelSequence(const struct LevelInfo *levelInfo) {
-  stopDma();
-  dmaResetStatus(); // so we can track playback below
+  stopAudioTimer();
   effectSting();
   status("CLEAR");
 
@@ -106,7 +105,7 @@ static void endOfLevelSequence(const struct LevelInfo *levelInfo) {
   persistHighestLevel();
   menuMode();
 
-  dmaWaitForEnd(); // waiting here for sample end
+  while(sampleActive) waitFrame(); // let the sting finish before reusing the sample banks
   bombsRestoreFromFlash();
 
   loadScreen(&(levelInfo->endOfLevel.screens));

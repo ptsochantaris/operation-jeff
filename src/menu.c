@@ -48,7 +48,7 @@ static void setupTitle(void) __z88dk_fastcall {
 }
 
 static void setupInfo(void) __z88dk_fastcall {
-  stopDma();
+  stopAudioTimer();
   ayStopAllSound();
   ulaAttributeClear();
   loadInfoScreen();
@@ -65,7 +65,7 @@ void menuMode(void) __z88dk_fastcall {
 }
 
 byte menuLoop(void) __z88dk_fastcall {
-  stopDma();
+  stopAudioTimer();
   menuMode();
   status(NULL);
   setupTitle();
@@ -86,7 +86,7 @@ byte menuLoop(void) __z88dk_fastcall {
         setupTitle();
 
       } else {
-        stopDma();
+        stopAudioTimer();
         return 0;
       }
     }
@@ -114,7 +114,7 @@ byte menuLoop(void) __z88dk_fastcall {
         if(menuInfoMode) {
           setupTitle();
         } else {
-          stopDma();
+          stopAudioTimer();
           return currentStats.highestLevel;
         }
       }

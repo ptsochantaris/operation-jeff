@@ -38,7 +38,7 @@ void gameOverLoop(void) __z88dk_fastcall {
   resetBonuses();
   menuMode();
   status(NULL);
-  stopDma();
+  stopAudioTimer();
   ayStopAllSound();
   gameOverEffect();
   persistHighestLevel();

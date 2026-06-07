@@ -175,13 +175,25 @@ static void buildPlasmaSkeleton(void) {
     // halt until the copper is reset at the next frame edge
     p[0] = 0xFF;
     p[1] = 0xFF;
+
+    copperDmaResident = 0; // layout/length changed -> force a full re-prime next upload
 }
 
-// stream the whole program into copper memory (write index 0, copper running)
+// Stream the program into copper memory (write index 0, copper running). The
+// source/length/dest never change frame to frame, so once the DMA controller
+// holds this transfer we just re-LOAD+ENABLE it (it re-reads the in-place updated
+// copperImage) instead of re-sending the whole 16-byte header. Any other DMA op
+// clears copperDmaResident (outLoop16), forcing a full re-prime next time.
 static void uploadCopperImage(word len) {
     copperAddress(0);
     z80_outp(0x243b, REG_COPPER_DATA);
-    dmaMemoryToPort(copperImage, 0x253b, len);
+    if (copperDmaResident) {
+        z80_outp(0x6b, 0xcf); // R6 LOAD  - reload the resident transfer's counters
+        z80_outp(0x6b, 0x87); // R6 ENABLE - re-run it
+    } else {
+        dmaMemoryToPort(copperImage, 0x253b, len); // full setup (clears the flag)...
+        copperDmaResident = 1;                      // ...now resident
+    }
 }
 
 static void copperPlasmaUpdate(void) {
@@ -266,6 +278,8 @@ static void buildFireSkeleton(void) {
     }
     p[0] = 0xFF;
     p[1] = 0xFF; // halt until the copper resets at the next frame edge
+
+    copperDmaResident = 0; // layout/length changed -> force a full re-prime next upload
 }
 
 static void copperFireUpdate(void) {

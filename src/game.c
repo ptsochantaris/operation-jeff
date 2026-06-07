@@ -7,7 +7,7 @@ static void nextLevel(byte gameStart) __z88dk_fastcall {
 
   resetBonuses();
   statsProgressLevel();
-  stopDma(); // stop any potential sample, as level loading will use the same buffers
+  stopAudioTimer(); // stop any potential sample, as level loading will use the same buffers
 
   if(!gameStart) {
     endOfLeveLoop(previousLevel);

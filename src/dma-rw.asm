@@ -30,23 +30,30 @@ dmaDestination:     DW 0        ; destination post/address
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; stream payload (i.e. audio) - 10 bytes
 
-PUBLIC dmaAudioBuf, dmaPrescalar
+; PUBLIC dmaAudioBuf, dmaPrescalar
 
-dmaAudioBuf:        DB $54      ; 0101 0100 ; R1 increment, from memory
-                    DB $02      ; 0000 0010 ; no prescalar, 2t cycle
-                    DB $68      ; 0110 1000 ; R2 do not increment, to port
-                    DB $22      ; 0010 0010 ; want prescalar, use 2t cycle
-dmaPrescalar:       DB $37      ; $37 is supposed to be ~16 Khz prescalar, but isn't
-                    DB $cd      ; 1100 1101 ; R4 burst mode, dest value follows
-                    DB $df      ; Dest covox port H
-                    DB $ff      ; Dest covox port L
-                    DB $cf      ; R6 load
-                    DB $87      ; R6 enable DMA
+; dmaAudioBuf:        DB $54      ; 0101 0100 ; R1 increment, from memory
+;                     DB $02      ; 0000 0010 ; no prescalar, 2t cycle
+;                     DB $68      ; 0110 1000 ; R2 do not increment, to port
+;                     DB $22      ; 0010 0010 ; want prescalar, use 2t cycle
+; dmaPrescalar:       DB $37      ; $37 is supposed to be ~16 Khz prescalar, but isn't
+;                     DB $cd      ; 1100 1101 ; R4 burst mode, dest value follows
+;                     DB $df      ; Dest covox port H
+;                     DB $ff      ; Dest covox port L
+;                     DB $cf      ; R6 load
+;                     DB $87      ; R6 enable DMA
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC dmaFillValue
 dmaFillValue:       DB 0
+
+; 1 = the DMA controller still holds the copper transfer, so the per-frame copper
+; upload can just LOAD+ENABLE instead of re-sending the whole header. Each DMA entry
+; point (dmaMemoryToPort/Memory, fillWithDma/Repeat) clears it just before it
+; programs the controller; the copper sets it after it primes.
+PUBLIC _copperDmaResident
+_copperDmaResident: DB 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -78,6 +85,8 @@ _fillWithDmaRepeat:
     ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
     ld (dmaR5), a
 
+    xor a
+    ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
     ld bc, $6b
     ld hl, dmaHeader
     call outLoop16

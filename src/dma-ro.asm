@@ -2,6 +2,7 @@ SECTION PAGE_28_POSTISR
 
 GLOBAL dmaFillValue, outLoop7, outLoop10, outLoop16
 GLOBAL dmaAudioBuf, dmaSource, dmaLength, DmaR5, dmaR1, dmaR2, dmaR5, dmaDestination, dmaPrescalar, dmaHeader
+GLOBAL _copperDmaResident
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -33,34 +34,34 @@ _dmaWaitForEnd:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _playWithDma
-_playWithDma:
-    pop hl ; address
+; PUBLIC _playWithDma
+; _playWithDma:
+;     pop hl ; address
 
-    pop de ; loop flag
-    ld a, e
-    or a
-    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-    jr z, playWithDmaNonLoop
-    add $20     ; loop 1010 0010 ; R5-Loop on end of block, RDY active LOW
-.playWithDmaNonLoop:
-    ld (dmaR5), a
+;     pop de ; loop flag
+;     ld a, e
+;     or a
+;     ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
+;     jr z, playWithDmaNonLoop
+;     add $20     ; loop 1010 0010 ; R5-Loop on end of block, RDY active LOW
+; .playWithDmaNonLoop:
+;     ld (dmaR5), a
 
-    pop de ; prescalar
-    ld a, e
-    ld (dmaPrescalar), a
+;     pop de ; prescalar
+;     ld a, e
+;     ld (dmaPrescalar), a
 
-    pop de ; length
-    ld (dmaLength), de
+;     pop de ; length
+;     ld (dmaLength), de
 
-    ex (sp), hl ; source / call address back on stack
-    ld (dmaSource), hl
+;     ex (sp), hl ; source / call address back on stack
+;     ld (dmaSource), hl
 
-    ld bc, $6b
-    ld hl, dmaHeader ; just the header
-    call outLoop7
-    ld hl, dmaAudioBuf
-    jp outLoop10 ; also RETs
+;     ld bc, $6b
+;     ld hl, dmaHeader ; just the header
+;     call outLoop7
+;     ld hl, dmaAudioBuf
+;     jp outLoop10 ; also RETs
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -84,6 +85,8 @@ _dmaMemoryToMemory:
     ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
     ld (dmaR5), a
 
+    xor a
+    ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
     ld bc, $6b
     ld hl, dmaHeader
     jp outLoop16 ; also RETs
@@ -110,6 +113,8 @@ _dmaMemoryToPort:
     ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
     ld (dmaR5), a
 
+    xor a
+    ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
     ld bc, $6b
     ld hl, dmaHeader
     jp outLoop16 ; also RETs
@@ -139,6 +144,8 @@ _fillWithDma:
     ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
     ld (dmaR5), a
 
+    xor a
+    ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
     ld bc, $6b
     ld hl, dmaHeader
     jp outLoop16 ; also RETs
