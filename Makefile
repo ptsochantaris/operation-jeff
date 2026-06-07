@@ -16,6 +16,7 @@ SRC=src
 
 OBJECTS = $(addprefix $(OBJDIR)/, \
 	jeff.o \
+	ctc.o \
 	jeffpos.o \
 	screen.o \
 	bomb.o \
@@ -50,6 +51,8 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	graphics-rw.o \
 	control-ro.o \
 	control-rw.o \
+	ctc-rw.o \
+	interrupts.o \
 	utility.o \
 	audio.o \
 )

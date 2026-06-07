@@ -1,16 +1,5 @@
 #include "base.h"
 
-// CTC time constants (28MHz/16/TC) per effect, matching the old per-sample DMA
-// prescalers: zap/siren were 0x74, sting was 0x3A (half = double rate), menu 109.
-#define SAMPLE_TC_8K  219  // ~8kHz  (zap, siren, menu loop)
-#define SAMPLE_TC_16K 110  // ~16kHz (sting)
-
-static void playSample(struct ResourceInfo *restrict info, byte tc, byte loop) __z88dk_callee __smallc {
-  ZXN_WRITE_MMU1(info->page);
-  ZXN_WRITE_MMU2((info->page)+1);
-  startSample((word)info->resource, info->length, tc, loop);
-}
-
 static const struct ResourceInfo zapEffect = R_zzzap_pcm;
 void effectZap(void) __z88dk_fastcall {
   playSample(&zapEffect, SAMPLE_TC_8K, 0);
