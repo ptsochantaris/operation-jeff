@@ -3,11 +3,7 @@
 // used in places where we define clipping boundaries
 const byte clipBytes[] = {0,159,0,255};
 
-// https://zx.remysharp.com/sprites/#sprite-editor
-
-// https://github.com/benbaker76/Gfx2Next
-// build/gfx2next ~/spacer.png -pal-std -pal-none -bitmap-y -bank-16k spacerTitle.nxi
-
+/*
 void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
   if(width<=0) return;
   if(height<=0) return;
@@ -36,6 +32,7 @@ void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_
     }
   }
 }
+*/
 
 void layer2box(word x, word y, word width, word height, byte color) __z88dk_callee __smallc {
   word ey = y + height;
