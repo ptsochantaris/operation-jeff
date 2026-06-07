@@ -9,8 +9,8 @@
 struct ResourceInfo; // defined in assets.h; only used here by pointer
 
 void playSample(struct ResourceInfo *restrict info, byte tc, byte loop) __z88dk_callee;
-void startSample(word source, word length, byte tc, byte loop) __z88dk_callee __smallc; // tc = 28MHz/16/rate
-void stopAudioTimer(void) __z88dk_fastcall;
+void startSample(word source, word length, byte tc, byte loop) __preserves_regs(iyh,iyl) __z88dk_callee __smallc; // tc = 28MHz/16/rate
+void stopAudioTimer(void) __preserves_regs(d,e,h,l,iyh,iyl) __z88dk_fastcall;
 
 extern volatile byte sampleActive; // 1 while a CTC sample is playing, cleared by the ISR at end
 

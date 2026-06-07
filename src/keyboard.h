@@ -6,6 +6,6 @@
 extern byte keyboardShiftPressed;
 extern byte keyboardSymbolShiftPressed;
 
-byte readKeyboardLetter(void) __preserves_regs(c,iyh,iyl) __z88dk_fastcall;
+byte readKeyboardLetter(void) __preserves_regs(c) __z88dk_fastcall; // clobbers IY (port cursor)
 
 #endif

@@ -11,7 +11,7 @@ void selectLayer2Page(byte page) __preserves_regs(b,c,d,e,h,l,iyh,iyl) __z88dk_f
 void layer2StashPalette(byte *restrict buffer) __preserves_regs(iyh,iyl) __z88dk_fastcall;
 void readColourFromIndex(byte *colour, byte index) __preserves_regs(d,e,iyh,iyl) __z88dk_callee __smallc;
 void writeColourToIndex(const byte *colour, byte index) __preserves_regs(d,e,iyh,iyl) __z88dk_callee __smallc;
-void zeroPalette(byte palette) __preserves_regs(c,d,h,l,iyh,iyl) __z88dk_fastcall;
+void zeroPalette(byte palette) __preserves_regs(c,d,e,h,l,iyh,iyl) __z88dk_fastcall;
 void scrollLayer2(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee __smallc;
 void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc;
 
@@ -20,7 +20,7 @@ void hideSprite(byte index) __preserves_regs(b,c,d,e,h,l,iyh,iyl) __z88dk_fastca
 
 void scrollTilemap(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee __smallc;
 
-void setHudBackground(word color) __preserves_regs(b,c,d,e,iyh,iyl) __z88dk_fastcall;
+void setHudBackground(word color) __preserves_regs(b,c,d,e,h,l,iyh,iyl) __z88dk_fastcall;
 
 void print(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
 void printSideways(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
