@@ -41,12 +41,12 @@ Press P to pause during the game.
 
 The game packs all its resources into a single NEX file. Almost all data, except the executable code and digial audio, is compressed using the zx0 compressor and decompressed at the time of use.
 
-The resources are converted to native Next formats from the files in `resources_original` via the `convertResource.sh` script. This script performs these steps:
+- The resources are converted to native Next formats from the files in `resources_original` via the `makeAssets.swift` script. This script performs these steps:
 
 - Level backgrounds are converted from PNG to native Next using the `gfx2next` utility.
 - Generated images and palettes are compressed using the `zx0` utility.
-- Level heightmaps are converted from PNG to via the `convertHeightmaps.swift` script to *.hm files (which are just a raster of 8-bit brightness values).
-- The converted assets are then scanned by the `makeAssets.swift` script which results in a generated `assets.asm` file with an accompanying `assets.h` file. The ASM file builds the binary blob with all the binary data, sorted to fill each memory page as much as possible, and the H file creates defines which are used in the game to refer to each resource's (paged-in) address, data length, and page.
+- Level heightmaps are converted from PNG to *.hm files (which are just a raster of 8-bit brightness values).
+- The converted assets are then included a generated `assets.asm` file with an accompanying `assets.h` file. The ASM file builds the binary blob with all the binary data, sorted to fill each memory page as much as possible, and the H file creates defines which are used in the game to refer to each resource's (paged-in) address, data length, and page.
 - Finally the loading screen for the NEX is converted in a slightly different native format as required by the NEX spec.
 
 ### Graphic Layers
@@ -70,10 +70,10 @@ The ROM is configured as `ROM3`, which is the traditional 48k Sinclair ZX Spectr
 - `MMU1` is also read-only and mostly used for loading and buffering, like the compressed contents of levels or as the first half of the digital audio buffer.
 - `MMU0` and `MMU1` are configured as write-only for writing to the Layer 2 display in 16k chunks.
 
-#### The next 16k (`MMU2` and `MMU3`)
+#### The middle 16k (`MMU2` and `MMU3`)
 
 - `MMU2` would traditionally be the ULA on a Spectrum but that is shifted to page 10 and assigned to `MMU3` below. Instead this slot is either (a) used as an extension for 16k-size buffers starting at `MMU1`, like when loading sprites and playing audio loops, or (b) as a write destination for data when we're decompressing zx0 data read from `MMU1` such as level screens.
-- `MMU3` would traditionally point to the tilemap on the ZX Spectrum Next, but most of the time we point it to page 10, which is to where the ULA has been relocated (so that `MMU1` and `MMU2` can form a contiguous memory space for DMAing when buffering). The game can flip between the two when required to modify each one.
+- `MMU3` would traditionally point to the tilemap on the ZX Spectrum Next, but most of the time we point it to page 10, which is to where the ULA has been relocated (so that `MMU1` and `MMU2` can form a contiguous memory space for audio playback). The game can flip between the two when required to modify each one.
 - `MMU3` Acts as secondary buffer as well, currently used when loading palettes, as that can happen simultaneously while playing digital sound from the "main" buffer area at `MMU1` and `MMU2`.
 
 #### The top 32k (`MMU4` -> `MMU7`)
