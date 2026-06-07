@@ -37,14 +37,18 @@ static void hudScoreDraw(void) __z88dk_fastcall {
 }
 
 static void hudBorderDraw(void) __z88dk_fastcall {
-  if(displayedStats.invunerableCount) {
-    copperForeground(0x07, 0x05, 0x00, 1);
-  } else if(displayedStats.damageFlash) {
-    copperForeground(0x40, 0xFC, 0x60, 2);
-  } else if(displayedStats.umbrellaCountdown) {
-    copperForeground(0x8B, 0x62, 0x00, 1);
+  if(currentStats.invunerableCount) {
+    copperEffectCloud(SHIELD_CLOUD);
+  } else if(currentStats.damageFlash) {
+    copperEffectFlash();
+  } else if(currentStats.umbrellaCountdown) {
+    copperEffectCloud(UMBRELLA_CLOUD);
+  } else if(currentStats.slowMo) {
+    copperEffectCloud(SLOW_CLOUD);
+  } else if(currentStats.supergun || currentStats.extraRangeBombs) {
+    copperEffectCloud(GUNBOOST_CLOUD);
   } else {
-    copperShutdown();
+    copperEffectOff();
   }
 }
 
@@ -67,7 +71,12 @@ static void hudKillsDraw(void) __z88dk_fastcall {
   }
 }
 
-static const byte hudPalette[] = {
+static byte hudPalette[] = {
+  COLOR9(0, 0, 0), // HUD_MASK
+  COLOR9(0, 0, 0), // HUD_FILL_TEXT
+  COLOR9(0, 0, 0), // HUD_FILL_LIGHT
+  COLOR9(0, 0, 0), // HUD_FILL_DARK
+
   COLOR9(0, 0, 0), // HUD_BLACK
   COLOR9(7, 4, 0),
   COLOR9(7, 7, 0),
@@ -80,29 +89,27 @@ static const byte hudPalette[] = {
 extern byte paletteBuffer[];
 
 static void stashHudPalette(byte level) __z88dk_fastcall {
-  byte *data = paletteBuffer+(HUD_BLACK*2);
-  for(byte index=0; index !=14; ++index, ++data) {
-    *data = hudPalette[index];
-  }
-
   const struct LevelInfo info = levelInfo[level];
-  data = paletteBuffer + (2*HUD_FILL_TEXT);
-  *data++ = info.fontDark[0];
-  *data = info.fontDark[1];
 
-  data = paletteBuffer + (2*HUD_FILL_DARK);
+  byte *data = hudPalette+2; // HUD_MASK as-is, skip 2 bytes
+  
+  *data++ = info.fontDark[0];
+  *data++ = info.fontDark[1];
+
+  *data++ = info.jeffBright[0];
+  *data++ = info.jeffBright[1];
+
   *data++ = info.jeffDark[0];
   *data = info.jeffDark[1];
 
-  data = paletteBuffer + (2*HUD_FILL_LIGHT);
-  *data++ = info.jeffBright[0];
-  *data = info.jeffBright[1];
+  const byte *buf = paletteBuffer + (HUD_BASE * 2);
+  memcpy(buf, hudPalette, HUD_COLOUR_BYTES);
 }
 
 void applyHudPalette(void) __z88dk_fastcall {
   selectPalette(1); // L2 first palette
-  ZXN_NEXTREG(REG_PALETTE_INDEX, HUD_BLACK);
-  writeNextReg(REG_PALETTE_VALUE_16, hudPalette, 14);
+  ZXN_NEXTREG(REG_PALETTE_INDEX, HUD_BASE);
+  writeNextReg(REG_PALETTE_VALUE_16, hudPalette, HUD_COLOUR_BYTES);
 }
 
 void updateStatsIfNeeded(void) __z88dk_fastcall {
@@ -127,47 +134,23 @@ void updateStatsIfNeeded(void) __z88dk_fastcall {
     hudKillsDraw();
   }
 
-  byte needsBorderDraw = 0;
+  // damage flash: shake the screen while active, reset the scroll once when it ends
   if(currentStats.damageFlash) {
-    if(!displayedStats.damageFlash) {
-      displayedStats.damageFlash = 1;
-      needsBorderDraw = 1;
-    }
-
+    displayedStats.damageFlash = 1;
     word offset = currentStats.damageFlash % 2;
     scrollLayer2(offset, 0);
     scrollTilemap(offset, 0);
 
   } else if(displayedStats.damageFlash) {
     displayedStats.damageFlash = 0;
-    needsBorderDraw = 1;
     scrollLayer2(0, 0);
     scrollTilemap(0, 0);
   }
 
-  if(currentStats.invunerableCount) {
-    if(!displayedStats.invunerableCount) {
-      displayedStats.invunerableCount = 1;
-      needsBorderDraw = 1;
-    }
-  } else if(displayedStats.invunerableCount) {
-    displayedStats.invunerableCount = 0;
-    needsBorderDraw = 1;
-  }
-  
-  if(currentStats.umbrellaCountdown) {
-    if(!displayedStats.umbrellaCountdown) {
-      displayedStats.umbrellaCountdown = 1;
-      needsBorderDraw = 1;
-    }
-  } else if(displayedStats.umbrellaCountdown) {
-    displayedStats.umbrellaCountdown = 0;
-    needsBorderDraw = 1;
-  }
-
-  if(needsBorderDraw) {
-    hudBorderDraw();
-  }
+  // The border effect reads live state and re-evaluates every frame, so it can't
+  // get out of sync with the bonuses. The copperEffect* calls dedupe, so this is
+  // cheap (no rebuild/upload unless the active effect actually changes).
+  hudBorderDraw();
 }
 
 void initHud(byte level) __z88dk_fastcall {

@@ -21,7 +21,14 @@ static void loadGameOverScreen(void) __z88dk_fastcall {
   fadeToWhite();
   layer2Clear(0);
   fadePaletteDown(1,3,0);
+
   loadScreen(gameOverInfo.screens);
+  
+  for(word i=0; i<8; ++i) {
+    word inset = i * 2;
+    layer2box(i, i, 319-inset, 255-inset, HUD_MASK);
+  }
+
   fadePaletteUp(&gameOverInfo.palette, 1);
 }
 
@@ -76,10 +83,13 @@ void gameOverLoop(void) __z88dk_fastcall {
   x = center - ((4*19) >> 1);
   word entryY = displayHighScoreTable(x, top, highScoreSlot);
 
+  copperEffectFire(); // flames behind the game over / high score screen
+
   byte keyDown = 0;
 
   while(1) {
     updateMouse();
+    copperEffectUpdate();
 
     if(entryY) {
       byte letter = readKeyboardLetter();

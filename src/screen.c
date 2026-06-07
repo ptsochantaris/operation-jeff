@@ -142,13 +142,26 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void loadScreen(const struct ResourceInfo *restrict slice) __z88dk_fastcall {
+void loadScreen(const struct ResourceInfo *restrict slice) __z88dk_callee __smallc {
   for(byte page=18; page!=28; ++page, ++slice) {
     ZXN_WRITE_MMU2(page);
     ZXN_WRITE_MMU1(slice->page);
-    decompressZX0((byte *)slice->resource, (byte *)0x4000);
+    byte *i = (byte *)0x4000;
+    decompressZX0((byte *)slice->resource, i);
   }
 }
+
+  /*
+  // apply mask to layer 2
+  for(byte page=18; page!=28; ++page) {
+    ZXN_WRITE_MMU2(page);
+    byte *i = (byte *)0x4000;
+    const byte *end = (byte *)0x6000;
+    for(; i < end; ++i) {
+      if(*i == 0) *i = HUD_MASK;
+    }
+  }
+  */
 
 void configLayer2(word writeThroughEnable) __z88dk_fastcall {
   // https://wiki.specnext.dev/Layer_2

@@ -22,13 +22,17 @@ static void nextLevel(byte gameStart) __z88dk_fastcall {
   loadScreen(info.level.screens);
   loadHeightmap(&info.heightmap);
 
-  effectSiren();
-
   statsInitLevel();
 
   selectPalette(1);
   loadPaletteBuffer(&(info.level.palette));
   initHud(newLevel); // also stashes it own palette entries
+
+  // Start the siren only after the last DMA user (initHud's layer2 fills): audio
+  // streams on the single zxnDMA controller, so an intervening DMA burst would cut
+  // it off. The palette fade below is register writes only, so it overlaps fine.
+  effectSiren();
+
   fadeExistingPaletteUp();
 
   selectPalette(2);
@@ -197,6 +201,7 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
       }
     } while(pause);
 
+    copperEffectUpdate(); // animate the background effect at frame start (after the halt)
     updateBombs();
     updateJeffs();
     updateBonuses();
@@ -214,7 +219,6 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
 
       default:
         updateStatsIfNeeded();
-        copperCycle();
         break;
     }
   }

@@ -56,15 +56,12 @@ static void setupInfo(void) __z88dk_fastcall {
 }
 
 void menuMode(void) __z88dk_fastcall {
-  copperShutdown();
+  copperEffectOff();
   setSpriteMenuClipping();
   setMenuMouse();
   mouseReset();
   setupLayers(0); // SLU
   ulaAttributeClear();
-
-  // testing
-  // copperForeground(0x07, 0x05, 0x00, 1);
 }
 
 byte menuLoop(void) __z88dk_fastcall {
@@ -75,11 +72,12 @@ byte menuLoop(void) __z88dk_fastcall {
 
   byte loopCount = 0;
 
+  // copperEffectCloud(SHIELD_CLOUD);
+
   while(1) {
     updateMouse();
 
-    // testing
-    // copperCycle();
+    // copperEffectUpdate();
 
     if(!mouseState.handled) {
       mouseState.handled = 1;
