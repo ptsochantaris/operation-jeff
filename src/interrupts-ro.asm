@@ -32,9 +32,9 @@ _setupInterrupts:
     nextreg 0xC8, 0xFF   ; clear pending ULA/line status
     nextreg 0xC9, 0xFF   ; clear pending CTC status
     nextreg 0xCA, 0xFF   ; clear pending UART status
-    nextreg 0xCC, 0      ; no DMA-interrupt routing
-    nextreg 0xCD, 0
-    nextreg 0xCE, 0
+    nextreg 0xCC, 0      ; no DMA-interrupt 0 routing
+    nextreg 0xCD, 0      ; no DMA-interrupt 1 routing
+    nextreg 0xCE, 0      ; no DMA-interrupt 2 routing
     im 2
     ei
     ret
