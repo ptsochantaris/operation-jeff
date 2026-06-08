@@ -59,7 +59,6 @@ void setupGameStats(void) __z88dk_fastcall;
 void statsProgressLevel(void) __z88dk_fastcall;
 void statsInitLevel(void) __z88dk_fastcall;
 byte processGameStats(void) __z88dk_fastcall;
-void processFireStats(void) __z88dk_fastcall;
 void processJeffKill(byte speed) __z88dk_fastcall;
 void processBonusHit(byte type, int x, int y) __z88dk_callee;
 void processJeffHit(void) __z88dk_fastcall;

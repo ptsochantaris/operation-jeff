@@ -1,5 +1,7 @@
 #include "base.h"
 
+/* Starfield effect is unused (nothing calls initStars / updateStars) - kept here for future use
+
 #define starCount 40
 
 static struct star stars[starCount];
@@ -36,3 +38,4 @@ void updateStars(void) __z88dk_fastcall {
         s->x = x;
     }
 }
+*/

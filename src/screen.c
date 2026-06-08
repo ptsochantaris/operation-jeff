@@ -52,9 +52,12 @@ void layer2roundedBox(word x, word y, word width, word height, byte color) __z88
 }
 
 void layer2Clear(byte index) __z88dk_fastcall {
-  for(byte page=0; page!=5; ++page) {
+  selectLayer2Page(0);
+  fillWithDma(0, 0x4000, index);
+  copperDmaResident = 0;
+  for(byte page=1; page!=5; ++page) {
     selectLayer2Page(page);
-    fillWithDma(0, 0x4000, index);
+    dmaRepeat();
   }
 }
 

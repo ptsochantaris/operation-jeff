@@ -14,23 +14,24 @@ _selectLayer2Page:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _layer2Plot
-_layer2Plot:
-    pop bc          ; return address
-
-    pop HL          ; colour
-    ld a, l
-    ex af, af'      ; stash colour
-
-    pop HL          ; y
-    pop DE          ; x
-    push bc         ; put return back on stack
-
-    call selectPageForXInDeAndSetupH
-
-    ex af, af'      ; unstash colour
-    ld (hl), a      ; set (hl) to colour value
-    ret
+; Unused - was only used by the (now unused) starfield effect - kept for reference
+; PUBLIC _layer2Plot
+; _layer2Plot:
+;     pop bc          ; return address
+;
+;     pop HL          ; colour
+;     ld a, l
+;     ex af, af'      ; stash colour
+;
+;     pop HL          ; y
+;     pop DE          ; x
+;     push bc         ; put return back on stack
+;
+;     call selectPageForXInDeAndSetupH
+;
+;     ex af, af'      ; unstash colour
+;     ld (hl), a      ; set (hl) to colour value
+;     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

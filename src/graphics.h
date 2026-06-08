@@ -4,7 +4,8 @@
 #include "types.h"
 
 void selectPalette(byte paletteMask) __preserves_regs(b,c,d,e,h,l,iyh,iyl) __z88dk_fastcall;
-void layer2Plot(word x, byte y, byte color) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
+// Unused - was only used by the (now unused) starfield effect - kept for reference
+// void layer2Plot(word x, byte y, byte color) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
 void layer2HorizonalLine(word x, word y, word width, byte color) __z88dk_callee __smallc;
 void layer2VerticalLine(word x, word topY, word bottomY, byte color) __z88dk_callee __smallc;
 void selectLayer2Page(byte page) __preserves_regs(b,c,d,e,h,l,iyh,iyl) __z88dk_fastcall;

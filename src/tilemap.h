@@ -15,6 +15,5 @@
 #define tilemapLength 40 * 32
 
 void initTilemap(void) __z88dk_fastcall;
-void clearTilemap(void) __z88dk_fastcall;
 
 #endif

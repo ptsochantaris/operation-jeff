@@ -61,11 +61,10 @@ static void uploadCopperImage(word len) __z88dk_callee {
     copperAddress(0);
     z80_outp(0x243b, REG_COPPER_DATA);
     if (copperDmaResident) {
-        z80_outp(0x6b, 0xcf); // R6 LOAD  - reload the resident transfer's counters
-        z80_outp(0x6b, 0x87); // R6 ENABLE - re-run it
+        dmaRepeat();
     } else {
         dmaMemoryToPort(copperImage, 0x253b, len); // full setup (clears the flag)...
-        copperDmaResident = 1;                      // ...now resident
+        copperDmaResident = 1;                     // ...now resident
     }
 }
 

@@ -6,31 +6,34 @@ GLOBAL _copperDmaResident
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _dmaResetStatus
-_dmaResetStatus:
-    ld a, $8b ; 1000 1011 - reset status byte
-    out ($6b), a
-    RET
+; Unused - kept for reference
+; PUBLIC _dmaResetStatus
+; _dmaResetStatus:
+;     ld a, $8b ; 1000 1011 - reset status byte
+;     out ($6b), a
+;     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _stopDma
-_stopDma:
-    ld a, $c3
-    out ($6b), a  ; 11000011 ; R6 reset dma
-    ret
+; Unused - kept for reference
+; PUBLIC _stopDma
+; _stopDma:
+;     ld a, $c3
+;     out ($6b), a  ; 11000011 ; R6 reset dma
+;     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _dmaWaitForEnd
-_dmaWaitForEnd:
-    ld a, $bf ; 1011 1011 - ask for DMA controller status byte
-    out ($6b), a
-    xor a ; MSB of port, set to zero
-    in a, ($6b) ; read response: 00E1101T from port $006B
-    and $20 ; check "E" bit is zero
-    ret z
-    jp _dmaWaitForEnd
+; Unused - kept for reference
+; PUBLIC _dmaWaitForEnd
+; _dmaWaitForEnd:
+;     ld a, $bf ; 1011 1011 - ask for DMA controller status byte
+;     out ($6b), a
+;     xor a ; MSB of port, set to zero
+;     in a, ($6b) ; read response: 00E1101T from port $006B
+;     and $20 ; check "E" bit is zero
+;     ret z
+;     jp _dmaWaitForEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -65,31 +68,42 @@ _dmaWaitForEnd:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _dmaMemoryToMemory
-_dmaMemoryToMemory:
-    pop hl ; call address
-    
-    pop de ; length
-    ld (dmaLength), de
+; Unused - kept for reference (see _dmaMemoryToPort for the live variant)
+; PUBLIC _dmaMemoryToMemory
+; _dmaMemoryToMemory:
+;     pop hl ; call address
+;
+;     pop de ; length
+;     ld (dmaLength), de
+;
+;     pop de ; destination
+;     ld (dmaDestination), de
+;
+;     ex (sp), hl ; source / call address back on stack
+;     ld (dmaSource), hl
+;
+;     ld a, $54; ; 0101 0100 ; R1 - increment, from memory, bitmask
+;     ld (dmaR1), a
+;     ld a, $50; ; 0101 0000 ; R2 - increment, to memory, bitmask
+;     ld (dmaR2), a
+;     ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
+;     ld (dmaR5), a
+;
+;     xor a
+;     ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
+;     ld bc, $6b
+;     ld hl, dmaHeader
+;     jp outLoop16 ; also RETs
 
-    pop de ; destination
-    ld (dmaDestination), de
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ex (sp), hl ; source / call address back on stack
-    ld (dmaSource), hl
-
-    ld a, $54; ; 0101 0100 ; R1 - increment, from memory, bitmask
-    ld (dmaR1), a
-    ld a, $50; ; 0101 0000 ; R2 - increment, to memory, bitmask
-    ld (dmaR2), a
-    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-    ld (dmaR5), a
-
-    xor a
-    ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
-    ld bc, $6b
-    ld hl, dmaHeader
-    jp outLoop16 ; also RETs
+PUBLIC _dmaRepeat
+_dmaRepeat:
+     ld a, $cf // R6 LOAD  - reload the resident transfer's counters
+     out ($6b), a
+     ld a, $87 // R6 ENABLE - re-run it
+     out ($6b), a
+     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
