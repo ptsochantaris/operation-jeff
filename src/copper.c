@@ -2,60 +2,9 @@
 
 #define stripeX ((46 & 0x3F) << 1)
 
+// --------------------------------------------------------------- Utility
+
 static byte copperImage[1200];
-
-// --------------------------------------------------------------- Flash
-
-static void stripe(byte colour, word y) __z88dk_callee {
-    // Set the colour up during the blanking of the line above `y`.
-    word waitY = y - 1;
-    byte Y1 = (waitY >> 8) & 1;
-    byte Y2 = waitY & 0xFF;
-
-    // wait
-    ZXN_NEXTREGA(REG_COPPER_DATA, 0x80 | stripeX | Y1);
-    ZXN_NEXTREGA(REG_COPPER_DATA, Y2);
-
-    // move
-    ZXN_NEXTREG(REG_COPPER_DATA, 0x4A);
-    ZXN_NEXTREGA(REG_COPPER_DATA, colour);
-}
-
-#define STRIPECOUNT   60
-#define STRIPESIZE    4
-#define LEGACY_OFFSET 34
-#define FLASH_BG      0x60   // red field shown when the player takes damage
-#define FLASH_SPARK   0xFC   // bright spark base colour
-
-static word flashCyclePos = 7;
-
-// (Re)build the 60-stripe copper program. The cloud/fire effects overwrite copper
-// memory via DMA, so this skeleton must be rebuilt whenever the flash reactivates.
-static void buildLegacySkeleton(void) __z88dk_fastcall {
-    copperStop();
-    ZXN_NEXTREG(0x64, LEGACY_OFFSET); // offset copper up from ULA zero
-
-    for(word y = 0; y < STRIPECOUNT; ++y) {
-        word top = y*STRIPESIZE+22;
-        stripe(0, top);
-        stripe(0, top + (STRIPESIZE / 2));
-    }
-
-    ZXN_NEXTREG(REG_COPPER_DATA, 0xFF);
-    ZXN_NEXTREG(REG_COPPER_DATA, 0xFF); // wait for vblank
-}
-
-// Per-frame: clear the previous spark and place a new random bright one.
-static void flashCycle(void) __z88dk_fastcall {
-    copperAddress(flashCyclePos);
-    ZXN_NEXTREGA(REG_COPPER_DATA, 0);
-
-    word c = random16() % (STRIPECOUNT - 2);
-    flashCyclePos = (c * 8) - 1;
-    byte color = FLASH_SPARK + (random16() % 4);
-    copperAddress(flashCyclePos);
-    ZXN_NEXTREGA(REG_COPPER_DATA, color);
-}
 
 static void uploadCopperImage(word len) __z88dk_fastcall {
     copperAddress(0);
@@ -66,6 +15,70 @@ static void uploadCopperImage(word len) __z88dk_fastcall {
         dmaMemoryToPort(copperImage, 0x253b, len); // full setup (clears the flag)...
         copperDmaResident = 1;                     // ...now resident
     }
+}
+
+// --------------------------------------------------------------- Flash
+
+#define STRIPECOUNT   60
+#define STRIPESIZE    4
+#define STRIPE_BYTES  4
+#define LEGACY_OFFSET 34
+#define FLASH_BG      0x60   // red field shown when the player takes damage
+#define FLASH_SPARK   0xFC   // bright spark base colour
+
+// Emit one stripe (WAIT + MOVE colour) into the copper image, set up during the
+// blanking of the line above `y`.
+static void emitStripe(byte **pp, byte colour, word y) __z88dk_callee {
+    word waitY = y - 1;
+    byte *p = *pp;
+    p[0] = 0x80 | stripeX | ((waitY >> 8) & 1); // wait (high)
+    p[1] = waitY & 0xFF;                        // wait (low)
+    p[2] = 0x4A;                                // move: fallback colour register
+    p[3] = colour;
+    *pp = p + 4;
+}
+
+#define FLASH_BUFFER_LEN 12
+static void buildFlashSkeleton(void) __z88dk_fastcall {
+    byte *p = copperImage;
+    p[0] = 0x4A;                                // move: fallback colour register
+    p[1] = FLASH_BG;                            // bg color
+
+    p[2] = 0;                                   // wait for scanline high
+    p[3] = 0;                                   // wait for scanline low
+
+    p[4] = 0x4A;                                // move: fallback colour register
+    p[5] = 0;                                   // spark color
+
+    p[6] = 0;                                   // wait
+    p[7] = 0;                                   // for scanline
+
+    p[8] = 0x4A;                                // move: fallback colour register
+    p[9] = FLASH_BG;                            // bg color
+
+    p[10] = 0xFF;
+    p[11] = 0xFF; // wait for vblank / halt
+
+    copperDmaResident = 0; // layout/length changed -> force a full re-prime next upload
+}
+
+// Per-frame: clear the previous spark and place a new random bright one.
+static void flashCycle(void) __z88dk_fastcall {
+    word c = random16() % (STRIPECOUNT - 2);
+    word sparkPos = (c * 8) - 1;
+
+    // start of colour
+    copperImage[2] = 0x80 | stripeX | ((sparkPos >> 8) & 1);
+    copperImage[3] = sparkPos & 0xFF;
+
+    copperImage[5] = FLASH_SPARK + (random16() % 4);
+
+    // end of colour
+    sparkPos += 1 + random16() % 8;
+    copperImage[6] = 0x80 | stripeX | ((sparkPos >> 8) & 1);
+    copperImage[7] = sparkPos & 0xFF;
+
+    uploadCopperImage(FLASH_BUFFER_LEN);
 }
 
 // --------------------------------------------------------------- Plasma
@@ -318,21 +331,10 @@ void copperEffectFlash(void) __z88dk_fastcall {
     if (fxMode == FX_FLASH) return;
 
     fxMode = FX_FLASH;
-    buildLegacySkeleton();
-
-    for(word y = 0; y < STRIPECOUNT; ++y) {
-        word address = 3 + (y << 3);
-        copperAddress(address);
-        ZXN_NEXTREGA(REG_COPPER_DATA, FLASH_BG);
-        copperAddress(address+4);
-        ZXN_NEXTREGA(REG_COPPER_DATA, FLASH_BG);
-    }
-
-    // start copper from index 0, loop at vblank
-    ZXN_NEXTREGA(REG_COPPER_CONTROL_H, 0xC0); // https://wiki.specnext.dev/Copper_Control_High_Byte
-    ZXN_NEXTREG(REG_COPPER_CONTROL_L, 0);
-
-    flashCyclePos = 7;
+    copperStop();
+    ZXN_NEXTREG(0x64, LEGACY_OFFSET); // offset copper up from ULA zero
+    buildFlashSkeleton();
+    uploadCopperImage(FLASH_BUFFER_LEN); // DMA the skeleton up and start the copper from index 0
 }
 
 void copperEffectOff(void) __z88dk_fastcall {
