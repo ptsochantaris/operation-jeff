@@ -86,16 +86,27 @@ static void uploadCopperImage(word len) __z88dk_fastcall {
 #define PLASMA_FIRST_COLOUR 7    // first band colour slot (after the leading black transition)
 
 
-static byte lerpChannel(byte from, byte to, byte t, byte tmax) __z88dk_callee {
-    return (byte)((int)from + (((int)to - (int)from) * (int)t) / (int)tmax);
-}
+// Fill the palette slice dst[0..count) by interpolating the two RRRGGGBB anchors
+// per channel. Each channel walks in 8.8 fixed point, so a ramp costs just 3
+// divides total (one per-step delta per channel) instead of the old signed
+// mul+div per channel per entry. Matches the previous lerp within +/-1 per
+// channel (round-to-nearest vs truncate); endpoints are exact, drift invisible.
+static void rampPalette(byte *dst, byte count, byte from, byte to) __z88dk_callee {
+    byte steps = count - 1;                 // t spans 0..steps inclusive
 
-// interpolate two RRRGGGBB colours per channel
-static byte lerpColour(byte from, byte to, byte t, byte tmax) __z88dk_callee {
-    byte r = lerpChannel((from >> 5) & 7, (to >> 5) & 7, t, tmax);
-    byte g = lerpChannel((from >> 2) & 7, (to >> 2) & 7, t, tmax);
-    byte b = lerpChannel(from & 3, to & 3, t, tmax);
-    return RGB332(r, g, b);
+    // 8.8 fixed-point channel accumulators, pre-biased by 1/2 so >>8 rounds
+    word r = ((word)((from >> 5) & 7) << 8) + 128;
+    word g = ((word)((from >> 2) & 7) << 8) + 128;
+    word b = ((word)( from       & 3) << 8) + 128;
+
+    int dr = (((int)((to >> 5) & 7) - (int)((from >> 5) & 7)) << 8) / steps;
+    int dg = (((int)((to >> 2) & 7) - (int)((from >> 2) & 7)) << 8) / steps;
+    int db = (((int)( to       & 3) - (int)( from       & 3)) << 8) / steps;
+
+    for (byte i = 0; i <= steps; ++i) {
+        dst[i] = RGB332((r >> 8) & 7, (g >> 8) & 7, (b >> 8) & 3);
+        r += dr; g += dg; b += db;
+    }
 }
 
 static byte plasmaPalette[PLASMA_PAL_SIZE];
@@ -105,10 +116,8 @@ static byte plasmaPalette[PLASMA_PAL_SIZE];
 // different triples to tint the cloud per bonus.
 static void buildPlasmaPalette(byte low, byte mid, byte high) __z88dk_callee {
     byte half = PLASMA_PAL_SIZE / 2;
-    for (byte i = 0; i < half; ++i)
-        plasmaPalette[i] = lerpColour(low, mid, i, half - 1);
-    for (byte i = half; i < PLASMA_PAL_SIZE; ++i)
-        plasmaPalette[i] = lerpColour(mid, high, i - half, PLASMA_PAL_SIZE - half - 1);
+    rampPalette(plasmaPalette,        half,                   low, mid);
+    rampPalette(plasmaPalette + half, PLASMA_PAL_SIZE - half, mid, high);
 }
 
 static void emitTransition(byte **pp, byte hpos, word waitLine) __z88dk_callee {
