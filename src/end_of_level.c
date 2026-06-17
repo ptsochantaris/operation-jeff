@@ -87,7 +87,7 @@ static void wait(byte time) __z88dk_fastcall {
   }
 }
 
-static void endOfLevelSequence(const struct LevelInfo *levelInfo) {
+static void endOfLevelSequence(const struct LevelInfo *levelInfo) __z88dk_fastcall {
   stopAudioTimer();
   effectSting();
   status("CLEAR");

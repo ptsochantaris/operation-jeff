@@ -31,7 +31,7 @@ static word flashCyclePos = 7;
 
 // (Re)build the 60-stripe copper program. The cloud/fire effects overwrite copper
 // memory via DMA, so this skeleton must be rebuilt whenever the flash reactivates.
-static void buildLegacySkeleton(void) __z88dk_callee {
+static void buildLegacySkeleton(void) __z88dk_fastcall {
     copperStop();
     ZXN_NEXTREG(0x64, LEGACY_OFFSET); // offset copper up from ULA zero
 
@@ -46,7 +46,7 @@ static void buildLegacySkeleton(void) __z88dk_callee {
 }
 
 // Per-frame: clear the previous spark and place a new random bright one.
-static void flashCycle(void) __z88dk_callee {
+static void flashCycle(void) __z88dk_fastcall {
     copperAddress(flashCyclePos);
     ZXN_NEXTREGA(REG_COPPER_DATA, 0);
 
@@ -57,7 +57,7 @@ static void flashCycle(void) __z88dk_callee {
     ZXN_NEXTREGA(REG_COPPER_DATA, color);
 }
 
-static void uploadCopperImage(word len) __z88dk_callee {
+static void uploadCopperImage(word len) __z88dk_fastcall {
     copperAddress(0);
     z80_outp(0x243b, REG_COPPER_DATA);
     if (copperDmaResident) {
@@ -77,7 +77,7 @@ static void uploadCopperImage(word len) __z88dk_callee {
 
 // plasma shape: how fast the colour varies down the screen, and animation speed
 #define GY_A 3
-#define GY_B 2
+#define GY_B 1
 
 #define PLASMA_PAL_SIZE   64
 
@@ -120,7 +120,7 @@ static void emitTransition(byte **pp, byte hpos, word waitLine) __z88dk_callee {
     *pp = p + 4;
 }
 
-static void buildPlasmaSkeleton(void) __z88dk_callee {
+static void buildPlasmaSkeleton(void) __z88dk_fastcall {
     byte *p = copperImage;
 
     // leading black: blanks everything above the frame (colour stays 0, never updated)
@@ -165,7 +165,7 @@ static const byte sineTab[256] = {
 static byte plasmaTimeA = 0;
 static byte plasmaTimeB = 0;
 
-static void copperPlasmaUpdate(void) __z88dk_callee {
+static void copperPlasmaUpdate(void) __z88dk_fastcall {
     plasmaTimeA += 1;
     plasmaTimeB += 3;
 
@@ -203,7 +203,7 @@ static void copperPlasmaUpdate(void) __z88dk_callee {
 static byte firePalette[PLASMA_PAL_SIZE];
 static byte fireBuf[FIRE_BANDS];
 
-static void buildFirePalette(void) __z88dk_callee {
+static void buildFirePalette(void) __z88dk_fastcall {
     // Black -> red -> orange -> yellow -> white (RRRGGGBB). Tunable.
     for (byte i = 0; i < PLASMA_PAL_SIZE; ++i) {
         byte r = (i < 24) ? (byte)((i * 7) / 24) : 7;        // red ramps in first, then holds
@@ -213,7 +213,7 @@ static void buildFirePalette(void) __z88dk_callee {
     }
 }
 
-static void fireStep(void) __z88dk_callee {
+static void fireStep(void) __z88dk_fastcall {
     // reseed the bottom rows hot, with a wide range (128..255) so flame heights vary:
     // the hottest seeds climb to the top, weaker ones fade around mid-screen
     for (byte k = 0; k < FIRE_SEED_ROWS; ++k) {
@@ -236,7 +236,7 @@ static void fireStep(void) __z88dk_callee {
     }
 }
 
-static void buildFireSkeleton(void) __z88dk_callee {
+static void buildFireSkeleton(void) __z88dk_fastcall {
     byte *p = copperImage;
     for (word i = 0; i < FIRE_BANDS; ++i) {
         word waitLine = FIRE_TOP_LINE + i * FIRE_BAND_HEIGHT - 1; // set during the blanking above the band
@@ -254,7 +254,7 @@ static void buildFireSkeleton(void) __z88dk_callee {
     copperDmaResident = 0; // layout/length changed -> force a full re-prime next upload
 }
 
-static void copperFireUpdate(void) __z88dk_callee {
+static void copperFireUpdate(void) __z88dk_fastcall {
     fireStep();
 
     byte *c = copperImage + FIRE_FIRST_COLOUR;

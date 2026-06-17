@@ -23,7 +23,7 @@ static struct bomb *nextIdleBomb(void) {
     return b;
 }
 
-static void retireBomb(struct bomb *b) {
+static void retireBomb(struct bomb *b) __z88dk_fastcall {
     hideSprite(b->sprite.index);
     b->sprite.scaleUp = 0;
     b->state = BOMB_STATE_NONE;
@@ -123,14 +123,14 @@ void resetAllBombs(void) __z88dk_fastcall {
     }
 }
 
-static void startBombExplosion(struct bomb *restrict b) {
+static void startBombExplosion(struct bomb *restrict b) __z88dk_fastcall {
     b->state = BOMB_STATE_EXPLODING;
     b->sprite.pattern = BOMB_EXPLOSION_FIRST;
     b->sprite.scaleUp = currentStats.extraRangeBombs;
     explodingBombs[explodingBombCount++] = b;
 }
 
-static void endBombExplosion(struct bomb *restrict b) {
+static void endBombExplosion(struct bomb *restrict b) __z88dk_fastcall {
     byte outcome = b->outcome;
     if(outcome) {
         if(outcome & BOMB_OUTCOME_JEFF_KILL) {
