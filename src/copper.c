@@ -249,7 +249,7 @@ static void fireStep(void) __z88dk_fastcall {
     byte rndBits = 0;
     for (word i = 0; i < FIRE_BANDS - 1; ++i) {
         if (rndBits == 0) { rnd = random16(); rndBits = 8; }
-        byte cool = (byte)((rnd & 3) ? 2 : 0); // ~1.75/band: doubled vs 1px so the fade spans the same height
+        byte cool = (byte)((rnd & 3) ? 3 : 0); // ~1.75/band: doubled vs 1px so the fade spans the same height
         rnd >>= 2;
         --rndBits;
 
