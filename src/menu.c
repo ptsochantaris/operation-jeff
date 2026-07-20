@@ -77,7 +77,9 @@ byte menuLoop(void) __z88dk_fastcall {
   while(1) {
     updateMouse();
 
-    // copperEffectUpdate();
+    // if(loopCount % 4 == 0) {
+      // copperEffectUpdate();
+    // }
 
     if(!mouseState.handled) {
       mouseState.handled = 1;

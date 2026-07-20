@@ -129,8 +129,8 @@ static byte plasmaPalette[PLASMA_PAL_SIZE];
 // different triples to tint the cloud per bonus.
 static void buildPlasmaPalette(byte low, byte mid, byte high) __z88dk_callee {
     byte half = PLASMA_PAL_SIZE / 2;
-    rampPalette(plasmaPalette,        half,                   low, mid);
-    rampPalette(plasmaPalette + half, PLASMA_PAL_SIZE - half, mid, high);
+    rampPalette(plasmaPalette,        half, low, mid);
+    rampPalette(plasmaPalette + half, half, mid, high);
 }
 
 static void emitTransition(byte **pp, byte hpos, word waitLine) __z88dk_callee {

@@ -148,22 +148,35 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
 
       byte pressed = readKeyboardLetter();
 
-      if(++loopCount == 6) {
-        updateStatus();
-        loopCount = 0;
+      switch(++loopCount) {
+        case 1:
+          copperEffectUpdate();
+          break;
 
-      } else if(loopCount == 2) {
-        switch(pressed) {
-          case 'Z':
-            mouseState.wheel = 1;
-            break;
+        case 2:
+          switch(pressed) {
+            case 'Z':
+              mouseState.wheel = 1;
+              break;
 
-          case 'X':
-            mouseState.wheel = -1;
-            break;
-        }
-      } else if(loopCount == 4) {
-        updateZap();
+            case 'X':
+              mouseState.wheel = -1;
+              break;
+          }
+          break;
+
+        case 4:
+          copperEffectUpdate();
+          break;
+
+        case 5:
+          updateZap();
+          break;
+
+        case 6:
+          updateStatus();
+          loopCount = 0;
+          break;
       }
 
       if(inputDelay) {
@@ -197,7 +210,6 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
       }
     } while(pause);
 
-    copperEffectUpdate(); // animate the background effect at frame start (after the halt)
     updateBombs();
     updateJeffs();
     updateBonuses();
