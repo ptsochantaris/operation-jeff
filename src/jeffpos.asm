@@ -44,55 +44,37 @@ _setJeffPos:
     jr z, sjp_up        ; 2 = UP
                         ; else 3 = DOWN
 sjp_down:
-    ld l,(iy+3)
-    ld h,(iy+4)
-    inc hl              ; ++pos.y
-    ld (iy+3),l
-    ld (iy+4),h
-    ld b, 8             ; horizontal
-    ld c, 18            ; vertical
+    inc (iy+3)          ; ++pos.y
+    ld bc, 0x1208       ; horizontal=8, vertical=18 (0x12)
     jr sjp_lookup
 sjp_up:
-    ld l,(iy+3)
-    ld h,(iy+4)
-    dec hl              ; --pos.y
-    ld (iy+3),l
-    ld (iy+4),h
-    ld b, 8
-    ld c, 10
+    dec (iy+3)          ; --pos.y
+    ld bc, 0x0A08       ; horizontal=8, vertical=10 (0x0A)
     jr sjp_lookup
 sjp_left:
-    ld l,(iy+1)
-    ld h,(iy+2)
+    ld hl, (iy+1)
     dec hl
     dec hl              ; pos.x -= 2
-    ld (iy+1),l
-    ld (iy+2),h
-    ld b, 6
-    ld c, 14
+    ld (iy+1), hl
+    ld bc, 0x0E06       ; horizontal=6, vertical=14 (0x0E)
     jr sjp_lookup
 sjp_right:
-    ld l,(iy+1)
-    ld h,(iy+2)
+    ld hl, (iy+1)
     inc hl
     inc hl              ; pos.x += 2
-    ld (iy+1),l
-    ld (iy+2),h
-    ld b, 6
-    ld c, 14
+    ld (iy+1), hl
+    ld bc, 0x0E06       ; horizontal=6, vertical=14 (0x0E)
     jr sjp_lookup
 sjp_noMove:
     ld a, 1
     ld (sjp_flag+1), a  ; direction 255: patch flag check to "ld a,1" (snap z to target)
-    ld b, 0             ; horizontal = 0
-    ld c, 0             ; vertical = 0
+    ld bc, 0            ; horizontal & vertical = 0
     ; fall through
 
 sjp_lookup:
     ; --- lookupX = (pos.x + horizontal) >> 2  (arithmetic) ; kept in A ---
     ; (must precede lookupY: bsra needs its count in B, which holds horizontal)
-    ld l,(iy+1)
-    ld h,(iy+2)         ; HL = pos.x
+    ld hl, (iy+1)       ; HL = pos.x
     ld a, b             ; A = horizontal
     add hl, a           ; HL = pos.x + horizontal  (Z80N add hl,a)
     ex de, hl           ; DE = pos.x + horizontal
@@ -101,8 +83,7 @@ sjp_lookup:
     ld a, e             ; A = lookupX (<= ~82) ; survives lookupY below
 
     ; --- lookupY = (pos.y + vertical) >> 2 ; result in E ---
-    ld l,(iy+3)
-    ld h,(iy+4)         ; HL = pos.y
+    ld hl, (iy+3)       ; HL = pos.y
     ld b, 0             ; BC = vertical (C still holds it); A is busy with lookupX
     add hl, bc          ; HL = pos.y + vertical
     ex de, hl           ; DE = pos.y + vertical
@@ -123,8 +104,8 @@ sjp_lookup:
     ; --- targetZ in BC (zero extended); currentZ in HL ---
     ld c, a
     ld b, 0             ; BC = targetZ
-    ld l,(iy+5)
-    ld h,(iy+6)         ; HL = currentZ (pos.z)
+    
+    ld hl, (iy+5)       ; HL = currentZ (pos.z)
 
     ; if (currentZ == targetZ) return;
     ld a, l
@@ -140,15 +121,13 @@ sjp_flag:
     ld a, 0             ; operand self-modified above: 0 => clamp, 1 => snap to target
     or a
     jr z, sjp_clamp
-    ld (iy+5), c
-    ld (iy+6), b        ; b = 0
+    ld (iy+5), bc       ; b = 0
     ret
 
 sjp_clamp:
     ; diff = targetZ - currentZ  (BC - HL)
     push hl             ; save currentZ
-    ld h, b
-    ld l, c             ; HL = targetZ
+    ld hl, bc           ; HL = targetZ
     pop de              ; DE = currentZ
     or a
     sbc hl, de          ; HL = diff (signed, range -255..255), DE = currentZ
@@ -170,24 +149,19 @@ sjp_diffPos:
     ; fall through: diff is 1 or 2
 
 sjp_setTarget:
-    ld (iy+5), c        ; pos.z = targetZ
-    ld (iy+6), b
+    ld (iy+5), bc       ; pos.z = targetZ
     ret
 
 sjp_plus2:
-    ex de, hl           ; HL = currentZ
-    inc hl
-    inc hl
-    ld (iy+5), l        ; pos.z = currentZ + 2
-    ld (iy+6), h
+    inc de              ; DE = currentZ
+    inc de
+    ld (iy+5), de       ; pos.z = currentZ + 2
     ret
 
 sjp_minus2:
-    ex de, hl           ; HL = currentZ
-    dec hl
-    dec hl
-    ld (iy+5), l        ; pos.z = currentZ - 2
-    ld (iy+6), h
+    dec de              ; DE = currentZ
+    dec de
+    ld (iy+5), de       ; pos.z = currentZ - 2
     ret
 
 ; The is255 flag lives in the operand of `sjp_flag: ld a,0` above (self-modified

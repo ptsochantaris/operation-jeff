@@ -208,10 +208,9 @@ void processBonusHit(byte type, int x, int y) __z88dk_callee {
             break;
 
         case BONUS_MAGNET:
-            currentStats.magnetLocation.x = x - 8;
-            currentStats.magnetLocation.y = y - 8;
+            currentStats.magnetLocation.x = x;
+            currentStats.magnetLocation.y = y;
             currentStats.magnetLocation.z = 300; // using z as switch
-            status("MAGNET");
             break;
 
         case BONUS_INVUNERABLE:

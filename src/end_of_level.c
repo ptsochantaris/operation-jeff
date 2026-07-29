@@ -91,12 +91,13 @@ static void endOfLevelSequence(const struct LevelInfo *levelInfo) __z88dk_fastca
   stopAudioTimer();
   effectSting();
   status("CLEAR");
-
+  
   ayStopAllSound();
   jeffFlashAll();
   bombsFlashAll();
 
   wait(20);
+  copperEffectOff();
   fadePaletteDown(1, 4, 1);
 
   resetAllBombs();

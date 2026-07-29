@@ -116,7 +116,7 @@ void updateBonuses(void) __z88dk_fastcall {
             C += (radius << 1);
             if(centerY >= C) continue;
 
-            processBonusHit(targetType, centerX + 8, centerY + 8);
+            processBonusHit(targetType, centerX, centerY);
             targetType = BONUS_NONE;
             transition = 0;
             b->outcome |= BOMB_OUTCOME_BONUS_HIT;
