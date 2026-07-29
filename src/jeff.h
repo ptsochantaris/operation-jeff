@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+extern byte heightMap[];
+
 void initJeffs(void) __z88dk_fastcall;
 void updateJeffs(void) __z88dk_fastcall;
 void jeffKillAll(byte retireImmediately) __z88dk_fastcall;

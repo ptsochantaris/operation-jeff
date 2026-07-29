@@ -163,6 +163,24 @@ byte processGameStats(void) __z88dk_fastcall {
     return 0;
 }
 
+// Jeffs hold a ground position but are drawn at (pos.x, pos.y - pos.z), with
+// pos.z sampled from the heightmap at that ground position (see jeffpos.asm).
+// Bonus tiles are placed straight onto the tilemap with no such lift, so a
+// jeff sent to the tile's raw y renders a whole terrain height above it. Push
+// the target back down the slope so the lift cancels out.
+static int groundYForScreenY(int x, int screenY) __z88dk_callee {
+    if(x < 0) x = 0;
+    x >>= 2;
+    if(x > (HEIGHTMAP_WIDTH-1)) x = HEIGHTMAP_WIDTH-1;
+
+    int y = screenY;
+    if(y < 0) y = 0;
+    y >>= 2;
+    if(y > (HEIGHTMAP_HEIGHT-1)) y = HEIGHTMAP_HEIGHT-1;
+
+    return screenY + heightMap[y * HEIGHTMAP_WIDTH + x];
+}
+
 void processBonusHit(byte type, int x, int y) __z88dk_callee {
     switch(type) {
         case BONUS_NONE: 
@@ -209,7 +227,7 @@ void processBonusHit(byte type, int x, int y) __z88dk_callee {
 
         case BONUS_MAGNET:
             currentStats.magnetLocation.x = x;
-            currentStats.magnetLocation.y = y;
+            currentStats.magnetLocation.y = groundYForScreenY(x, y - 1);
             currentStats.magnetLocation.z = 300; // using z as switch
             break;
 
