@@ -9,10 +9,7 @@ keyboardLookup:
     DB   1, 'Z', 'X', 'C', 'V', ' ',   2, 'M', 'N', 'B'
     DB   0 ; zero end sentinel
 
-keyboardPorts: 
-    DB $f7, $ef, $fb, $df, $fd, $bf, $fe, $7f, 0
-
-.readKeyboardStartButton:
+readKeyboardStartButton:
     ld l, 'P'
     ret
 
@@ -20,22 +17,34 @@ PUBLIC _readKeyboardLetter
 _readKeyboardLetter:
     ld a, (joystickButtons)
     and 8
-    jr nz, readKeyboardStartButton
+    jr nz, readKeyboardStartButton ; tail recurses return for this
 
-    ld de, keyboardLookup
-
-    ; a = 0
+    ; a = 0 or we wouldn't be here
     ld l, a
     ld (_keyboardShiftPressed), a
     ld (_keyboardSymbolShiftPressed), a
 
-    ld iy, keyboardPorts
+    ld de, keyboardLookup
 
-.readKeyboardLetterLoop:
-    ld a, (iy)  ; keyboard port MSB
-    or a
-    ret z ; return if we hit the zero sentinel
+    ; keyboard port MSBs
+    ld a, $f7
+    call readKeyboardRow
+    ld a, $ef
+    call readKeyboardRow
+    ld a, $fb
+    call readKeyboardRow
+    ld a, $df
+    call readKeyboardRow
+    ld a, $fd
+    call readKeyboardRow
+    ld a, $bf
+    call readKeyboardRow
+    ld a, $fe
+    call readKeyboardRow
+    ld a, $7f
+    ; fallthrough
 
+readKeyboardRow:
     in a, ($fe) ; input from keyboard port $(MSB)FE
     ld b, 5
 .readRowLoop:
@@ -62,6 +71,4 @@ _readKeyboardLetter:
 .noPress:
     inc de
     djnz readRowLoop
-
-    inc iy
-    jp readKeyboardLetterLoop
+    ret
