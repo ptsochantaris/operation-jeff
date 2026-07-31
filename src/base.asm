@@ -32,18 +32,6 @@ im2Ignore:
     ei
     reti
 
-PUBLIC keyboardLookup
-keyboardLookup:
-    DB '1', '2', '3', '4', '5', '0', '9', '8', '7', '6'
-    DB 'Q', 'W', 'E', 'R', 'T', 'P', 'O', 'I', 'U', 'Y'
-    DB 'A', 'S', 'D', 'F', 'G',  13, 'L', 'K', 'J', 'H'
-    DB   1, 'Z', 'X', 'C', 'V', ' ',   2, 'M', 'N', 'B'
-    DB   0,   0,   0,   0,   0,   0,   0
-
-PUBLIC keyboardPorts
-keyboardPorts: 
-    DB $f7, $ef, $fb, $df, $fd, $bf, $fe, $7f, 0
-
 PUBLIC _bombRadii1, _bombRadii2
 _bombRadii1: DW 7, 8, 9, 10, 9, 8, 8, 8
 _bombRadii2: DW 14, 16, 18, 20, 18, 16, 16, 16

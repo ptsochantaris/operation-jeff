@@ -1,6 +1,16 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL keyboardLookup, joystickButtons, keyboardPorts, _keyboardShiftPressed, _keyboardSymbolShiftPressed
+GLOBAL joystickButtons, _keyboardShiftPressed, _keyboardSymbolShiftPressed
+
+keyboardLookup:
+    DB '1', '2', '3', '4', '5', '0', '9', '8', '7', '6'
+    DB 'Q', 'W', 'E', 'R', 'T', 'P', 'O', 'I', 'U', 'Y'
+    DB 'A', 'S', 'D', 'F', 'G',  13, 'L', 'K', 'J', 'H'
+    DB   1, 'Z', 'X', 'C', 'V', ' ',   2, 'M', 'N', 'B'
+    DB   0 ; zero end sentinel
+
+keyboardPorts: 
+    DB $f7, $ef, $fb, $df, $fd, $bf, $fe, $7f, 0
 
 .readKeyboardStartButton:
     ld l, 'P'
