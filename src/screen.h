@@ -24,6 +24,7 @@ void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBott
 // void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee;
 
 void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_fastcall;
+void floodPaletteWithBootColour(byte paletteMask) __z88dk_fastcall;
 void stashPalette(byte paletteMask) __z88dk_fastcall;
 void flashPaletteUp(void) __z88dk_fastcall;
 void fadeToWhite(void) __z88dk_fastcall;

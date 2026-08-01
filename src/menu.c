@@ -10,7 +10,11 @@ static void loadTitleScreen(void) __z88dk_fastcall {
   if(shouldFadeTitle) {
     fadePaletteDown(1, 1, 0);
   } else {
-    zeroPalette(1);
+    // Cold boot: the screen is still the flat orange field setupScreen left
+    // behind, and the palette under it is still the loading screen's. Flatten
+    // it to that same orange so the blit below lands unseen - blacking it out
+    // would hide the blit just as well, but at the cost of a black flash.
+    floodPaletteWithBootColour(1);
   }
   loadScreen(titleInfo.screens);
   if(shouldFadeTitle) {

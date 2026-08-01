@@ -206,11 +206,39 @@ void configLayer2(word writeThroughEnable) __z88dk_fastcall {
   z80_outp(__IO_LAYER_2_CONFIG, IO_123B_SHOW_LAYER_2 | writeThroughEnable);
 }
 
+// The orange the title screen's background quantises down to, which is also
+// the one the HUD keeps at index 250 - see hudPalette in hud.c.
+static const byte bootColour[] = { COLOR9(7, 4, 0) };
+
+// Flatten a palette to the boot colour. A screen blitted in under this stays
+// invisible, which is what the cold boot path wants: the raster arrives while
+// the palette still belongs to the loading screen, and holding the orange is
+// a lot less jarring than blacking the palette out to hide it.
+void floodPaletteWithBootColour(byte paletteMask) __z88dk_fastcall {
+  selectPalette(paletteMask); // also resets the palette index to 0
+  const byte packed = bootColour[0];
+  const byte blueBit = bootColour[1];
+  for(word i = 0; i != 256; ++i) {
+    ZXN_NEXTREGA(REG_PALETTE_VALUE_16, packed);
+    ZXN_NEXTREGA(REG_PALETTE_VALUE_16, blueBit);
+  }
+}
+
 void setupScreen(void) __z88dk_fastcall {
   configLayer2(1);
 
-  // Clear L2 to avoid loading screen flicker
-  layer2Clear(0);
+  // Clear L2 to avoid loading screen flicker. Clearing to index 0 would leave
+  // the screen entirely transparent (see the reg 0x14 write below) until
+  // menuMode blacks the ULA out, letting the ULA's boot state - white paper -
+  // flash through while the sprites, high scores and title screen load.
+  // Borrow the HUD's orange slot and clear to that instead: it is the same
+  // orange the title artwork uses for its background, so the boot gap and the
+  // menu share one backdrop and the title only has to bring in its lettering.
+  // Nothing else on the boot path writes the layer 2 palette, and by the time
+  // the title uploads its own the screen has been repainted regardless.
+  selectPalette(1); // L2 first palette
+  writeColourToIndex(bootColour, HUD_ORANGE);
+  layer2Clear(HUD_ORANGE);
 
   // Set res https://wiki.specnext.dev/Layer_2_Control_Register
   ZXN_NEXTREG(0x70, 0x10); // 320x256 8bpp
