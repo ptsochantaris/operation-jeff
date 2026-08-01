@@ -249,64 +249,187 @@ layer2CharSideways:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; The rectangle is split into runs of columns that live in the same layer 2 page,
+; so the page is selected once per run instead of being recomputed per column.
+; Each run then picks the loop direction that puts the *longer* side on the inside
+; (wide runs walk columns with inc h, tall runs walk rows with inc l), and the
+; inner loop is an unrolled block of 8 stores entered part-way for the remainder.
+; Height and start y are SMC placeholders, the colour lives in IYH and the run
+; length stays in B, so nothing has to be reloaded from memory per run.
+
 PUBLIC _layer2fill
 _layer2fill:
     pop iy          ; return address
 
-    pop HL          ; colour
+    pop hl          ; colour
     ld a, l
-    ld (layer2fillInk+1), a
-
-    pop de          ; height
-    ld a, e
-    ld (layer2fillVertical+1), a
-
+    pop hl          ; height
+    ld b, l
     pop de          ; width
-    ld b, e         ; 16bit loop init
-    dec de
-    inc d
-    ld c, d         ; BC set for 16bit loop
-
     pop hl          ; start y
-    pop de          ; start x
+    ld c, l
+    pop hl          ; start x
     push iy         ; put return back on stack
 
-    ld a, b
-    or c
-    ret z           ; zero with
+    ld iyh, a       ; colour stays in IYH for the whole fill
 
-    ld a, (layer2fillVertical+1)
+    ld a, d
+    or e
+    ret z           ; zero width
+
+    ld a, b
     or a
     ret z           ; zero height
+    ld (fillHeightValue+1), a
 
-    call selectPageForXInDE
+    ld a, c
+    ld (fillAcrossY+1), a
+    ld (fillDownY+1), a
 
-.layer2FillLoop:
-    ; offset in page
+    ; layer 2 page and in-page x of the left edge
+    ld a, l
+    and $3f
+    ld c, a         ; c = first column of this run
+    ld a, l
+    and $c0
+    or h
+    rlca
+    rlca
+    call selectLayer2PageInternal
+
+.fillRunLoop:
+    ; run = min(columns left in this page, width left)
+    ld a, 64
+    sub c
+    ld b, a
+    ld a, d
+    or a
+    jr nz, fillRunClip
     ld a, e
-    and $3F         ; keep in-page bits of x, set Z flag for below
-    ld h, a         ; l already has y
+    cp b
+    jr nc, fillRunClip
+    ld b, e
+.fillRunClip:
+    ld a, e         ; width left -= run
+    sub b
+    ld e, a
+    jr nc, fillRunBorrowed
+    dec d
+.fillRunBorrowed:
+    push de         ; stash width left, b now holds the run length
 
-    ; destination page needs update if in-page x is zero
-    call z, selectPageForXInDE
+.fillHeightValue:
+    ld a, 0                     ; placeholder for height
+    cp b
+    jr c, fillWideRun
 
-    push bc
-.layer2fillVertical:
-    ld b, 0         ; placeholder for height loop
-    ld c, l         ; stash L
-.layer2fillInk:
-    ld (hl), 0      ; set (hl) to colour value
+    ; tall run: one pass per column, walking rows
+    ld iyl, b                   ; columns to do
+    ld hl, fillDown
+    call fillSetupUnroll        ; a is still the height
+    ld (fillDownJump+1), hl
+    ld (fillDownPasses+1), a
+.fillDownY:
+    ld e, 0                     ; placeholder for start y
+    ld h, c                     ; run's first column
+    ld a, iyh                   ; colour
+.fillDownLoop:
+    ld l, e                     ; back to the first row
+.fillDownPasses:
+    ld b, 0                     ; placeholder for pass count
+.fillDownJump:
+    jp 0                        ; placeholder for entry point
+.fillDown:
+    ld (hl), a
     inc l
-    djnz layer2fillInk
-    ld l, c         ; restore L
-    pop bc
- 
-    inc de          ; x++
+    ld (hl), a
+    inc l
+    ld (hl), a
+    inc l
+    ld (hl), a
+    inc l
+    ld (hl), a
+    inc l
+    ld (hl), a
+    inc l
+    ld (hl), a
+    inc l
+    ld (hl), a
+    inc l
+    djnz fillDown
+    inc h                       ; next column
+    dec iyl
+    jr nz, fillDownLoop
+    jr fillRunNext
 
-    ; 16-bit loop using BC
-    djnz layer2FillLoop
-    dec c
-    jp nz, layer2FillLoop
+    ; wide run: one pass per row, walking columns
+.fillWideRun:
+    ld iyl, a                   ; rows to do
+    ld a, b                     ; run length
+    ld hl, fillAcross
+    call fillSetupUnroll
+    ld (fillAcrossJump+1), hl
+    ld (fillAcrossPasses+1), a
+.fillAcrossY:
+    ld l, 0                     ; placeholder for start y
+    ld a, iyh                   ; colour
+.fillAcrossLoop:
+    ld h, c                     ; back to the run's first column
+.fillAcrossPasses:
+    ld b, 0                     ; placeholder for pass count
+.fillAcrossJump:
+    jp 0                        ; placeholder for entry point
+.fillAcross:
+    ld (hl), a
+    inc h
+    ld (hl), a
+    inc h
+    ld (hl), a
+    inc h
+    ld (hl), a
+    inc h
+    ld (hl), a
+    inc h
+    ld (hl), a
+    inc h
+    ld (hl), a
+    inc h
+    ld (hl), a
+    inc h
+    djnz fillAcross
+    inc l                       ; next row
+    dec iyl
+    jr nz, fillAcrossLoop
+
+.fillRunNext:
+    pop de                      ; width left
+    ld a, d
+    or e
+    ret z
+
+    ld a, (selectLayer2PageInternal+1)
+    inc a
+    call selectLayer2PageInternal
+    ld c, 0                     ; later runs start at the page's first column
+    jp fillRunLoop
+
+; in:  a = pixels in one pass group (1..255), hl = start of the unrolled block
+; out: hl = entry point for the first pass, a = number of passes
+.fillSetupUnroll:
+    ld b, a
+    dec b
+    ld a, b
+    and 7
+    neg
+    add a, 7                    ; stores to skip on the first pass
+    add a, a                    ; two bytes per store/step pair
+    add hl, a
+    ld a, b
+    rrca
+    rrca
+    rrca
+    and $1f
+    inc a                       ; passes = ((count - 1) >> 3) + 1
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

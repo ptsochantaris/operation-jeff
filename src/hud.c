@@ -9,24 +9,69 @@
 
 static struct stats displayedStats;
 
-static void hudEnergyDraw(void) __z88dk_fastcall {
+#define RATE_HEIGHT 200
+
+// The bars only ever move by a unit or two per update, so the incremental draws
+// repaint just the band that changed instead of the whole 64-column / 200-row bar.
+// initHud does the full repaint and re-seeds these after the screen is rebuilt.
+static byte drawnEnergyWidth;
+static byte drawnHealthWidth;
+static byte drawnRateHeight;
+
+static void hudEnergyDrawFull(void) __z88dk_fastcall {
   byte width = displayedStats.energy >> 2;
   layer2fill(ENERGY_X + 2, 10, width, 2, HUD_GREEN);
   layer2fill(ENERGY_X + 2 + width, 10, 64 - width, 2, HUD_BLACK);
+  drawnEnergyWidth = width;
 }
 
-#define RATE_HEIGHT 200
-static void hudRateDraw(void) __z88dk_fastcall {
-  byte height = ((displayedStats.fireRate - FIRE_RATE_MIN) * RATE_HEIGHT) / (FIRE_RATE_MAX - FIRE_RATE_MIN);
+static void hudEnergyDraw(void) __z88dk_fastcall {
+  byte width = displayedStats.energy >> 2;
+  if(width > drawnEnergyWidth) {
+    layer2fill(ENERGY_X + 2 + drawnEnergyWidth, 10, width - drawnEnergyWidth, 2, HUD_GREEN);
+  } else if(width < drawnEnergyWidth) {
+    layer2fill(ENERGY_X + 2 + width, 10, drawnEnergyWidth - width, 2, HUD_BLACK);
+  }
+  drawnEnergyWidth = width;
+}
+
+static byte hudRateHeight(void) __z88dk_fastcall {
+  return ((displayedStats.fireRate - FIRE_RATE_MIN) * RATE_HEIGHT) / (FIRE_RATE_MAX - FIRE_RATE_MIN);
+}
+
+static void hudRateDrawFull(void) __z88dk_fastcall {
+  byte height = hudRateHeight();
   word invHeight = RATE_HEIGHT - height;
   layer2fill(RATE_X + 2, RATE_Y + 2, 2, height, HUD_YELLOW);
   layer2fill(RATE_X + 2, RATE_Y + 2 + height, 2, invHeight, HUD_BLUE);
+  drawnRateHeight = height;
+}
+
+static void hudRateDraw(void) __z88dk_fastcall {
+  byte height = hudRateHeight();
+  if(height > drawnRateHeight) {
+    layer2fill(RATE_X + 2, RATE_Y + 2 + drawnRateHeight, 2, height - drawnRateHeight, HUD_YELLOW);
+  } else if(height < drawnRateHeight) {
+    layer2fill(RATE_X + 2, RATE_Y + 2 + height, 2, drawnRateHeight - height, HUD_BLUE);
+  }
+  drawnRateHeight = height;
+}
+
+static void hudHealthDrawFull(void) __z88dk_fastcall {
+  byte width = displayedStats.health >> 2;
+  layer2fill(HEALTH_X + 2, 10, width, 2, HUD_RED);
+  layer2fill(HEALTH_X + 2 + width, 10, 64 - width, 2, HUD_BLACK);
+  drawnHealthWidth = width;
 }
 
 static void hudHealthDraw(void) __z88dk_fastcall {
   byte width = displayedStats.health >> 2;
-  layer2fill(HEALTH_X + 2, 10, width, 2, HUD_RED);
-  layer2fill(HEALTH_X + 2 + width, 10, 64 - width, 2, HUD_BLACK);
+  if(width > drawnHealthWidth) {
+    layer2fill(HEALTH_X + 2 + drawnHealthWidth, 10, width - drawnHealthWidth, 2, HUD_RED);
+  } else if(width < drawnHealthWidth) {
+    layer2fill(HEALTH_X + 2 + width, 10, drawnHealthWidth - width, 2, HUD_BLACK);
+  }
+  drawnHealthWidth = width;
 }
 
 static void hudScoreDraw(void) __z88dk_fastcall {
@@ -170,9 +215,9 @@ void initHud(byte level) __z88dk_fastcall {
 
   displayedStats = currentStats;
   hudScoreDraw();
-  hudHealthDraw();
-  hudRateDraw();
-  hudEnergyDraw();
+  hudHealthDrawFull();
+  hudRateDrawFull();
+  hudEnergyDrawFull();
   hudKillsDraw();
   hudBorderDraw();
 
