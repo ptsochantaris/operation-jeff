@@ -291,6 +291,16 @@ _activeMagnetTiles:
 
     ; 1 active magnet B
     DB $FF, $FF, $FF, $FF
+    DB $FF, $99, $99, $FF
+    DB $F9, $99, $99, $9F
+    DB $F9, $9F, $F9, $9F
+    DB $F9, $9F, $F9, $9F
+    DB $F9, $9F, $F9, $9F
+    DB $F9, $9F, $F9, $9F
+    DB $FF, $FF, $FF, $FF
+
+    ; 2 active magnet C
+    DB $FF, $FF, $FF, $FF
     DB $FF, $77, $77, $FF
     DB $F7, $77, $77, $7F
     DB $F7, $7F, $F7, $7F
@@ -299,21 +309,24 @@ _activeMagnetTiles:
     DB $F7, $7F, $F7, $7F
     DB $FF, $FF, $FF, $FF
 
-    ; 2 active magnet C
+    ; 3 active magnet D
     DB $FF, $FF, $FF, $FF
-    DB $FF, $55, $55, $FF
-    DB $F5, $55, $55, $5F
-    DB $F5, $5F, $F5, $5F
-    DB $F5, $5F, $F5, $5F
-    DB $F5, $5F, $F5, $5F
-    DB $F5, $5F, $F5, $5F
+    DB $FF, $99, $99, $FF
+    DB $F9, $99, $99, $9F
+    DB $F9, $9F, $F9, $9F
+    DB $F9, $9F, $F9, $9F
+    DB $F9, $9F, $F9, $9F
+    DB $F9, $9F, $F9, $9F
     DB $FF, $FF, $FF, $FF
 
-; The minibomb kill-zone flash - see tilemapFlash. Colour C is the laser red
-; the tilemap palette keeps for these two alone, so it can be retuned without
-; disturbing the bonus tiles' own red at index 1.
+; The minibomb kill-zone flash - see tilemapFlash. Two dithered tiles that have
+; to stay adjacent and in this order: the fill carries the body of the disc and
+; the edge its rim, which tilemapFlash reaches as the fill index plus one.
 
-    ; 29 laser fill
+PUBLIC _laserTiles
+_laserTiles:
+
+    ; 0 laser fill
     DB $FF, $44, $FF, $44
     DB $FF, $44, $FF, $44
     DB $44, $FF, $44, $FF
@@ -323,7 +336,7 @@ _activeMagnetTiles:
     DB $44, $FF, $44, $FF
     DB $44, $FF, $44, $FF
 
-    ; 30 laser fill
+    ; 1 laser edge
     DB $FF, $77, $FF, $77
     DB $FF, $77, $FF, $77
     DB $77, $FF, $77, $FF
@@ -332,3 +345,16 @@ _activeMagnetTiles:
     DB $FF, $77, $FF, $77
     DB $77, $FF, $77, $FF
     DB $77, $FF, $77, $FF
+
+; Tile indices resolved here rather than in C, so inserting or removing tiles
+; above shifts them automatically. The value lives in the symbol itself, so the
+; C side takes its address to read it - see tilemap.c.
+
+PUBLIC _laserTileIndex
+defc _laserTileIndex = (_laserTiles - _tilesBase) / 32
+
+; The cycle length rather than the tile count, so the C side compares against an
+; immediate. The 4 is the frames each tile is held for, and pairs with the >> 2
+; bonus.c uses to turn the counter back into an offset.
+PUBLIC _activeMagnetCycle
+defc _activeMagnetCycle = ((_laserTiles - _activeMagnetTiles) / 32) * 4

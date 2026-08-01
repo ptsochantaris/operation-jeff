@@ -7,6 +7,8 @@ void effectMenuLoop(void) __z88dk_fastcall;
 void effectFire(void) __z88dk_fastcall;
 void effectLand(void) __z88dk_fastcall;
 void effectBomb(void) __z88dk_fastcall;
+void effectBombShort(void) __z88dk_fastcall;
+void effectBombRise(void) __z88dk_fastcall;
 void effectBombLightStart(void) __z88dk_fastcall;
 void effectBombLightEnd(void) __z88dk_fastcall;
 void effectExplosion(void) __z88dk_fastcall;

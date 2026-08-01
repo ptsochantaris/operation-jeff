@@ -70,6 +70,23 @@ void effectBomb(void) __z88dk_fastcall {
   aySetMixer(1, 0, 1);
 }
 
+void effectBombShort(void) __z88dk_fastcall {
+  ayChipSelect(1);
+  aySetEnvelope(0, 10000);
+  aySetNoise(31);
+
+  aySetAmplitude(1, 0x10);
+  aySetMixer(1, 0, 1);
+}
+
+void effectBombRise(void) __z88dk_fastcall {
+  ayChipSelect(1);
+  aySetEnvelope(13, 200);
+  ayPlayNote(1, 16000);
+  aySetAmplitude(1, 0x10);
+  aySetMixer(1, 1, 0);
+}
+
 void effectBombLightStart(void) __z88dk_fastcall {
   ayChipSelect(2);
   aySetEnvelope(8, 500);

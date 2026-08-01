@@ -17,6 +17,12 @@ extern word hollowMagnetTiles;
 extern word activeMagnetTiles;
 extern word tilesBase;
 
+// Assembled by tiles.asm as the tile count times four frames each, so adding a
+// frame to the category extends the cycle on its own. The length is the symbol's
+// value, not its contents, so taking the address is what reads it.
+extern byte activeMagnetCycle;
+#define ACTIVE_MAGNET_CYCLE ((byte)(word)&activeMagnetCycle)
+
 static void placeTile(word *categoryBase, int offset) __z88dk_callee {
     byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
     ZXN_WRITE_MMU3(11);
@@ -42,6 +48,9 @@ static const byte bonusIndexes[] = {
     BONUS_CHARGE,
     BONUS_SMARTBOMB,
     BONUS_SMARTBOMB,
+    BONUS_MINIBOMB,
+    BONUS_MINIBOMB,
+    BONUS_MINIBOMB,
     BONUS_RATE,
     BONUS_SCORE,
     BONUS_ZAP,
@@ -51,17 +60,16 @@ static const byte bonusIndexes[] = {
     BONUS_SLOW,
     BONUS_INVUNERABLE,
     BONUS_RANGE,
-    BONUS_UMBRELLA,
-    BONUS_MINIBOMB
+    BONUS_UMBRELLA
 };
-#define BONUS_INDEX_COUNT 15
+#define BONUS_INDEX_COUNT 17
 
 static void newRandomTargetType(void) {
     do {
         byte i = random16() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];
     } while(lastTargetType == targetType);
-    targetType = BONUS_MINIBOMB;
+    // targetType = BONUS_MINIBOMB;
     lastTargetType = targetType;
 }
 
@@ -86,9 +94,11 @@ void updateBonuses(void) __z88dk_fastcall {
 
     if(targetType == presentedType) {
         if(currentStats.magnetLocation.z) {
+            // magnetActive doubles as the "is active" flag, so it cycles 1..count<<2
+            // rather than from zero, and the tile offset takes the bias back off.
             magnetActive += 1;
-            if(magnetActive>(3<<2)) magnetActive = 1;
-            placeTile(&activeMagnetTiles, magnetActive >> 2);
+            if(magnetActive > ACTIVE_MAGNET_CYCLE) magnetActive = 1;
+            placeTile(&activeMagnetTiles, (magnetActive - 1) >> 2);
             return;
         } else if (magnetActive) {
             placeTile(&tilesBase, 0);
