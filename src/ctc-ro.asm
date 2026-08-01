@@ -80,7 +80,19 @@ ctcAudioHandler:
     ld bc, (sampleEnd)
     ld a, l
     cp c
-    jr nz, ctcSampleStore
+    jr z, ctcCheckEnd      ; end of sample is 1-in-256 at best, so the hot path
+                           ; falls through here (7t) instead of jumping (12t)
+.ctcSampleStore:
+    ld (samplePtr), hl
+.ctcSampleDone:
+    pop hl
+    pop bc
+    pop af
+    ei
+    reti
+
+    ; cold tail: low byte matched, so check the high byte and handle the end
+.ctcCheckEnd:
     ld a, h
     cp b
     jr nz, ctcSampleStore
@@ -95,11 +107,3 @@ ctcAudioHandler:
     xor a
     ld (_sampleActive), a
     jr ctcSampleDone
-.ctcSampleStore:
-    ld (samplePtr), hl
-.ctcSampleDone:
-    pop hl
-    pop bc
-    pop af
-    ei
-    reti

@@ -45,12 +45,12 @@ _setJeffPos:
                         ; else 3 = DOWN, fallthrough
     inc (iy+3)          ; ++pos.y
     ld bc, 0x1208       ; horizontal=8, vertical=18 (0x12)
-    jr sjp_loadX
+    jp sjp_loadX        ; jp: 10t, against 12t for an always-taken jr
 
 .sjp_up:
     dec (iy+3)          ; --pos.y
     ld bc, 0x0A08       ; horizontal=8, vertical=10 (0x0A)
-    jr sjp_loadX
+    jp sjp_loadX
 
 .sjp_left:
     ld hl, (iy+1)
@@ -58,7 +58,7 @@ _setJeffPos:
     dec hl              ; pos.x -= 2
     ld (iy+1), hl
     ld bc, 0x0E06       ; horizontal=6, vertical=14 (0x0E)
-    jr sjp_lookup       ; HL already holds pos.x: skip the reload
+    jp sjp_lookup       ; HL already holds pos.x: skip the reload
 
 .sjp_right:
     ld hl, (iy+1)
@@ -66,7 +66,7 @@ _setJeffPos:
     inc hl              ; pos.x += 2
     ld (iy+1), hl
     ld bc, 0x0E06       ; horizontal=6, vertical=14 (0x0E)
-    jr sjp_lookup       ; HL already holds pos.x: skip the reload
+    jp sjp_lookup       ; HL already holds pos.x: skip the reload
 
 .sjp_noMove:
     ld a, sjp_setTarget - sjp_flagJump - 2
@@ -112,6 +112,7 @@ _setJeffPos:
 
 .sjp_flagJump:          ; if (direction == 255) { pos.z = targetZ; return; }
     jr sjp_setTarget    ; displacement self-modified above: 0 => fall into clamp
+                        ; MUST stay a jr - the patch above writes a jr displacement
 
 .sjp_clamp:
     ld a, h
@@ -122,7 +123,7 @@ _setJeffPos:
     ld a, l
     cp 254
     jr c, sjp_minus2
-    jr sjp_setTarget    ; diff is -1 or -2
+    jp sjp_setTarget    ; diff is -1 or -2
 
 .sjp_diffPos:
     ; diff positive (H==0): diff > 2  <=>  L >= 3

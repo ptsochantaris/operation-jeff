@@ -266,7 +266,9 @@ layer2CharSideways:
     ld b, 3         ; loops in b
 .layer2PlotSliceSidewaysLoop:
     rl c
-    jp nc, layer2PlotSliceSidewaysNext
+    ; jr, not jp: the set bit skips it (7t) and glyph slices are ~60% set, so
+    ; this averages ~9t against jp's flat 10t, and saves a byte
+    jr nc, layer2PlotSliceSidewaysNext
 
     ld a, h         ; save H
     ex af, af'
@@ -396,7 +398,7 @@ _layer2fill:
     inc h                       ; next column
     dec iyl
     jr nz, fillDownLoop
-    jr fillRunNext
+    jp fillRunNext      ; jp: 10t, against 12t for an always-taken jr
 
     ; wide run: one pass per row, walking columns
 .fillWideRun:

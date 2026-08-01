@@ -581,7 +581,9 @@ ulaAttributeChar:
     ld b, 3         ; loops in b
 .ulaAttributeCharPlotSliceLoop:
     rl c
-    jp nc, ulaAttributeCharPlotSliceSkip
+    ; jr, not jp: see layer2PlotSliceSideways - set bits dominate, so the
+    ; not-taken path (7t) is the common one and this beats jp's flat 10t
+    jr nc, ulaAttributeCharPlotSliceSkip
     ld (hl), a
 .ulaAttributeCharPlotSliceSkip:
     inc hl
