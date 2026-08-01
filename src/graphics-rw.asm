@@ -177,35 +177,99 @@ layer2PlotSliceSlowInk:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; The rows are unrolled, which drops the per-row counter and the iy walk. The
+; slice sits in A and is shifted with add a,a (4t, against 8t for sll b), and
+; the colour sits in E so the store is ld (hl),e (7t, against 10t for ld (hl),n)
+; - so DE is pushed and popped around the whole thing to free E up.
+
 layer2CharFast:
     ; HL y
     ; DE x
     ; IY            ; address of first slice
 
+    push de         ; x has to survive, e becomes the colour
     call selectPageForXInDeAndSetupH
     ld c, h         ; stash x
-
-    ld a, 5         ; 5 slices
-.layer2PlotSliceFastOuterLoop:
-    ld b, (iy)      ; current slice
-.layer2PlotSliceFastLoop:
-    sll b
-    jr nc, layer2PlotSliceFastNext
 layer2PlotSliceFastInk:
-    ld (hl), 0      ; set (hl) to colour value
-.layer2PlotSliceFastNext:
-    inc h           ; x++
+    ld e, 0         ; placeholder for colour value
 
-    ; remove 1, loop if there are still 1s in the slice
-    djnz layer2PlotSliceFastLoop
-
+    ld a, (iy)
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
     ld h, c         ; restore x
     inc l           ; y++
-    dec a           ; next loop
-    ret z           ; or done
 
-    inc iy          ; next slice
-    jp layer2PlotSliceFastOuterLoop
+    ld a, (iy+1)
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    ld h, c
+    inc l
+
+    ld a, (iy+2)
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    ld h, c
+    inc l
+
+    ld a, (iy+3)
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    ld h, c
+    inc l
+
+    ; the last row does not need x restoring
+    ld a, (iy+4)
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc l
+
+    pop de          ; restore x
+    ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

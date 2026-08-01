@@ -74,11 +74,30 @@ static void hudHealthDraw(void) __z88dk_fastcall {
   drawnHealthWidth = width;
 }
 
+static unsigned long drawnHighScore;
+
+// The stored table is only rewritten at game over, but the player can overtake
+// it mid-level, so the HUD shows whichever of the two is currently higher.
+static unsigned long hudHighScore(void) __z88dk_fastcall {
+  unsigned long stored = (unsigned long)highScores[0].score;
+  return (displayedStats.score > stored) ? displayedStats.score : stored;
+}
+
+static void hudHighScoreDraw(void) __z88dk_fastcall {
+  drawnHighScore = hudHighScore();
+  sprintf(textBuf, "%07lu", drawnHighScore);
+  printWithBackground(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
+}
+
 static void hudScoreDraw(void) __z88dk_fastcall {
   sprintf(textBuf, "%07lu", displayedStats.score);
   printWithBackground(textBuf, SCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
-  sprintf(textBuf, "%07lu", highScores[0].score);
-  printWithBackground(textBuf, HISCORE_X - 4, 8, HUD_WHITE, HUD_BLACK);
+
+  // Repaint the high score only when it actually moves. It is unchanged for most
+  // of a game, and redrawing it regardless was over half the cost of an update.
+  if(hudHighScore() != drawnHighScore) {
+    hudHighScoreDraw();
+  }
 }
 
 static void hudBorderDraw(void) __z88dk_fastcall {
@@ -214,6 +233,7 @@ void initHud(byte level) __z88dk_fastcall {
   layer2circleFill(8, 2, 2, HUD_WHITE, HUD_WHITE, 0);
 
   displayedStats = currentStats;
+  hudHighScoreDraw();     // unconditional, the screen was just rebuilt
   hudScoreDraw();
   hudHealthDrawFull();
   hudRateDrawFull();
