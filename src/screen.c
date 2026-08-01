@@ -207,22 +207,9 @@ void configLayer2(word writeThroughEnable) __z88dk_fastcall {
 }
 
 // The orange the title screen's background quantises down to, which is also
-// the one the HUD keeps at index 250 - see hudPalette in hud.c.
-static const byte bootColour[] = { COLOR9(7, 4, 0) };
-
-// Flatten a palette to the boot colour. A screen blitted in under this stays
-// invisible, which is what the cold boot path wants: the raster arrives while
-// the palette still belongs to the loading screen, and holding the orange is
-// a lot less jarring than blacking the palette out to hide it.
-void floodPaletteWithBootColour(byte paletteMask) __z88dk_fastcall {
-  selectPalette(paletteMask); // also resets the palette index to 0
-  const byte packed = bootColour[0];
-  const byte blueBit = bootColour[1];
-  for(word i = 0; i != 256; ++i) {
-    ZXN_NEXTREGA(REG_PALETTE_VALUE_16, packed);
-    ZXN_NEXTREGA(REG_PALETTE_VALUE_16, blueBit);
-  }
-}
+// the one the HUD keeps at index 250 - see hudPalette in hud.c. Not static:
+// floodPaletteWithBootColour in graphics-ro.asm reads it too.
+const byte bootColour[] = { COLOR9(7, 4, 0) };
 
 void setupScreen(void) __z88dk_fastcall {
   configLayer2(1);

@@ -1,6 +1,6 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL _paletteBuffer, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
+GLOBAL _paletteBuffer, _bootColour, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
 GLOBAL layer2CharSlow, layer2CharFast, selectLayer2PageInternal
 GLOBAL layer2PlotSliceSlowInk, layer2PlotSliceFastInk, selectPageForXInDeAndSetupH, layer2CharSideways, layer2PlotSliceSidewaysInk
 GLOBAL _waitFrame
@@ -336,20 +336,28 @@ _writeColourToIndex:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; No callers since the cold boot title load started holding the boot colour
-; instead of blacking the palette out - see floodPaletteWithBootColour.
+; Flatten a palette to the boot colour. A screen blitted in under this stays
+; invisible, which is what the cold boot path wants: the raster arrives while
+; the palette still belongs to the loading screen, and holding the orange is
+; a lot less jarring than blacking the palette out to hide it.
 ;
-; PUBLIC _zeroPalette
-; _zeroPalette:
-;     call _selectPalette ; index is in L, passed through to this
-;
-;     xor a
-;     ld b, 0 ; djnz treats 0 as 256, so all 256 palette entries are cleared
-; .zeroPaletteLoop:
-;     nextreg 68, a ; REG_PALETTE_VALUE_16
-;     nextreg 68, a ; REG_PALETTE_VALUE_16
-;     djnz zeroPaletteLoop
-;     ret
+; This replaces _zeroPalette, which lost its last caller when the cold boot
+; title load started holding the boot colour instead of blacking out.
+
+PUBLIC _floodPaletteWithBootColour
+_floodPaletteWithBootColour:
+    call _selectPalette ; mask is in L, passed through to this, and it also resets the palette index to 0
+
+    ld hl, (_bootColour) ; L gets the packed RRRGGGBB byte, H the odd blue bit
+    ld b, 0 ; djnz treats 0 as 256, so all 256 palette entries are written
+.floodPaletteWithBootColourLoop:
+    ld a, l
+    nextreg 68, a ; REG_PALETTE_VALUE_16
+    ld a, h
+    nextreg 68, a ; REG_PALETTE_VALUE_16
+    djnz floodPaletteWithBootColourLoop
+
+    RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

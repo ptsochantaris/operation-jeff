@@ -12,6 +12,7 @@ void layer2StashPalette(byte *restrict buffer) __preserves_regs(iyh,iyl) __z88dk
 void readColourFromIndex(byte *colour, byte index) __preserves_regs(d,e,iyh,iyl) __z88dk_callee __smallc;
 void writeColourToIndex(const byte *colour, byte index) __preserves_regs(d,e,iyh,iyl) __z88dk_callee __smallc;
 // void zeroPalette(byte palette) __preserves_regs(c,d,e,h,l,iyh,iyl) __z88dk_fastcall;
+void floodPaletteWithBootColour(byte paletteMask) __preserves_regs(c,d,e,iyh,iyl) __z88dk_fastcall;
 void scrollLayer2(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee __smallc;
 void layer2fill(word x, word y, word width, word height, byte color) __z88dk_callee __smallc;
 
