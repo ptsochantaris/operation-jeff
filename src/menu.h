@@ -7,5 +7,6 @@ extern byte inputDelay;
 
 byte menuLoop(void) __z88dk_fastcall;
 void menuMode(void) __z88dk_fastcall;
+void prefetchTitleScreen(void) __z88dk_fastcall;
 
 #endif

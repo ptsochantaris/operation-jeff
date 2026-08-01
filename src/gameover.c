@@ -98,6 +98,12 @@ void gameOverLoop(void) __z88dk_fastcall {
   x = center - ((4*19) >> 1);
   word entryY = displayHighScoreTable(x, top, highScoreSlot);
 
+  // The screen is fully drawn and we're about to sit here until the player
+  // finishes reading (or typing their name), with no sample playing - so
+  // MMU1/MMU2 are ours. Pull the title screen in now and the return to the
+  // menu becomes a DMA blit instead of a ~5-12 frame stall.
+  prefetchTitleScreen();
+
   byte keyDown = 0;
 
   while(1) {

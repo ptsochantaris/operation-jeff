@@ -13,6 +13,12 @@ int main(void) {
 
   setupInterrupts(); // switch from legacy IM1 to hardware IM2 (ULA frame + CTC audio)
 
+  // The title has to be decompressed at boot anyway, so do it into the prefetch
+  // pages: the cold-boot cost is one extra DMA blit, and in exchange the copy
+  // stays tagged for the rest of the session, making every info->title toggle
+  // (and every return from game over) a blit instead of a decompress.
+  prefetchTitleScreen();
+
   while(1) {
     byte startLevel = menuLoop();
     gameLoop(startLevel);

@@ -21,6 +21,13 @@ static void loadTitleScreen(void) __z88dk_fastcall {
   }
 }
 
+// Decompress the title screen into the prefetch pages so the next
+// loadTitleScreen is a DMA blit. titleInfo is file-static, so its screens
+// pointer is stable and will still match at loadScreen time.
+void prefetchTitleScreen(void) __z88dk_fastcall {
+  prefetchScreen(titleInfo.screens);
+}
+
 static const struct ScreenInfo infoInfo = SCREEN_ARRAY(info);
 static void loadInfoScreen(void) __z88dk_fastcall {
   fadePaletteDown(1, 1, 0);
