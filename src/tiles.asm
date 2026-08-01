@@ -134,6 +134,16 @@ _tilesBase:
     DB $71, $17, $71, $17
     DB $F7, $77, $77, $7F
 
+    ; 13 minibomb
+    DB $FF, $77, $77, $FF
+    DB $F7, $44, $44, $7F
+    DB $74, $44, $44, $47
+    DB $74, $44, $44, $47
+    DB $74, $44, $44, $47
+    DB $74, $44, $44, $47
+    DB $F7, $44, $44, $7F
+    DB $FF, $77, $77, $FF
+
 PUBLIC _hollowPlusTiles
 _hollowPlusTiles:
 
@@ -298,3 +308,27 @@ _activeMagnetTiles:
     DB $F5, $5F, $F5, $5F
     DB $F5, $5F, $F5, $5F
     DB $FF, $FF, $FF, $FF
+
+; The minibomb kill-zone flash - see tilemapFlash. Colour C is the laser red
+; the tilemap palette keeps for these two alone, so it can be retuned without
+; disturbing the bonus tiles' own red at index 1.
+
+    ; 29 laser fill
+    DB $FF, $44, $FF, $44
+    DB $FF, $44, $FF, $44
+    DB $44, $FF, $44, $FF
+    DB $44, $FF, $44, $FF
+    DB $FF, $44, $FF, $44
+    DB $FF, $44, $FF, $44
+    DB $44, $FF, $44, $FF
+    DB $44, $FF, $44, $FF
+
+    ; 30 laser fill
+    DB $FF, $77, $FF, $77
+    DB $FF, $77, $FF, $77
+    DB $77, $FF, $77, $FF
+    DB $77, $FF, $77, $FF
+    DB $FF, $77, $FF, $77
+    DB $FF, $77, $FF, $77
+    DB $77, $FF, $77, $FF
+    DB $77, $FF, $77, $FF

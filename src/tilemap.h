@@ -16,4 +16,8 @@
 
 void initTilemap(void) __z88dk_fastcall;
 
+// Stamps (1) or lifts (0) a kill-radius disc of tiles centred on a playfield
+// coordinate. Draw and clear must be paired, same x and y.
+void tilemapFlash(word x, word y, byte active) __z88dk_callee;
+
 #endif

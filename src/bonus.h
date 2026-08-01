@@ -14,7 +14,8 @@
 #define BONUS_RANGE 10
 #define BONUS_ZAP 11
 #define BONUS_MAGNET 12
-#define BONUS_MAX 12
+#define BONUS_MINIBOMB 13
+#define BONUS_MAX 13
 
 void updateBonuses(void) __z88dk_fastcall;
 void resetBonuses(void) __z88dk_fastcall;

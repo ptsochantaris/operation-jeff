@@ -51,15 +51,17 @@ static const byte bonusIndexes[] = {
     BONUS_SLOW,
     BONUS_INVUNERABLE,
     BONUS_RANGE,
-    BONUS_UMBRELLA
+    BONUS_UMBRELLA,
+    BONUS_MINIBOMB
 };
-#define BONUS_INDEX_COUNT 14
+#define BONUS_INDEX_COUNT 15
 
 static void newRandomTargetType(void) {
     do {
         byte i = random16() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];
     } while(lastTargetType == targetType);
+    targetType = BONUS_MINIBOMB;
     lastTargetType = targetType;
 }
 
@@ -151,6 +153,7 @@ void updateBonuses(void) __z88dk_fastcall {
                 case BONUS_UMBRELLA:
                 case BONUS_SLOW:
                 case BONUS_INVUNERABLE:
+                case BONUS_MINIBOMB:
                 case BONUS_RANGE:
                 case BONUS_RATE:
                     placeTile(&hollowSquareTiles, transitionOffset);
@@ -181,6 +184,7 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_SLOW:
         case BONUS_INVUNERABLE:
         case BONUS_RANGE:
+        case BONUS_MINIBOMB:
         case BONUS_RATE:
             placeTile(&hollowMagnetTiles, -transitionOffset);
             break;

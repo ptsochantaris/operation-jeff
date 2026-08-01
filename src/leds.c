@@ -62,8 +62,14 @@ static void resetGrayPalette(void) __z88dk_fastcall {
 
 static byte statusCount = 0;
 
+// Rows 10-14 of the attribute area: the only part of the ULA layer that holds
+// anything during play. gameMode clears the rest to zero and nothing else ever
+// writes attributes, which is what lets ulaFlash erase itself by writing zeros.
+#define STATUS_BAND (ulaAttributes + (10 * 32))
+#define STATUS_BAND_LEN (5 * 32)
+
 static void clearStatus(void) __z88dk_fastcall {
-    stackClear(ulaAttributes + 320, 160, 0);
+    stackClear(STATUS_BAND, STATUS_BAND_LEN, 0);
 }
 
 void status(byte *text) __z88dk_fastcall {
@@ -84,7 +90,7 @@ void updateStatus(void) __z88dk_fastcall {
     if(statusCount == 0) {
         return;
     }
-    
+
     if(--statusCount == 0) {
         clearStatus();
     } else {

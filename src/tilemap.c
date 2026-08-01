@@ -41,3 +41,59 @@ void initTilemap(void) __z88dk_fastcall {
   ZXN_WRITE_MMU3(10);
   scrollTilemap(0, 0);
 }
+
+// The tilemap is the only layer that spans the whole play area: 40x32 cells of
+// 8x8 over the full 320x256, where the ULA only reaches the middle 256x192 and
+// leaves blasts near an edge with half a disc. It sits under the ULA and over
+// layer 2 (initTilemap above, plus gameMode's SUL), so the flash still passes
+// beneath the sprites and the jeffs stay visible dying inside it.
+//
+// Cell mapping inverts the one bonus.c uses on the way in - it hands over
+// (column << 3) - 4 - so the disc lands exactly on the tile that triggered it.
+#define FLASH_FILL_TILE 29
+#define FLASH_EDGE_TILE 30
+#define TILEMAP_COLUMNS 40
+#define TILEMAP_ROWS 32
+
+// Half-width in cells per row of a 60 pixel (7.5 cell) radius disc, the same
+// radius jeffKillAllAt kills within. Indexed by distance from the middle row.
+static const byte flashSpan[] = { 7, 7, 7, 7, 6, 6, 4, 3 };
+#define FLASH_SPAN_COUNT 8
+
+void tilemapFlash(word x, word y, byte active) __z88dk_callee {
+  const int cx = ((int)x + 4) >> 3;
+  const int cy = ((int)y + 4) >> 3;
+
+  // Clearing puts back tile 0, which is fully transparent: during play the only
+  // other thing on the tilemap is the single bonus tile, and bonus.c replaces
+  // that itself once the hit has been processed.
+  const byte fill = active ? FLASH_FILL_TILE : 0;
+  const byte edge = active ? FLASH_EDGE_TILE : 0;
+
+  ZXN_WRITE_MMU3(11);
+  for(int r = 1 - FLASH_SPAN_COUNT; r != FLASH_SPAN_COUNT; ++r) {
+    const int row = cy + r;
+    if((word)row >= TILEMAP_ROWS) continue;
+
+    const byte distance = (r < 0) ? -r : r;
+    const byte half = flashSpan[distance];
+    int left = cx - half;
+    int right = cx + half;
+    if(left < 0) left = 0;
+    if(right >= TILEMAP_COLUMNS) right = TILEMAP_COLUMNS - 1;
+    if(right < left) continue;
+
+    // The top and bottom rows are all rim; the rest carry it in their end cells
+    const byte body = (distance == FLASH_SPAN_COUNT-1) ? edge : fill;
+    byte *t = (byte *)tilemapAddress + row * TILEMAP_COLUMNS + left;
+    for(byte c = right - left + 1; c; --c) {
+      *t++ = body;
+    }
+
+    if(body == fill) {
+      *(t-1) = edge;
+      *((byte *)tilemapAddress + row * TILEMAP_COLUMNS + left) = edge;
+    }
+  }
+  ZXN_WRITE_MMU3(10);
+}

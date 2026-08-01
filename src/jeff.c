@@ -400,6 +400,52 @@ void jeffKillAll(byte retireImmediately) __z88dk_fastcall {
     }
 }
 
+// True when a jeff sits inside a circle of `radius` pixels around (cx, cy),
+// comparing against its on-screen position (jeffs draw at pos.y - pos.z, same
+// as jeffCheckBombs). The bounding box is rejected first with the unsigned
+// range trick: it throws out almost every jeff in a couple of compares, and it
+// leaves both deltas below the radius, so the squared-distance compare below
+// can never overflow 16 bits (worst case here is 2 * 60^2 = 7200).
+static byte withinPixelRadius(const struct jeff *restrict j, int cx, int cy, byte radius) __z88dk_callee {
+    const word span = (radius << 1) + 1; // inclusive of both rims
+
+    const word bx = (word)(j->sprite.pos.x - (cx - radius));
+    if(bx >= span) return 0;
+
+    int jy = j->sprite.pos.y - j->sprite.pos.z;
+    if(jy < 0) jy = 0;
+    const word by = (word)(jy - (cy - radius));
+    if(by >= span) return 0;
+
+    // recentre on the circle, and fold to unsigned so the products stay 8x8
+    int dx = (int)bx - radius;
+    if(dx < 0) dx = -dx;
+    int dy = (int)by - radius;
+    if(dy < 0) dy = -dy;
+
+    const byte ax = (byte)dx;
+    const byte ay = (byte)dy;
+    return ((word)ax * ax + (word)ay * ay) <= (word)radius * radius;
+}
+
+void jeffKillAllAt(word x, word y) __z88dk_callee {
+    struct jeff **J = activeJeff;
+    for(const struct jeff **E = activeJeff+activeJeffCount; J != E; ++J) {
+        struct jeff *j = *J;
+        switch(j->state) {
+            case JEFF_STATE_STAND:
+            case JEFF_STATE_WALK:
+                if(withinPixelRadius(j, x, y, 60)) {
+                    killJeff(j);
+                }
+            case JEFF_STATE_APPEAR:
+            case JEFF_STATE_LANDING:
+            case JEFF_STATE_DISAPPEAR:
+            case JEFF_STATE_NONE:
+        }
+    }
+}
+
 static void holdStep(void) __z88dk_fastcall {
     word v = currentStats.holdCount--;
     if(v == 1) {

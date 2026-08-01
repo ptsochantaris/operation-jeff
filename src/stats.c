@@ -193,6 +193,16 @@ void processBonusHit(byte type, int x, int y) __z88dk_callee {
             flashPaletteDown();
             return;
 
+        case BONUS_MINIBOMB:
+            effectBomb();
+            tilemapFlash(x, y, 1);
+            jeffKillAllAt(x, y);
+            waitFrame();
+            waitFrame();
+            waitFrame();
+            tilemapFlash(x, y, 0);
+            return;
+
         case BONUS_ZAP:
             currentStats.zapLocation.x = x;
             currentStats.zapLocation.y = y;
