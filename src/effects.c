@@ -104,6 +104,7 @@ void effectBonus(void) __z88dk_fastcall {
   ayChipSelect(2);
   aySetEnvelope(0, 20000);
   aySetNoise(8);
+  
   ayPlayNote(1, C1);
   aySetAmplitude(1, 0x10);
   aySetMixer(1, 1, 1);

@@ -182,6 +182,22 @@ layer2PlotSliceSlowInk:
 ; the colour sits in E so the store is ld (hl),e (7t, against 10t for ld (hl),n)
 ; - so DE is pushed and popped around the whole thing to free E up.
 
+; Plots the top three bits of the slice in A across one row: HL is the
+; destination, E the colour, and H walks right as each bit is consumed.
+MACRO PLOTSLICE
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+    inc h
+    add a, a
+    jr nc, $+3
+    ld (hl), e
+ENDM
+
 layer2CharFast:
     ; HL y
     ; DE x
@@ -194,78 +210,28 @@ layer2PlotSliceFastInk:
     ld e, 0         ; placeholder for colour value
 
     ld a, (iy)
-    add a, a
-    jr nc, $+3
-    ld (hl), e
-    inc h
-    add a, a
-    jr nc, $+3
-    ld (hl), e
-    inc h
-    add a, a
-    jr nc, $+3
-    ld (hl), e
+    PLOTSLICE
     ld h, c         ; restore x
     inc l           ; y++
 
     ld a, (iy+1)
-    add a, a
-    jr nc, $+3
-    ld (hl), e
-    inc h
-    add a, a
-    jr nc, $+3
-    ld (hl), e
-    inc h
-    add a, a
-    jr nc, $+3
-    ld (hl), e
+    PLOTSLICE
     ld h, c
     inc l
 
     ld a, (iy+2)
-    add a, a
-    jr nc, $+3
-    ld (hl), e
-    inc h
-    add a, a
-    jr nc, $+3
-    ld (hl), e
-    inc h
-    add a, a
-    jr nc, $+3
-    ld (hl), e
+    PLOTSLICE
     ld h, c
     inc l
 
     ld a, (iy+3)
-    add a, a
-    jr nc, $+3
-    ld (hl), e
-    inc h
-    add a, a
-    jr nc, $+3
-    ld (hl), e
-    inc h
-    add a, a
-    jr nc, $+3
-    ld (hl), e
+    PLOTSLICE
     ld h, c
     inc l
 
     ; the last row does not need x restoring
     ld a, (iy+4)
-    add a, a
-    jr nc, $+3
-    ld (hl), e
-    inc h
-    add a, a
-    jr nc, $+3
-    ld (hl), e
-    inc h
-    add a, a
-    jr nc, $+3
-    ld (hl), e
+    PLOTSLICE
     inc l
 
     pop de          ; restore x

@@ -201,19 +201,23 @@ _printAttributes:
 
 PUBLIC _print
 _print:
-    pop iy          ; return address
+    ; The return address rides in AF (10/11t) rather than IY (14/15t), so nothing
+    ; between the pop and the push may touch A *or the flags* - hence the colour
+    ; goes to C and is poked through HL instead of via A.
+    pop af          ; return address
 
-    pop HL          ; colour
-    ld a, l
-    ld (layer2PlotSliceSlowInk+1), a
-    ld (layer2PlotSliceFastInk+1), a
+    pop BC          ; colour in C
+    ld hl, layer2PlotSliceSlowInk+1
+    ld (hl), c
+    ld hl, layer2PlotSliceFastInk+1
+    ld (hl), c
 
     pop HL          ; y
     pop DE          ; x
 
     exx
     pop hl          ; address of first char in HL'
-    push iy         ; put return back on stack
+    push af         ; put return back on stack
 
 .printLoop:
     ld a, (hl) ; read from HL'
@@ -444,6 +448,9 @@ _updateMouse:
 
 PUBLIC _updateSprite
 _updateSprite:
+    ; All the work happens in the shadow set, so BC/DE/HL survive - the header
+    ; declares __preserves_regs(b,c,d,e,h,l) to cash that in at the call sites.
+    ; Only A, the flags and IY are clobbered (nothing on the C side uses IY).
     ld a, (hl) ; index byte
     nextreg $34, a
 
@@ -494,18 +501,19 @@ _updateSprite:
 
 PUBLIC _printSideways
 _printSideways:
-    pop iy          ; return address
+    ; return address in AF, see _print above
+    pop af          ; return address
 
-    pop HL          ; colour
-    ld a, l
-    ld (layer2PlotSliceSidewaysInk+1), a
+    pop BC          ; colour in C
+    ld hl, layer2PlotSliceSidewaysInk+1
+    ld (hl), c
 
     pop HL          ; y
     pop DE          ; x
 
     exx
     pop hl          ; address of first char in HL'
-    push iy         ; put return back on stack
+    push af         ; put return back on stack
 
 .printSidewaysLoop:
     ld a, (hl) ; read from HL'
