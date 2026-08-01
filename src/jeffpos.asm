@@ -23,9 +23,8 @@ PUBLIC _setJeffPos
 _setJeffPos:
     pop hl              ; return address
     pop de              ; E = direction (D = junk)
-    ex (sp), hl         ; HL = j, return address back on stack
-    push hl
-    pop iy              ; IY = j base (clobberable: no __preserves_regs(iy))
+    pop iy              ; IY = j (clobberable: no __preserves_regs(iy))
+    push hl             ; return address back on stack
 
     ; --- switch(direction): move pos, set B=horizontal, C=vertical, flag is255 ---
     ld a, e
@@ -33,7 +32,7 @@ _setJeffPos:
     jr nc, sjp_noMove   ; direction >= 4 (i.e. 255) -> no move, zero offsets
 
     xor a
-    ld (sjp_flag+1), a  ; valid direction (0..3): patch flag check to "ld a,0"
+    ld (sjp_notEqual+1), a ; valid direction (0..3): patch flag check to "ld a,0"
 
     ld a, e
     or a
@@ -42,36 +41,40 @@ _setJeffPos:
     jr z, sjp_right     ; 1 = RIGHT
     dec a
     jr z, sjp_up        ; 2 = UP
-                        ; else 3 = DOWN
-sjp_down:
+
+                        ; else 3 = DOWN, fallthrough
     inc (iy+3)          ; ++pos.y
     ld bc, 0x1208       ; horizontal=8, vertical=18 (0x12)
     jr sjp_lookup
-sjp_up:
+
+.sjp_up:
     dec (iy+3)          ; --pos.y
     ld bc, 0x0A08       ; horizontal=8, vertical=10 (0x0A)
     jr sjp_lookup
-sjp_left:
+
+.sjp_left:
     ld hl, (iy+1)
     dec hl
     dec hl              ; pos.x -= 2
     ld (iy+1), hl
     ld bc, 0x0E06       ; horizontal=6, vertical=14 (0x0E)
     jr sjp_lookup
-sjp_right:
+
+.sjp_right:
     ld hl, (iy+1)
     inc hl
     inc hl              ; pos.x += 2
     ld (iy+1), hl
     ld bc, 0x0E06       ; horizontal=6, vertical=14 (0x0E)
     jr sjp_lookup
-sjp_noMove:
+
+.sjp_noMove:
     ld a, 1
-    ld (sjp_flag+1), a  ; direction 255: patch flag check to "ld a,1" (snap z to target)
-    ld bc, 0            ; horizontal & vertical = 0
+    ld (sjp_notEqual+1), a  ; direction 255: patch flag check to "ld a,1" (snap z to target)
+    ld bc, 0                ; horizontal & vertical = 0
     ; fall through
 
-sjp_lookup:
+.sjp_lookup:
     ; --- lookupX = (pos.x + horizontal) >> 2  (arithmetic) ; kept in A ---
     ; (must precede lookupY: bsra needs its count in B, which holds horizontal)
     ld hl, (iy+1)       ; HL = pos.x
@@ -115,16 +118,14 @@ sjp_lookup:
     or a
     ret z
 
-sjp_notEqual:
-    ; if (direction == 255) { pos.z = targetZ; return; }
-sjp_flag:
+.sjp_notEqual:          ; if (direction == 255) { pos.z = targetZ; return; }
     ld a, 0             ; operand self-modified above: 0 => clamp, 1 => snap to target
     or a
     jr z, sjp_clamp
     ld (iy+5), bc       ; b = 0
     ret
 
-sjp_clamp:
+.sjp_clamp:
     ; diff = targetZ - currentZ  (BC - HL)
     push hl             ; save currentZ
     ld hl, bc           ; HL = targetZ
@@ -141,28 +142,25 @@ sjp_clamp:
     jr c, sjp_minus2
     jr sjp_setTarget    ; diff is -1 or -2
 
-sjp_diffPos:
+.sjp_diffPos:
     ; diff positive (H==0): diff > 2  <=>  L >= 3
     ld a, l
     cp 3
     jr nc, sjp_plus2
     ; fall through: diff is 1 or 2
 
-sjp_setTarget:
+.sjp_setTarget:
     ld (iy+5), bc       ; pos.z = targetZ
     ret
 
-sjp_plus2:
+.sjp_plus2:
     inc de              ; DE = currentZ
     inc de
     ld (iy+5), de       ; pos.z = currentZ + 2
     ret
 
-sjp_minus2:
+.sjp_minus2:
     dec de              ; DE = currentZ
     dec de
     ld (iy+5), de       ; pos.z = currentZ - 2
     ret
-
-; The is255 flag lives in the operand of `sjp_flag: ld a,0` above (self-modified
-; per call), so no separate data byte is needed.
