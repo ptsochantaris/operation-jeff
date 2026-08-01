@@ -4,8 +4,8 @@ SECTION code_compiler
 ;
 ; Hand-written replacement for the C version (formerly in jeff.c). Mirrors it
 ; exactly. Called for every walking Jeff every logic tick, so it avoids the
-; ix stack frame sdcc generated and uses a single Z80N `mul` for the
-; heightmap row offset instead of a chain of shift/adds.
+; ix stack frame sdcc generated and leans on Z80N ops: `mul` for the heightmap
+; row offset, `bsra` for the >>2 lookups, and `add hl,a` for the byte offsets.
 ;
 ; jeff struct layout (matches sprite_info + jeff fields):
 ;   +0  sprite.index (byte)
@@ -32,7 +32,7 @@ _setJeffPos:
     jr nc, sjp_noMove   ; direction >= 4 (i.e. 255) -> no move, zero offsets
 
     xor a
-    ld (sjp_notEqual+1), a ; valid direction (0..3): patch flag check to "ld a,0"
+    ld (sjp_flagJump+1), a  ; valid direction (0..3): jr displacement 0 => clamp
 
     ld a, e
     or a
@@ -45,12 +45,12 @@ _setJeffPos:
                         ; else 3 = DOWN, fallthrough
     inc (iy+3)          ; ++pos.y
     ld bc, 0x1208       ; horizontal=8, vertical=18 (0x12)
-    jr sjp_lookup
+    jr sjp_loadX
 
 .sjp_up:
     dec (iy+3)          ; --pos.y
     ld bc, 0x0A08       ; horizontal=8, vertical=10 (0x0A)
-    jr sjp_lookup
+    jr sjp_loadX
 
 .sjp_left:
     ld hl, (iy+1)
@@ -58,7 +58,7 @@ _setJeffPos:
     dec hl              ; pos.x -= 2
     ld (iy+1), hl
     ld bc, 0x0E06       ; horizontal=6, vertical=14 (0x0E)
-    jr sjp_lookup
+    jr sjp_lookup       ; HL already holds pos.x: skip the reload
 
 .sjp_right:
     ld hl, (iy+1)
@@ -66,32 +66,31 @@ _setJeffPos:
     inc hl              ; pos.x += 2
     ld (iy+1), hl
     ld bc, 0x0E06       ; horizontal=6, vertical=14 (0x0E)
-    jr sjp_lookup
+    jr sjp_lookup       ; HL already holds pos.x: skip the reload
 
 .sjp_noMove:
-    ld a, 1
-    ld (sjp_notEqual+1), a  ; direction 255: patch flag check to "ld a,1" (snap z to target)
+    ld a, sjp_setTarget - sjp_flagJump - 2
+    ld (sjp_flagJump+1), a  ; direction 255: jr jumps => snap z to target
     ld bc, 0                ; horizontal & vertical = 0
     ; fall through
 
-.sjp_lookup:
-    ; --- lookupX = (pos.x + horizontal) >> 2  (arithmetic) ; kept in A ---
-    ; (must precede lookupY: bsra needs its count in B, which holds horizontal)
+.sjp_loadX:
     ld hl, (iy+1)       ; HL = pos.x
+
+.sjp_lookup:
+    ; --- lookupX = (pos.x + horizontal) >> 2, lookupY = (pos.y + vertical) >> 2 ---
+    ; (both arithmetic shifts; bsra leaves B alone, so one count serves both)
     ld a, b             ; A = horizontal
     add hl, a           ; HL = pos.x + horizontal  (Z80N add hl,a)
     ex de, hl           ; DE = pos.x + horizontal
+    ld hl, (iy+3)       ; HL = pos.y
+    ld a, c             ; A = vertical
+    add hl, a           ; HL = pos.y + vertical
     ld b, 2
     bsra de, b          ; DE >>= 2
-    ld a, e             ; A = lookupX (<= ~82) ; survives lookupY below
-
-    ; --- lookupY = (pos.y + vertical) >> 2 ; result in E ---
-    ld hl, (iy+3)       ; HL = pos.y
-    ld b, 0             ; BC = vertical (C still holds it); A is busy with lookupX
-    add hl, bc          ; HL = pos.y + vertical
+    ld a, e             ; A = lookupX (<= ~82); survives lookupY below
     ex de, hl           ; DE = pos.y + vertical
-    ld b, 2
-    bsra de, b          ; DE >>= 2  -> E = lookupY (<= ~68)
+    bsra de, b          ; DE >>= 2  -> E = lookupY (<= 63)
 
     ; --- addr = _heightMap + lookupY*80 + lookupX ; targetZ = *addr ---
     ld d, e             ; D = lookupY
@@ -99,39 +98,22 @@ _setJeffPos:
     mul d, e            ; DE = lookupY * 80   (Z80N)
     ld hl, _heightMap
     add hl, de
-    ld e, a             ; E = lookupX
-    ld d, 0
-    add hl, de          ; HL = address
+    add hl, a           ; + lookupX  (Z80N add hl,a)
     ld a, (hl)          ; A = targetZ (byte, 0..255)
 
-    ; --- targetZ in BC (zero extended); currentZ in HL ---
-    ld c, a
-    ld b, 0             ; BC = targetZ
-    
-    ld hl, (iy+5)       ; HL = currentZ (pos.z)
-
-    ; if (currentZ == targetZ) return;
-    ld a, l
-    cp c
-    jr nz, sjp_notEqual
-    ld a, h
+    ; --- diff = targetZ - currentZ, computed once and reused by the clamp ---
+    ld c, a             ; C = targetZ (survives the clamp arithmetic)
+    ld de, (iy+5)       ; DE = currentZ (pos.z)
+    ld h, 0
+    ld l, a             ; HL = targetZ
     or a
-    ret z
+    sbc hl, de          ; HL = diff (signed -255..255), DE = currentZ, Z if equal
+    ret z               ; if (currentZ == targetZ) return;
 
-.sjp_notEqual:          ; if (direction == 255) { pos.z = targetZ; return; }
-    ld a, 0             ; operand self-modified above: 0 => clamp, 1 => snap to target
-    or a
-    jr z, sjp_clamp
-    ld (iy+5), bc       ; b = 0
-    ret
+.sjp_flagJump:          ; if (direction == 255) { pos.z = targetZ; return; }
+    jr sjp_setTarget    ; displacement self-modified above: 0 => fall into clamp
 
 .sjp_clamp:
-    ; diff = targetZ - currentZ  (BC - HL)
-    push hl             ; save currentZ
-    ld hl, bc           ; HL = targetZ
-    pop de              ; DE = currentZ
-    or a
-    sbc hl, de          ; HL = diff (signed, range -255..255), DE = currentZ
     ld a, h
     or a
     jr z, sjp_diffPos   ; H==0 -> diff >= 0
@@ -150,7 +132,8 @@ _setJeffPos:
     ; fall through: diff is 1 or 2
 
 .sjp_setTarget:
-    ld (iy+5), bc       ; pos.z = targetZ
+    ld (iy+5), c        ; pos.z = targetZ (high byte always 0)
+    ld (iy+6), 0
     ret
 
 .sjp_plus2:
