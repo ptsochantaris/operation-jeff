@@ -124,5 +124,13 @@ void endOfLeveLoop(byte oldLevel) __z88dk_fastcall {
   } else {
     displayStats(54, 127, oldLevel, HUD_WHITE, 0);
   }
+
+  // decompress the next level's screen while the player reads the stats, so
+  // the upcoming loadScreen becomes a DMA blit instead of a ~5-12 frame stall.
+  // safe here: the sting sample has finished (waited on above) and only the AY
+  // drone is playing, so MMU1/MMU2 are ours. currentStats.level was already
+  // advanced by statsProgressLevel() before endOfLeveLoop was called.
+  prefetchScreen(levelInfo[currentStats.level].level.screens);
+
   waitForClick();
 }

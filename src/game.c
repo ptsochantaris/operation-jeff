@@ -18,8 +18,11 @@ static void nextLevel(byte gameStart) __z88dk_fastcall {
   gameMode();
 
   byte newLevel = currentStats.level;
+  // must pass the global's slice pointer, not the stack copy's, so that it can
+  // match the prefetch tag and turn this load into a DMA blit
+  loadScreen(levelInfo[newLevel].level.screens);
+
   const struct LevelInfo info = levelInfo[newLevel];
-  loadScreen(info.level.screens);
   loadHeightmap(&info.heightmap);
 
   effectSiren();

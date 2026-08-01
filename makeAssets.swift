@@ -14,6 +14,12 @@ let LETTERS = "ABCDEFGHIJKLMNOPQ"
 let NUMBERS = "0123456789"
 let fm = FileManager.default
 
+// Assets may occupy pages 29 ..< ASSET_PAGE_LIMIT. Pages 214-223 (the top of
+// the 2MB Next's 1792K map) are reserved for the screen prefetch buffer - see
+// PREFETCH_BASE_PAGE in src/screen.c. If assets outgrow this, the prefetch
+// pages must move first; growing past them silently corrupts prefetched screens.
+let ASSET_PAGE_LIMIT = 214
+
 // Disable stdout buffering so partial prints (terminator: "") appear immediately
 setvbuf(stdout, nil, _IONBF, 0)
 
@@ -221,12 +227,14 @@ private func makeAssets(from filePaths: [String]) {
 
     var firstPage = 29
 
-    var mmu3Groups = (firstPage ..< 200).map { FileGroup(page: $0, org: "0x6000", orgOffset: 0x6000) }
+    var mmu3Groups = (firstPage ..< ASSET_PAGE_LIMIT).map { FileGroup(page: $0, org: "0x6000", orgOffset: 0x6000) }
     for info in mmu3Files {
         if let firstFit = mmu3Groups.firstIndex(where: { $0.canFit(info: info) }) {
             var group = mmu3Groups[firstFit]
             group.addFile(info: info)
             mmu3Groups[firstFit] = group
+        } else {
+            fatalError("Could not place \(info.name) (\(info.size) bytes) - asset pages exhausted (limit \(ASSET_PAGE_LIMIT), reserved for screen prefetch)")
         }
     }
     mmu3Groups.removeAll { $0.totalSize == 0 }
@@ -235,7 +243,7 @@ private func makeAssets(from filePaths: [String]) {
         firstPage = lastFilled + 1
     }
 
-    var mmu1Groups = (firstPage ..< 200).map { FileGroup(page: $0, org: "0x2000", orgOffset: 0x2000) }
+    var mmu1Groups = (firstPage ..< ASSET_PAGE_LIMIT).map { FileGroup(page: $0, org: "0x2000", orgOffset: 0x2000) }
     for info in mmu1Files {
         if let firstFit = mmu1Groups.firstIndex(where: { $0.canFit(info: info) }) {
             var group = mmu1Groups[firstFit]
@@ -246,6 +254,8 @@ private func makeAssets(from filePaths: [String]) {
             group.addFile(info: info)
             mmu1Groups.remove(at: firstEmpty)
             mmu1Groups[firstEmpty] = group
+        } else {
+            fatalError("Could not place \(info.name) (\(info.size) bytes) - asset pages exhausted (limit \(ASSET_PAGE_LIMIT), reserved for screen prefetch)")
         }
     }
     mmu1Groups.removeAll { $0.totalSize == 0 }

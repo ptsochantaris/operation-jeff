@@ -33,6 +33,7 @@ void fadePaletteUp(const struct ResourceInfo *restrict compressedPalette, byte p
 void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette) __z88dk_callee;
 
 void loadScreen(const struct ResourceInfo *restrict slice) __z88dk_fastcall;
+void prefetchScreen(const struct ResourceInfo *restrict slice) __z88dk_fastcall;
 void printWithBackground(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee;
 
 #endif

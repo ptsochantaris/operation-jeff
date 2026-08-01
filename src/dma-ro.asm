@@ -68,32 +68,31 @@ GLOBAL _copperDmaResident
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Unused - kept for reference (see _dmaMemoryToPort for the live variant)
-; PUBLIC _dmaMemoryToMemory
-; _dmaMemoryToMemory:
-;     pop hl ; call address
-;
-;     pop de ; length
-;     ld (dmaLength), de
-;
-;     pop de ; destination
-;     ld (dmaDestination), de
-;
-;     ex (sp), hl ; source / call address back on stack
-;     ld (dmaSource), hl
-;
-;     ld a, $54; ; 0101 0100 ; R1 - increment, from memory, bitmask
-;     ld (dmaR1), a
-;     ld a, $50; ; 0101 0000 ; R2 - increment, to memory, bitmask
-;     ld (dmaR2), a
-;     ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-;     ld (dmaR5), a
-;
-;     xor a
-;     ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
-;     ld bc, $6b
-;     ld hl, dmaHeader
-;     jp outLoop16 ; also RETs
+PUBLIC _dmaMemoryToMemory
+_dmaMemoryToMemory:
+    pop hl ; call address
+
+    pop de ; length
+    ld (dmaLength), de
+
+    pop de ; destination
+    ld (dmaDestination), de
+
+    ex (sp), hl ; source / call address back on stack
+    ld (dmaSource), hl
+
+    ld a, $54; ; 0101 0100 ; R1 - increment, from memory, bitmask
+    ld (dmaR1), a
+    ld a, $50; ; 0101 0000 ; R2 - increment, to memory, bitmask
+    ld (dmaR2), a
+    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
+    ld (dmaR5), a
+
+    xor a
+    ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
+    ld bc, $6b
+    ld hl, dmaHeader
+    jp outLoop16 ; also RETs
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

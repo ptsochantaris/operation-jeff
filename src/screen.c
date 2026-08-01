@@ -141,12 +141,51 @@ void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
 
-void loadScreen(const struct ResourceInfo *restrict slice) __z88dk_fastcall {
-  for(byte page=18; page!=28; ++page, ++slice) {
+// Pages 214-223 - the top of the expanded (2MB) Next's 1792K map, which the
+// asset map already commits us to - hold a pre-decompressed screen. The asset
+// packer will never allocate here: makeAssets.swift caps assets at
+// ASSET_PAGE_LIMIT (214) and fails the build if they outgrow it.
+#define PREFETCH_BASE_PAGE 214
+
+// The ten 8K pages that back the layer 2 screen itself.
+#define LAYER2_BASE_PAGE 18
+
+// Which screen (if any) currently sits in the prefetch pages. Must be tagged
+// with a statically-allocated slice pointer (e.g. levelInfo[n].level.screens),
+// never a stack copy, or the tag will not match at loadScreen time.
+static const struct ResourceInfo *prefetchedScreens = NULL;
+
+// Decompress the ten pages of a screen slice into consecutive pages starting at
+// basePage. Source asset page is banked in via MMU1, destination via MMU2, so
+// this must not run while a sample is playing.
+static void decompressScreen(const struct ResourceInfo *restrict slice, byte basePage) __z88dk_callee {
+  for(byte page=basePage; page!=(basePage+10); ++page, ++slice) {
     ZXN_WRITE_MMU2(page);
     ZXN_WRITE_MMU1(slice->page);
-    byte *i = (byte *)0x4000;
-    decompressZX0((byte *)slice->resource, i);
+    decompressZX0((byte *)slice->resource, (byte *)0x4000);
+  }
+}
+
+// Decompress a screen into the prefetch pages so a later loadScreen of the same
+// slice becomes a fast DMA blit. Call this somewhere the ~5-12 frame cost is
+// invisible (e.g. while the player reads the end-of-level stats). NOTE: uses
+// MMU1/MMU2, so - like loadScreen - it must not run while a sample is playing.
+void prefetchScreen(const struct ResourceInfo *restrict slice) __z88dk_fastcall {
+  prefetchedScreens = slice;
+  decompressScreen(slice, PREFETCH_BASE_PAGE);
+}
+
+void loadScreen(const struct ResourceInfo *restrict slice) __z88dk_fastcall {
+  if(slice != prefetchedScreens) {
+    decompressScreen(slice, LAYER2_BASE_PAGE);
+    return;
+  }
+  // already decompressed into the prefetch pages - blit them across
+  byte shadow = PREFETCH_BASE_PAGE;
+  for(byte page=LAYER2_BASE_PAGE; page!=(LAYER2_BASE_PAGE+10); ++page, ++shadow) {
+    ZXN_WRITE_MMU1(shadow);
+    ZXN_WRITE_MMU2(page);
+    dmaMemoryToMemory((byte *)0x2000, (byte *)0x4000, 0x2000);
   }
 }
 
