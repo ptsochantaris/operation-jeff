@@ -34,16 +34,19 @@ selectLayer2PageInternal:
 
 PUBLIC _layer2VerticalLine
 _layer2VerticalLine:
-    pop iy          ; return address
+    ; The return address rides in AF (10/11t) rather than IY (14/15t), so nothing
+    ; between the pop and the push may touch A *or the flags* - hence the colour
+    ; goes to C and is poked through HL instead of via A.
+    pop af          ; return address
 
-    pop HL          ; colour
-    ld a, l
-    ld (layer2VerticalLineLoopSet+2), a
+    pop BC          ; colour in C
+    ld hl, layer2VerticalLineLoopSet+2
+    ld (hl), c
 
     pop HL          ; bottom y in L (high number)
     pop BC          ; top y in C (low number)
     pop DE          ; x
-    push iy         ; put return back on stack
+    push af         ; put return back on stack
 
     call selectPageForXInDeAndSetupH
 
@@ -62,22 +65,25 @@ _layer2VerticalLine:
 
 PUBLIC _layer2HorizonalLine
 _layer2HorizonalLine:
-    pop iy          ; return address
+    ; return address in AF, see _layer2VerticalLine above. The width fiddling
+    ; sets flags, so it has to wait until the return address is back on the
+    ; stack - by then A is free too, which makes it 4t cheaper anyway.
+    pop af          ; return address
 
-    pop hl          ; colour
-    ld a, l
-    ld (layer2HorizontalLineLoopSet+1), a
+    pop BC          ; colour in C
+    ld hl, layer2HorizontalLineLoopSet+1
+    ld (hl), c
 
-    pop de          ; width
-    inc de          ; make inclusive
-    ld b, e         ; 16bit loop init
-    dec de
-    inc d
-    ld c, d         ; BC set for 16bit loop
-
+    pop BC          ; width (B high, C low)
     pop hl          ; y
     pop de          ; start x
-    push iy         ; put return back on stack
+    push af         ; put return back on stack
+
+    ld a, c         ; 16bit loop init: B = low(width) + 1 (inclusive)
+    inc a
+    ld c, b         ; C = high(width) + 1
+    inc c
+    ld b, a
 
     call selectPageForXInDE
 
