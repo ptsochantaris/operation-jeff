@@ -24,7 +24,7 @@ static void endOfLeveDrone(void) __z88dk_fastcall {
 
 static void waitForClick(void) __z88dk_fastcall {
   while(1) {
-    updateMouse();
+    waitOne();
 
     if(!mouseState.handled) {
       mouseState.handled = 1;
@@ -81,12 +81,6 @@ static void displayStats(word top, word x, byte oldLevel, word color, byte twoCo
   print(textBuf, x, top, color);
 }
 
-static void wait(byte time) __z88dk_fastcall {
-  for(byte f=0;f!=time;f++) {
-    waitFrame();
-  }
-}
-
 static void endOfLevelSequence(const struct LevelInfo *levelInfo) __z88dk_fastcall {
   stopAudioTimer();
   effectSting();
@@ -106,7 +100,9 @@ static void endOfLevelSequence(const struct LevelInfo *levelInfo) __z88dk_fastca
   persistHighestLevel();
   menuMode();
 
-  while(sampleActive) waitFrame(); // let the sting finish before reusing the sample banks
+  while(sampleActive) {
+    waitOne(); // let the sting finish before reusing the sample banks
+  }
   bombsRestoreFromFlash();
 
   loadScreen(&(levelInfo->endOfLevel.screens));

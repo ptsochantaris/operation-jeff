@@ -145,7 +145,7 @@ void gameLoop(byte startLevel) __z88dk_fastcall {
 
   while(1) {
     do {
-      updateMouse();
+      waitOne();
 
       ++currentStats.frames;
 

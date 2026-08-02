@@ -60,6 +60,18 @@ void layer2Clear(byte index) __z88dk_fastcall {
   }
 }
 
+void updateMouse(void) __z88dk_fastcall;
+
+void waitOne(void) __z88dk_fastcall {
+  updateMouse(); // waits for frame
+}
+
+void wait(byte time) __z88dk_fastcall {
+  for(byte f=0;f!=time;f++) {
+    updateMouse(); // waits for frame
+  }
+}
+
 byte paletteBuffer[512];
 
 void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_fastcall {
@@ -67,6 +79,7 @@ void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __
   ZXN_WRITE_MMU3(compressedPalette->page);
   decompressZX0((byte *)(compressedPalette->resource), paletteBuffer);
   ZXN_WRITE_MMU3(previousMmu3);
+  waitOne();
 }
 
 void stashPalette(byte paletteMask) __z88dk_fastcall {
@@ -88,8 +101,7 @@ void fadeToWhite(void) __z88dk_fastcall {
   stashPalette(1);
   for(byte shift=0; shift < 7; ++shift) {
     setPaletteFloor(nonHudPaletteColourCount, shift);
-    waitFrame();
-    waitFrame();
+    wait(2);
   }
 }
 
@@ -110,16 +122,14 @@ void fadePaletteDown(byte paletteMask, byte framesPerFade, byte cycleUlaPalette)
       selectPalette(paletteMask);
     }
 
-    for(byte i=0; i!=framesPerFade; ++i) {
-      waitFrame();
-    }
+    wait(framesPerFade);
   }
 }
 
 void fadeExistingPaletteUp(void) __z88dk_fastcall {
   for(byte shift=0; shift != 8; ++shift) {
     setPaletteCeiling(256, shift);
-    waitFrame(); // extra delay
+    waitOne();
   }
 }
 
@@ -163,6 +173,7 @@ static void decompressScreen(const struct ResourceInfo *restrict slice, byte bas
     ZXN_WRITE_MMU2(page);
     ZXN_WRITE_MMU1(slice->page);
     decompressZX0((byte *)slice->resource, (byte *)0x4000);
+    waitOne();
   }
 }
 

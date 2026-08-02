@@ -107,7 +107,7 @@ void gameOverLoop(void) __z88dk_fastcall {
   byte keyDown = 0;
 
   while(1) {
-    updateMouse();
+    waitOne();
     copperEffectUpdate();
 
     for(byte i=0; i<8; ++i) {

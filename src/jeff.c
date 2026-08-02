@@ -100,6 +100,7 @@ static const word jeffMoveMasks[] = {
 void loadHeightmap(const struct ResourceInfo *restrict heightmapAsset) __z88dk_fastcall {
     ZXN_WRITE_MMU1(heightmapAsset->page);
     decompressZX0((byte *)(heightmapAsset->resource), heightMap);
+    waitOne();
 }
 
 static void magnetJeff(struct jeff *restrict j) __z88dk_fastcall {

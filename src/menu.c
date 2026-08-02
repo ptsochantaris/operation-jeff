@@ -86,7 +86,7 @@ byte menuLoop(void) __z88dk_fastcall {
   // copperEffectCloud(SLOW_CLOUD);
 
   while(1) {
-    updateMouse();
+    waitOne();
 
     // if(loopCount % 4 == 0) {
       // copperEffectUpdate();

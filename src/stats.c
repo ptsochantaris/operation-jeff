@@ -196,9 +196,7 @@ void processBonusHit(byte type, int x, int y) __z88dk_callee {
         case BONUS_MINIBOMB:
             effectBombRise();
             tilemapFlash(x, y, 1);
-            for(byte w=0;w<20;++w) {
-                waitFrame();
-            }
+            wait(20);
             jeffKillAllAt(x, y);
             effectBombShort();
             tilemapFlash(x, y, 0);
