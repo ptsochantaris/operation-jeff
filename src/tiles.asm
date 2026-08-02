@@ -135,14 +135,14 @@ _tilesBase:
     DB $F7, $77, $77, $7F
 
     ; 13 minibomb
-    DB $FF, $77, $77, $FF
-    DB $F7, $44, $44, $7F
-    DB $74, $44, $44, $47
-    DB $74, $44, $44, $47
-    DB $74, $44, $44, $47
-    DB $74, $44, $44, $47
-    DB $F7, $44, $44, $7F
-    DB $FF, $77, $77, $FF
+    DB $FF, $11, $11, $FF
+    DB $F1, $99, $99, $1F
+    DB $19, $9A, $A9, $91
+    DB $19, $AA, $AA, $91
+    DB $19, $AA, $AA, $91
+    DB $19, $9A, $A9, $91
+    DB $F1, $99, $99, $1F
+    DB $FF, $11, $11, $FF
 
 PUBLIC _hollowPlusTiles
 _hollowPlusTiles:
@@ -319,42 +319,40 @@ _activeMagnetTiles:
     DB $F9, $9F, $F9, $9F
     DB $FF, $FF, $FF, $FF
 
-; The minibomb kill-zone flash - see tilemapFlash. Two dithered tiles that have
-; to stay adjacent and in this order: the fill carries the body of the disc and
-; the edge its rim, which tilemapFlash reaches as the fill index plus one.
-
-PUBLIC _laserTiles
-_laserTiles:
-
-    ; 0 laser fill
-    DB $FF, $44, $FF, $44
-    DB $FF, $44, $FF, $44
-    DB $44, $FF, $44, $FF
-    DB $44, $FF, $44, $FF
-    DB $FF, $44, $FF, $44
-    DB $FF, $44, $FF, $44
-    DB $44, $FF, $44, $FF
-    DB $44, $FF, $44, $FF
-
-    ; 1 laser edge
-    DB $FF, $77, $FF, $77
-    DB $FF, $77, $FF, $77
-    DB $77, $FF, $77, $FF
-    DB $77, $FF, $77, $FF
-    DB $FF, $77, $FF, $77
-    DB $FF, $77, $FF, $77
-    DB $77, $FF, $77, $FF
-    DB $77, $FF, $77, $FF
-
-; Tile indices resolved here rather than in C, so inserting or removing tiles
-; above shifts them automatically. The value lives in the symbol itself, so the
-; C side takes its address to read it - see tilemap.c.
-
-PUBLIC _laserTileIndex
-defc _laserTileIndex = (_laserTiles - _tilesBase) / 32
-
 ; The cycle length rather than the tile count, so the C side compares against an
 ; immediate. The 4 is the frames each tile is held for, and pairs with the >> 2
 ; bonus.c uses to turn the counter back into an offset.
 PUBLIC _activeMagnetCycle
 defc _activeMagnetCycle = ((_laserTiles - _activeMagnetTiles) / 32) * 4
+
+; The minibomb kill-zone flash - see tilemapFlash. Two dithered tiles that have
+; to stay adjacent and in this order: the fill carries the body of the disc and
+; the edge its rim, which tilemapFlash reaches as the fill index plus one.
+PUBLIC _laserTiles
+_laserTiles:
+
+    ; 0 laser fill
+    DB $FF, $FF, $FF, $FF
+    DB $FF, $FF, $FF, $FF
+    DB $FF, $FA, $AF, $FF
+    DB $FF, $AA, $AA, $FF
+    DB $FF, $AA, $AA, $FF
+    DB $FF, $FA, $AF, $FF
+    DB $FF, $FF, $FF, $FF
+    DB $FF, $FF, $FF, $FF
+
+    ; 1 laser edge
+    DB $FF, $FF, $FF, $FF
+    DB $FF, $FF, $FF, $FF
+    DB $FF, $F1, $1F, $FF
+    DB $FF, $11, $11, $FF
+    DB $FF, $11, $11, $FF
+    DB $FF, $F1, $1F, $FF
+    DB $FF, $FF, $FF, $FF
+    DB $FF, $FF, $FF, $FF
+
+; Tile indices resolved here rather than in C, so inserting or removing tiles
+; above shifts them automatically. The value lives in the symbol itself, so the
+; C side takes its address to read it - see tilemap.c.
+PUBLIC _laserTileIndex
+defc _laserTileIndex = (_laserTiles - _tilesBase) / 32

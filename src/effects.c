@@ -81,8 +81,9 @@ void effectBombShort(void) __z88dk_fastcall {
 
 void effectBombRise(void) __z88dk_fastcall {
   ayChipSelect(1);
-  aySetEnvelope(13, 200);
-  ayPlayNote(1, 16000);
+  aySetEnvelope(8, 500);
+  ayPlayNote(1, 8000);
+
   aySetAmplitude(1, 0x10);
   aySetMixer(1, 1, 0);
 }

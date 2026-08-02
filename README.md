@@ -21,10 +21,13 @@ Shoot bonuses for various benefits:
 - Yellow diamond: Smart bomb
 - Blue clock: Freeze the Jeff for 5 seconds
 - Black and blue rectangle: Temporary shield from damage
-- Purple umbrella-like-thingy: Pause drops for a moment
+- Purple umbrella-like-thingy: Pause Jeff arrivals for a moment
 - Round yellow down arrow: Slow down the Jeff temporarily
 - Orange concentric circles: Extended bomb range (for a limited number of shots)
 - Circle with bolt in the middle: Supergun (fast rate, no charge cost, for a limited number of shots)
+- Magnet: Temporarily draw all the Jeff to that spot for a few seconds
+- Cluster of small circles: Artillery will fire on that area for a short while.
+- Yellow circle with red edge: Satellite target, will zap Jeff nearby
 
 If a bolt explodes especially close enough to a Jeff you get a small bonus as well.
 
