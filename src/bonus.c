@@ -64,7 +64,7 @@ static const byte bonusIndexes[] = {
 };
 #define BONUS_INDEX_COUNT 17
 
-static void newRandomTargetType(void) {
+static void newRandomTargetType(void) __z88dk_fastcall {
     do {
         byte i = random16() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];
@@ -73,121 +73,77 @@ static void newRandomTargetType(void) {
     lastTargetType = targetType;
 }
 
-void updateBonuses(void) __z88dk_fastcall {
-    if(!magnetActive && ++bonusLoop == bonusTime) {
-        bonusLoop = 0;
+static void processBonusState(void) __z88dk_fastcall {
+    bonusLoop = 0;
 
-        // time to add new bonus, if none exists
-        if(targetType==BONUS_NONE) {
-            placeTile(&tilesBase, 0); // in case a previous bonus is in the process of transitioning out
-            newRandomTargetType();
-            currentX = 3 + random16() % 36;
-            currentY = 3 + random16() % 28;
-            transition = 0;
-            ++currentStats.bonusesLanded;
-        } else {
-            // expire previous bonus
-            targetType = BONUS_NONE;
-            transition = 0;
-        }
+    // time to add new bonus, if none exists
+    if(targetType==BONUS_NONE) {
+        placeTile(&tilesBase, 0); // in case a previous bonus is in the process of transitioning out
+        newRandomTargetType();
+        currentX = 3 + random16() % 36;
+        currentY = 3 + random16() % 28;
+        transition = 0;
+        ++currentStats.bonusesLanded;
+    } else {
+        // expire previous bonus
+        targetType = BONUS_NONE;
+        transition = 0;
     }
+}
 
-    if(targetType == presentedType) {
-        if(currentStats.magnetLocation.z) {
-            // magnetActive doubles as the "is active" flag, so it cycles 1..count<<2
-            // rather than from zero, and the tile offset takes the bias back off.
-            magnetActive += 1;
-            if(magnetActive > ACTIVE_MAGNET_CYCLE) magnetActive = 1;
-            placeTile(&activeMagnetTiles, (magnetActive - 1) >> 2);
+static void processTargetType(const byte transitionOffset) __z88dk_fastcall {
+    switch(targetType) {
+        case BONUS_SCORE:
+        case BONUS_HEALTH:
+        case BONUS_CHARGE:
+            placeTile(&hollowPlusTiles, transitionOffset);
             return;
-        } else if (magnetActive) {
-            placeTile(&tilesBase, 0);
-            magnetActive = 0;
-        }
 
-        if(targetType == BONUS_NONE || explodingBombCount == 0) {
+        case BONUS_SMARTBOMB:
+        case BONUS_ZAP:
+            placeTile(&hollowDiamondTiles, transitionOffset);
             return;
-        }
 
-        int centerX = (currentX << 3) - 4;
-        int centerY = (currentY << 3) - 4;
-        const int *lookup = currentStats.extraRangeBombs ? &bombRadii2 : &bombRadii1;
-
-        struct bomb **B = explodingBombs;
-        for(const struct bomb **E = explodingBombs+explodingBombCount; B != E; ++B) {
-            struct bomb *b = *B;
-            const byte radiusIndex = b->sprite.pattern - BOMB_EXPLOSION_FIRST;
-            const int radius = *(lookup+radiusIndex);
-
-            int C = b->sprite.pos.x - radius;
-            if(centerX < C) continue;
-            C += (radius << 1);
-            if(centerX >= C) continue;
-            C = b->sprite.pos.y - radius;
-            if(centerY < C) continue;
-            C += (radius << 1);
-            if(centerY >= C) continue;
-
-            processBonusHit(targetType, centerX, centerY);
-            targetType = BONUS_NONE;
-            transition = 0;
-            b->outcome |= BOMB_OUTCOME_BONUS_HIT;
+        case BONUS_FREEZE:
+        case BONUS_UMBRELLA:
+        case BONUS_SLOW:
+        case BONUS_INVUNERABLE:
+        case BONUS_MINIBOMB:
+        case BONUS_RANGE:
+        case BONUS_RATE:
+            placeTile(&hollowSquareTiles, transitionOffset);
             return;
-        }
-        return;
+
+        case BONUS_MAGNET:
+            placeTile(&hollowMagnetTiles, transitionOffset);
+            return;
     }
+}
 
+static void proceessBonusTransition(void) __z88dk_fastcall {
     if(transition==24) {
         presentedType = targetType;
         placeTile(&tilesBase, targetType);
         return;
     }
 
-    byte transitionOffset = transition++ >> 3;
+    const byte transitionOffset = transition++ >> 3;
 
     switch(presentedType) {
         case BONUS_NONE:
-            switch(targetType) {
-                case BONUS_SCORE:
-                case BONUS_HEALTH:
-                case BONUS_CHARGE:
-                    placeTile(&hollowPlusTiles, transitionOffset);
-                    break;
-
-                case BONUS_SMARTBOMB:
-                case BONUS_ZAP:
-                    placeTile(&hollowDiamondTiles, transitionOffset);
-                    break;
-
-                case BONUS_FREEZE:
-                case BONUS_UMBRELLA:
-                case BONUS_SLOW:
-                case BONUS_INVUNERABLE:
-                case BONUS_MINIBOMB:
-                case BONUS_RANGE:
-                case BONUS_RATE:
-                    placeTile(&hollowSquareTiles, transitionOffset);
-                    break;
-
-                case BONUS_MAGNET:
-                    placeTile(&hollowMagnetTiles, transitionOffset);
-                    break;
-
-                default:
-                    break;
-            }
-            break;
+            processTargetType(transitionOffset);
+            return;
 
         case BONUS_SCORE:
         case BONUS_HEALTH:
         case BONUS_CHARGE:
             placeTile(&hollowDiamondTiles, -transitionOffset);
-            break;
+            return;
 
         case BONUS_SMARTBOMB:
         case BONUS_ZAP:
             placeTile(&hollowSquareTiles, -transitionOffset);
-            break;
+            return;
 
         case BONUS_FREEZE:
         case BONUS_UMBRELLA:
@@ -197,13 +153,68 @@ void updateBonuses(void) __z88dk_fastcall {
         case BONUS_MINIBOMB:
         case BONUS_RATE:
             placeTile(&hollowMagnetTiles, -transitionOffset);
-            break;
+            return;
 
         case BONUS_MAGNET:
             placeTile(&activeMagnetTiles, -transitionOffset);
-            break;
+            return;
+    }
+}
 
-        default:
-            break;
+static void processPresentedBonus(void) __z88dk_fastcall {
+    if(currentStats.magnetLocation.z) {
+        // magnetActive doubles as the "is active" flag, so it cycles 1..count<<2
+        // rather than from zero, and the tile offset takes the bias back off.
+        magnetActive += 1;
+        if(magnetActive > ACTIVE_MAGNET_CYCLE) magnetActive = 1;
+        placeTile(&activeMagnetTiles, (magnetActive - 1) >> 2);
+        return;
+    }
+    
+    if (magnetActive) {
+        placeTile(&tilesBase, 0);
+        magnetActive = 0;
+    }
+
+    if(targetType == BONUS_NONE || explodingBombCount == 0) {
+        return;
+    }
+
+    const int centerX = (currentX << 3) - 4;
+    const int centerY = (currentY << 3) - 4;
+    const int *lookup = currentStats.extraRangeBombs ? &bombRadii2 : &bombRadii1;
+
+    struct bomb **B = explodingBombs;
+    for(const struct bomb **E = explodingBombs+explodingBombCount; B != E; ++B) {
+        struct bomb *b = *B;
+        const byte radiusIndex = b->sprite.pattern - BOMB_EXPLOSION_FIRST;
+        const int radius = *(lookup+radiusIndex);
+
+        int C = b->sprite.pos.x - radius;
+        if(centerX < C) continue;
+        C += (radius << 1);
+        if(centerX >= C) continue;
+        C = b->sprite.pos.y - radius;
+        if(centerY < C) continue;
+        C += (radius << 1);
+        if(centerY >= C) continue;
+
+        processBonusHit(targetType, centerX, centerY);
+        targetType = BONUS_NONE;
+        transition = 0;
+        b->outcome |= BOMB_OUTCOME_BONUS_HIT;
+        return;
+    }
+}
+
+void updateBonuses(void) __z88dk_fastcall {
+    if(!magnetActive && ++bonusLoop == bonusTime) {
+        processBonusState();
+    }
+
+    if(targetType == presentedType) {
+        processPresentedBonus();
+    } else {
+        proceessBonusTransition();
     }
 }
