@@ -88,7 +88,10 @@ static void flashCycle(void) __z88dk_fastcall {
 #define COL0_HPOS         46     // each band is set during the previous line's blanking
 #define VERTICAL_OFFSET   50
 
-// plasma shape: how fast the colour varies down the screen, and animation speed
+// plasma shape: how fast the colour varies down the screen, and animation speed.
+// GY_A/GY_B are the per-band steps through the sine table; the inner loop lives in
+// copper-rw.asm now, so changing either means changing the `inc d` / `inc e` counts
+// there too. PLASMA_LINES must stay a multiple of the kernel's group size (8).
 #define GY_A 3
 #define GY_B 1
 
@@ -122,7 +125,31 @@ static void rampPalette(byte *dst, byte count, byte from, byte to) __z88dk_calle
     }
 }
 
-static byte plasmaPalette[PLASMA_PAL_SIZE];
+// Every table the two kernels index by page lives in one block, carved up at
+// runtime. They each have to start on a page boundary so the kernel can reach them
+// with `ld l,index` (or `ld c,index`) against a fixed high byte, and z80asm's ALIGN
+// is no help: it aligns within the module's own section frame, not the linked
+// address, so a probe placed with ALIGN 256 in bss_compiler still lands mid-page.
+// Over-allocating by 255 and aligning at runtime is reliable instead - and sharing
+// one block means paying that slack once rather than per table.
+//
+//   page P+0  plasma sine copy   (256)
+//   page P+1  fire colour ramp   (256)
+//   page P+2  plasma palette     (64, remainder unused)
+#define COPPER_TABLE_BYTES (256 + 256 + PLASMA_PAL_SIZE + 255)
+static byte copperTables[COPPER_TABLE_BYTES];
+static byte *plasmaSine;    // page P+0
+static byte *fireColour;    // page P+1
+static byte *plasmaPalette; // page P+2
+
+void plasmaFill(byte *dst, byte *sine, word indices) __z88dk_callee __smallc;
+
+// Idempotent; called from whichever effect starts first.
+static void alignCopperTables(void) __z88dk_fastcall {
+    plasmaSine    = (byte *)(((word)copperTables + 255) & 0xFF00);
+    fireColour    = plasmaSine + 256;
+    plasmaPalette = plasmaSine + 512;
+}
 
 // Build the 64-entry cloud palette by interpolating low -> mid across the lower
 // half and mid -> high across the upper half. Anchors are 8-bit RRRGGGBB; pass
@@ -187,21 +214,25 @@ static const byte sineTab[256] = {
 static byte plasmaTimeA = 0;
 static byte plasmaTimeB = 0;
 
+// Seed the RAM-side sine copy the kernel indexes. Called when the cloud effect
+// starts, not per frame.
+static void alignPlasmaTables(void) __z88dk_fastcall {
+    alignCopperTables();
+    for (word i = 0; i < 256; ++i) {
+        plasmaSine[i] = sineTab[i];
+    }
+}
+
 static void copperPlasmaUpdate(void) __z88dk_fastcall {
     plasmaTimeA += 1;
     plasmaTimeB += 3;
 
-    byte ia = plasmaTimeA;          // gy*GY_A + timeA, gy = 0
-    byte ib = (byte)(-plasmaTimeB); // gy*GY_B - timeB, gy = 0
+    // ia = gy*GY_A + timeA, ib = gy*GY_B - timeB, gy = 0; packed high/low for the
+    // kernel, which walks them by GY_A and GY_B respectively.
+    word indices = ((word)plasmaTimeA << 8) | (byte)(-plasmaTimeB);
 
-    byte *c = copperImage + PLASMA_FIRST_COLOUR; // skip the leading black; each transition is 4 bytes
-    for (word i = 0; i < PLASMA_LINES; ++i) {
-        byte v = sineTab[ia] + sineTab[ib];
-        *c = plasmaPalette[v];
-        c += 4;
-        ia += GY_A;
-        ib += GY_B;
-    }
+    // skip the leading black; each transition is 4 bytes
+    plasmaFill(copperImage + PLASMA_FIRST_COLOUR, plasmaSine, indices);
     uploadCopperImage(PLASMA_BUFFER_LEN);
 }
 
@@ -217,46 +248,50 @@ static void copperPlasmaUpdate(void) __z88dk_fastcall {
 #define FIRE_BAND_HEIGHT   2     // scanlines per fire band (vertical resolution)
 #define FIRE_TOP_LINE      1     // first raster line of the fire
 #define FIRE_LINES         288   // cover the layer 2 area only (no hardware border)
+// 144. The fire kernel in copper-rw.asm is unrolled against this exact count
+// (FIRE_GROUPS x 8, then a 7-band tail, then the undrawn bottom band); changing
+// FIRE_LINES or FIRE_BAND_HEIGHT means re-deriving that split there.
 #define FIRE_BANDS         (FIRE_LINES / FIRE_BAND_HEIGHT)
 #define FIRE_BUFFER_LEN    (FIRE_BANDS * FIRE_BAND_BYTES + 2)
 #define FIRE_SEED_ROWS      2   // bottom bands reseeded hot each frame (~4px base at 2px/band)
 
-// fire variant: same band pipeline, different per-line colour source
-static byte firePalette[PLASMA_PAL_SIZE];
+// fire variant: same band pipeline, different per-line colour source. The ramp is
+// expanded to 256 entries (4 identical entries per ramp step) so the per-band draw
+// indexes it with the raw heat and skips the >>2; it lives in the shared aligned
+// block above so the kernel reaches it with `ld c,heat` against a fixed page in B.
+// The heat buffer needs no alignment - the kernel walks it as a plain pointer.
 static byte fireBuf[FIRE_BANDS];
 
+void fireFill(byte *dst, byte *colour, byte *buf) __z88dk_callee __smallc;
+
 static void buildFirePalette(void) __z88dk_fastcall {
+    alignCopperTables();
+
     // Black -> red -> orange -> yellow -> white (RRRGGGBB). Tunable.
+    byte *d = fireColour;
     for (byte i = 0; i < PLASMA_PAL_SIZE; ++i) {
         byte r = (i < 24) ? (byte)((i * 7) / 24) : 7;        // red ramps in first, then holds
         byte g = (i < 16) ? 0 : (byte)(((i - 16) * 7) / 47); // green builds -> yellow
         byte b = (i < 48) ? 0 : (byte)(((i - 48) * 3) / 15); // blue only at the hot tip -> white
-        firePalette[i] = (r << 5) | (g << 2) | b;
+        byte c = (r << 5) | (g << 2) | b;
+        *d++ = c; *d++ = c; *d++ = c; *d++ = c;              // heat 0..255 -> ramp step 0..63
     }
 }
 
-static void fireStep(void) __z88dk_fastcall {
+static void fireSeed(void) __z88dk_fastcall {
     // reseed the bottom rows hot, with a wide range (128..255) so flame heights vary:
-    // the hottest seeds climb to the top, weaker ones fade around mid-screen
+    // the hottest seeds climb to the top, weaker ones fade around mid-screen.
+    // (The k = 1 row is immediately overwritten by the propagation below it, but the
+    // draw still has to happen: random16 is shared, so dropping it would shift the
+    // whole stream and change every effect downstream.)
     for (byte k = 0; k < FIRE_SEED_ROWS; ++k) {
         fireBuf[FIRE_BANDS - 1 - k] = (byte)(128 + (random16() & 127));
     }
-    // propagate upward: each band cools from the band below it (in-place; we read the
-    // band below before it is overwritten this pass, so heat shifts up one band/frame).
-    // The cool amount only needs 2 random bits (cool by 2 with ~3/4 probability), so
-    // draw one random16 and spend it 2 bits at a time - 8 bands per call instead of one.
-    word rnd = 0;
-    byte rndBits = 0;
-    for (word i = 0; i < FIRE_BANDS - 1; ++i) {
-        if (rndBits == 0) { rnd = random16(); rndBits = 8; }
-        byte cool = (byte)((rnd & 3) ? 3 : 0); // ~1.75/band: doubled vs 1px so the fade spans the same height
-        rnd >>= 2;
-        --rndBits;
-
-        byte below = fireBuf[i + 1];
-        fireBuf[i] = (below > cool) ? (byte)(below - cool) : 0;
-    }
 }
+// The upward propagation that used to live here - each band cooling from the band
+// below it, 2 random bits per band, a fresh random16 every 8 bands - is now fused
+// with the copper write in fireFill (copper-rw.asm), which halves the walks over
+// the band array from two to one.
 
 static void buildFireSkeleton(void) __z88dk_fastcall {
     byte *p = copperImage;
@@ -277,13 +312,8 @@ static void buildFireSkeleton(void) __z88dk_fastcall {
 }
 
 static void copperFireUpdate(void) __z88dk_fastcall {
-    fireStep();
-
-    byte *c = copperImage + FIRE_FIRST_COLOUR;
-    for (word i = 0; i < FIRE_BANDS; ++i) {
-        *c = firePalette[fireBuf[i] >> 2]; // heat 0..255 -> palette 0..63
-        c += FIRE_BAND_BYTES;
-    }
+    fireSeed();
+    fireFill(copperImage + FIRE_FIRST_COLOUR, fireColour, fireBuf);
     uploadCopperImage(FIRE_BUFFER_LEN);
 }
 
@@ -309,6 +339,7 @@ void copperEffectCloud(byte low, byte mid, byte high) __z88dk_callee {
     fxLow = low; fxMid = mid; fxHigh = high;
     copperStop();
     ZXN_NEXTREG(0x64, VERTICAL_OFFSET);
+    alignPlasmaTables();
     buildPlasmaPalette(low, mid, high);
     buildPlasmaSkeleton();
     copperPlasmaUpdate(); // fill colours, upload, start the copper

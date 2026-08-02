@@ -18,6 +18,7 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	jeff.o \
 	ctc.o \
 	jeffpos.o \
+	copper-rw.o \
 	screen.o \
 	bomb.o \
 	stars.o \
