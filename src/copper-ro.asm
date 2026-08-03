@@ -37,6 +37,23 @@ EXTERN pf_count, ff_count
 
 PLASMA_GROUPS equ 36        ; 288 bands / 8 per group
 
+; One band: palette[sine[ia] + sine[ib]] -> *cursor, then ia += 3, ib += 1.
+; sine values are 0..31, so the sum is 0..62 and always lands inside the
+; 64-entry palette at the start of its page: C alone indexes it.
+    MACRO plasmaBand disp
+    ld l, d
+    ld a, (hl)          ; sine[ia]
+    ld l, e
+    add a, (hl)         ; + sine[ib]
+    ld c, a
+    ld a, (bc)          ; palette[sum]
+    ld (iy+disp), a
+    inc d
+    inc d
+    inc d               ; ia += 3
+    inc e               ; ib += 1
+    ENDM
+
 PUBLIC _plasmaFill
 _plasmaFill:
     pop hl              ; return address
@@ -59,104 +76,14 @@ _plasmaFill:
     ld (pf_count), a
 
 .pf_group:
-    ; --- one band: palette[sine[ia] + sine[ib]] -> *cursor -----------------
-    ; sine values are 0..31, so the sum is 0..62 and always lands inside the
-    ; 64-entry palette at the start of its page: C alone indexes it.
-    ld l, d
-    ld a, (hl)          ; sine[ia]
-    ld l, e
-    add a, (hl)         ; + sine[ib]
-    ld c, a
-    ld a, (bc)          ; palette[sum]
-    ld (iy+0), a
-    inc d
-    inc d
-    inc d               ; ia += 3
-    inc e               ; ib += 1
-
-    ld l, d
-    ld a, (hl)
-    ld l, e
-    add a, (hl)
-    ld c, a
-    ld a, (bc)
-    ld (iy+4), a
-    inc d
-    inc d
-    inc d
-    inc e
-
-    ld l, d
-    ld a, (hl)
-    ld l, e
-    add a, (hl)
-    ld c, a
-    ld a, (bc)
-    ld (iy+8), a
-    inc d
-    inc d
-    inc d
-    inc e
-
-    ld l, d
-    ld a, (hl)
-    ld l, e
-    add a, (hl)
-    ld c, a
-    ld a, (bc)
-    ld (iy+12), a
-    inc d
-    inc d
-    inc d
-    inc e
-
-    ld l, d
-    ld a, (hl)
-    ld l, e
-    add a, (hl)
-    ld c, a
-    ld a, (bc)
-    ld (iy+16), a
-    inc d
-    inc d
-    inc d
-    inc e
-
-    ld l, d
-    ld a, (hl)
-    ld l, e
-    add a, (hl)
-    ld c, a
-    ld a, (bc)
-    ld (iy+20), a
-    inc d
-    inc d
-    inc d
-    inc e
-
-    ld l, d
-    ld a, (hl)
-    ld l, e
-    add a, (hl)
-    ld c, a
-    ld a, (bc)
-    ld (iy+24), a
-    inc d
-    inc d
-    inc d
-    inc e
-
-    ld l, d
-    ld a, (hl)
-    ld l, e
-    add a, (hl)
-    ld c, a
-    ld a, (bc)
-    ld (iy+28), a
-    inc d
-    inc d
-    inc d
-    inc e
+    plasmaBand  0
+    plasmaBand  4
+    plasmaBand  8
+    plasmaBand 12
+    plasmaBand 16
+    plasmaBand 20
+    plasmaBand 24
+    plasmaBand 28
 
     ; --- next group: advance the cursor 8 bands, rebuild B, count down -----
     ld bc, 32           ; 8 bands x 4-byte stride
