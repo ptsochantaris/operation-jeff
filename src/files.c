@@ -1,13 +1,12 @@
 #include "base.h"
 
 static byte previousMmu1;
-static byte previousInterrupts;
 
 static void prepareForEsxCall(void) __z88dk_fastcall {
     // Disable interrupts for the whole ROM-paged window: the ULA ISR's
     // inputHandler calls into bank 28 (clampMouse*/joystickSpeed*), which is
     // displaced by the ROM we page in below.
-    previousInterrupts = saveAndDisableInterrupts();
+    saveAndDisableInterrupts();
 
     // disable write-through
     configLayer2(0);
@@ -30,7 +29,7 @@ static void completedEsxCall(void) __z88dk_fastcall {
     // re-enable write-through
     configLayer2(1);
 
-    restoreInterrupts(previousInterrupts);
+    restoreInterrupts();
 }
 
 void esxDosRomSetup(void) __z88dk_fastcall {
