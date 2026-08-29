@@ -2,10 +2,10 @@
 #define __OJ_COPPER_H__
 
 // per-power-up cloud tints for copperEffectCloud(...): low, mid, high anchors
-#define SHIELD_CLOUD    RGB332(0, 0, 0), RGB332(1, 3, 3), RGB332(4, 4, 7)
-#define UMBRELLA_CLOUD  RGB332(0, 0, 0), RGB332(5, 0, 3), RGB332(5, 2, 6)
-#define GUNBOOST_CLOUD  RGB332(0, 0, 0), RGB332(6, 2, 0), RGB332(7, 4, 1)
-#define SLOW_CLOUD      RGB332(0, 0, 0), RGB332(4, 4, 1), RGB332(5, 5, 1)
+#define SHIELD_CLOUD    RGB332(0, 0, 1), RGB332(0, 0, 7), RGB332(1, 1, 6)
+#define UMBRELLA_CLOUD  RGB332(1, 0, 1), RGB332(3, 0, 2), RGB332(3, 0, 2)
+#define GUNBOOST_CLOUD  RGB332(1, 1, 0), RGB332(5, 3, 0), RGB332(5, 3, 0)
+#define SLOW_CLOUD      RGB332(1, 1, 0), RGB332(4, 4, 0), RGB332(4, 4, 0)
 
 void copperInit(void) __z88dk_fastcall;
 
