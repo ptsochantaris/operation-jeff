@@ -251,42 +251,11 @@ void setupScreen(void) __z88dk_fastcall {
   ZXN_NEXTREG(REG_ULANEXT_PALETTE_FORMAT, 127);
 }
 
-static const byte corner1px[] = { 1 };
-static const byte corner2px[] = { 1, 2 };
-static const byte corner3px[] = { 2, 2, 3 };
-static const byte corner4px[] = { 2, 3, 3, 4 };
-static const byte corner5px[] = { 2, 4, 4, 5, 5 };
-static const byte corner6px[] = { 2, 4, 5, 5, 6, 6 };
-static const byte corner7px[] = { 2, 4, 5, 6, 6, 7, 7 };
-static const byte corner8px[] = { 2, 4, 5, 6, 7, 7, 8, 8 };
-
-static const byte *corners[] = { 
-  corner1px, 
-  corner2px, 
-  corner3px, 
-  corner4px, 
-  corner5px, 
-  corner6px, 
-  corner7px, 
-  corner8px
-};
-
-void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) __z88dk_callee {
-  const byte *widths = corners[radius-1];
-  word mid = x + radius;
-  word ey = y + (radius << 1);
-  for(word c = 0; c != radius; ++c) {
-    word w = *(widths+c);
-    word l = mid-w;
-    word W = w << 1;
-    word Y = y+c;
-    layer2HorizonalLine(l, Y, W, (Y>dividerY) ? colorBottom : colorTop);
-    Y = ey-c;
-    layer2HorizonalLine(l, Y, W, (Y>dividerY) ? colorBottom : colorTop);
-  }
-  word Y = y+radius;
-  layer2HorizonalLine(x, Y, radius << 1, (Y>dividerY) ? colorBottom : colorTop);
-}
+// layer2circleFill and its corner tables now live in asm: the routine and its
+// state in graphics-rw.asm, the width tables in graphics-ro.asm (bank 28). The
+// prototype in screen.h is unchanged, so call sites are untouched. sdcc spent 318
+// bytes plus a 16-byte always-mapped pointer array on this; the asm merges rows
+// that share a width and colour into single fills instead of one hline each.
 
 void printWithBackground(byte *text, word x, byte y, byte textColor, byte bgColor) __z88dk_callee {
   layer2fill(x, y, strlen(text) * 4 - 1, 5, bgColor);

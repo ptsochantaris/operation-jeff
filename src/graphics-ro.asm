@@ -592,3 +592,30 @@ ulaAttributeChar:
     RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Half-widths of each row of a filled disc, for _layer2circleFill (graphics-rw.asm).
+; A triangular table: radius r occupies r bytes starting at circleWidthOffsets[r-1],
+; and row i of the disc uses index min(i, 2r-i) clamped to r-1.
+;
+; These are NOT true circles - a real one would give {4,5,6,6,7,7,7} for r=7, but the
+; top row is deliberately narrowed to 2 so a 15-pixel disc reads as round rather than
+; blocky. So they cannot be computed (from the plasma sine table or otherwise) without
+; changing the artwork.
+;
+; Only r=7 (the kill counter) and r=8 (initHud) are actually called today; the other
+; six rows cost 21 bytes and are kept so the routine stays general.
+
+PUBLIC circleWidthOffsets, circleWidths
+
+circleWidthOffsets: DB 0, 1, 3, 6, 10, 15, 21, 28
+circleWidths:
+    DB 1
+    DB 1,2
+    DB 2,2,3
+    DB 2,3,3,4
+    DB 2,4,4,5,5
+    DB 2,4,5,5,6,6
+    DB 2,4,5,6,6,7,7
+    DB 2,4,5,6,7,7,8,8
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
