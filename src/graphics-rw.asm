@@ -464,98 +464,118 @@ layer2fillInternal:
 ; is what makes the middle row come out at `radius`, which is exactly the extra
 ; middle-row call the C version made after its loop.
 ;
-; Measured: 18992 -> 14875 T for the radius-7 disc (-21.7%). Not re-entrant (it
-; keeps its state below and stashes the return address), which is fine - it is
-; only ever called from the HUD, never from an ISR.
+; Every per-row value lives in an instruction operand rather than a variable:
+; the setup patches them once and the loop reads them as immediates, which turns
+; each `ld a,(nn)` into `ld a,n` (13T -> 7T, and one byte shorter). That is worth
+; ~70T a row and removes the whole 16-byte state block. The run state (length,
+; half-width, colour, start y) is patched per run and read back out of the
+; operands by cfFlush.
+;
+; Measured against the C version: 18992 -> 13762 T (-27.5%) for the radius-7
+; disc. NOT re-entrant - it patches itself and stashes the return address in an
+; operand - which is fine, it is only ever called from the HUD, never an ISR.
 
-GLOBAL circleWidthOffsets, circleWidths      ; the tables, in bank 28
+GLOBAL circleWidthOffsets, circleWidths      ; the width tables, in bank 28
 
 PUBLIC _layer2circleFill
 _layer2circleFill:
     ; __z88dk_callee, NOT __smallc - the 8 arg bytes are packed:
     ; radius, x lo, x hi, y lo, y hi, colorTop, colorBottom, dividerY
     pop hl
-    ld (cfRet), hl
+    ld (cfRetVal+1), hl
 
     pop hl              ; L = radius, H = x lo
-    ld a, l
-    ld (cfRadius), a
+    ld c, l             ; C = radius, kept across the remaining pops
     ld e, h             ; E = x lo
 
     pop hl              ; L = x hi, H = y lo
     ld d, l             ; DE = x
     ld a, h
-    ld (cfY), a         ; y - a byte here, the disc sits near the top of screen
+    ld (cfYVal+1), a    ; y - a byte here, the disc sits near the top of screen
 
     pop hl              ; L = y hi, H = colorTop
     ld a, h
-    ld (cfTop), a
+    ld (cfTopVal+1), a
 
     pop hl              ; L = colorBottom, H = dividerY
     ld a, l
-    ld (cfBottom), a
+    ld (cfBotVal+1), a
     ld a, h
-    ld (cfDivider), a
+    ld (cfDivVal+1), a
 
-    ld a, (cfRadius)
+    ld a, c
+    ex de, hl           ; HL = x
+    add hl, a
+    ld (cfMidVal+1), hl ; mid = x + radius
+
+    add a, a
+    ld (cfRowsA+1), a   ; 2 * radius, read at two sites in the loop
+    ld (cfRowsB+1), a
+
+    ld a, c
     dec a
-    ld (cfLastC), a     ; widths index of the widest row
+    ld (cfClampCp+1), a ; widest row's index, also read at two sites
+    ld (cfClampLd+1), a
     ld hl, circleWidthOffsets
     add hl, a
     ld a, (hl)
     ld hl, circleWidths
     add hl, a
-    ld (cfWptr), hl     ; this radius' row of the triangular table
-
-    ld a, (cfRadius)
-    ex de, hl           ; HL = x
-    add hl, a
-    ld (cfMid), hl      ; mid = x + radius
-    add a, a
-    ld (cfRows), a      ; last row index = 2 * radius
+    ld (cfWptrVal+1), hl ; this radius' row of the triangular table
 
     xor a
-    ld (cfRunLen), a    ; no run open yet
-    ld b, a             ; B = row index
+    ld (cfRunLenVal+1), a   ; no run open yet - MUST be reset, the operand still
+                            ; holds the previous call's run length
+    ld b, a                 ; B = row index
 
 .cfRowLoop:
-    ld a, (cfRows)
+.cfRowsA:
+    ld a, 0             ; SMC: 2 * radius
     sub b               ; rows - i
     cp b
     jr c, cfHaveC       ; keep the smaller of i and rows-i
     ld a, b
 .cfHaveC:
-    ld hl, cfLastC
-    cp (hl)
+.cfClampCp:
+    cp 0                ; SMC: radius - 1
     jr c, cfNoClamp
-    ld a, (hl)
+.cfClampLd:
+    ld a, 0             ; SMC: radius - 1
 .cfNoClamp:
-    ld hl, (cfWptr)
+.cfWptrVal:
+    ld hl, 0            ; SMC: this radius' width row
     add hl, a
     ld c, (hl)          ; C = half-width of this row
 
-    ld a, (cfY)
+.cfYVal:
+    ld a, 0             ; SMC: start y
     add a, b
     ld e, a             ; E = Y
 
-    ld a, (cfDivider)
+.cfDivVal:
+    ld a, 0             ; SMC: dividerY
     cp e                ; carry when dividerY < Y
-    ld a, (cfTop)
+.cfTopVal:
+    ld a, 0             ; SMC: colorTop
     jr nc, cfHaveCol
-    ld a, (cfBottom)
+.cfBotVal:
+    ld a, 0             ; SMC: colorBottom
 .cfHaveCol:
     ld d, a             ; D = colour
 
-    ld a, (cfRunLen)
+.cfRunLenVal:
+    ld a, 0             ; SMC: open run length
     or a
     jr z, cfNewRun
-    ld a, (cfRunW)
+.cfRunWVal:
+    ld a, 0             ; SMC: open run half-width
     cp c
     jr nz, cfBreakRun
-    ld a, (cfRunCol)
+.cfRunColVal:
+    ld a, 0             ; SMC: open run colour
     cp d
     jr nz, cfBreakRun
-    ld hl, cfRunLen
+    ld hl, cfRunLenVal+1
     inc (hl)            ; this row joins the open run
     jr cfNextRow
 
@@ -567,16 +587,17 @@ _layer2circleFill:
     pop bc
 .cfNewRun:
     ld a, c
-    ld (cfRunW), a
+    ld (cfRunWVal+1), a
     ld a, d
-    ld (cfRunCol), a
+    ld (cfRunColVal+1), a
     ld a, e
-    ld (cfRunY), a
+    ld (cfRunYVal+1), a
     ld a, 1
-    ld (cfRunLen), a
+    ld (cfRunLenVal+1), a
 
 .cfNextRow:
-    ld a, (cfRows)
+.cfRowsB:
+    ld a, 0             ; SMC: 2 * radius
     cp b
     jr z, cfDone
     inc b
@@ -584,19 +605,21 @@ _layer2circleFill:
 
 .cfDone:
     call cfFlush
-    ld hl, (cfRet)
+.cfRetVal:
+    ld hl, 0            ; SMC: return address
     jp (hl)
 
 ; emit the open run as one rectangle: x = mid - w, width = 2w + 1
 .cfFlush:
-    ld a, (cfRunLen)
+    ld a, (cfRunLenVal+1)
     or a
     ret z
 
-    ld a, (cfRunW)
+    ld a, (cfRunWVal+1)
     ld c, a
     ld b, 0
-    ld hl, (cfMid)
+.cfMidVal:
+    ld hl, 0            ; SMC: mid
     or a
     sbc hl, bc          ; HL = start x
 
@@ -606,26 +629,11 @@ _layer2circleFill:
     ld e, a
     ld d, 0             ; DE = pixel count
 
-    ld a, (cfRunLen)
+    ld a, (cfRunLenVal+1)
     ld b, a             ; B = height
-    ld a, (cfRunY)
-    ld c, a             ; C = start y
-    ld a, (cfRunCol)    ; A = colour
+.cfRunYVal:
+    ld c, 0             ; SMC: run start y
+    ld a, (cfRunColVal+1)   ; A = colour
     jp layer2fillInternal   ; rets for us
-
-cfRet:      DW 0
-cfMid:      DW 0
-cfWptr:     DW 0
-cfRadius:   DB 0
-cfLastC:    DB 0
-cfY:        DB 0
-cfDivider:  DB 0
-cfTop:      DB 0
-cfBottom:   DB 0
-cfRows:     DB 0
-cfRunY:     DB 0
-cfRunLen:   DB 0
-cfRunW:     DB 0
-cfRunCol:   DB 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
