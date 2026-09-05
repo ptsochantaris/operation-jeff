@@ -12,6 +12,11 @@ dmaHeader:          DB $c3      ; 11000011 ; R6 reset dma
 dmaSource:          DW 0        ; source address 
 dmaLength:          DW 0        ; transfer length
 dmaR5:              DB $82      ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
+                                ; Every live entry point wants $82, so this initialiser
+                                ; is the only writer and they no longer set it each call.
+                                ; The one variant that wanted $A2 (loop on end of block)
+                                ; was playWithDma, commented out below - restore the
+                                ; per-call write if that ever comes back.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; transfer payload - 9 bytes
@@ -82,8 +87,6 @@ _fillWithDmaRepeat:
     ld (dmaR1), a
     ld a, $50;  ; 0101 0000 ; R2 - increment, to memory, bitmask
     ld (dmaR2), a
-    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-    ld (dmaR5), a
 
     xor a
     ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer

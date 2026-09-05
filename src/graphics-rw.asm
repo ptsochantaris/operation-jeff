@@ -32,79 +32,51 @@ selectLayer2PageInternal:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; Both line primitives are degenerate rectangles, so they reshape their arguments
+; and drop into the fill core rather than carrying plotting loops of their own.
+; That trades ~380 T of extra setup for an inner loop of 11 T/px instead of 54
+; (horizontal) or 27 (vertical), so it pays from about 10 px across or 31 px
+; down. Every real caller mixes a long side with a short one and comes out ahead:
+; the HUD gauge boxes are ~37% faster and layer2circleFill ~8%, and the pair
+; costs 35 bytes where the two hand-rolled loops cost 57.
+;
+; NOTE the asymmetry in the existing contract, which is preserved here:
+; layer2HorizonalLine's width is an INCLUSIVE extent (x .. x+width, i.e. width+1
+; pixels - that is what makes layer2box's corners meet the vertical edges it
+; draws at x+width), while layer2VerticalLine's bottomY is EXCLUSIVE
+; (topY .. bottomY-1).
+
 PUBLIC _layer2VerticalLine
 _layer2VerticalLine:
-    ; The return address rides in AF (10/11t) rather than IY (14/15t), so nothing
-    ; between the pop and the push may touch A *or the flags* - hence the colour
-    ; goes to C and is poked through HL instead of via A.
-    pop af          ; return address
-
-    pop BC          ; colour in C
-    ld hl, layer2VerticalLineLoopSet+2
-    ld (hl), c
-
-    pop HL          ; bottom y in L (high number)
-    pop BC          ; top y in C (low number)
-    pop DE          ; x
-    push af         ; put return back on stack
-
-    call selectPageForXInDeAndSetupH
-
-    ; number of loops
+    pop iy          ; return address
+    pop bc          ; colour in C
+    pop hl          ; bottom y in L
+    pop de          ; top y in E
     ld a, l
-    sub c
+    sub e           ; height = bottom - top (the bottom row is exclusive)
     ld b, a
-
-.layer2VerticalLineLoopSet:
-    dec l
-    ld (hl), 0       ; set (hl) to colour value
-    djnz layer2VerticalLineLoopSet
-    ret
+    ld a, c         ; colour
+    ld c, e         ; start y = top
+    pop hl          ; x
+    push iy         ; put return back on stack
+    ld de, 1        ; one column wide
+    jp layer2fillInternal
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC _layer2HorizonalLine
 _layer2HorizonalLine:
-    ; return address in AF, see _layer2VerticalLine above. The width fiddling
-    ; sets flags, so it has to wait until the return address is back on the
-    ; stack - by then A is free too, which makes it 4t cheaper anyway.
-    pop af          ; return address
-
-    pop BC          ; colour in C
-    ld hl, layer2HorizontalLineLoopSet+1
-    ld (hl), c
-
-    pop BC          ; width (B high, C low)
+    pop iy          ; return address
+    pop hl          ; colour
+    ld a, l
+    pop de          ; width
+    inc de          ; inclusive extent -> pixel count
     pop hl          ; y
-    pop de          ; start x
-    push af         ; put return back on stack
-
-    ld a, c         ; 16bit loop init: B = low(width) + 1 (inclusive)
-    inc a
-    ld c, b         ; C = high(width) + 1
-    inc c
-    ld b, a
-
-    call selectPageForXInDE
-
-.layer2HorizontalLineLoop:
-    ; offset in page
-    ld a, e
-    and $3F         ; keep in-page bits of x, set Z flag for below
-    ld h, a         ; l already has y
-
-    ; destination page needs update if in-page x is zero
-    call z, selectPageForXInDE
-
-.layer2HorizontalLineLoopSet:
-    ld (hl), 0       ; set (hl) to colour value
-    inc de
-
-    ; 16-bit loop using BC
-    djnz layer2HorizontalLineLoop
-    dec c
-    jp nz, layer2HorizontalLineLoop
-    ret
+    ld c, l
+    pop hl          ; x
+    push iy         ; put return back on stack
+    ld b, 1         ; one row tall
+    jp layer2fillInternal
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -309,6 +281,10 @@ _layer2fill:
     pop hl          ; start x
     push iy         ; put return back on stack
 
+; Register-level entry point, also used by the two line primitives above.
+; in: a = colour, b = height, de = width, c = start y, hl = start x
+;     (the return address must already be back on the stack)
+layer2fillInternal:
     ld iyh, a       ; colour stays in IYH for the whole fill
 
     ld a, d

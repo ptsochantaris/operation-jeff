@@ -85,8 +85,6 @@ _dmaMemoryToMemory:
     ld (dmaR1), a
     ld a, $50; ; 0101 0000 ; R2 - increment, to memory, bitmask
     ld (dmaR2), a
-    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-    ld (dmaR5), a
 
     xor a
     ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
@@ -123,8 +121,6 @@ _dmaMemoryToPort:
     ld (dmaR1), a
     ld a, $68; ; 0110 1000 ; R2 - do not increment, to port, bitmask
     ld (dmaR2), a
-    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-    ld (dmaR5), a
 
     xor a
     ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
@@ -154,8 +150,6 @@ _fillWithDma:
     ld (dmaR1), a
     ld a, $50;  ; 0101 0000 ; R2 - increment, to memory, bitmask
     ld (dmaR2), a
-    ld a, $82   ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-    ld (dmaR5), a
 
     xor a
     ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer

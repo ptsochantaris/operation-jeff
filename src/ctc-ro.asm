@@ -1,11 +1,11 @@
 SECTION PAGE_28_POSTISR
 
-; CTC audio sample player - the pure code half (no self-modification, no data),
-; so it lives in bank 28 to save the always-mapped code_compiler region. The
-; mutable sample state lives in ctc-rw.asm (code_compiler). Safe in bank 28
-; because bank 28 is only ever paged out during esxdos calls (files.c), which
-; run with interrupts disabled and restore bank 28 before re-enabling them, so
-; no CTC interrupt is ever serviced while this code is unmapped.
+; CTC audio sample player - the pure code half (no self-modification of its own,
+; no data), so it lives in bank 28 to save the always-mapped code_compiler
+; region. The mutable sample state AND the ISR live in ctc-rw.asm: the handler
+; self-modifies, which bank 28 cannot do (Layer 2 write-through would send the
+; store to VRAM), and it is hot enough to be worth the always-mapped bytes.
+; The routines here are only called from mainline code with bank 28 mapped.
 ;
 ; CTC channel 0 timer recipe (see interrupts-ro.asm for the IM2 wiring):
 ; CTC clock is a constant 28 MHz (unaffected by NextReg 0x07 / turbo). Timer
@@ -20,27 +20,34 @@ SECTION PAGE_28_POSTISR
 ; never counts. Both the channel's own b7 AND NextReg 0xC5 bit0 must be set for
 ; the interrupt to reach the Z80 in IM2 mode.
 
-GLOBAL samplePtr, sampleStart, sampleEnd, sampleLoop, sampleTC, _sampleActive
+GLOBAL sampleStart, sampleLoop, sampleTC, _sampleActive
+GLOBAL ctcPtr, ctcEndLo, ctcEndHi      ; the ISR's SMC slots (ctc-rw.asm)
 
 CTC_AUDIO_CHANNEL equ 0x183b
-COVOX_PORT        equ 0xffdf      ; SpecDrum/covox DAC (same port the DMA used)
 
 PUBLIC _startSample
 _startSample:
     pop hl                ; return address
-    pop de                ; loop (in E)
-    ld a, e
-    ld (sampleLoop), a
+    pop bc                ; loop (in C)
     pop de                ; time constant (in E)
     ld a, e
-    ld (sampleTC), a
+    ld (sampleTC), a      ; the ISR never reads this, so it is safe to set early
     pop de                ; length
     ex (sp), hl           ; HL = source, return address back on stack
-    ld (samplePtr), hl
+
+    ; Everything below is state the ISR reads, so it goes up under di. A sample
+    ; already playing would otherwise slip an interrupt between these stores and
+    ; write its own (stale) pointer over the new one.
+    di
+    ld a, c
+    ld (sampleLoop), a
+    ld (ctcPtr+1), hl     ; prime the handler's pointer operand
     ld (sampleStart), hl
     add hl, de            ; end = source + length
-    ld (sampleEnd), hl
-    di
+    ld a, l
+    ld (ctcEndLo+1), a    ; ...and the two halves of its end compare
+    ld a, h
+    ld (ctcEndHi+1), a
     ld a, 1
     ld (_sampleActive), a
     ld bc, CTC_AUDIO_CHANNEL
@@ -61,49 +68,3 @@ _stopAudioTimer:
     xor a
     ld (_sampleActive), a
     ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; CTC channel 0 ISR: stream one PCM byte to the DAC, advance, loop or
-; stop at the end. Replaces what the DMA used to do, but off the DMA controller.
-; Wired into IM2 vector slot 3 by _setupInterrupts (interrupts-ro.asm).
-
-PUBLIC ctcAudioHandler
-ctcAudioHandler:
-    push af
-    push bc
-    push hl
-    ld hl, (samplePtr)
-    ld a, (hl)             ; next sample byte
-    ld bc, COVOX_PORT
-    out (c), a             ; -> DAC
-    inc hl
-    ld bc, (sampleEnd)
-    ld a, l
-    cp c
-    jr z, ctcCheckEnd      ; end of sample is 1-in-256 at best, so the hot path
-                           ; falls through here (7t) instead of jumping (12t)
-.ctcSampleStore:
-    ld (samplePtr), hl
-.ctcSampleDone:
-    pop hl
-    pop bc
-    pop af
-    ei
-    reti
-
-    ; cold tail: low byte matched, so check the high byte and handle the end
-.ctcCheckEnd:
-    ld a, h
-    cp b
-    jr nz, ctcSampleStore
-    ; reached end of sample
-    ld a, (sampleLoop)
-    or a
-    jr z, ctcSampleEnd
-    ld hl, (sampleStart)   ; looping sample: restart
-    jr ctcSampleStore
-.ctcSampleEnd:
-    nextreg 0xC5, 0        ; one-shot done: stop the CTC interrupt
-    xor a
-    ld (_sampleActive), a
-    jr ctcSampleDone
