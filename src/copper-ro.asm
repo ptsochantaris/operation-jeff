@@ -62,9 +62,11 @@ _plasmaFill:
     ex (sp), hl         ; HL = dst, return address back on the stack
 
     push hl
-    pop iy              ; IY = write cursor. sdcc never emits IY in this project
-                        ; (IX is its frame pointer), so it needs no saving here -
-                        ; same assumption jeffpos.asm and zx0.asm already make.
+    pop iy              ; IY = write cursor. sdcc never emits IY in this project, so it
+                        ; needs no saving here - same assumption jeffpos.asm and zx0.asm
+                        ; already make. That holds only while --fomit-frame-pointer stays
+                        ; out of CFLAGS: with it, zsdcc 4.6 drops the IX frame and starts
+                        ; allocating IY. See the note in the Makefile.
 
     ld h, b             ; H = sine page (fixed for the whole run)
     inc b

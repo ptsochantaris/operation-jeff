@@ -8,7 +8,13 @@ CLIB=sdcc_iy
 VERBOSITY=-vn
 PRAGMA_FILE=zpragma.inc
 INCLUDES=
-CFLAGS=$(TARGET) $(VERBOSITY) -c -SO3 --max-allocs-per-node200000 --math16 --fomit-frame-pointer --constsegPAGE_28_POSTISR -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) $(INCLUDES)
+# NOTE: --fomit-frame-pointer is deliberately NOT used. zsdcc 4.5 ignored it and always
+# built IX frames; 4.6 honours it and addresses locals SP-relatively, but miscompiles that
+# path - it emits a dead "ld hl,N / add hl,sp" that clobbers the pointer a following
+# "dec hl" chain relies on, so an operand is read (N-M) bytes low, off the end of the
+# frame into the return address (broke layer2box/layer2roundedBox). Omitting the flag also
+# keeps sdcc off IY, which jeffpos/zx0/copper-ro all assume they can clobber freely.
+CFLAGS=$(TARGET) $(VERBOSITY) -c -SO3 --max-allocs-per-node200000 --math16 --constsegPAGE_28_POSTISR -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) $(INCLUDES)
 LDFLAGS=$(TARGET) $(VERBOSITY) -Cz"--nex-border 0" -Cz"--nex-loadbar 19" -Cz"--nex-screen resources/loadingScreen.nxi" -Cz"--clean" -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) -lm --math16
 ASFLAGS=$(TARGET) $(VERBOSITY) -c -float=ieee16
 OBJDIR=build
