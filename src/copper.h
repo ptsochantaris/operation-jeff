@@ -12,7 +12,8 @@ void copperInit(void) __z88dk_fastcall;
 void copperEffectCloud(byte low, byte mid, byte high) __z88dk_callee;
 void copperEffectFire(void) __z88dk_fastcall;
 void copperEffectFlash(void) __z88dk_fastcall;
-void copperEffectOff(void) __z88dk_fastcall;
+void copperEffectClose(void) __z88dk_fastcall; // animated stop, needs copperEffectUpdate to keep running
+void copperEffectOff(void) __z88dk_fastcall;   // immediate stop, safe to call and then walk away
 void copperEffectUpdate(void) __z88dk_fastcall;
 
 #endif

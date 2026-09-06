@@ -114,6 +114,30 @@ static void flashCycle(void) __z88dk_fastcall {
 #define PLASMA_BUFFER_LEN  ((PLASMA_LINES + 2) * 4 + 2)
 #define PLASMA_FIRST_COLOUR 7    // first band colour slot (after the leading black transition)
 
+// Intro/outro. The cloud opens out of the middle of the region and collapses back
+// into it, as a window of bands centred on PLASMA_HALF_LINES; bands outside it are
+// left at colour 0, which is what 0x4A holds when nothing is running, so the wipe
+// reads as the cloud growing out of the backdrop rather than a lid sliding off it.
+//
+// The steps are eased rather than even - half the height is out inside two updates
+// and the last few barely move, so it arrives at the edges instead of hitting them.
+// A table beats evaluating a curve: the endpoints are exact, the shape is right
+// there to tune by hand, and a step costs an index rather than a multiply. Values
+// are 1-(1-t)^2 over 7 steps, scaled to PLASMA_HALF_LINES and rounded. gameLoop
+// updates the copper twice per six frames, so a wipe runs a little over 0.4s.
+// Closing walks the same table back down, so it eases off the edges and snaps shut.
+#define PLASMA_HALF_LINES   (PLASMA_LINES / 2)
+#define PLASMA_WINDOW_STEPS 7
+
+// The last entry must be PLASMA_HALF_LINES: applyCloudWindow keys its do-nothing
+// fast path off the window being exactly full.
+static const byte cloudCurve[PLASMA_WINDOW_STEPS + 1] = {
+    0, 38, 70, 97, 118, 132, 141, PLASMA_HALF_LINES
+};
+
+static byte cloudStep;    // position along cloudCurve
+static byte cloudClosing; // 1 = collapsing, and the effect stops once it lands
+
 
 // Fill the palette slice dst[0..count) by interpolating the two RRRGGGBB anchors
 // per channel. Each channel walks in 8.8 fixed point, so a ramp costs just 3
@@ -236,6 +260,41 @@ static void alignPlasmaTables(void) __z88dk_fastcall {
     }
 }
 
+// Blank the bands outside the window, both ends closing in by the same amount.
+// Fully open it is a curve lookup and a branch (~92T), so the steady state - which
+// is almost all of a bonus - pays nothing for the wipe. Shut, it is 144 iterations
+// of ~79T, or ~0.4ms: 2% of a frame, and only while a wipe is actually running.
+static void applyCloudWindow(void) __z88dk_fastcall {
+    byte n = PLASMA_HALF_LINES - cloudCurve[cloudStep]; // bands blanked at each end
+    if (n == 0) return;
+
+    byte *top = copperImage + PLASMA_FIRST_COLOUR;
+    byte *bottom = top + PLASMA_LINES * 4;  // one band past the last
+    do {
+        *top = 0;
+        top += 4;
+        bottom -= 4;
+        *bottom = 0;
+    } while (--n);
+}
+
+// Step the wipe. Returns 0 when a collapse has finished, which is the frame the
+// caller turns the effect off on. A close draws its fully shut state once before
+// saying so: that frame is every band black, pixel-identical to the copper being
+// stopped, so the effect ends without a visible step.
+static byte advanceCloudWindow(void) __z88dk_fastcall {
+    if (cloudClosing) {
+        if (cloudStep == 0) {
+            return 0;
+        }
+        --cloudStep;
+
+    } else if (cloudStep < PLASMA_WINDOW_STEPS) {
+        ++cloudStep;
+    }
+    return 1;
+}
+
 static void copperPlasmaUpdate(void) __z88dk_fastcall {
     plasmaTimeA += 1;
     plasmaTimeB += 3;
@@ -246,6 +305,7 @@ static void copperPlasmaUpdate(void) __z88dk_fastcall {
 
     // skip the leading black; each transition is 4 bytes
     plasmaFill(copperImage + PLASMA_FIRST_COLOUR, plasmaSine, indices);
+    applyCloudWindow(); // plasmaFill rewrites every band, so the window reapplies here
     uploadCopperImage(PLASMA_BUFFER_LEN);
 }
 
@@ -347,9 +407,24 @@ void copperInit(void) __z88dk_fastcall {
 }
 
 void copperEffectCloud(byte low, byte mid, byte high) __z88dk_callee {
-    if (fxMode == FX_CLOUD && low == fxLow && mid == fxMid && high == fxHigh) return;
+    if (fxMode == FX_CLOUD) {
+        // A bonus arriving during a collapse takes it straight back out again,
+        // from wherever the window got to.
+        cloudClosing = 0;
+        if (low == fxLow && mid == fxMid && high == fxHigh) return;
+
+        // One bonus giving way to another: same skeleton, different tint. Re-ramp
+        // the palette and let the next frame pick it up - no stop and no rebuild,
+        // so the window holds its place and the swap costs no re-prime either.
+        fxLow = low; fxMid = mid; fxHigh = high;
+        buildPlasmaPalette(low, mid, high);
+        return;
+    }
+
     fxMode = FX_CLOUD;
     fxLow = low; fxMid = mid; fxHigh = high;
+    cloudStep = 0;     // shut, and opens on the updates that follow
+    cloudClosing = 0;
     copperStop();
     ZXN_NEXTREG(0x64, VERTICAL_OFFSET);
     alignPlasmaTables();
@@ -385,6 +460,19 @@ void copperEffectFlash(void) __z88dk_fastcall {
     uploadCopperImage(FLASH_BUFFER_LEN); // DMA the skeleton up and start the copper from index 0
 }
 
+// Animated counterpart to copperEffectOff, for callers that keep driving
+// copperEffectUpdate: a cloud collapses back into the middle over the next few
+// updates and turns itself off when it lands. Anything else stops right away, and
+// so does everything here if the caller is about to stop updating us - that is
+// what copperEffectOff is still for.
+void copperEffectClose(void) __z88dk_fastcall {
+    if (fxMode != FX_CLOUD) {
+        copperEffectOff();
+        return;
+    }
+    cloudClosing = 1;
+}
+
 void copperEffectOff(void) __z88dk_fastcall {
     if (fxMode == FX_NONE) return;
     
@@ -395,7 +483,13 @@ void copperEffectOff(void) __z88dk_fastcall {
 
 void copperEffectUpdate(void) __z88dk_fastcall {
     switch (fxMode) {
-        case FX_CLOUD: copperPlasmaUpdate(); break;
+        case FX_CLOUD:
+            if (advanceCloudWindow()) {
+                copperPlasmaUpdate();
+            } else {
+                copperEffectOff();
+            }
+            break;
         case FX_FIRE:  copperFireUpdate();  break;
         case FX_FLASH: flashCycle();        break;
     }

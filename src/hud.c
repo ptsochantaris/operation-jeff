@@ -112,7 +112,9 @@ static void hudBorderDraw(void) __z88dk_fastcall {
   } else if(currentStats.supergun || currentStats.extraRangeBombs) {
     copperEffectCloud(GUNBOOST_CLOUD);
   } else {
-    copperEffectOff();
+    // Close rather than stop: a cloud collapses back into the middle of the screen
+    // over the next few updates instead of vanishing between two frames.
+    copperEffectClose();
   }
 }
 
