@@ -33,7 +33,7 @@ static void waitForClick(void) __z88dk_fastcall {
   }
 }
 
-static void displayStats(word top, word x, byte oldLevel, word color, byte twoColumns) {
+static void displayStats(word top, word x, byte oldLevel, word color, byte twoColumns) __z88dk_callee {
   word originalTop = top;
 
   applyHudPalette();
