@@ -7,14 +7,27 @@
 static byte copperImage[1200];
 
 static void uploadCopperImage(word len) __z88dk_fastcall {
-    copperAddress(0);
-    z80_outp(0x243b, REG_COPPER_DATA);
     if (copperDmaResident) {
+        // Same layout as the frame before, only the colour bytes differ, so the
+        // copper can keep running over the rewrite: the worst it sees is a mix of
+        // this frame's colours and last frame's, on the band it happens to be on.
+        copperAddress(0);
+        z80_outp(0x243b, REG_COPPER_DATA);
         dmaRepeat();
-    } else {
-        dmaMemoryToPort(copperImage, 0x253b, len); // full setup (clears the flag)...
-        copperDmaResident = 1;                     // ...now resident
+        return;
     }
+
+    // A new program, though, has to land before the copper is allowed near it.
+    // Starting first (as this used to) leaves it executing a half-written list and
+    // running off into the tail of the previous effect's, still resident in copper
+    // RAM - which for the cloud is a screenful of MOVE 0x4A bands. Load with the
+    // copper stopped, then start it: the effect owns every register it sets, and
+    // whatever it chooses not to set stays where the caller put it.
+    copperStop();                              // mode 00, write cursor back to 0
+    z80_outp(0x243b, REG_COPPER_DATA);
+    dmaMemoryToPort(copperImage, 0x253b, len); // full setup (clears the flag)...
+    copperDmaResident = 1;                     // ...now resident
+    copperAddress(0);                          // ...and now it is safe to run
 }
 
 // --------------------------------------------------------------- Flash
@@ -244,9 +257,7 @@ static void copperPlasmaUpdate(void) __z88dk_fastcall {
 // is WAIT + MOVE index + MOVE value = 6 bytes; the index is re-set every line so the
 // palette auto-increment can stay enabled (no global side effect on other uploads).
 #define FIRE_BAND_BYTES    6
-// Two-byte MOVE 0x4A, 0 ahead of the bands - see buildFireSkeleton.
-#define FIRE_PREFIX_BYTES  2
-#define FIRE_FIRST_COLOUR  (FIRE_PREFIX_BYTES + 5) // value byte within the first band
+#define FIRE_FIRST_COLOUR  5     // value byte within the first band
 #define FIRE_BAND_HEIGHT   2     // scanlines per fire band (vertical resolution)
 #define FIRE_TOP_LINE      1     // first raster line of the fire
 #define FIRE_LINES         288   // cover the layer 2 area only (no hardware border)
@@ -254,7 +265,7 @@ static void copperPlasmaUpdate(void) __z88dk_fastcall {
 // (FIRE_GROUPS x 8, then a 7-band tail, then the undrawn bottom band); changing
 // FIRE_LINES or FIRE_BAND_HEIGHT means re-deriving that split there.
 #define FIRE_BANDS         (FIRE_LINES / FIRE_BAND_HEIGHT)
-#define FIRE_BUFFER_LEN    (FIRE_PREFIX_BYTES + FIRE_BANDS * FIRE_BAND_BYTES + 2)
+#define FIRE_BUFFER_LEN    (FIRE_BANDS * FIRE_BAND_BYTES + 2)
 #define FIRE_SEED_ROWS      2   // bottom bands reseeded hot each frame (~4px base at 2px/band)
 
 // fire variant: same band pipeline, different per-line colour source. The ramp is
@@ -297,20 +308,6 @@ static void fireSeed(void) __z88dk_fastcall {
 
 static void buildFireSkeleton(void) __z88dk_fastcall {
     byte *p = copperImage;
-
-    // The fire drives a palette slot, not the transparency fallback, so unlike the
-    // cloud and the flash it would otherwise leave 0x4A holding whatever the last
-    // effect put there - and the game over screen's black is transparent, so that
-    // colour becomes its whole background. Worse, uploadCopperImage starts the
-    // copper before the DMA has finished writing, so it runs off the end of the new
-    // program and into the tail of the old one still resident in copper RAM, which
-    // is full of the cloud's MOVE 0x4A bands. The cloud and the flash paper over
-    // that on their next frame; the fire never touches 0x4A again, so it stuck.
-    // Own the register instead: black it out at the top of every frame.
-    p[0] = 0x4A;
-    p[1] = 0;
-    p += FIRE_PREFIX_BYTES;
-
     for (word i = 0; i < FIRE_BANDS; ++i) {
         word waitLine = FIRE_TOP_LINE + i * FIRE_BAND_HEIGHT - 1; // set during the blanking above the band
         p[0] = 0x80 | (COL0_HPOS << 1) | ((waitLine >> 8) & 1);
@@ -367,6 +364,10 @@ void copperEffectFire(void) __z88dk_fastcall {
     fxMode = FX_FIRE;
     copperStop();
     ZXN_NEXTREG(0x64, VERTICAL_OFFSET);
+    ZXN_NEXTREG(0x4a, 0);  // the fire drives a palette slot, not the fallback colour,
+                           // so black it out here rather than per scanline - the game
+                           // over screen's background is transparent, and whatever
+                           // sits in 0x4A is exactly what shows through it
     selectPalette(1); // copper MOVEs target the layer 2 palette (border colour slot)
     buildFirePalette();
     buildFireSkeleton();
