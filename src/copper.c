@@ -421,9 +421,12 @@ void copperEffectCloud(byte low, byte mid, byte high) __z88dk_callee {
         return;
     }
 
+    // Coming back from a flash, which took the copper without ever closing the
+    // cloud down: cloudStep is still where the wipe left it, so the cloud returns
+    // to the height it was at rather than wiping in again. Only a real stop
+    // (copperEffectOff) clears it, so a genuinely new cloud still opens from shut.
     fxMode = FX_CLOUD;
     fxLow = low; fxMid = mid; fxHigh = high;
-    cloudStep = 0;     // shut, and opens on the updates that follow
     cloudClosing = 0;
     copperStop();
     ZXN_NEXTREG(0x64, VERTICAL_OFFSET);
@@ -477,6 +480,8 @@ void copperEffectOff(void) __z88dk_fastcall {
     if (fxMode == FX_NONE) return;
     
     fxMode = FX_NONE;
+    cloudStep = 0;    // this is what ends a cloud's life, so the wipe resets here
+    cloudClosing = 0; // and not in copperEffectCloud - see the note there
     copperStop();
     ZXN_NEXTREG(0x4a, 0);
 }

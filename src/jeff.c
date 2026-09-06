@@ -27,6 +27,10 @@
 #define JEFF_STATE_APPEAR 3
 #define JEFF_STATE_DISAPPEAR 4
 #define JEFF_STATE_LANDING 5
+// 8, not 6: sdcc compiles this switch as a compare chain while the case values
+// stay sparse, but packs them into a jump table once they are dense enough -
+// and that table costs ~110T more than the two compares that reach WALK today.
+#define JEFF_STATE_MAGNET 8
 
 #define JEFF_LEFT 0
 #define JEFF_RIGHT 1
@@ -97,6 +101,18 @@ static const word jeffMoveMasks[] = {
     JEFF_SPEED_MASK_8
 };
 
+// A magnetised jeff runs on this mask instead of its own: uniform and fast, so
+// the pull has some weight to it and the same gate drives the flail animation.
+#define JEFF_MAGNET_MASK JEFF_SPEED_MASK_6
+
+// First walk frame per direction, for putting a jeff back after the magnet.
+static const byte jeffWalkFirst[] = {
+    JEFF_SIDE_FIRST,    // JEFF_LEFT
+    JEFF_SIDE_FIRST,    // JEFF_RIGHT
+    JEFF_BACK_FIRST,    // JEFF_UP
+    JEFF_FRONT_FIRST    // JEFF_DOWN
+};
+
 void loadHeightmap(const struct ResourceInfo *restrict heightmapAsset) __z88dk_fastcall {
     ZXN_WRITE_MMU1(heightmapAsset->page);
     decompressZX0((byte *)(heightmapAsset->resource), heightMap);
@@ -119,6 +135,40 @@ static void magnetJeff(struct jeff *restrict j) __z88dk_fastcall {
         s->pos.y -= 2;
     } else if(sy < y-1) {
         s->pos.y += 2;
+    }
+}
+
+// Entering and leaving the magnet is a one-off pass over the active list, so
+// the per-tick loop never has to ask whether the magnet is up - the state says
+// so, and the switch dispatch in updateJeffs already pays for that branch.
+static void magnetiseJeff(struct jeff *restrict j) __z88dk_fastcall {
+    j->state = JEFF_STATE_MAGNET;
+    // front frames only, and the left-facing mirror would flip them
+    j->sprite.horizontalMirror = 0;
+    // stagger the phase off the sprite index, else 80 jeffs flail in lockstep
+    j->sprite.pattern = JEFF_FRONT_FIRST + (j->sprite.index & 7);
+}
+
+void jeffsMagnetise(void) __z88dk_fastcall {
+    struct jeff **J = activeJeff;
+    for(const struct jeff **E = activeJeff+activeJeffCount; J != E; ++J) {
+        struct jeff *j = *J;
+        if(j->state == JEFF_STATE_WALK) {
+            magnetiseJeff(j);
+        }
+    }
+}
+
+static void demagnetiseJeffs(void) __z88dk_fastcall {
+    struct jeff **J = activeJeff;
+    for(const struct jeff **E = activeJeff+activeJeffCount; J != E; ++J) {
+        struct jeff *j = *J;
+        if(j->state == JEFF_STATE_MAGNET) {
+            const byte direction = j->direction;
+            j->state = JEFF_STATE_WALK;
+            j->sprite.horizontalMirror = (direction == JEFF_LEFT) ? 1 : 0;
+            j->sprite.pattern = *(jeffWalkFirst+direction);
+        }
     }
 }
 
@@ -350,6 +400,10 @@ static void jeffStandStep(struct jeff *j) __z88dk_fastcall {
 
     if(++(j->progress) > 10) {
         j->progress = 0;
+        if(currentStats.magnetLocation.z) {
+            magnetiseJeff(j);
+            return;
+        }
         j->state = JEFF_STATE_WALK;
         switch(j->direction) {
             case JEFF_LEFT:
@@ -386,6 +440,7 @@ void jeffKillAll(byte retireImmediately) __z88dk_fastcall {
         switch(j->state) {
             case JEFF_STATE_STAND:
             case JEFF_STATE_WALK:
+            case JEFF_STATE_MAGNET:
                 killJeff(j);
             case JEFF_STATE_APPEAR:
             case JEFF_STATE_LANDING:
@@ -436,6 +491,7 @@ void jeffKillAllAt(word x, word y) __z88dk_callee {
         switch(j->state) {
             case JEFF_STATE_STAND:
             case JEFF_STATE_WALK:
+            case JEFF_STATE_MAGNET:
                 if(withinPixelRadius(j, x, y, 60)) {
                     killJeff(j);
                 }
@@ -459,7 +515,9 @@ static void holdStep(void) __z88dk_fastcall {
 
 void updateJeffs(void) __z88dk_fastcall {
     if(currentStats.magnetLocation.z) {
-        --currentStats.magnetLocation.z;
+        if(--currentStats.magnetLocation.z == 0) {
+            demagnetiseJeffs();
+        }
     }
 
     if(currentStats.damageFlash) {
@@ -555,18 +613,31 @@ void updateJeffs(void) __z88dk_fastcall {
 
             case JEFF_STATE_WALK:
                 if(canMove && (j->moveMask & logicLoop)) {
-                    if(currentStats.magnetLocation.z) {
-                        magnetJeff(j);
-                        setJeffPos(j, 255);
-                    } else {
-                        setJeffPos(j, j->direction);
-                    }
+                    setJeffPos(j, j->direction);
                     jeffAnimate(j);
 
                     if(j->state != JEFF_STATE_NONE) {
                         jeffCheckBombs(j);
                         updateSprite(&j->sprite);
                     }
+
+                } else if(jeffCheckBombs(j)) {
+                    updateSprite(&j->sprite);
+                }
+                continue;
+
+            // Cheaper than the walk case: one orientation, so no direction
+            // switch, and a pulled jeff can't reach an edge and escape, so no
+            // retire check either - only jeffCheckBombs can change its state.
+            case JEFF_STATE_MAGNET:
+                if(canMove && (JEFF_MAGNET_MASK & logicLoop)) {
+                    magnetJeff(j);
+                    setJeffPos(j, 255);
+                    if(++(j->sprite.pattern) > JEFF_FRONT_LAST) {
+                        j->sprite.pattern = JEFF_FRONT_FIRST;
+                    }
+                    jeffCheckBombs(j);
+                    updateSprite(&j->sprite);
 
                 } else if(jeffCheckBombs(j)) {
                     updateSprite(&j->sprite);

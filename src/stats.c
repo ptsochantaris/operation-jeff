@@ -238,6 +238,7 @@ void processBonusHit(byte type, int x, int y) __z88dk_callee {
             currentStats.magnetLocation.x = x;
             currentStats.magnetLocation.y = groundYForScreenY(x, y - 1);
             currentStats.magnetLocation.z = 300; // using z as switch
+            jeffsMagnetise();
             break;
 
         case BONUS_INVUNERABLE:
