@@ -1,6 +1,10 @@
 #include "base.h"
 
 // Precalc'ed AY pitches for 3.5 MHz (218750 / note drequency)
+// NOTE: the AY period register is 12 bits and aySetPitch masks to it, so only
+// entries from A1 (index 21, 3977) upward are playable. Everything below that
+// overflows and reaches the hardware as period & 0x0FFF, which is an unrelated
+// note - use a raw aySetPitch if you want one of those values on purpose.
 static const word notePitches[] = {
     13379,
     12630,

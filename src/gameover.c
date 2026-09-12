@@ -56,6 +56,7 @@ void gameOverLoop(void) __z88dk_fastcall {
   stopAudioTimer();
   ayStopAllSound();
   gameOverEffect();
+  effectGameOverDrone(); // swells up on chips 1 and 2 as the crash on chip 0 decays
   persistHighestLevel();
   loadGameOverScreen();
   applyHudPalette();

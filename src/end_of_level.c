@@ -1,23 +1,22 @@
 #include "base.h"
+#include "music.h"
+
+// Written as E0, A0 and B0 originally, but those table entries (13379, 7955 and
+// 7086) all overflow the 12 bit period register and reached the AY as the masked
+// values below - which is the chord that has always played. Spelled out as raw
+// periods so it stops reading as an E minor triad that it never was.
+static const word endOfLevelPitch[] = {1091, 3859, 2990}; // 100.25, 28.34, 36.58 Hz
+static const byte endOfLevelEnvelopeType[] = {10, 14, 10};
+static const word endOfLevelEnvelopeLength[] = {0x1FFF, 0x0FFF, 0x0FFF};
 
 static void endOfLeveDrone(void) __z88dk_fastcall {
-  ayChipSelect(0);
-  aySetEnvelope(10, 0x1FFF);
-  ayPlayNote(1, E0);
-  aySetAmplitude(1, 0x10);
-  aySetMixer(1, 1, 0);
-
-  ayChipSelect(1);
-  aySetEnvelope(14, 0x0FFF);
-  ayPlayNote(1, A0);
-  aySetAmplitude(1, 0x10);
-  aySetMixer(1, 1, 0);
-
-  ayChipSelect(2);
-  aySetEnvelope(10, 0x0FFF);
-  ayPlayNote(1, B0);
-  aySetAmplitude(1, 0x10);
-  aySetMixer(1, 1, 0);
+  for(byte chip=0; chip != 3; ++chip) {
+    ayChipSelect(chip);
+    aySetEnvelope(endOfLevelEnvelopeType[chip], endOfLevelEnvelopeLength[chip]);
+    aySetPitch(1, endOfLevelPitch[chip]);
+    aySetAmplitude(1, 0x10);
+    aySetMixer(1, 1, 0);
+  }
 }
 
 #define center 160

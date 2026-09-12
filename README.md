@@ -48,6 +48,7 @@ The game packs all its resources into a single NEX file. Almost all data, except
 
 - Level backgrounds are converted from PNG to native Next using the `gfx2next` utility.
 - Generated images and palettes are compressed using the `zx0` utility.
+- Digital audio is copied through and volume adjusted where applicable.
 - Level heightmaps are converted from PNG to *.hm files (which are just a raster of 8-bit brightness values).
 - The converted assets are then included a generated `assets.asm` file with an accompanying `assets.h` file. The ASM file builds the binary blob with all the binary data, sorted to fill each memory page as much as possible, and the H file creates defines which are used in the game to refer to each resource's (paged-in) address, data length, and page.
 - Finally the loading screen for the NEX is converted in a slightly different native format as required by the NEX spec.

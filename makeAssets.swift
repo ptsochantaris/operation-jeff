@@ -42,10 +42,26 @@ do {
     let resourceSource = try fm.contentsOfDirectory(atPath: ORIG).filter {
         $0.hasSuffix(".pcm") || $0.hasSuffix(".nxp") || $0.hasSuffix(".spr")
     }
+    // Playback gain per sample, in dB. Applied here rather than at runtime because
+    // the CTC ISR streams these bytes straight to the DAC with outinb - scaling in
+    // flight would cost around 39T of its 151T, 8000 times a second. Each sample is
+    // scaled about its own DC centre so the DAC's rest level is unchanged, which is
+    // what keeps the start and end of a sample from thumping.
+    let sampleGainDb = ["menu.pcm": -4.0] // the drone in effectMenuLoop sits over this loop, not under it
+
     print("Copying: ", terminator: "")
     for item in resourceSource {
         print(item, terminator: " ")
-        try fm.copyItem(atPath: "\(ORIG)/\(item)", toPath: "\(DST)/\(item)")
+        guard let db = sampleGainDb[item] else {
+            try fm.copyItem(atPath: "\(ORIG)/\(item)", toPath: "\(DST)/\(item)")
+            continue
+        }
+        let gain = pow(10.0, db / 20.0)
+        let source = try Data(contentsOf: URL(fileURLWithPath: "\(ORIG)/\(item)"))
+        let centre = Double(source.reduce(0) { $0 + Int($1) }) / Double(source.count)
+        let scaled = source.map { UInt8(max(0, min(255, (centre + (Double($0) - centre) * gain).rounded()))) }
+        print("(\(db)dB)", terminator: " ")
+        try Data(scaled).write(to: URL(fileURLWithPath: "\(DST)/\(item)"))
     }
     print("Done")
 
