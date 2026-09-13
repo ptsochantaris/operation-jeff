@@ -69,7 +69,7 @@ static void newRandomTargetType(void) __z88dk_fastcall {
         byte i = random16() % BONUS_INDEX_COUNT;
         targetType = bonusIndexes[i];
     } while(lastTargetType == targetType);
-    // targetType = BONUS_MINIBOMB;
+    // targetType = BONUS_MAGNET;
     lastTargetType = targetType;
 }
 
@@ -128,6 +128,8 @@ static void proceessBonusTransition(void) __z88dk_fastcall {
     }
 
     const byte transitionOffset = transition++ >> 3;
+    // Each category is dark, medium, bright; fading out walks the same tiles backwards
+    const byte fadeOutOffset = 2 - transitionOffset;
 
     switch(presentedType) {
         case BONUS_NONE:
@@ -137,12 +139,12 @@ static void proceessBonusTransition(void) __z88dk_fastcall {
         case BONUS_SCORE:
         case BONUS_HEALTH:
         case BONUS_CHARGE:
-            placeTile(&hollowPlusTiles, -transitionOffset);
+            placeTile(&hollowPlusTiles, fadeOutOffset);
             return;
 
         case BONUS_SMARTBOMB:
         case BONUS_ZAP:
-            placeTile(&hollowDiamondTiles, -transitionOffset);
+            placeTile(&hollowDiamondTiles, fadeOutOffset);
             return;
 
         case BONUS_FREEZE:
@@ -152,11 +154,11 @@ static void proceessBonusTransition(void) __z88dk_fastcall {
         case BONUS_RANGE:
         case BONUS_MINIBOMB:
         case BONUS_RATE:
-            placeTile(&hollowSquareTiles, -transitionOffset);
+            placeTile(&hollowSquareTiles, fadeOutOffset);
             return;
 
         case BONUS_MAGNET:
-            placeTile(&hollowMagnetTiles, -transitionOffset);
+            placeTile(&hollowMagnetTiles, fadeOutOffset);
             return;
     }
 }
@@ -200,6 +202,7 @@ static void processPresentedBonus(void) __z88dk_fastcall {
         if(centerY >= C) continue;
 
         processBonusHit(targetType, centerX, centerY);
+        if(targetType == BONUS_MAGNET) presentedType = BONUS_NONE; // straight to the active cycle, no fade
         targetType = BONUS_NONE;
         transition = 0;
         b->outcome |= BOMB_OUTCOME_BONUS_HIT;
