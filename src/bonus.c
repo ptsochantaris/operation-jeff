@@ -137,12 +137,12 @@ static void proceessBonusTransition(void) __z88dk_fastcall {
         case BONUS_SCORE:
         case BONUS_HEALTH:
         case BONUS_CHARGE:
-            placeTile(&hollowDiamondTiles, -transitionOffset);
+            placeTile(&hollowPlusTiles, -transitionOffset);
             return;
 
         case BONUS_SMARTBOMB:
         case BONUS_ZAP:
-            placeTile(&hollowSquareTiles, -transitionOffset);
+            placeTile(&hollowDiamondTiles, -transitionOffset);
             return;
 
         case BONUS_FREEZE:
@@ -152,11 +152,11 @@ static void proceessBonusTransition(void) __z88dk_fastcall {
         case BONUS_RANGE:
         case BONUS_MINIBOMB:
         case BONUS_RATE:
-            placeTile(&hollowMagnetTiles, -transitionOffset);
+            placeTile(&hollowSquareTiles, -transitionOffset);
             return;
 
         case BONUS_MAGNET:
-            placeTile(&activeMagnetTiles, -transitionOffset);
+            placeTile(&hollowMagnetTiles, -transitionOffset);
             return;
     }
 }
