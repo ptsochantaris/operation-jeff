@@ -1,11 +1,11 @@
 #include "base.h"
 #include "music.h"
 
-// Written as E0, A0 and B0 originally, but those table entries (13379, 7955 and
+// Written as E0, A0 and B0 originally, but those table entries (10619, 7955 and
 // 7086) all overflow the 12 bit period register and reached the AY as the masked
 // values below - which is the chord that has always played. Spelled out as raw
 // periods so it stops reading as an E minor triad that it never was.
-static const word endOfLevelPitch[] = {1091, 3859, 2990}; // 100.25, 28.34, 36.58 Hz
+static const word endOfLevelPitch[] = {2427, 3859, 2990}; // 45.07, 28.34, 36.58 Hz
 static const byte endOfLevelEnvelopeType[] = {10, 14, 10};
 static const word endOfLevelEnvelopeLength[] = {0x1FFF, 0x0FFF, 0x0FFF};
 

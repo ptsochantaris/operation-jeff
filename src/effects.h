@@ -4,7 +4,9 @@
 #include "types.h"
 
 void effectMenuLoop(void) __z88dk_fastcall;
+void effectMenuDroneUpdate(void) __z88dk_fastcall;
 void effectGameOverDrone(void) __z88dk_fastcall;
+void effectGameOverDroneUpdate(void) __z88dk_fastcall;
 void effectFire(void) __z88dk_fastcall;
 void effectLand(void) __z88dk_fastcall;
 void effectBomb(void) __z88dk_fastcall;

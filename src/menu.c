@@ -105,6 +105,7 @@ byte menuLoop(void) __z88dk_fastcall {
     }
 
     if(!menuInfoMode) {
+      effectMenuDroneUpdate();
       if(++loopCount == 6) {
         cycleGrayPalette();
         loopCount = 0;

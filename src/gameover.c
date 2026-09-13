@@ -110,6 +110,7 @@ void gameOverLoop(void) __z88dk_fastcall {
   while(1) {
     waitOne();
     copperEffectUpdate();
+    effectGameOverDroneUpdate();
 
     for(byte i=0; i<8; ++i) {
       borderEffectUpdate();
