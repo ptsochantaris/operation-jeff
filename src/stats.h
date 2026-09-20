@@ -12,6 +12,8 @@
 #define INVUNERABLE_TICKS  399  // logic ticks
 #define UMBRELLA_TICKS     399  // logic ticks
 #define SLOWMO_TICKS       120  // slow-motion steps
+#define FREEZE_TICKS       199  // logic ticks (currentStats.holdCount)
+#define MAGNET_TICKS       300  // logic ticks (currentStats.magnetLocation.z)
 
 #define HIGHSCORE_SLOTS 10
 #define HIGHSCORE_SLOT_NAME_LEN 10

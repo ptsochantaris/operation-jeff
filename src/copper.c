@@ -220,13 +220,27 @@ static void alignCopperTables(void) __z88dk_fastcall {
     plasmaPalette = plasmaSine + 512;
 }
 
-// Build the 64-entry cloud palette by interpolating low -> mid across the lower
-// half and mid -> high across the upper half. Anchors are 8-bit RRRGGGBB; pass
-// different triples to tint the cloud per bonus.
-static void buildPlasmaPalette(byte low, byte mid, byte high) __z88dk_callee {
-    byte half = PLASMA_PAL_SIZE / 2;
-    rampPalette(plasmaPalette,        half, low, mid);
-    rampPalette(plasmaPalette + half, half, mid, high);
+// Build the 64-entry cloud palette by interpolating low -> mid over the first
+// `split` entries and mid -> high over the rest. Anchors are 8-bit RRRGGGBB; pass
+// different sets to tint the cloud per bonus.
+//
+// The split is per-tint rather than a fixed 32/32 because the two legs are what the
+// eye reads as the base colour and the highlight, and an even division forces them
+// to be equally wide. A tint that wants a broad flat base with a short bright
+// accent - the magnet - gives its base leg almost the whole palette and leaves the
+// accent a handful of entries, which is the difference between a highlight and a
+// long pastel ramp into one.
+//
+// Note which end an accent goes at. The kernel indexes this palette with
+// sine[ia]+sine[ib], two values of 0..31, so entry 63 cannot be reached at all and
+// 61-62 turn up on well under a tenth of a percent of bands - an accent parked at
+// the `high` end is mostly invisible, and what shows is the ramp leading to it.
+// The `low` end has no such dead zone: every entry there is live.
+//
+// Both legs must be at least 2 entries long - rampPalette divides by count-1.
+static void buildPlasmaPalette(byte low, byte mid, byte high, byte split) __z88dk_callee {
+    rampPalette(plasmaPalette,         split,                    low, mid);
+    rampPalette(plasmaPalette + split, PLASMA_PAL_SIZE - split,  mid, high);
 }
 
 static void emitTransition(byte **pp, byte hpos, word waitLine) __z88dk_callee {
@@ -435,7 +449,7 @@ static void copperFireUpdate(void) __z88dk_fastcall {
 #define FX_FLASH 3
 
 static byte fxMode = FX_NONE;
-static byte fxLow, fxMid, fxHigh;
+static byte fxLow, fxMid, fxHigh, fxSplit;
 
 void copperInit(void) __z88dk_fastcall {
     copperStop();
@@ -443,7 +457,7 @@ void copperInit(void) __z88dk_fastcall {
     fxMode = FX_NONE;
 }
 
-void copperEffectCloud(byte low, byte mid, byte high, byte level) __z88dk_callee {
+void copperEffectCloud(byte low, byte mid, byte high, byte split, byte level) __z88dk_callee {
     // The gauge is live state, so it is taken before any of the early outs below:
     // the common case by far is the same cloud as last frame with one shot less
     // in it, and that has to move the target even though nothing else changes.
@@ -453,13 +467,13 @@ void copperEffectCloud(byte low, byte mid, byte high, byte level) __z88dk_callee
         // A bonus arriving during a collapse takes it straight back out again,
         // from wherever the window got to.
         cloudClosing = 0;
-        if (low == fxLow && mid == fxMid && high == fxHigh) return;
+        if (low == fxLow && mid == fxMid && high == fxHigh && split == fxSplit) return;
 
         // One bonus giving way to another: same skeleton, different tint. Re-ramp
         // the palette and let the next frame pick it up - no stop and no rebuild,
         // so the window holds its place and the swap costs no re-prime either.
-        fxLow = low; fxMid = mid; fxHigh = high;
-        buildPlasmaPalette(low, mid, high);
+        fxLow = low; fxMid = mid; fxHigh = high; fxSplit = split;
+        buildPlasmaPalette(low, mid, high, split);
         return;
     }
 
@@ -468,12 +482,12 @@ void copperEffectCloud(byte low, byte mid, byte high, byte level) __z88dk_callee
     // to the height it was at rather than wiping in again. Only a real stop
     // (copperEffectOff) clears it, so a genuinely new cloud still opens from shut.
     fxMode = FX_CLOUD;
-    fxLow = low; fxMid = mid; fxHigh = high;
+    fxLow = low; fxMid = mid; fxHigh = high; fxSplit = split;
     cloudClosing = 0;
     copperStop();
     ZXN_NEXTREG(0x64, VERTICAL_OFFSET);
     alignPlasmaTables();
-    buildPlasmaPalette(low, mid, high);
+    buildPlasmaPalette(low, mid, high, split);
     byte previousMmu3 = mmu3Borrow(COPPER_IMAGE_PAGE);
     buildPlasmaSkeleton();
     copperPlasmaUpdate(); // fill colours, upload, start the copper

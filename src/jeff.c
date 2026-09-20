@@ -503,16 +503,6 @@ void jeffKillAllAt(word x, word y) __z88dk_callee {
     }
 }
 
-static void holdStep(void) __z88dk_fastcall {
-    word v = currentStats.holdCount--;
-    if(v == 1) {
-        status(NULL);
-    } else if(v % 50 == 0) {
-        sprintf(textBuf, "%d", v / 50);
-        status(textBuf);
-    }
-}
-
 void updateJeffs(void) __z88dk_fastcall {
     if(currentStats.magnetLocation.z) {
         if(--currentStats.magnetLocation.z == 0) {
@@ -577,7 +567,9 @@ void updateJeffs(void) __z88dk_fastcall {
 
     } else {
         canMove = 0;
-        holdStep();
+        // The ice cloud is the freeze's countdown now - it used to print the
+        // remaining seconds into the status band from here.
+        --currentStats.holdCount;
     }
 
     logicLoop = (logicLoop << 1) | (logicLoop >> 15);

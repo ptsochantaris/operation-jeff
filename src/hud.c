@@ -115,17 +115,17 @@ static byte bonusLevel(word remaining, word full) __z88dk_callee {
   return (level > CLOUD_FULL) ? CLOUD_FULL : (byte)level;
 }
 
-// The gunboost cloud covers two bonuses that are usually picked up apart, so it
-// shows whichever has more left rather than letting one about to expire shrink the
-// cloud while the other is still full.
-static byte gunboostLevel(void) __z88dk_fastcall {
-  byte gun = bonusLevel(currentStats.supergun, SUPERGUN_SHOTS);
-  byte range = bonusLevel(currentStats.extraRangeBombs, EXTRA_RANGE_BOMBS);
-  return (gun > range) ? gun : range;
-}
-
 static void hudBorderDraw(void) __z88dk_fastcall {
-  if(currentStats.invunerableCount) {
+  // Freeze outranks everything below it because a hold pauses the rest: the shield,
+  // umbrella and slow-mo counters all tick inside updateJeffs' holdCount == 0 branch,
+  // so their gauges would sit at a fixed height for the whole four seconds. The ice
+  // cloud is the only one actually counting down while the game is stopped, and the
+  // one bonus with no other indicator now that its countdown is out of the status
+  // band. (The damage flash can still fire during a hold, but nothing can reach the
+  // player to cause one while the jeffs are stopped.)
+  if(currentStats.holdCount) {
+    copperEffectCloud(ICE_CLOUD, bonusLevel(currentStats.holdCount, FREEZE_TICKS));
+  } else if(currentStats.invunerableCount) {
     copperEffectCloud(SHIELD_CLOUD, bonusLevel(currentStats.invunerableCount, INVUNERABLE_TICKS));
   } else if(currentStats.damageFlash) {
     copperEffectFlash();
@@ -133,8 +133,19 @@ static void hudBorderDraw(void) __z88dk_fastcall {
     copperEffectCloud(UMBRELLA_CLOUD, bonusLevel(currentStats.umbrellaCountdown, UMBRELLA_TICKS));
   } else if(currentStats.slowMo) {
     copperEffectCloud(SLOW_CLOUD, bonusLevel(currentStats.slowMo, SLOWMO_TICKS));
-  } else if(currentStats.supergun || currentStats.extraRangeBombs) {
-    copperEffectCloud(GUNBOOST_CLOUD, gunboostLevel());
+  } else if(currentStats.magnetLocation.z) {
+    // Above the gunboost rather than below it: the magnet is a six-second event that
+    // rearranges the whole screen, so it is worth the interruption, and the gunboost
+    // loses nothing by yielding - the gauge is derived from the live count, so its
+    // cloud comes back at the height it would have been at anyway.
+    copperEffectCloud(MAGNET_CLOUD, bonusLevel(currentStats.magnetLocation.z, MAGNET_TICKS));
+  } else if(currentStats.supergun) {
+    // Supergun before extra range when both are live: it is the shorter of the two
+    // in practice (80 shots at the boosted rate go quickly), so it clears itself out
+    // of the way and the range cloud takes over for the rest of its bombs.
+    copperEffectCloud(GUNBOOST_CLOUD, bonusLevel(currentStats.supergun, SUPERGUN_SHOTS));
+  } else if(currentStats.extraRangeBombs) {
+    copperEffectCloud(RANGE_CLOUD, bonusLevel(currentStats.extraRangeBombs, EXTRA_RANGE_BOMBS));
   } else {
     // Close rather than stop: a cloud collapses back into the middle of the screen
     // over the next few updates instead of vanishing between two frames.

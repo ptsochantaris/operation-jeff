@@ -230,14 +230,14 @@ void processBonusHit(byte type, int x, int y) __z88dk_callee {
             break;
 
         case BONUS_FREEZE:
-            currentStats.holdCount = 199;
+            currentStats.holdCount = FREEZE_TICKS;
             status("FREEZE");
             break;
 
         case BONUS_MAGNET:
             currentStats.magnetLocation.x = x;
             currentStats.magnetLocation.y = groundYForScreenY(x, y - 1);
-            currentStats.magnetLocation.z = 300; // using z as switch
+            currentStats.magnetLocation.z = MAGNET_TICKS; // using z as switch
             jeffsMagnetise();
             break;
 
