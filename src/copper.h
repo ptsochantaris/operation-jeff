@@ -9,7 +9,13 @@
 
 void copperInit(void) __z88dk_fastcall;
 
-void copperEffectCloud(byte low, byte mid, byte high) __z88dk_callee;
+// `level` is how much of the bonus is left, 0..255 of its reserve: the cloud's
+// height tracks it, so it opens on pickup and narrows as the bonus is spent.
+
+// Pass CLOUD_FULL for a bonus with nothing to count down.
+#define CLOUD_FULL 255
+
+void copperEffectCloud(byte low, byte mid, byte high, byte level) __z88dk_callee;
 void copperEffectFire(void) __z88dk_fastcall;
 void copperEffectFlash(void) __z88dk_fastcall;
 void copperEffectClose(void) __z88dk_fastcall; // animated stop, needs copperEffectUpdate to keep running

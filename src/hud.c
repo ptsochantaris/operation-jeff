@@ -100,17 +100,41 @@ static void hudScoreDraw(void) __z88dk_fastcall {
   }
 }
 
+// How much of a bonus is left, as the 0..255 the cloud gauge wants. One word
+// divide per frame, which is nothing next to the sprintf the score draw does, and
+// the copper quantises the result to 144 bands anyway. The timed reserves are
+// larger than 255, so halve both sides until the numerator fits.
+static byte bonusLevel(word remaining, word full) __z88dk_callee {
+  if(remaining >= full) return CLOUD_FULL;
+
+  while(full > 255) {
+    full >>= 1;
+    remaining >>= 1;
+  }
+  word level = (remaining << 8) / full; // the halving can round the two together
+  return (level > CLOUD_FULL) ? CLOUD_FULL : (byte)level;
+}
+
+// The gunboost cloud covers two bonuses that are usually picked up apart, so it
+// shows whichever has more left rather than letting one about to expire shrink the
+// cloud while the other is still full.
+static byte gunboostLevel(void) __z88dk_fastcall {
+  byte gun = bonusLevel(currentStats.supergun, SUPERGUN_SHOTS);
+  byte range = bonusLevel(currentStats.extraRangeBombs, EXTRA_RANGE_BOMBS);
+  return (gun > range) ? gun : range;
+}
+
 static void hudBorderDraw(void) __z88dk_fastcall {
   if(currentStats.invunerableCount) {
-    copperEffectCloud(SHIELD_CLOUD);
+    copperEffectCloud(SHIELD_CLOUD, bonusLevel(currentStats.invunerableCount, INVUNERABLE_TICKS));
   } else if(currentStats.damageFlash) {
     copperEffectFlash();
   } else if(currentStats.umbrellaCountdown) {
-    copperEffectCloud(UMBRELLA_CLOUD);
+    copperEffectCloud(UMBRELLA_CLOUD, bonusLevel(currentStats.umbrellaCountdown, UMBRELLA_TICKS));
   } else if(currentStats.slowMo) {
-    copperEffectCloud(SLOW_CLOUD);
+    copperEffectCloud(SLOW_CLOUD, bonusLevel(currentStats.slowMo, SLOWMO_TICKS));
   } else if(currentStats.supergun || currentStats.extraRangeBombs) {
-    copperEffectCloud(GUNBOOST_CLOUD);
+    copperEffectCloud(GUNBOOST_CLOUD, gunboostLevel());
   } else {
     // Close rather than stop: a cloud collapses back into the middle of the screen
     // over the next few updates instead of vanishing between two frames.
@@ -214,8 +238,10 @@ void updateStatsIfNeeded(void) __z88dk_fastcall {
   }
 
   // The border effect reads live state and re-evaluates every frame, so it can't
-  // get out of sync with the bonuses. The copperEffect* calls dedupe, so this is
-  // cheap (no rebuild/upload unless the active effect actually changes).
+  // get out of sync with the bonuses - which also keeps the cloud's gauge current
+  // without anything having to tell the HUD a shot was fired. The copperEffect*
+  // calls dedupe, so this is cheap (no rebuild/upload unless the active effect
+  // actually changes; a level change is one byte of state).
   hudBorderDraw();
 }
 

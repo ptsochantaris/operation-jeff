@@ -123,28 +123,51 @@ static void flashCycle(void) __z88dk_fastcall {
 #define PLASMA_BUFFER_LEN  ((PLASMA_LINES + 2) * 4 + 2)
 #define PLASMA_FIRST_COLOUR 7    // first band colour slot (after the leading black transition)
 
-// Intro/outro. The cloud opens out of the middle of the region and collapses back
-// into it, as a window of bands centred on PLASMA_HALF_LINES; bands outside it are
-// left at colour 0, which is what 0x4A holds when nothing is running, so the wipe
-// reads as the cloud growing out of the backdrop rather than a lid sliding off it.
+// Intro/outro, and the bonus fuel gauge. The cloud is drawn as a window of bands
+// centred on PLASMA_HALF_LINES; bands outside it are left at colour 0, which is what
+// 0x4A holds when nothing is running, so the wipe reads as the cloud growing out of
+// the backdrop rather than a lid sliding off it.
 //
-// The steps are eased rather than even - half the height is out inside two updates
-// and the last few barely move, so it arrives at the edges instead of hitting them.
-// A table beats evaluating a curve: the endpoints are exact, the shape is right
-// there to tune by hand, and a step costs an index rather than a multiply. Values
-// are 1-(1-t)^2 over 7 steps, scaled to PLASMA_HALF_LINES and rounded. gameLoop
-// updates the copper twice per six frames, so a wipe runs a little over 0.4s.
-// Closing walks the same table back down, so it eases off the edges and snaps shut.
+// The window's height is the bonus's remaining reserve. The caller passes a 0..255
+// level every frame - shots left for the supergun, bombs for the extra range, ticks
+// for the timed ones - and the cloud narrows as that is spent, so it is already
+// almost shut by the time the bonus runs out and the player can see it coming. A
+// fresh pickup is a full level, so the same mechanism is what opens the cloud in the
+// first place, and a close is just the same chase with the target pinned to zero.
+//
+// The window eases toward its target rather than snapping to it: half the gap per
+// update, at least one band, which lands exactly and keeps a per-shot drop from
+// reading as a step. An open wipe is then 72,36,18,9,5,3,2,1,1 bands - decelerating
+// into the edges, a little over half a second at gameLoop's two updates per six
+// frames. (This replaces a hand-tuned 7-entry curve: the curve was in step space and
+// a gauge needs band space, and one easing rule is better than two.)
 #define PLASMA_HALF_LINES   (PLASMA_LINES / 2)
-#define PLASMA_WINDOW_STEPS 7
 
-// The last entry must be PLASMA_HALF_LINES: applyCloudWindow keys its do-nothing
-// fast path off the window being exactly full.
-static const byte cloudCurve[PLASMA_WINDOW_STEPS + 1] = {
-    0, 38, 70, 97, 118, 132, 141, PLASMA_HALF_LINES
-};
+// level (0..255 of the reserve) -> half-window height in bands.
+//
+// Deliberately not linear. A linear gauge starts shrinking the moment the bonus is
+// picked up, which reads as the bonus being eaten away from the first shot; what
+// the player wants is for it to sit there looking healthy and then fall away once
+// it is nearly spent. So the ease is applied to the fraction *gone* rather than the
+// fraction left: 1-(1-t)^2, the same ease-out the opening wipe's table used to
+// walk, which is flat at the full end and steepest at the empty one.
+//
+//   shots left  80  70  60  50  40  30  20  10   5   0
+//   bands      144 143 136 125 109  88  64  34  18   0
+//
+// Two byte multiplies and no table. Both are an n/256 scaling nudged to n/255 (the
+// +u, and the 145 rather than 144), which keeps the endpoints exact - 0 bands when
+// the reserve is empty, and a full 144 when it is untouched, the only value that
+// takes the do-nothing path in applyCloudWindow. Monotone throughout, which is what
+// the chase in advanceCloudWindow assumes.
+static byte cloudBands(byte level) __z88dk_fastcall {
+    byte spent = 255 - level;
+    word squared = (((word)spent * spent) + spent) >> 8; // (1-t)^2, back into 0..255
+    return PLASMA_HALF_LINES - (byte)((squared * 145) >> 8);
+}
 
-static byte cloudStep;    // position along cloudCurve
+static byte cloudHalf;    // current half-window height, in bands
+static byte cloudTarget;  // where it is heading
 static byte cloudClosing; // 1 = collapsing, and the effect stops once it lands
 
 
@@ -270,11 +293,12 @@ static void alignPlasmaTables(void) __z88dk_fastcall {
 }
 
 // Blank the bands outside the window, both ends closing in by the same amount.
-// Fully open it is a curve lookup and a branch (~92T), so the steady state - which
-// is almost all of a bonus - pays nothing for the wipe. Shut, it is 144 iterations
-// of ~79T, or ~0.4ms: 2% of a frame, and only while a wipe is actually running.
+// Fully open it is a subtract and a branch, but with the gauge driving the height
+// that only holds for the first moments of a bonus - the steady state is a partial
+// window, so expect a few dozen iterations of ~79T. All the way shut is 144 of them,
+// ~0.4ms: 2% of a frame, on the one frame in three that updates the copper.
 static void applyCloudWindow(void) __z88dk_fastcall {
-    byte n = PLASMA_HALF_LINES - cloudCurve[cloudStep]; // bands blanked at each end
+    byte n = PLASMA_HALF_LINES - cloudHalf; // bands blanked at each end
     if (n == 0) return;
 
     byte *top = copperImage + PLASMA_FIRST_COLOUR;
@@ -287,19 +311,23 @@ static void applyCloudWindow(void) __z88dk_fastcall {
     } while (--n);
 }
 
-// Step the wipe. Returns 0 when a collapse has finished, which is the frame the
-// caller turns the effect off on. A close draws its fully shut state once before
-// saying so: that frame is every band black, pixel-identical to the copper being
-// stopped, so the effect ends without a visible step.
+// Step the window toward its target. Returns 0 when a collapse has finished, which
+// is the frame the caller turns the effect off on. A close draws its fully shut
+// state once before saying so: that frame is every band black, pixel-identical to
+// the copper being stopped, so the effect ends without a visible step.
 static byte advanceCloudWindow(void) __z88dk_fastcall {
-    if (cloudClosing) {
-        if (cloudStep == 0) {
-            return 0;
-        }
-        --cloudStep;
+    byte target = cloudClosing ? 0 : cloudTarget;
 
-    } else if (cloudStep < PLASMA_WINDOW_STEPS) {
-        ++cloudStep;
+    if (cloudHalf < target) {
+        byte gap = target - cloudHalf;
+        cloudHalf += (gap > 1) ? (gap >> 1) : 1;
+
+    } else if (cloudHalf > target) {
+        byte gap = cloudHalf - target;
+        cloudHalf -= (gap > 1) ? (gap >> 1) : 1;
+
+    } else if (cloudClosing) {
+        return 0;
     }
     return 1;
 }
@@ -415,7 +443,12 @@ void copperInit(void) __z88dk_fastcall {
     fxMode = FX_NONE;
 }
 
-void copperEffectCloud(byte low, byte mid, byte high) __z88dk_callee {
+void copperEffectCloud(byte low, byte mid, byte high, byte level) __z88dk_callee {
+    // The gauge is live state, so it is taken before any of the early outs below:
+    // the common case by far is the same cloud as last frame with one shot less
+    // in it, and that has to move the target even though nothing else changes.
+    cloudTarget = cloudBands(level);
+
     if (fxMode == FX_CLOUD) {
         // A bonus arriving during a collapse takes it straight back out again,
         // from wherever the window got to.
@@ -431,7 +464,7 @@ void copperEffectCloud(byte low, byte mid, byte high) __z88dk_callee {
     }
 
     // Coming back from a flash, which took the copper without ever closing the
-    // cloud down: cloudStep is still where the wipe left it, so the cloud returns
+    // cloud down: cloudHalf is still where the wipe left it, so the cloud returns
     // to the height it was at rather than wiping in again. Only a real stop
     // (copperEffectOff) clears it, so a genuinely new cloud still opens from shut.
     fxMode = FX_CLOUD;
@@ -494,7 +527,7 @@ void copperEffectOff(void) __z88dk_fastcall {
     if (fxMode == FX_NONE) return;
     
     fxMode = FX_NONE;
-    cloudStep = 0;    // this is what ends a cloud's life, so the wipe resets here
+    cloudHalf = 0;    // this is what ends a cloud's life, so the window resets here
     cloudClosing = 0; // and not in copperEffectCloud - see the note there
     copperStop();
     ZXN_NEXTREG(0x4a, 0);

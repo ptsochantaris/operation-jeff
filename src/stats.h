@@ -4,6 +4,15 @@
 #define FIRE_RATE_MAX 14
 #define FIRE_RATE_MIN 2
 
+// What each timed/counted bonus is worth on pickup. The HUD divides the live count
+// by these to drive the border cloud's gauge, so they are named here rather than
+// sitting as literals in processBonusHit.
+#define SUPERGUN_SHOTS      80  // shots
+#define EXTRA_RANGE_BOMBS   40  // bombs
+#define INVUNERABLE_TICKS  399  // logic ticks
+#define UMBRELLA_TICKS     399  // logic ticks
+#define SLOWMO_TICKS       120  // slow-motion steps
+
 #define HIGHSCORE_SLOTS 10
 #define HIGHSCORE_SLOT_NAME_LEN 10
 

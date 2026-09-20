@@ -220,7 +220,7 @@ void processBonusHit(byte type, int x, int y) __z88dk_callee {
             break;
 
         case BONUS_RATE: 
-            currentStats.supergun = 80;
+            currentStats.supergun = SUPERGUN_SHOTS;
             status("SUPERGUN");
             break;
 
@@ -242,22 +242,22 @@ void processBonusHit(byte type, int x, int y) __z88dk_callee {
             break;
 
         case BONUS_INVUNERABLE:
-            currentStats.invunerableCount = 399;
+            currentStats.invunerableCount = INVUNERABLE_TICKS;
             status("SHIELD");
             break;
 
         case BONUS_RANGE:
-            currentStats.extraRangeBombs = 40;
+            currentStats.extraRangeBombs = EXTRA_RANGE_BOMBS;
             status("+RANGE");
             break;
 
         case BONUS_UMBRELLA:
-            currentStats.umbrellaCountdown = 399;
+            currentStats.umbrellaCountdown = UMBRELLA_TICKS;
             status("UMBRELLA");
             break;
 
         case BONUS_SLOW:
-            currentStats.slowMo = 120;
+            currentStats.slowMo = SLOWMO_TICKS;
             status("SLOW");
             break;
     }

@@ -83,7 +83,7 @@ byte menuLoop(void) __z88dk_fastcall {
 
   byte loopCount = 0;
 
-  // copperEffectCloud(SLOW_CLOUD);
+  // copperEffectCloud(SLOW_CLOUD, CLOUD_FULL);
 
   while(1) {
     waitOne();
