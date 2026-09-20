@@ -14,11 +14,18 @@ let LETTERS = "ABCDEFGHIJKLMNOPQ"
 let NUMBERS = "0123456789"
 let fm = FileManager.default
 
-// Assets may occupy pages 29 ..< ASSET_PAGE_LIMIT. Pages 214-223 (the top of
-// the 2MB Next's 1792K map) are reserved for the screen prefetch buffer - see
-// PREFETCH_BASE_PAGE in src/screen.c. If assets outgrow this, the prefetch
-// pages must move first; growing past them silently corrupts prefetched screens.
-let ASSET_PAGE_LIMIT = 214
+// Assets may occupy pages 29 ..< ASSET_PAGE_LIMIT. The engine reserves the top
+// of the 2MB Next's 1792K map (pages 0-223; 224-255 are the divMMC/esxDOS
+// window - see files.c, which pages 255 in for file I/O):
+//
+//   213      copper image buffer  - COPPER_IMAGE_PAGE in src/copper.c
+//   214-223  screen prefetch      - PREFETCH_BASE_PAGE in src/screen.c
+//
+// The limit is what keeps the packer off them, so it has to move down whenever
+// something new is reserved. If assets outgrow it, the reserved pages must move
+// first: growing past them silently corrupts whatever is parked there, with no
+// build error to catch it.
+let ASSET_PAGE_LIMIT = 213
 
 // Disable stdout buffering so partial prints (terminator: "") appear immediately
 setvbuf(stdout, nil, _IONBF, 0)

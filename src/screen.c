@@ -75,10 +75,9 @@ void wait(byte time) __z88dk_fastcall {
 byte paletteBuffer[512];
 
 void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_fastcall {
-  byte previousMmu3 = ZXN_READ_MMU3();
-  ZXN_WRITE_MMU3(compressedPalette->page);
+  byte previousMmu3 = mmu3Borrow(compressedPalette->page);
   decompressZX0((byte *)(compressedPalette->resource), paletteBuffer);
-  ZXN_WRITE_MMU3(previousMmu3);
+  mmu3Return(previousMmu3);
   waitOne();
 }
 
@@ -150,15 +149,6 @@ void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word n
 void setupLayers(byte mode) __z88dk_fastcall {
   ZXN_NEXTREGA(0x15, 0x23 | (mode << 2)); // 0'0'1'000'1'1 - Hires mode, index 127 on top, sprite window clipping over border, SLU priorities, over border, visible
 }
-
-// Pages 214-223 - the top of the expanded (2MB) Next's 1792K map, which the
-// asset map already commits us to - hold a pre-decompressed screen. The asset
-// packer will never allocate here: makeAssets.swift caps assets at
-// ASSET_PAGE_LIMIT (214) and fails the build if they outgrow it.
-#define PREFETCH_BASE_PAGE 214
-
-// The ten 8K pages that back the layer 2 screen itself.
-#define LAYER2_BASE_PAGE 18
 
 // Which screen (if any) currently sits in the prefetch pages. Must be tagged
 // with a statically-allocated slice pointer (e.g. levelInfo[n].level.screens),

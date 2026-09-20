@@ -25,9 +25,9 @@ extern byte activeMagnetCycle;
 
 static void placeTile(word *categoryBase, int offset) __z88dk_callee {
     byte *base = (byte *)tilemapAddress + currentX + currentY * 40;
-    ZXN_WRITE_MMU3(11);
+    byte previousMmu3 = mmu3Borrow(TILEMAP_PAGE);
     *base = ((categoryBase - &tilesBase) >> 4) + offset;
-    ZXN_WRITE_MMU3(10);
+    mmu3Return(previousMmu3);
 }
 
 void resetBonuses(void) __z88dk_fastcall {

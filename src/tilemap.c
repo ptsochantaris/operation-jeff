@@ -28,7 +28,7 @@ void initTilemap(void) __z88dk_fastcall {
 
   writeNextReg(0x1B, clipBytes, CLIPBYTES_LEN);
 
-  // Upoad palette
+  // Upload palette
   selectPalette(3);
   ZXN_NEXTREG(REG_PALETTE_INDEX, 0);
   writeNextReg(REG_PALETTE_VALUE_16, tilemapPalette, sizeof(tilemapPalette));
@@ -69,7 +69,7 @@ void tilemapFlash(word x, word y, byte active) __z88dk_callee {
   const byte fill = active ? LASER_TILE : 0;
   const byte edge = active ? (fill + 1) : 0;
 
-  ZXN_WRITE_MMU3(11);
+  byte previousMmu3 = mmu3Borrow(TILEMAP_PAGE);
   for(int r = 1 - FLASH_SPAN_COUNT; r != FLASH_SPAN_COUNT; ++r) {
     const int row = cy + r;
     // one unsigned compare rejects both a row above the HUD and one off the foot
@@ -101,5 +101,5 @@ void tilemapFlash(word x, word y, byte active) __z88dk_callee {
       if(!leftCut) *((byte *)tilemapAddress + row * TILEMAP_COLUMNS + left) = edge;
     }
   }
-  ZXN_WRITE_MMU3(10);
+  mmu3Return(previousMmu3);
 }

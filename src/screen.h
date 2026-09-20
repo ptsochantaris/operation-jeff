@@ -23,6 +23,9 @@ void layer2roundedBox(word x, word y, word width, word height, byte color) __z88
 void layer2circleFill(byte radius, word x, word y, byte colorTop, byte colorBottom, byte dividerY) __z88dk_callee;
 // void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee;
 
+byte mmu3Borrow(byte page) __preserves_regs(d,e,h,iyh,iyl) __z88dk_fastcall; // map `page` at 0x6000, returns the page it replaced
+void mmu3Return(byte previous) __preserves_regs(b,c,d,e,h,l,iyh,iyl) __z88dk_fastcall;
+
 void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_fastcall;
 void stashPalette(byte paletteMask) __z88dk_fastcall;
 void flashPaletteUp(void) __z88dk_fastcall;
