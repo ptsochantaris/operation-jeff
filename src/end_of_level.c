@@ -65,8 +65,7 @@ static void displayStats(word top, word x, byte oldLevel, word color, byte twoCo
 
   if(currentStats.shotsMiss) {
     top += 8;
-    float ratio = ((currentStats.shotsHit * 100) / totalShots);
-    int roundedRatio = (int)ratio;
+    int roundedRatio = (int)((currentStats.shotsHit * 100) / totalShots);
     sprintf(textBuf, " ACCURACY: %02d%%", roundedRatio);
     print(textBuf, x, top, color);
   }

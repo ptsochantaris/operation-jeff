@@ -19,9 +19,14 @@ INCLUDES=
 # "dec hl" chain relies on, so an operand is read (N-M) bytes low, off the end of the
 # frame into the return address (broke layer2box/layer2roundedBox). It is also documented
 # as incompatible with --reserve-regs-iy, so it would cost us the free IY as well.
-CFLAGS=$(TARGET) $(VERBOSITY) -c -SO3 --max-allocs-per-node200000 --math16 --constsegPAGE_28_POSTISR -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) $(INCLUDES)
-LDFLAGS=$(TARGET) $(VERBOSITY) -Cz"--nex-border 0" -Cz"--nex-loadbar 19" -Cz"--nex-screen resources/loadingScreen.nxi" -Cz"--clean" -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) -lm --math16
-ASFLAGS=$(TARGET) $(VERBOSITY) -c -float=ieee16
+# NOTE: --opt-code-speed used to arrive implicitly: the --math16 alias expands to
+# --opt-code-speed=inlineints, and it changes the generated code in 13 of the C files. The
+# project no longer uses floating point, so --math16/-lm/-float=ieee16 are gone and the
+# speed option is spelled out to keep the codegen identical. (The =inlineints suffix only
+# means something to sccz80; zsdcc receives a bare --opt-code-speed either way.)
+CFLAGS=$(TARGET) $(VERBOSITY) -c -SO3 --max-allocs-per-node200000 --opt-code-speed --constsegPAGE_28_POSTISR -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE) $(INCLUDES)
+LDFLAGS=$(TARGET) $(VERBOSITY) -Cz"--nex-border 0" -Cz"--nex-loadbar 19" -Cz"--nex-screen resources/loadingScreen.nxi" -Cz"--clean" -compiler=sdcc -clib=$(CLIB) -pragma-include=$(PRAGMA_FILE)
+ASFLAGS=$(TARGET) $(VERBOSITY) -c
 OBJDIR=build
 SRC=src
 
