@@ -5,6 +5,7 @@
 
 #define TILEMAP_PAGE 11
 #define LAYER2_BASE_PAGE 18 // ...28
+#define ARTWORK_STASH_PAGE 212
 #define COPPER_IMAGE_PAGE 213
 #define PREFETCH_BASE_PAGE 214 // ...223
 

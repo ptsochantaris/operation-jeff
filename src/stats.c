@@ -65,8 +65,7 @@ word displayHighScoreTable(word x, word top, byte newPos) {
         long score;
         top += 10;
         if(i == newPos) {
-            layer2fill(x - 1, top - 1, 4*10 + 1, 7, HUD_BLACK);
-            layer2roundedBox(x - 2, top - 2, 4*10 + 2, 8, HUD_WHITE);    
+            // name left blank: the caller draws the entry box here
             entryTop = top;
             color = HUD_WHITE;
             score = currentStats.score;

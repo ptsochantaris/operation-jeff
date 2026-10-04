@@ -18,6 +18,7 @@ let fm = FileManager.default
 // of the 2MB Next's 1792K map (pages 0-223; 224-255 are the divMMC/esxDOS
 // window - see files.c, which pages 255 in for file I/O):
 //
+//   212      game over artwork stash - ARTWORK_STASH_PAGE in src/gameover.c
 //   213      copper image buffer  - COPPER_IMAGE_PAGE in src/copper.c
 //   214-223  screen prefetch      - PREFETCH_BASE_PAGE in src/screen.c
 //
@@ -25,7 +26,7 @@ let fm = FileManager.default
 // something new is reserved. If assets outgrow it, the reserved pages must move
 // first: growing past them silently corrupts whatever is parked there, with no
 // build error to catch it.
-let ASSET_PAGE_LIMIT = 213
+let ASSET_PAGE_LIMIT = 212
 
 // Disable stdout buffering so partial prints (terminator: "") appear immediately
 setvbuf(stdout, nil, _IONBF, 0)
