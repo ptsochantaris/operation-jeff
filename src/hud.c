@@ -187,8 +187,6 @@ static byte hudPalette[] = {
   COLOR9(7, 7, 7)
 };
 
-extern byte paletteBuffer[];
-
 static void stashHudPalette(byte level) __z88dk_fastcall {
   const struct LevelInfo info = levelInfo[level];
 
@@ -203,8 +201,9 @@ static void stashHudPalette(byte level) __z88dk_fastcall {
   *data++ = info.jeffDark[0];
   *data = info.jeffDark[1];
 
-  const byte *buf = paletteBuffer + (HUD_BASE * 2);
-  memcpy(buf, hudPalette, HUD_COLOUR_BYTES);
+  byte previousMmu3 = mmu3Borrow(SCRATCH_PAGE);
+  memcpy(paletteBuffer + (HUD_BASE * 2), hudPalette, HUD_COLOUR_BYTES);
+  mmu3Return(previousMmu3);
 }
 
 void applyHudPalette(void) __z88dk_fastcall {

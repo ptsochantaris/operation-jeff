@@ -1,9 +1,15 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL _paletteBuffer, _bootColour, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
+GLOBAL _mmu3Borrow, _mmu3Return, _bootColour, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
 GLOBAL layer2CharSlow, layer2CharFast, selectLayer2PageInternal
 GLOBAL layer2PlotSliceSlowInk, layer2PlotSliceFastInk, selectPageForXInDeAndSetupH, layer2CharSideways, layer2PlotSliceSidewaysInk
 GLOBAL _waitFrame
+
+; The palette buffer lives in the banked scratch page - see SCRATCH_PAGE and
+; PALETTE_BUFFER_OFFSET in utility.h, which these must match. The fades borrow
+; MMU3 for it around each pass, and hand it back before waiting for the frame.
+SCRATCH_PAGE   equ 213
+PALETTE_BUFFER equ $6000 + $0800
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -40,7 +46,15 @@ _setPaletteCeiling:
     pop bc      ; ceiling in C
     ex (sp), hl ; colour count in HL (2 bytes per colour), place return address back
 
-    ld de, _paletteBuffer
+    push bc             ; ceiling/floor
+    push hl             ; colour count
+    ld l, SCRATCH_PAGE
+    call _mmu3Borrow    ; uses a and bc; the page it displaced comes back in l
+    ld a, l
+    pop hl
+    pop bc
+    push af             ; keep that page, to put back at the end
+    ld de, PALETTE_BUFFER
 
     nextreg 64, 0 ; REG_PALETTE_INDEX
 
@@ -91,6 +105,9 @@ _setPaletteCeiling:
     call setPaletteCommit
     djnz setPaletteCeilingLoop
 
+    pop af
+    ld l, a
+    call _mmu3Return    ; MMU3 back as it was, before the wait
     call _waitFrame
     ret
 
@@ -102,7 +119,15 @@ _setPaletteFloor:
     pop bc      ; floor in C
     ex (sp), hl ; colour count in HL (2 bytes per colour), address back on stack
 
-    ld de, _paletteBuffer
+    push bc             ; ceiling/floor
+    push hl             ; colour count
+    ld l, SCRATCH_PAGE
+    call _mmu3Borrow    ; uses a and bc; the page it displaced comes back in l
+    ld a, l
+    pop hl
+    pop bc
+    push af             ; keep that page, to put back at the end
+    ld de, PALETTE_BUFFER
 
     nextreg 64, 0 ; REG_PALETTE_INDEX
 
@@ -153,6 +178,9 @@ _setPaletteFloor:
     call setPaletteCommit
     djnz setPaletteFloorLoop
 
+    pop af
+    ld l, a
+    call _mmu3Return    ; MMU3 back as it was, before the wait
     call _waitFrame
     ret
 

@@ -18,15 +18,20 @@ let fm = FileManager.default
 // of the 2MB Next's 1792K map (pages 0-223; 224-255 are the divMMC/esxDOS
 // window - see files.c, which pages 255 in for file I/O):
 //
-//   212      game over artwork stash - ARTWORK_STASH_PAGE in src/gameover.c
-//   213      copper image buffer  - COPPER_IMAGE_PAGE in src/copper.c
-//   214-223  screen prefetch      - PREFETCH_BASE_PAGE in src/screen.c
+//   213      scratch buffers      - SCRATCH_PAGE in src/utility.h (copper image,
+//                                   palette buffer + staging, game over stash)
+//   214-223  screen prefetch      - PREFETCH_BASE_PAGE in src/utility.h
 //
 // The limit is what keeps the packer off them, so it has to move down whenever
 // something new is reserved. If assets outgrow it, the reserved pages must move
 // first: growing past them silently corrupts whatever is parked there, with no
 // build error to catch it.
-let ASSET_PAGE_LIMIT = 212
+let ASSET_PAGE_LIMIT = 213
+
+// A compressed palette is DMA'd into a 1K staging slot in the scratch page before
+// it is decompressed (PALETTE_STAGE_OFFSET, src/utility.h), so one larger than
+// that would overrun the game over stash behind it.
+let PALETTE_STAGE_LIMIT = 1024
 
 // Disable stdout buffering so partial prints (terminator: "") appear immediately
 setvbuf(stdout, nil, _IONBF, 0)
@@ -240,6 +245,9 @@ private func makeAssets(from filePaths: [String]) {
         if let fileSize = getFileSize(filePath) {
             let info = FileInfo(name: filePath, size: fileSize, pos: 0)
             if filePath.contains(".nxp") {
+                if fileSize > PALETTE_STAGE_LIMIT {
+                    fatalError("\(filePath) is \(fileSize) bytes compressed - over the \(PALETTE_STAGE_LIMIT) byte palette staging slot (PALETTE_STAGE_OFFSET in src/utility.h)")
+                }
                 mmu3Files.append(info)
             } else {
                 mmu1Files.append(info)

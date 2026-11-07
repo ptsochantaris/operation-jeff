@@ -10,11 +10,13 @@
 // "Page" always means an 8K page. Physical transfers can't reach banks 5 and 7
 // (the ULA screen and the tilemap live in bank 5): use the MMU-addressed ones.
 
-// Source through the MMU, for data in the always-mapped bank.
-void dmaMemoryToPort(const byte *restrict source, word port, word length) __z88dk_callee __smallc;
 // Source by physical address, so `page` needn't be mapped. `address` is where the
 // data would sit with `page` in its MMU slot; only its low 13 bits are used.
 void dmaPageToPort(byte page, const byte *restrict address, word port, word length) __z88dk_callee __smallc;
+
+// Memory to memory by physical address (up to 64K); addresses as for dmaPageToPort.
+void dmaCopyPhysical(byte sourcePage, const byte *restrict sourceAddress,
+                     byte destinationPage, byte *restrict destinationAddress, word length) __z88dk_callee __smallc;
 
 // Fill mode through the MMU: `rows` runs of `rowLength` bytes, `stride` apart.
 void fillWithDma2D(word destination, word rowLength, word rows, word stride, byte value) __z88dk_callee __smallc;

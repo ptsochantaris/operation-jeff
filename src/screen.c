@@ -36,18 +36,25 @@ void wait(byte time) __z88dk_fastcall {
   }
 }
 
-byte paletteBuffer[512];
-
+// paletteBuffer lives in the scratch page (utility.h). Decompressing into it
+// needs the compressed palette mapped as well, and the only slot free for that
+// is MMU3 itself - MMU1/MMU2 may be playing a sample (nextLevel loads the level
+// palette under the siren). So the DMA first copies the compressed palette into
+// the scratch page by physical address, and the decompress runs within it.
 void loadPaletteBuffer(const struct ResourceInfo *restrict compressedPalette) __z88dk_fastcall {
-  byte previousMmu3 = mmu3Borrow(compressedPalette->page);
-  decompressZX0((byte *)(compressedPalette->resource), paletteBuffer);
+  dmaCopyPhysical(compressedPalette->page, (byte *)compressedPalette->resource,
+                  SCRATCH_PAGE, paletteStage, compressedPalette->length);
+  byte previousMmu3 = mmu3Borrow(SCRATCH_PAGE);
+  decompressZX0(paletteStage, paletteBuffer);
   mmu3Return(previousMmu3);
   waitOne();
 }
 
 void stashPalette(byte paletteMask) __z88dk_fastcall {
   selectPalette(paletteMask);
+  byte previousMmu3 = mmu3Borrow(SCRATCH_PAGE);
   layer2StashPalette(paletteBuffer);
+  mmu3Return(previousMmu3);
 }
 
 void setPaletteCeiling(word numColors, byte shift) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
@@ -107,7 +114,7 @@ void uploadPalette(const struct ResourceInfo *restrict compressedPalette, word n
   loadPaletteBuffer(compressedPalette);
   
   z80_outp(0x243b, REG_PALETTE_VALUE_16);
-  dmaMemoryToPort(paletteBuffer, 0x253b, numBytes);
+  dmaPageToPort(SCRATCH_PAGE, paletteBuffer, 0x253b, numBytes);
 }
 
 void setupLayers(byte mode) __z88dk_fastcall {

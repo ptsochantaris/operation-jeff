@@ -4,16 +4,14 @@
 
 // --------------------------------------------------------------- Utility
 
-// The copper image lives in a page of its own rather than in the always-mapped
-// bank, which buys back 1200 bytes there - most of the headroom between the top
-// of BSS and the stack. Page 213 is the last one below the screen prefetch block
-// (214-223), and makeAssets.swift's ASSET_PAGE_LIMIT is set to 213 to keep the
-// packer off it - so the reservation is enforced by a build failure rather than
-// by assets happening not to have grown this far. Allocating down from the top
-// matters: a page just above the current high-water mark would be handed out by
-// the packer the moment any artwork was added, silently, with no error. A 2MB
-// Next is already a hard requirement (see the prefetch note in screen.c).
-#define copperImage ((byte *)0x6000)
+// The copper image lives in the banked scratch page (SCRATCH_PAGE, utility.h)
+// rather than in the always-mapped bank, which buys back 1200 bytes there - most
+// of the headroom between the top of BSS and the stack. makeAssets.swift's
+// ASSET_PAGE_LIMIT keeps the packer off that page, so the reservation is
+// enforced by a build failure rather than by assets happening not to have grown
+// this far. A 2MB Next is already a hard requirement (see the prefetch note in
+// screen.c).
+#define copperImage ((byte *)(SCRATCH_WINDOW + COPPER_IMAGE_OFFSET))
 
 // 1 = copper RAM holds the current effect's layout, so an upload only changes
 // colour bytes and can go in under the running copper. The skeleton builders
@@ -33,7 +31,7 @@ static void uploadCopperImage(word len) __z88dk_fastcall {
         if (copperDmaResident) {
             dmaRepeat();
         } else {
-            dmaPageToPort(COPPER_IMAGE_PAGE, copperImage, 0x253b, len); // clears the flag...
+            dmaPageToPort(SCRATCH_PAGE, copperImage, 0x253b, len); // clears the flag...
             copperDmaResident = 1;                                       // ...resident again
         }
         return;
@@ -50,7 +48,7 @@ static void uploadCopperImage(word len) __z88dk_fastcall {
     // doesn't care what MMU3 holds - only the CPU building the image does.
     copperStop();                                                // mode 00, write cursor back to 0
     z80_outp(0x243b, REG_COPPER_DATA);
-    dmaPageToPort(COPPER_IMAGE_PAGE, copperImage, 0x253b, len); // full setup (clears the flag)...
+    dmaPageToPort(SCRATCH_PAGE, copperImage, 0x253b, len); // full setup (clears the flag)...
     copperDmaResident = 1;                                       // ...now resident
     copperLayoutResident = 1;
     copperAddress(0);                                            // ...and now it is safe to run
@@ -505,7 +503,7 @@ void copperEffectCloud(byte low, byte mid, byte high, byte split, byte level) __
     ZXN_NEXTREG(0x64, VERTICAL_OFFSET);
     alignPlasmaTables();
     buildPlasmaPalette(low, mid, high, split);
-    byte previousMmu3 = mmu3Borrow(COPPER_IMAGE_PAGE);
+    byte previousMmu3 = mmu3Borrow(SCRATCH_PAGE);
     buildPlasmaSkeleton();
     copperPlasmaUpdate(); // fill colours, upload, start the copper
     mmu3Return(previousMmu3);
@@ -523,7 +521,7 @@ void copperEffectFire(void) __z88dk_fastcall {
                            // sits in 0x4A is exactly what shows through it
     selectPalette(1); // copper MOVEs target the layer 2 palette (border colour slot)
     buildFirePalette();
-    byte previousMmu3 = mmu3Borrow(COPPER_IMAGE_PAGE);
+    byte previousMmu3 = mmu3Borrow(SCRATCH_PAGE);
     buildFireSkeleton();
     copperFireUpdate();
     mmu3Return(previousMmu3);
@@ -535,7 +533,7 @@ void copperEffectFlash(void) __z88dk_fastcall {
     fxMode = FX_FLASH;
     copperStop();
     ZXN_NEXTREG(0x64, LEGACY_OFFSET); // offset copper up from ULA zero
-    byte previousMmu3 = mmu3Borrow(COPPER_IMAGE_PAGE);
+    byte previousMmu3 = mmu3Borrow(SCRATCH_PAGE);
     buildFlashSkeleton();
     uploadCopperImage(FLASH_BUFFER_LEN); // DMA the skeleton up and start the copper from index 0
     mmu3Return(previousMmu3);
@@ -567,7 +565,7 @@ void copperEffectOff(void) __z88dk_fastcall {
 void copperEffectUpdate(void) __z88dk_fastcall {
     if (fxMode == FX_NONE) return; // no effect, so no reason to touch MMU3 at all
 
-    byte previousMmu3 = mmu3Borrow(COPPER_IMAGE_PAGE);
+    byte previousMmu3 = mmu3Borrow(SCRATCH_PAGE);
     switch (fxMode) {
         case FX_CLOUD:
             if (advanceCloudWindow()) {

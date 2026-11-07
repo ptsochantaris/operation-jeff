@@ -25,7 +25,7 @@ GLOBAL _copperDmaResident
 ; - Physical addresses can't reach 16K banks 5 and 7 (8K pages 10, 11, 14, 15):
 ;   they live in block RAM, and a physical write lands in the SRAM behind them.
 ;   The ULA screen and the tilemap are in bank 5, so anything aimed at them has to
-;   go through the MMU instead - fillWithDma2D and dmaMemoryToPort do.
+;   go through the MMU instead - fillWithDma2D does.
 ;
 ; - Each new program displaces the copper's resident transfer, so every entry
 ;   point clears _copperDmaResident (in dmaBegin) before it programs anything.
@@ -127,22 +127,6 @@ _dmaRepeat:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; void dmaMemoryToPort(const byte *source, word port, word length) __z88dk_callee __smallc
-; Source through the MMU, for data that lives in the main bank.
-PUBLIC _dmaMemoryToPort
-_dmaMemoryToPort:
-    pop iy                  ; return address
-    pop de                  ; length
-    pop hl                  ; port
-    ex (sp), hl             ; hl = source, port where it was
-    call dmaBegin
-    dmaOut $7d              ; R0: A -> B, port A address and length follow
-    out (c), l
-    out (c), h
-    out (c), e
-    out (c), d
-    jr dmaToPortFinish
-
 ; void dmaPageToPort(byte page, const byte *address, word port, word length) __z88dk_callee __smallc
 ; Source by physical address, so `page` needn't be mapped in. `address` is where
 ; the data would be with `page` in its MMU slot (only its low 13 bits count);
@@ -170,10 +154,6 @@ _dmaPageToPort:
     out (c), h
     out (c), e
     out (c), d
-    ; fall through, port on the stack
-
-; port on the stack, return address in iy
-.dmaToPortFinish:
     ld hl, dmaToPortProgram
     ld b, dmaToPortProgramEnd - dmaToPortProgram
     otir                    ; leaves b = 0
@@ -191,6 +171,68 @@ _dmaPageToPort:
     DB $68, $02             ; R2: I/O, fixed, 2-cycle timing
     DB $82                  ; R5: stop at the end of the block
 .dmaToPortProgramEnd:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; void dmaCopyPhysical(byte sourcePage, const byte *sourceAddress,
+;                      byte destinationPage, byte *destinationAddress, word length) __z88dk_callee __smallc
+; Memory to memory by physical address, up to 64K, so neither end needs mapping
+; in. Each address is where the data would be with its page in an MMU slot (only
+; the low 13 bits count); a transfer may run on into the following pages.
+PUBLIC _dmaCopyPhysical
+_dmaCopyPhysical:
+    push ix
+    ld ix, 4
+    add ix, sp              ; ix+0 length, +2 destination address, +4 destination page,
+                            ; +6 source address, +8 source page
+    call dmaBegin
+
+    ld a, (ix+8)
+    ld l, (ix+6)
+    ld h, (ix+7)
+    call physicalAddress    ; the source
+    push af
+    dmaOut $d7              ; port A bits 23:16
+    pop af
+    out (c), a
+    dmaOut $7d              ; R0: A -> B, port A address and length follow
+    out (c), l
+    out (c), h
+    ld a, (ix+0)
+    out (c), a
+    ld a, (ix+1)
+    out (c), a
+
+    ld a, (ix+4)
+    ld l, (ix+2)
+    ld h, (ix+3)
+    call physicalAddress    ; the destination
+    push af
+    dmaOut $db              ; port B bits 23:16
+    pop af
+    out (c), a
+    dmaOut $ad              ; R4: continuous, port B address follows
+    out (c), l
+    out (c), h
+
+    ld hl, dmaCopyPhysicalProgram
+    ld b, dmaCopyPhysicalProgramEnd - dmaCopyPhysicalProgram
+    otir
+    dmaOut $cf              ; R6 load
+    dmaOut $87              ; R6 enable
+    pop ix
+    pop hl                  ; return address
+    ld iy, 10
+    add iy, sp
+    ld sp, iy               ; drop the five arguments
+    jp (hl)
+
+.dmaCopyPhysicalProgram:
+    DB $54, $02             ; R1: memory, increment, 2-cycle timing
+    DB $50, $02             ; R2: memory, increment, 2-cycle timing
+    DB $82                  ; R5: stop at the end of the block
+    DB $df, $01             ; physical addresses
+.dmaCopyPhysicalProgramEnd:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

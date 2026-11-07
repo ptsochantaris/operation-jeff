@@ -59,17 +59,17 @@ static void borderEffectUpdate(void) __z88dk_fastcall {
 // The name entry box and its "ENTER YOUR NAME" prompt are painted straight over
 // the artwork, so the strips under them are copied out to a spare page first
 // and put back once the name is in. The DMA reaches both the screen and the
-// stash page by physical address, so nothing has to be mapped in for it.
+// stash (in SCRATCH_PAGE) by physical address, so nothing has to be mapped in.
 #define ENTRY_BOX_COLUMNS (4*10 + 3)
 #define ENTRY_BOX_ROWS 9
-#define ENTRY_BOX_STASH 0
+#define ENTRY_BOX_STASH ARTWORK_STASH_OFFSET
 
 #define PROMPT_COLUMNS (4*15)
 #define PROMPT_ROWS 5
 #define PROMPT_STASH (ENTRY_BOX_STASH + ENTRY_BOX_COLUMNS * ENTRY_BOX_ROWS)
 
 #define artworkStrip(stash, x, y, columns, rows, restore) \
-  dmaLayer2Copy(ARTWORK_STASH_PAGE, (stash), (x), (y), (columns), (rows), (restore))
+  dmaLayer2Copy(SCRATCH_PAGE, (stash), (x), (y), (columns), (rows), (restore))
 
 void gameOverLoop(void) __z88dk_fastcall {
   resetBonuses();
