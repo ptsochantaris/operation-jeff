@@ -1,112 +1,11 @@
 SECTION code_compiler
 
-GLOBAL outLoop16, outLoop5
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Dma setup - 7 bytes
-
-PUBLIC dmaHeader, dmaSource, dmaLength, dmaR5
-
-dmaHeader:          DB $c3      ; 11000011 ; R6 reset dma
-                    DB $7e      ; 01111101 ; R0-Transfer mode, A -> B, will provide address and length
-dmaSource:          DW 0        ; source address 
-dmaLength:          DW 0        ; transfer length
-dmaR5:              DB $82      ; 1000 0010 ; R5-Stop on end of block, RDY active LOW
-                                ; Every live entry point wants $82, so this initialiser
-                                ; is the only writer and they no longer set it each call.
-                                ; The one variant that wanted $A2 (loop on end of block)
-                                ; was playWithDma, commented out below - restore the
-                                ; per-call write if that ever comes back.
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; transfer payload - 9 bytes
-
-PUBLIC dmaR1, dmaR2, dmaR4, dmaDestination
-
-dmaR1:              DB 0        ; R1 - from config
-                    DB 2        ; 0000 0010 - 2t timing for R1
-dmaR2:              DB 0        ; R2 - to config
-                    DB 2        ; 0000 0010 - 2t timing for R2
-dmaR4:              DB $ad      ; 1010 1101 ; R4 Continuous mode, will provide destination
-dmaDestination:     DW 0        ; destination post/address
-                    DB $cf      ; R6 load
-                    DB $87      ; R6 enable DMA
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; stream payload (i.e. audio) - 10 bytes
-
-; PUBLIC dmaAudioBuf, dmaPrescalar
-
-; dmaAudioBuf:        DB $54      ; 0101 0100 ; R1 increment, from memory
-;                     DB $02      ; 0000 0010 ; no prescalar, 2t cycle
-;                     DB $68      ; 0110 1000 ; R2 do not increment, to port
-;                     DB $22      ; 0010 0010 ; want prescalar, use 2t cycle
-; dmaPrescalar:       DB $37      ; $37 is supposed to be ~16 Khz prescalar, but isn't
-;                     DB $cd      ; 1100 1101 ; R4 burst mode, dest value follows
-;                     DB $df      ; Dest covox port H
-;                     DB $ff      ; Dest covox port L
-;                     DB $cf      ; R6 load
-;                     DB $87      ; R6 enable DMA
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-PUBLIC dmaFillValue
-dmaFillValue:       DB 0
 
 ; 1 = the DMA controller still holds the copper transfer, so the per-frame copper
-; upload can just LOAD+ENABLE instead of re-sending the whole header. Each DMA entry
-; point (dmaMemoryToPort/Memory, fillWithDma/Repeat) clears it just before it
-; programs the controller; the copper sets it after it primes.
+; upload can just LOAD+ENABLE instead of re-sending the whole program. Every DMA
+; entry point in dma-ro.asm clears it (in dmaBegin) just before it programs the
+; controller; the copper sets it after it primes. It says nothing about the
+; copper's own layout - see copperLayoutResident in copper.c for that.
 PUBLIC _copperDmaResident
 _copperDmaResident: DB 0
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-PUBLIC _fillWithDmaRepeat
-_fillWithDmaRepeat:
-    pop hl      ; call address
-
-    pop de      ; step
-    ld (fillWithDmaRepeatStep+2), de
-
-    pop de      ; times
-
-    pop bc      ; value
-    ld a, c
-    ld (dmaFillValue), a
-    ld bc, dmaFillValue    ; Address of the fill value byte
-    ld (dmaSource), bc    ; as the DMA source
-
-    pop bc      ; length
-    ld (dmaLength), bc
-
-    ex (sp), hl ; destination / call address back on stack
-    ld (dmaDestination), hl
-
-    ld a, $64   ; 0110 0100 ; R1 no increment, from memory, bitmask
-    ld (dmaR1), a
-    ld a, $50;  ; 0101 0000 ; R2 - increment, to memory, bitmask
-    ld (dmaR2), a
-
-    xor a
-    ld (_copperDmaResident), a ; this DMA program invalidates the copper's resident transfer
-    ld bc, $6b
-    ld hl, dmaHeader
-    call outLoop16
-
-.fillWithDmaRepeatLoop:
-    dec de
-    ld a, e
-    or d
-    ret z
-
-    ld hl, (dmaDestination)
-.fillWithDmaRepeatStep:    
-    add hl, 0 ; placeholder for step
-    ld (dmaDestination), hl ; increment destination
-
-    ld hl, dmaR4 ; rewind back to dmaR4
-    call outLoop5 ; write last 5 bytes to DMA port, from dmaR4 onwards
-    jp fillWithDmaRepeatLoop
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

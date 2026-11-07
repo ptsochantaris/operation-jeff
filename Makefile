@@ -89,8 +89,16 @@ all: OperationJeff
 makedir:
 	mkdir -p build
 
+# The DMA code (src/dma-ro.asm) needs the zxnDDMA of core 3.03.00. appmake has no
+# option for the NEX header's "required core version" (bytes 135-137: major,
+# minor, sub-minor) and writes 3.02.00 there, so patch it after linking. The NEX
+# loader then refuses to start the game on an older core, rather than letting the
+# DMA misread the new commands' operands as register writes.
+NEX_CORE_VERSION=\003\003\000
+
 OperationJeff: makedir $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(OBJDIR)/OperationJeff.nex -create-app -subtype=$(SUBTYPE)
+	printf '$(NEX_CORE_VERSION)' | dd of=$(OBJDIR)/OperationJeff.nex bs=1 seek=135 conv=notrunc 2>/dev/null
 
 install: all
 	cp $(OBJDIR)/OperationJeff.nex $(INSTALL_PATH)

@@ -33,7 +33,8 @@ void initTilemap(void) __z88dk_fastcall {
   ZXN_NEXTREG(REG_PALETTE_INDEX, 0);
   writeNextReg(REG_PALETTE_VALUE_16, tilemapPalette, sizeof(tilemapPalette));
 
-  // Fast clear
+  // Fast clear. Through the MMU rather than by physical address: the tilemap is
+  // in bank 5, which is block RAM that a physical DMA write can't reach.
   ZXN_WRITE_MMU3(11);
   fillWithDma(tilemapAddress, tilemapLength, 0);
 

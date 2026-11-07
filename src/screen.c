@@ -3,37 +3,6 @@
 // used in places where we define clipping boundaries
 const byte clipBytes[] = {0,159,0,255};
 
-/*
-void layer2DmaFill(word x, word y, word width, word height, byte color) __z88dk_callee {
-  if(width<=0) return;
-  if(height<=0) return;
-
-  word ex = x + width;
-  byte endPage = ex >> 6;
-  byte xInPage = x & 0x3F;
-  word bottomLeft = xInPage * 256 + y;
-  byte page = x >> 6;
-
-  selectLayer2Page(page);
-  if(page >= endPage) {
-    fillWithDmaRepeat(bottomLeft, height, color, width, 256);
-  } else {
-    fillWithDmaRepeat(bottomLeft, height, color, 64-xInPage, 256);
-    --endPage;
-    while(1) {
-      selectLayer2Page(++page);
-      if(page == endPage) {
-        word endXInPage = (ex - (page * 64));
-        fillWithDmaRepeat(y, height, color, endXInPage, 256);
-        return;
-      } else {
-        fillWithDmaRepeat(y, height, color, 64, 256);
-      }
-    }
-  }
-}
-*/
-
 void layer2box(word x, word y, word width, word height, byte color) __z88dk_callee {
   word ey = y + height;
   layer2HorizonalLine(x, y, width, color);
@@ -52,12 +21,7 @@ void layer2roundedBox(word x, word y, word width, word height, byte color) __z88
 }
 
 void layer2Clear(byte index) __z88dk_fastcall {
-  selectLayer2Page(0);
-  fillWithDma(0, 0x4000, index);
-  for(byte page=1; page!=5; ++page) {
-    selectLayer2Page(page);
-    dmaRepeat();
-  }
+  dmaFillPages(LAYER2_BASE_PAGE, 10, index);
 }
 
 void updateMouse(void) __z88dk_fastcall;
@@ -181,13 +145,9 @@ void loadScreen(const struct ResourceInfo *restrict slice) __z88dk_fastcall {
     decompressScreen(slice, LAYER2_BASE_PAGE);
     return;
   }
-  // already decompressed into the prefetch pages - blit them across
-  byte shadow = PREFETCH_BASE_PAGE;
-  for(byte page=LAYER2_BASE_PAGE; page!=(LAYER2_BASE_PAGE+10); ++page, ++shadow) {
-    ZXN_WRITE_MMU1(shadow);
-    ZXN_WRITE_MMU2(page);
-    dmaMemoryToMemory((byte *)0x2000, (byte *)0x4000, 0x2000);
-  }
+  // already decompressed into the prefetch pages - blit them across, all 80K in
+  // one physical transfer, so unlike the decompress this touches no MMU slot
+  dmaCopyPages(PREFETCH_BASE_PAGE, LAYER2_BASE_PAGE, 10);
 }
 
   /*
@@ -230,6 +190,13 @@ void setupScreen(void) __z88dk_fastcall {
 
   // Set res https://wiki.specnext.dev/Layer_2_Control_Register
   ZXN_NEXTREG(0x70, 0x10); // 320x256 8bpp
+
+  // The NEX loader already leaves Layer 2 at 16K bank 9 (where it put the loading
+  // screen), and everything drawing through LAYER2_BASE_PAGE relies on it. Say so
+  // explicitly, because the DMA's X,Y addressing (layer2fillDma) reads this
+  // register, rather than our constant, to find the screen.
+  _Static_assert(LAYER2_BASE_PAGE == 9 * 2, "NextReg 0x12 below must name LAYER2_BASE_PAGE's bank");
+  ZXN_NEXTREG(0x12, 9); // a literal: the macro pastes it into a nextreg instruction
 
   // Clipping https://wiki.specnext.dev/Clip_Window_Layer_2_Register
   writeNextReg(0x18, clipBytes, CLIPBYTES_LEN);

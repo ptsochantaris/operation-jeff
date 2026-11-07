@@ -31,11 +31,9 @@ void setupTitleLeds(void) __z88dk_fastcall {
         stackClear(offset + 512, 32, f);
     }
 
-    // leds on ULA
-    word f = ula;
-    for(const word end = ula + 2048; f != end; f += 512) {
-        fillWithDmaRepeat(f, 256, 0x55, 3, 2048);
-    }
+    // leds on ULA: every other pixel line of every character row, which in the
+    // ULA's interleaved layout is 12 runs of 256 bytes, 512 apart
+    fillWithDma2D(ula, 256, 12, 512, 0x55);
 }
 
 void cycleGrayPalette(void) __z88dk_fastcall {

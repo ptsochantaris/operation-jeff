@@ -20,9 +20,16 @@ static const struct ScreenInfo gameOverInfo = SCREEN_ARRAY(gameOver);
 static void loadGameOverScreen(void) __z88dk_fastcall {
   fadeToWhite();
   layer2Clear(0);
-  copperEffectFire(); // flames behind the game over / high score screen  
-  
   fadePaletteDown(1,3,0);
+
+  // Flames behind the game over / high score screen. Not before the fade above:
+  // the fire's copper MOVEs set the palette index (NR 0x40) to HUD_MASK every
+  // band, and the fade reads and streams the palette through that same index, so
+  // it would read and write the wrong entries - the stash picks up the HUD's
+  // font/Jeff colours next door at 246+, and the white screen faded through
+  // them. Starting here costs nothing: the cleared screen has no HUD_MASK
+  // pixels, so the fire only becomes visible with the artwork below.
+  copperEffectFire();
 
   loadScreen(gameOverInfo.screens);
   
@@ -51,35 +58,18 @@ static void borderEffectUpdate(void) __z88dk_fastcall {
 
 // The name entry box and its "ENTER YOUR NAME" prompt are painted straight over
 // the artwork, so the strips under them are copied out to a spare page first
-// and put back once the name is in. The pixels go through MMU2 - fine here, as
-// no sample plays on this screen. The stash page has to be written as well as
-// read, so it can't sit in MMU0/MMU1: Layer 2 write-through sends every store
-// below 0x4000 to the screen instead. It borrows MMU3.
-#define STASH ((byte *)0x6000)
-
+// and put back once the name is in. The DMA reaches both the screen and the
+// stash page by physical address, so nothing has to be mapped in for it.
 #define ENTRY_BOX_COLUMNS (4*10 + 3)
 #define ENTRY_BOX_ROWS 9
-#define ENTRY_BOX_STASH STASH
+#define ENTRY_BOX_STASH 0
 
 #define PROMPT_COLUMNS (4*15)
 #define PROMPT_ROWS 5
-#define PROMPT_STASH (STASH + ENTRY_BOX_COLUMNS * ENTRY_BOX_ROWS)
+#define PROMPT_STASH (ENTRY_BOX_STASH + ENTRY_BOX_COLUMNS * ENTRY_BOX_ROWS)
 
-static void artworkStrip(byte *stash, word x, word y, byte columns, byte rows, byte restore) __z88dk_callee {
-  byte previousMmu3 = mmu3Borrow(ARTWORK_STASH_PAGE);
-  do {
-    ZXN_WRITE_MMU2(LAYER2_BASE_PAGE + (x >> 5)); // 32 columns per page, 256 bytes each
-    byte *pixels = (byte *)(0x4000 + ((x & 31) << 8) + y);
-    if(restore) {
-      memcpy(pixels, stash, rows);
-    } else {
-      memcpy(stash, pixels, rows);
-    }
-    stash += rows;
-    ++x;
-  } while(--columns);
-  mmu3Return(previousMmu3);
-}
+#define artworkStrip(stash, x, y, columns, rows, restore) \
+  dmaLayer2Copy(ARTWORK_STASH_PAGE, (stash), (x), (y), (columns), (rows), (restore))
 
 void gameOverLoop(void) __z88dk_fastcall {
   resetBonuses();

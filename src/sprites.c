@@ -21,9 +21,7 @@ void loadSprites(void) __z88dk_fastcall {
   ZXN_NEXTREG(0x34, 0); // start from sprite slot 0
   ZXN_NEXTREG(REG_SPRITE_TRANSPARENCY_INDEX, 0); // sprite palette index 0 is transparent
 
-  ZXN_WRITE_MMU1(rR.page);
-  ZXN_WRITE_MMU2(rR.page+1);
-  dmaMemoryToPort((byte *)rR.resource, __IO_SPRITE_PATTERN, rR.length);
+  dmaPageToPort(rR.page, (byte *)rR.resource, __IO_SPRITE_PATTERN, rR.length); // runs on into the next page
 
   uploadPalette(&rP, 512, 2);
 }

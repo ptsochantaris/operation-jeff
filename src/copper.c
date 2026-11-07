@@ -15,14 +15,27 @@
 // Next is already a hard requirement (see the prefetch note in screen.c).
 #define copperImage ((byte *)0x6000)
 
+// 1 = copper RAM holds the current effect's layout, so an upload only changes
+// colour bytes and can go in under the running copper. The skeleton builders
+// clear it. It is deliberately separate from copperDmaResident (dma-rw.asm),
+// which every other DMA user clears: layer2fill hands big boxes to the DMA, so
+// the controller can be borrowed mid-game, and that should cost one full re-send
+// of the DMA program - not a copper stop and restart in the middle of a frame.
+static byte copperLayoutResident = 0;
+
 static void uploadCopperImage(word len) __z88dk_fastcall {
-    if (copperDmaResident) {
+    if (copperLayoutResident) {
         // Same layout as the frame before, only the colour bytes differ, so the
         // copper can keep running over the rewrite: the worst it sees is a mix of
         // this frame's colours and last frame's, on the band it happens to be on.
         copperAddress(0);
         z80_outp(0x243b, REG_COPPER_DATA);
-        dmaRepeat();
+        if (copperDmaResident) {
+            dmaRepeat();
+        } else {
+            dmaPageToPort(COPPER_IMAGE_PAGE, copperImage, 0x253b, len); // clears the flag...
+            copperDmaResident = 1;                                       // ...resident again
+        }
         return;
     }
 
@@ -32,11 +45,15 @@ static void uploadCopperImage(word len) __z88dk_fastcall {
     // RAM - which for the cloud is a screenful of MOVE 0x4A bands. Load with the
     // copper stopped, then start it: the effect owns every register it sets, and
     // whatever it chooses not to set stays where the caller put it.
-    copperStop();                              // mode 00, write cursor back to 0
+    //
+    // The DMA reads copperImage's page by physical address, so the upload itself
+    // doesn't care what MMU3 holds - only the CPU building the image does.
+    copperStop();                                                // mode 00, write cursor back to 0
     z80_outp(0x243b, REG_COPPER_DATA);
-    dmaMemoryToPort(copperImage, 0x253b, len); // full setup (clears the flag)...
-    copperDmaResident = 1;                     // ...now resident
-    copperAddress(0);                          // ...and now it is safe to run
+    dmaPageToPort(COPPER_IMAGE_PAGE, copperImage, 0x253b, len); // full setup (clears the flag)...
+    copperDmaResident = 1;                                       // ...now resident
+    copperLayoutResident = 1;
+    copperAddress(0);                                            // ...and now it is safe to run
 }
 
 // --------------------------------------------------------------- Flash
@@ -81,7 +98,7 @@ static void buildFlashSkeleton(void) __z88dk_fastcall {
     p[10] = 0xFF;
     p[11] = 0xFF; // wait for vblank / halt
 
-    copperDmaResident = 0; // layout/length changed -> force a full re-prime next upload
+    copperLayoutResident = 0; // layout/length changed -> force a full re-prime next upload
 }
 
 // Per-frame: clear the previous spark and place a new random bright one.
@@ -271,7 +288,7 @@ static void buildPlasmaSkeleton(void) __z88dk_fastcall {
     p[0] = 0xFF;
     p[1] = 0xFF;
 
-    copperDmaResident = 0; // layout/length changed -> force a full re-prime next upload
+    copperLayoutResident = 0; // layout/length changed -> force a full re-prime next upload
 }
 
 // precomputed (sin(i * 2pi/256) + 1) * 15.5, range 0..31
@@ -432,7 +449,7 @@ static void buildFireSkeleton(void) __z88dk_fastcall {
     p[0] = 0xFF;
     p[1] = 0xFF; // halt until the copper resets at the next frame edge
 
-    copperDmaResident = 0; // layout/length changed -> force a full re-prime next upload
+    copperLayoutResident = 0; // layout/length changed -> force a full re-prime next upload
 }
 
 static void copperFireUpdate(void) __z88dk_fastcall {

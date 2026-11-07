@@ -32,9 +32,14 @@ _setupInterrupts:
     nextreg 0xC8, 0xFF   ; clear pending ULA/line status
     nextreg 0xC9, 0xFF   ; clear pending CTC status
     nextreg 0xCA, 0xFF   ; clear pending UART status
-    nextreg 0xCC, 0      ; no DMA-interrupt 0 routing
-    nextreg 0xCD, 0      ; no DMA-interrupt 1 routing
-    nextreg 0xCE, 0      ; no DMA-interrupt 2 routing
+    ; DMA interrupt routing: which interrupts may break into a running DMA
+    ; transfer. KEEP THESE ZERO unless you have read the IM2 note at the top of
+    ; dma-ro.asm. With hardware IM2 on, any source selected here makes the DMA
+    ; wait while that interrupt is pending - and under DI it is never taken, so a
+    ; DMA started with interrupts off would hang the game (zxnddma.gde 2.9 n10).
+    nextreg 0xCC, 0      ; no DMA-interrupt 0 routing (ULA, line, NMI)
+    nextreg 0xCD, 0      ; no DMA-interrupt 1 routing (CTC channels)
+    nextreg 0xCE, 0      ; no DMA-interrupt 2 routing (UARTs)
     im 2
     ei
     ret

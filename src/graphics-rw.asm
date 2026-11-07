@@ -1,5 +1,7 @@
 SECTION code_compiler
 
+GLOBAL layer2fillDma                          ; dma-ro.asm, in bank 28
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 PUBLIC selectPageForXInDeAndSetupH, selectPageForXInDE
@@ -294,6 +296,25 @@ layer2fillInternal:
     ld a, b
     or a
     ret z           ; zero height
+
+    ; Boxes of 64 pixels or more go to the DMA (layer2fillDma, in bank 28). It
+    ; costs ~450 T to program and then a couple of T a pixel; this loop has ~235 T
+    ; of setup per page-run and 11 T a pixel. That puts break-even in the 30s, and
+    ; 64 leaves margin for the DMA's speed being an estimate rather than measured.
+    ; The test costs ~80 T on the boxes that stay here - the small HUD deltas.
+    ld a, d
+    or a
+    jp nz, layer2fillDma        ; 256 or more columns wide
+    push de
+    ld d, b
+    mul d, e                    ; de = width * height
+    ld a, e
+    and $c0
+    or d                        ; nz when de >= 64
+    pop de
+    jp nz, layer2fillDma
+
+    ld a, b
     ld (fillHeightValue+1), a
 
     ld a, c

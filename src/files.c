@@ -8,6 +8,11 @@ static void prepareForEsxCall(void) __z88dk_fastcall {
     // displaced by the ROM we page in below.
     saveAndDisableInterrupts();
 
+    // The OS may drive the DMA itself, without the $C3 that would clear the
+    // zxnDDMA modes (physical, 2D, fill) our own transfers leave behind. Reset it
+    // here, while bank 28 (where dmaReset lives) is still mapped.
+    dmaReset();
+
     // disable write-through
     configLayer2(0);
 
