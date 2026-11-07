@@ -2,7 +2,7 @@ SECTION code_compiler
 
 ; Always-mapped half of the utility module: the text buffer plus the helpers
 ; that rely on self-modifying code (random16 stashes its seed in its own
-; operand; writeNextReg and stackClear patch their inner loops), so they must
+; operand; writeNextReg patches its inner loop), so they must
 ; live in writable RAM. The pure copper helpers live in utility-ro.asm (bank 28).
 
 PUBLIC _textBuf
@@ -60,45 +60,3 @@ writeNextRegSet:
     djnz writeNextRegLoop
     ret
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-PUBLIC _stackClear
-_stackClear:
-    pop hl ; return address
-
-    pop de ; pattern in E
-    ld d, e
-    ld (stackClearSet+1), de
-
-    pop de ; len
-    ex (sp), hl ; base, return address back on stack
-
-    ld (stackClearSp+1), sp
-
-    add hl, de ; add len to get final address
-
-    ld b, 2
-    bsrl de, b ; divide len by four for looping
-
-    ; from: https://www.cpcwiki.eu/index.php/Programming:Filling_memory_with_a_byte
-    ld b, e    ; This method takes advantage of the fact that DJNZ leaves B as 0, which subsequent DJNZs see as 256
-    dec de     ; B = (length/2) MOD 256, so 0 = a 512-byte block
-    inc d      ; D = the number of 512-byte blocks to write, or just = 1 if the length is <512
-
-    di         ; disable interrupts for the duration of the loop, as we're moving the stack pointer
-    ld sp, hl  ; (final address + 1)
-
-.stackClearSet:
-    ld hl, 0 ; byte to push
-
-.stackClearLoop:
-    push hl
-    push hl
-    djnz stackClearLoop
-    dec d
-    jp nz, stackClearLoop
-
-.stackClearSp:
-    ld sp, 0 ; placeholder
-    ei
-    RET

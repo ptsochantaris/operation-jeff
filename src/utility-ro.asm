@@ -2,7 +2,7 @@ SECTION PAGE_28_POSTISR
 
 ; Read-only half of the utility module: pure code with no self-modifying
 ; operands and no mutable data, so it can live in bank 28. The rest (the text
-; buffer and the self-modifying helpers - random16, writeNextReg, stackClear)
+; buffer and the self-modifying helpers - random16, writeNextReg)
 ; stays in the always-mapped RW section in utility-rw.asm.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
