@@ -78,11 +78,21 @@ OBJECTS = $(addprefix $(OBJDIR)/, \
 	audio.o \
 )
 
-$(OBJDIR)/%.o: $(SRC)/%.c $(PRAGMA_FILE)
+# Every object depends on every header: there is no per-file dependency
+# tracking, and a stale object is far worse than a rebuild (make -j20 does a
+# clean build in ~30s). makeAssets.swift regenerates assets.h, and the C files
+# holding resource tables (levelinfo.c, sprites.c, ...) must pick up the new
+# addresses - a stale one points the game at the wrong data.
+HEADERS=$(wildcard $(SRC)/*.h)
+
+$(OBJDIR)/%.o: $(SRC)/%.c $(PRAGMA_FILE) $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $<
 
 $(OBJDIR)/%.o: $(SRC)/%.asm
 	$(AS) $(ASFLAGS) -o $@ $<
+
+# assets.asm BINARY-includes the converted resources
+$(OBJDIR)/assets.o: $(wildcard resources/*)
 
 all: OperationJeff
 
