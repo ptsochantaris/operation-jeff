@@ -58,6 +58,19 @@ let FONT_SIDEWAYS_VARIANTS: [(colour: Int, name: String)] = [
     (255, "HUD_WHITE"),
 ]
 
+// Level screens. Layer 2's transparent colour (NextReg $14, set by setupScreen) is
+// black, compared against the top 8 bits of each 9-bit colour - so any artwork that
+// converts to black, 9th blue bit or not, is a hole showing the copper's fallback
+// colour (NextReg $4A) behind it. Dark backgrounds (levels 3 and 4 are all dark
+// gradients that round to black) would carry the bonus effects right across the
+// screen. Outside the HUD's L - its top rows and left columns, which it draws
+// over and which must stay as they are - such pixels become LEVEL_OPAQUE_BLACK:
+// no opaque colour is truly black, and this is the darkest (L* ~3.4).
+let LEVEL_HUD_ROWS = 16
+let LEVEL_HUD_COLUMNS = 16
+let LEVEL_OPAQUE_BLACK = (r: 1, g: 0, b: 0) // RGB333
+let LEVEL_PALETTE_LIMIT = 245 // HUD_BASE in src/hud.h: the HUD's colours take the entries from there up
+
 // Disable stdout buffering so partial prints (terminator: "") appear immediately
 setvbuf(stdout, nil, _IONBF, 0)
 
@@ -130,7 +143,7 @@ do {
         group.addTask { try convertBanked(from: "\(ORIG)/OperationJeffInfo.png", baseName: "info") }
         group.addTask { try convertBanked(from: "\(ORIG)/OperationJeffGameOver.png", baseName: "gameOver") }
         for letter in LETTERS {
-            group.addTask { try convertBanked(from: "\(ORIG)/OperationJeffLevel\(letter).png", baseName: "level\(letter)") }
+            group.addTask { try convertBanked(from: "\(ORIG)/OperationJeffLevel\(letter).png", baseName: "level\(letter)", opaquePlayfield: true) }
             group.addTask { try convertBanked(from: "\(ORIG)/OperationJeffLevelComplete\(letter).png", baseName: "levelComplete\(letter)") }
         }
         try await group.waitForAll()
@@ -188,9 +201,13 @@ do {
 
 /// Converts a paletted PNG to banked Next raster files (`<base>_<n>.nxi`) plus a
 /// `<base>.nxp` palette, matching `gfx2next <in> -pal-min -bitmap-y -bank-8k <out>`.
-private func convertBanked(from pngPath: String, baseName: String) throws {
+/// `opaquePlayfield` is for level screens: see LEVEL_OPAQUE_BLACK.
+private func convertBanked(from pngPath: String, baseName: String, opaquePlayfield: Bool = false) throws {
     let png = try decodeIndexedPNG(at: pngPath)
-    let image = Gfx2Next.convert(png: png, layout: .bitmapY)
+    let image = Gfx2Next.convert(png: png, layout: .bitmapY, opaquePlayfield: opaquePlayfield)
+    if opaquePlayfield, image.colourCount > LEVEL_PALETTE_LIMIT {
+        fatalError("\(pngPath) needs \(image.colourCount) colours - the HUD owns palette entries \(LEVEL_PALETTE_LIMIT) and up")
+    }
     for (index, bank) in Gfx2Next.banks(image.raster).enumerated() {
         try bank.write(to: URL(fileURLWithPath: "\(DST)/\(baseName)_\(index).nxi"))
     }
@@ -890,6 +907,8 @@ private struct NextImage {
     let paletteBytes: Data
     /// Palette indices arranged per the requested layout (width * height bytes).
     let raster: Data
+    /// Distinct colours in the palette (the rest is black padding).
+    let colourCount: Int
 }
 
 private enum Gfx2Next {
@@ -952,7 +971,9 @@ private enum Gfx2Next {
 
     /// Reproduces gfx2next's process_palette (DISTANCE + pal-min) and
     /// create_next_palette, plus the pixel-index remap and raster layout.
-    static func convert(png: DecodedPNG, layout: RasterLayout) -> NextImage {
+    /// With `opaquePlayfield`, pixels outside the HUD's L that would come out as
+    /// the transparent colour come out as LEVEL_OPAQUE_BLACK instead.
+    static func convert(png: DecodedPNG, layout: RasterLayout, opaquePlayfield: Bool = false) -> NextImage {
         // Build the full 256-entry palette (unused entries are black), then
         // convert every colour to its nearest RGB333 representation.
         var converted = [Int](repeating: 0, count: 256)
@@ -967,32 +988,38 @@ private enum Gfx2Next {
             converted[i] = nearestRGB333Color(src)
         }
 
+        // Each pixel's colour, with the playfield's holes filled if asked.
+        let width = png.width
+        let height = png.height
+        let opaqueBlack = rgb333_to_rgb888(LEVEL_OPAQUE_BLACK.r << 6 | LEVEL_OPAQUE_BLACK.g << 3 | LEVEL_OPAQUE_BLACK.b)
+        var pixelColours = png.indices.map { converted[Int($0)] }
+        var filled = 0
+        if opaquePlayfield {
+            for y in LEVEL_HUD_ROWS ..< height {
+                for x in LEVEL_HUD_COLUMNS ..< width where rgb888_to_rgb333(pixelColours[y * width + x]) >> 1 == 0 {
+                    pixelColours[y * width + x] = opaqueBlack
+                    filled += 1
+                }
+            }
+        }
+
         // Minimise: sort ascending, remove duplicates, pad the tail with 0.
-        let sorted = converted.sorted()
-        var minimized = [Int](repeating: 0, count: 256)
-        var unique = 0
-        minimized[0] = sorted[0]
-        for i in 1 ..< 256 where sorted[i] != minimized[unique] {
-            unique += 1
-            minimized[unique] = sorted[i]
+        var minimized = [Int]()
+        for colour in (converted + (filled > 0 ? [opaqueBlack] : [])).sorted() where minimized.last != colour {
+            minimized.append(colour)
         }
-        // Entries beyond `unique` remain 0 (matches padding to black).
+        guard minimized.count <= 256 else {
+            fatalError("\(minimized.count) colours after conversion - more than a palette holds")
+        }
+        let colourCount = minimized.count
+        minimized += [Int](repeating: 0, count: 256 - colourCount) // padding to black
 
-        // Map each converted colour to its first index in the minimised palette.
+        // Map each colour to its index in the minimised palette, and remap pixels.
         var firstIndex = [Int: Int]()
-        for j in 0 ... unique where firstIndex[minimized[j]] == nil {
-            firstIndex[minimized[j]] = j
+        for (j, colour) in minimized[0 ..< colourCount].enumerated() {
+            firstIndex[colour] = j
         }
-        var indexMap = [Int](repeating: 0, count: 256)
-        for i in 0 ..< 256 {
-            indexMap[i] = firstIndex[converted[i]] ?? 0
-        }
-
-        // Remap pixels to minimised-palette indices.
-        var remapped = [UInt8](repeating: 0, count: png.indices.count)
-        for i in 0 ..< png.indices.count {
-            remapped[i] = UInt8(truncatingIfNeeded: indexMap[Int(png.indices[i])])
-        }
+        let remapped = pixelColours.map { UInt8(truncatingIfNeeded: firstIndex[$0]!) }
 
         // Build the Next palette (512 bytes, little-endian uint16 per entry).
         var paletteBytes = Data(capacity: 512)
@@ -1006,8 +1033,6 @@ private enum Gfx2Next {
         }
 
         // Arrange the raster.
-        let width = png.width
-        let height = png.height
         var raster = [UInt8](repeating: 0, count: width * height)
         switch layout {
         case .row:
@@ -1020,7 +1045,7 @@ private enum Gfx2Next {
             }
         }
 
-        return NextImage(paletteBytes: paletteBytes, raster: Data(raster))
+        return NextImage(paletteBytes: paletteBytes, raster: Data(raster), colourCount: colourCount)
     }
 
     /// Splits raster data into 8 KB banks, matching `-bank-8k`.
