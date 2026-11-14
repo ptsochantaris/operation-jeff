@@ -1,8 +1,7 @@
 SECTION PAGE_28_POSTISR
 
-GLOBAL _mmu3Borrow, _mmu3Return, _bootColour, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit, layer2Char
-GLOBAL layer2CharSlow, layer2CharFast, selectLayer2PageInternal
-GLOBAL layer2PlotSliceSlowInk, layer2PlotSliceFastInk, selectPageForXInDeAndSetupH, layer2CharSideways, layer2PlotSliceSidewaysInk
+GLOBAL _mmu3Borrow, _mmu3Return, _bootColour, font_data, setPaletteCommitRed, setPaletteCommitGreen, setPaletteCommit
+GLOBAL selectLayer2PageInternal, selectPageForXInDeAndSetupH
 GLOBAL _waitFrame
 
 ; The palette buffer lives in the banked scratch page - see SCRATCH_PAGE and
@@ -224,79 +223,6 @@ _printAttributes:
     exx
     inc hl ; next char in HL'
     jp printAttributesLoop
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-PUBLIC _print
-_print:
-    ; The return address rides in AF (10/11t) rather than IY (14/15t), so nothing
-    ; between the pop and the push may touch A *or the flags* - hence the colour
-    ; goes to C and is poked through HL instead of via A.
-    pop af          ; return address
-
-    pop BC          ; colour in C
-    ld hl, layer2PlotSliceSlowInk+1
-    ld (hl), c
-    ld hl, layer2PlotSliceFastInk+1
-    ld (hl), c
-
-    pop HL          ; y
-    pop DE          ; x
-
-    exx
-    pop hl          ; address of first char in HL'
-    push af         ; put return back on stack
-
-.printLoop:
-    ld a, (hl) ; read from HL'
-    exx
-    sub 32 ; index = ascii - 32
-    ret c ; exit if char is below 32
-
-    ; put first slice of font in IY, offset from font_data
-    ld bc, font_data
-    ; offset is a * 6, split out for performance
-    rla
-    add bc, a   ; bc += (a * 2)
-    rla
-    add bc, a   ; bc += (a * 4)
-    ld iy, bc
-
-    ; Optimisation: Go slow if we cross page boundaries; reg E holds in-page X.
-    ; X values that mean we will cross layer 2 page boundary in the next 3px are:
-    ; 3E - 00 11111 0
-    ; 3F - 00 11111 1
-    ; 7E - 01 11111 0
-    ; 7F - 01 11111 1
-    ; BE - 10 11111 0
-    ; BF - 10 11111 1
-    ; FE - 11 11111 0
-    ; FF - 11 11111 1
-
-    ; Check bits 1, 2, 3, 4, and 5 which they have in common
-    ; (~E & 00111110) != 0 -> can use fast char
-    ld a, e
-    cpl
-    and $3e
-    jp nz, printLoopFast
-
-    call layer2CharSlow
-    jp printLoopNext
-
-.printLoopFast:
-    call layer2CharFast
-
-.printLoopNext:
-    add de, 4
-
-    ; reset Y
-    ld a, l
-    sub 5
-    ld l, a
-
-    exx
-    inc hl ; next char in HL'
-    jp printLoop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -538,51 +464,6 @@ _updateSprite:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PUBLIC _printSideways
-_printSideways:
-    ; return address in AF, see _print above
-    pop af          ; return address
-
-    pop BC          ; colour in C
-    ld hl, layer2PlotSliceSidewaysInk+1
-    ld (hl), c
-
-    pop HL          ; y
-    pop DE          ; x
-
-    exx
-    pop hl          ; address of first char in HL'
-    push af         ; put return back on stack
-
-.printSidewaysLoop:
-    ld a, (hl) ; read from HL'
-    exx
-    sub 32 ; index = ascii - 32
-    ret c ; exit if char is below 32
-
-    ; put first slice of font in IY, offset from font_data
-    ld bc, font_data
-    ; offset is a * 6, split out for performance
-    rla
-    add bc, a   ; bc += (a * 2)
-    rla
-    add bc, a   ; bc += (a * 4)
-    ld iy, bc
-
-    call layer2CharSideways
-
-    add de, -5
-
-    ld a, l
-    sub 4 ; move Y up
-    ld l, a
-
-    exx
-    inc hl ; next char in HL'
-    jp printSidewaysLoop
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ulaAttributeChar:
     ; l           ; y
     ; de          ; x + ula attributes
@@ -609,7 +490,7 @@ ulaAttributeChar:
     ld b, 3         ; loops in b
 .ulaAttributeCharPlotSliceLoop:
     rl c
-    ; jr, not jp: see layer2PlotSliceSideways - set bits dominate, so the
+    ; jr, not jp: glyph slices are ~60% set bits, so the
     ; not-taken path (7t) is the common one and this beats jp's flat 10t
     jr nc, ulaAttributeCharPlotSliceSkip
     ld (hl), a

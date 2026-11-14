@@ -33,6 +33,31 @@ let ASSET_PAGE_LIMIT = 213
 // that would overrun the game over stash behind it.
 let PALETTE_STAGE_LIMIT = 1024
 
+// Text is printed by the DMA (_print in src/dma-ro.asm): one transparent copy per
+// glyph from an 8bpp copy of src/font.asm with the ink already in it, because the
+// DMA can only move bytes, not colour them. So every colour text is printed in
+// needs a variant baked here. Each variant is the ASCII 32-95 run (space,
+// punctuation, digits, upper case - everything the game prints; the keyboard only
+// produces A-Z, 0-9 and space) at 15 bytes a glyph, a screen column of 5 at a time.
+//
+// The colours are palette indices, as passed to print/printSideways. One missing
+// from here prints in the last colour of its list, rather than failing.
+let FONT_FILE = "font.fnt"
+let FONT_FIRST_CHAR = 32
+let FONT_GLYPH_COUNT = 64
+let FONT_GLYPH_BYTES = 15
+let FONT_VARIANTS: [(colour: Int, name: String)] = [
+    (250, "HUD_ORANGE"),
+    (249, "HUD_BLACK"),
+    (246, "HUD_FILL_TEXT"),
+    (4, "title screen, high score"),
+    (18, "title screen, continue prompt"),
+    (255, "HUD_WHITE"), // last: the fallback
+]
+let FONT_SIDEWAYS_VARIANTS: [(colour: Int, name: String)] = [
+    (255, "HUD_WHITE"),
+]
+
 // Disable stdout buffering so partial prints (terminator: "") appear immediately
 setvbuf(stdout, nil, _IONBF, 0)
 
@@ -76,6 +101,10 @@ do {
         print("(\(db)dB)", terminator: " ")
         try Data(scaled).write(to: URL(fileURLWithPath: "\(DST)/\(item)"))
     }
+    print("Done")
+
+    print("Font: ", terminator: "")
+    try bakeFont().write(to: URL(fileURLWithPath: "\(DST)/\(FONT_FILE)"))
     print("Done")
 
     // Convert all heightmaps (CoreGraphics, sequential — they are small and fast).
@@ -141,7 +170,7 @@ do {
     }
 
     let assetFiles = try fm.contentsOfDirectory(atPath: DST).filter {
-        $0.hasSuffix(".nxp.zx0") || $0.hasSuffix(".pcm") || $0.hasSuffix(".nxi.zx0") || $0.hasSuffix(".spr") || $0.hasSuffix(".hm.zx0")
+        $0.hasSuffix(".nxp.zx0") || $0.hasSuffix(".pcm") || $0.hasSuffix(".nxi.zx0") || $0.hasSuffix(".spr") || $0.hasSuffix(".hm.zx0") || $0 == FONT_FILE
     }.map {
         DST + "/" + $0
     }
@@ -310,6 +339,12 @@ private func makeAssets(from filePaths: [String]) {
         outputContent += "\n"
     }
 
+    guard let fontGroup = groups.first(where: { $0.files.contains { $0.name.hasSuffix("/\(FONT_FILE)") } }),
+          let fontFile = fontGroup.files.first(where: { $0.name.hasSuffix("/\(FONT_FILE)") }) else {
+        fatalError("\(FONT_FILE) was not placed")
+    }
+    outputContent += fontVariantTables(page: fontGroup.page, offset: fontFile.pos)
+
     do {
         try outputContent.write(to: URL(fileURLWithPath: "src/assets.asm"), atomically: true, encoding: .utf8)
         print("assets.asm created")
@@ -337,6 +372,87 @@ private func makeAssets(from filePaths: [String]) {
     } catch {
         print("Error writing to output file: \(error)")
     }
+}
+
+// ----------------------------------------------------------------------- Font
+
+/// Reads src/font.asm (6 `DB` rows a glyph from char 32, the top 3 bits of the top
+/// 5 rows used) and bakes FONT_VARIANTS, then FONT_SIDEWAYS_VARIANTS, into one file.
+///
+/// The DMA's Layer 2 X,Y mode runs each 2D row down a screen column, so a glyph is
+/// stored a screen column at a time: 3 columns of 5 for print, 5 of 3 for
+/// printSideways. Unlit pixels are 0, which the DMA's transparency skips.
+private func bakeFont() throws -> Data {
+    let source = try String(contentsOfFile: "src/font.asm", encoding: .utf8)
+    let rows = source.split(separator: "\n").compactMap { line -> [Bool]? in
+        let parts = line.split(whereSeparator: { $0 == " " || $0 == "\t" })
+        guard parts.count == 2, parts[0] == "DB", parts[1].count == 8, parts[1].allSatisfy({ $0 == "X" || $0 == "_" }) else {
+            return nil
+        }
+        return parts[1].map { $0 == "X" }
+    }
+    guard rows.count % 6 == 0, rows.count / 6 >= FONT_GLYPH_COUNT else {
+        fatalError("src/font.asm: expected 6 rows a glyph and at least \(FONT_GLYPH_COUNT) glyphs, found \(rows.count) rows")
+    }
+    func lit(_ glyph: Int, row: Int, column: Int) -> Bool {
+        rows[glyph * 6 + row][column]
+    }
+
+    var data = Data()
+    for variant in FONT_VARIANTS {
+        let ink = UInt8(variant.colour)
+        for glyph in 0 ..< FONT_GLYPH_COUNT {
+            for column in 0 ..< 3 {
+                for row in 0 ..< 5 {
+                    data.append(lit(glyph, row: row, column: column) ? ink : 0)
+                }
+            }
+        }
+    }
+    // Sideways text reads upwards: glyph row r is screen column x + r, and glyph
+    // column c is screen row y - c, so a column runs from glyph column 2 down to 0.
+    for variant in FONT_SIDEWAYS_VARIANTS {
+        let ink = UInt8(variant.colour)
+        for glyph in 0 ..< FONT_GLYPH_COUNT {
+            for row in 0 ..< 5 {
+                for column in (0 ..< 3).reversed() {
+                    data.append(lit(glyph, row: row, column: column) ? ink : 0)
+                }
+            }
+        }
+    }
+    guard data.count <= 8192 else {
+        fatalError("\(FONT_FILE) is \(data.count) bytes - over a page, so its physical address would not keep one 23:16 byte")
+    }
+    print("\(FONT_VARIANTS.count) + \(FONT_SIDEWAYS_VARIANTS.count) sideways variants, \(data.count) bytes", terminator: " ")
+    return data
+}
+
+/// The colour -> source tables _print and _printSideways search, appended to
+/// assets.asm because only the packer knows where the font landed. Each table is a
+/// count, then per variant: colour, physical address bits 23:16, bits 15:0.
+private func fontVariantTables(page: Int, offset: Int) -> String {
+    let variantBytes = FONT_GLYPH_COUNT * FONT_GLYPH_BYTES
+    let base = 0x40000 + page * 0x2000 + offset
+
+    func table(_ label: String, _ variants: [(colour: Int, name: String)], from first: Int) -> String {
+        var text = "\(label):\n    DB \(variants.count)\n"
+        for (index, variant) in variants.enumerated() {
+            let physical = base + (first + index) * variantBytes
+            text += String(format: "    DB %d, $%02X\n    DW $%04X ; %@\n", variant.colour, physical >> 16, physical & 0xFFFF, variant.name)
+        }
+        return text
+    }
+
+    return """
+    ;------------------------------------------------- font variants (see _print in dma-ro.asm)
+
+    SECTION PAGE_28_POSTISR
+    PUBLIC fontVariants, fontSidewaysVariants
+
+    \(table("fontVariants", FONT_VARIANTS, from: 0))
+    \(table("fontSidewaysVariants", FONT_SIDEWAYS_VARIANTS, from: FONT_VARIANTS.count))
+    """
 }
 
 private func convertHeightMap(at imagePath: String) -> Data {

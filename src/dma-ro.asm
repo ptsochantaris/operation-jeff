@@ -47,6 +47,17 @@ LAYER2_PHYSICAL_MID  equ (LAYER2_PHYSICAL >> 8) & $ff   ; bits 15:8 (bits 7:0 ar
     out (c), a
     ENDM
 
+; Sends a program table (hl = its first byte, bc = $006B) by calling into the
+; outinb run at the end of the right number of bytes: 16 T a byte against otir's
+; 21, and no B to load (outinb leaves B alone - fine, the port ignores it). The
+; fixed command bytes either side of a table live in it for the same reason.
+; Every table carries an ASSERT that it fits the run.
+    MACRO dmaSend program, programEnd
+    call dmaSendRunEnd - 2 * (programEnd - program)
+    ENDM
+
+DMA_SEND_MAX equ 17         ; the longest table: fontShape
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Unused - kept for reference
@@ -95,6 +106,15 @@ dmaBegin:
     ld (_copperDmaResident), a
     ld bc, $6b
     dmaOut $c3              ; R6 reset
+    ret
+
+; dmaSend's run: enter it 2 bytes per byte to send from the end. A program whose
+; last bytes are its table can jump in instead of calling, and return from here.
+.dmaSendRun:
+    REPT DMA_SEND_MAX
+    outinb
+    ENDR
+.dmaSendRunEnd:
     ret
 
 ; Physical address of a byte in an 8K page.
@@ -155,11 +175,9 @@ _dmaPageToPort:
     out (c), e
     out (c), d
     ld hl, dmaToPortProgram
-    ld b, dmaToPortProgramEnd - dmaToPortProgram
-    otir                    ; leaves b = 0
+    dmaSend dmaToPortProgram, dmaToPortProgramEnd
     pop hl                  ; port
     push iy                 ; return address
-    dmaOut $ad              ; R4: continuous, port B address follows
     out (c), l
     out (c), h
     dmaOut $cf              ; R6 load
@@ -170,7 +188,9 @@ _dmaPageToPort:
     DB $54, $02             ; R1: memory, increment, 2-cycle timing
     DB $68, $02             ; R2: I/O, fixed, 2-cycle timing
     DB $82                  ; R5: stop at the end of the block
+    DB $ad                  ; R4: continuous, port B address follows
 .dmaToPortProgramEnd:
+    ASSERT dmaToPortProgramEnd - dmaToPortProgram <= DMA_SEND_MAX
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -216,10 +236,7 @@ _dmaCopyPhysical:
     out (c), h
 
     ld hl, dmaCopyPhysicalProgram
-    ld b, dmaCopyPhysicalProgramEnd - dmaCopyPhysicalProgram
-    otir
-    dmaOut $cf              ; R6 load
-    dmaOut $87              ; R6 enable
+    dmaSend dmaCopyPhysicalProgram, dmaCopyPhysicalProgramEnd
     pop ix
     pop hl                  ; return address
     ld iy, 10
@@ -232,7 +249,10 @@ _dmaCopyPhysical:
     DB $50, $02             ; R2: memory, increment, 2-cycle timing
     DB $82                  ; R5: stop at the end of the block
     DB $df, $01             ; physical addresses
+    DB $cf                  ; R6 load
+    DB $87                  ; R6 enable
 .dmaCopyPhysicalProgramEnd:
+    ASSERT dmaCopyPhysicalProgramEnd - dmaCopyPhysicalProgram <= DMA_SEND_MAX
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -261,28 +281,25 @@ _fillWithDma2D:
     dmaOut $e3              ; row length
     out (c), e
     out (c), d
-    pop hl                  ; destination
+    pop de                  ; destination
     push iy                 ; return address
-    dmaOut $df
-    dmaOut $0a              ; 2D + fill, MMU addresses
-    ld de, dmaFillProgram
-    ex de, hl
-    ld b, dmaFillProgramEnd - dmaFillProgram
-    otir
-    ex de, hl
-    dmaOut $ad              ; R4: continuous, port B address follows
-    out (c), l
-    out (c), h
+    ld hl, dmaFillProgram
+    dmaSend dmaFillProgram, dmaFillProgramEnd
+    out (c), e
+    out (c), d
     dmaOut $cf              ; R6 load
     dmaOut $87              ; R6 enable
     ret
 
 .dmaFillProgram:
+    DB $df, $0a             ; 2D + fill, MMU addresses
     DB $05                  ; R0: A -> B (fill mode never reads port A)
     DB $14                  ; R1: memory, increment
     DB $50, $02             ; R2: memory, increment, 2-cycle timing
     DB $82                  ; R5: stop at the end of the block
+    DB $ad                  ; R4: continuous, port B address follows
 .dmaFillProgramEnd:
+    ASSERT dmaFillProgramEnd - dmaFillProgram <= DMA_SEND_MAX
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -348,9 +365,7 @@ _dmaCopyPages:
     xor a
     out (c), a
     ld hl, dmaPagesProgram
-    ld b, dmaPagesProgramEnd - dmaPagesProgram
-    otir
-    dmaOut $df
+    dmaSend dmaPagesProgram, dmaPagesProgramEnd
     out (c), e              ; mode flags
     dmaOut $cf              ; R6 load
     dmaOut $87              ; R6 enable
@@ -363,7 +378,9 @@ _dmaCopyPages:
     DB $54, $02             ; R1: memory, increment, 2-cycle timing
     DB $50, $02             ; R2: memory, increment, 2-cycle timing
     DB $82                  ; R5: stop at the end of the block
+    DB $df                  ; mode flags follow
 .dmaPagesProgramEnd:
+    ASSERT dmaPagesProgramEnd - dmaPagesProgram <= DMA_SEND_MAX
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -395,8 +412,7 @@ _dmaLayer2Copy:
     ld a, (ix+5)
     out (c), a
     ld hl, dmaLayer2CopyProgram
-    ld b, dmaLayer2CopyProgramEnd - dmaLayer2CopyProgram
-    otir
+    dmaSend dmaLayer2CopyProgram, dmaLayer2CopyProgramEnd
 
     ld a, (ix+12)
     ld l, (ix+10)
@@ -445,6 +461,7 @@ _dmaLayer2Copy:
     DB $82                  ; R5: stop at the end of the block
     DB $df, $03             ; physical + 2D
 .dmaLayer2CopyProgramEnd:
+    ASSERT dmaLayer2CopyProgramEnd - dmaLayer2CopyProgram <= DMA_SEND_MAX
 
 ; e:hl = physical address of (x, y) from the dmaLayer2Copy frame, iy = 256 (the
 ; stride from one screen column to the next)
@@ -506,11 +523,8 @@ layer2fillDma:
     out (c), a
     push hl
     ld hl, dmaBoxProgram
-    ld b, dmaBoxProgramEnd - dmaBoxProgram
-    otir
+    dmaSend dmaBoxProgram, dmaBoxProgramEnd
     pop hl
-    dmaOut $df              ; must follow R4, which would otherwise overwrite the address
-    dmaOut $1b              ; physical + 2D + fill + Layer 2 X,Y
     out (c), l
     out (c), h              ; x
     ld a, iyl
@@ -525,4 +539,184 @@ layer2fillDma:
     DB $50, $02             ; R2: memory, increment, 2-cycle timing
     DB $a1                  ; R4: continuous, no address - the X,Y supplies it
     DB $82                  ; R5: stop at the end of the block
+    DB $df                  ; must follow R4, which would otherwise overwrite the address
+    DB $1b                  ; physical + 2D + fill + Layer 2 X,Y - x and y follow
 .dmaBoxProgramEnd:
+    ASSERT dmaBoxProgramEnd - dmaBoxProgram <= DMA_SEND_MAX
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; void print(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc
+; void printSideways(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc
+;
+; Text by DMA: each glyph is one transparent copy from an 8bpp font that
+; makeAssets.swift bakes with the ink already in it - one variant per colour,
+; found by colour in fontVariants / fontSidewaysVariants (assets.asm). A colour
+; with no variant prints in the last one in its table.
+;
+; The string's set-up goes out once (fontShape*). After that every setting
+; survives, so each glyph sends only its source and its X,Y and starts: the short
+; reload in the zxnDDMA guide. The X,Y form works out the screen address itself,
+; so glyphs that straddle a Layer 2 page need nothing special.
+;
+; Only chars 32-95 are in the font (makeAssets.swift says why). Anything
+; higher prints whatever lies past the variant; below 32 ends the string.
+;
+; print runs glyphs left to right from (x, y), 4 px apart. printSideways turns
+; them a quarter left and runs them upwards from (x, y), 4 px apart, each one's
+; bottom row at y - as the CPU versions did.
+
+FONT_GLYPH_BYTES equ 15
+FONT_XY_FLAGS    equ $17    ; physical + 2D + transparent + Layer 2 X,Y
+
+GLOBAL fontVariants, fontSidewaysVariants
+
+; The arguments: c = colour, l = y, de = x, iy = text, and x then y pushed -
+; they wait on the stack while printSetup takes every register, and the entry
+; points pop them back after it
+    MACRO PRINT_ARGUMENTS
+    pop iy                  ; return address
+    pop bc                  ; c = colour
+    pop hl                  ; l = y
+    pop de                  ; x
+    ex (sp), iy             ; iy = text, return address back on the stack
+    push de
+    push hl
+    ENDM
+
+PUBLIC _print
+_print:
+    PRINT_ARGUMENTS
+    ld hl, fontVariants
+    ld de, fontShape
+    call printSetup
+    pop hl
+    ld b, l                 ; y
+    ld iy, printAdvanceRight
+    jr printStart
+
+PUBLIC _printSideways
+_printSideways:
+    PRINT_ARGUMENTS
+    ld hl, fontSidewaysVariants
+    ld de, fontSidewaysShape
+    call printSetup
+    pop hl
+    ld a, l
+    sub 2                   ; the glyph's top row: it reaches up from y
+    ld b, a
+    ld iy, printAdvanceUp
+    ; fall through
+
+; One glyph a time. Alt hl' = text, bc' = the variant's source bits 15:0; main
+; bc = $006B with b = y, de = x, h = $DF, l = FONT_XY_FLAGS; iy = the advance.
+.printStart:
+    pop de                  ; x
+    ld hl, $DF00 | FONT_XY_FLAGS
+.printLoop:
+    exx
+    ld a, (hl)
+    inc hl
+    sub 32                  ; index = char - 32
+    ret c                   ; end of the string
+    ld d, a
+    ld e, FONT_GLYPH_BYTES
+    mul d, e
+    ex de, hl
+    add hl, bc              ; hl' = the glyph, de' = the text
+    ld a, $1d               ; R0: A -> B, port A address follows
+    out ($6b), a            ; bc' isn't the port, so these go out by number
+    ld a, l
+    out ($6b), a
+    ld a, h
+    out ($6b), a
+    ex de, hl
+    exx
+    out (c), h              ; $DF - after the string's R4, so the X,Y stands
+    out (c), l              ; flags
+    out (c), e
+    out (c), d              ; x
+    out (c), b              ; y
+    ld a, $cf
+    out (c), a              ; R6 load
+    ld a, $87
+    out (c), a              ; R6 enable
+    jp (iy)
+
+.printAdvanceRight:
+    add de, 4               ; next x
+    jp printLoop
+
+.printAdvanceUp:
+    ld a, b
+    sub 4                   ; next y, upwards
+    ld b, a
+    jp printLoop
+
+; Program the string: find the colour's variant and send the shape.
+; in:  c = colour, hl = its variant table, de = the shape, iy = text
+; out: hl' = text, bc' = the variant's source bits 15:0, bc = $006B
+.printSetup:
+    push iy                 ; text, for hl'
+    ld b, (hl)              ; variant count
+    inc hl
+.printSetupFind:
+    ld a, (hl)
+    cp c
+    jr z, printSetupFound
+    inc hl
+    inc hl
+    inc hl
+    inc hl
+    djnz printSetupFind
+    dec hl                  ; not there: the last one
+    dec hl
+    dec hl
+    dec hl
+.printSetupFound:
+    inc hl
+    ld a, (hl)
+    ld iyl, a               ; source bits 23:16 (dmaBegin uses a and bc)
+    inc hl
+    ld a, (hl)
+    inc hl
+    ld h, (hl)
+    ld l, a                 ; source bits 15:0
+    push hl
+    exx
+    pop bc                  ; bc' = source bits 15:0
+    pop hl                  ; hl' = text
+    exx
+    call dmaBegin
+    dmaOut $d7              ; port A bits 23:16 - the font is in one page, so this
+    ld a, iyl               ; holds for every glyph
+    out (c), a
+    ex de, hl
+    jp dmaSendRunEnd - 2 * (fontShapeEnd - fontShape) ; both shapes are this long,
+                            ; and the run's ret returns from here
+
+; Glyphs are packed a screen column at a time, so a 2D row is one column and the
+; port A stride is its length.
+.fontShape:
+    DB $e3, 5, 0            ; row length: the glyph's height
+    DB $e7, 3, 0            ; number of rows: its width
+    DB $eb, 5, 0            ; port A stride: one packed column
+    DB $f3, 0               ; transparent colour: the unlit pixels
+    DB $54, $02             ; R1: memory, increment, 2-cycle timing
+    DB $50, $02             ; R2: memory, increment, 2-cycle timing
+    DB $a1                  ; R4: continuous, no address - the X,Y supplies it
+    DB $82                  ; R5: stop at the end of the block
+.fontShapeEnd:
+    ASSERT fontShapeEnd - fontShape <= DMA_SEND_MAX
+
+.fontSidewaysShape:
+    DB $e3, 3, 0            ; turned: 3 high
+    DB $e7, 5, 0            ; and 5 wide
+    DB $eb, 3, 0
+    DB $f3, 0
+    DB $54, $02
+    DB $50, $02
+    DB $a1
+    DB $82
+.fontSidewaysShapeEnd:
+    ASSERT fontSidewaysShapeEnd - fontSidewaysShape == fontShapeEnd - fontShape

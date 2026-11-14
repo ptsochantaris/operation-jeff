@@ -23,6 +23,9 @@ void scrollTilemap(word x, byte y) __preserves_regs(b,c,iyh,iyl) __z88dk_callee 
 
 void setHudBackground(word color) __preserves_regs(b,c,d,e,h,l,iyh,iyl) __z88dk_fastcall;
 
+// Drawn by the DMA from fonts baked per colour (dma-ro.asm): a new textColor needs
+// adding to FONT_VARIANTS / FONT_SIDEWAYS_VARIANTS in makeAssets.swift, or it
+// prints in the fallback. Chars 32-95 only.
 void print(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
 void printSideways(byte *text, word x, byte y, byte textColor) __z88dk_callee __smallc;
 void printAttributes(byte *text, byte x, byte y) __preserves_regs(iyh,iyl) __z88dk_callee __smallc;
